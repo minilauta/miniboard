@@ -24,7 +24,7 @@ div.post-dash {
   font-size: x-large;
 }
 
-.post-name {
+span.post-name {
   font-weight: bold;
 }
 
@@ -40,11 +40,11 @@ div.file-thumb {
   float: left;
 }
 
-.file-thumb a {
+div.file-thumb a {
   display: inline-block;
 }
 
-.file-thumb img {
+div.file-thumb img {
   display: block;
   width: 100%;
   height: 100%;

@@ -1,11 +1,12 @@
 <?php
 use Psr\Http\Message\ResponseInterface as Response;
 use Psr\Http\Message\ServerRequestInterface as Request;
-use Psr\Http\Message\UploadedFileInterface;
 use Slim\Factory\AppFactory;
 use Slim\Views\PhpRenderer;
 
 require __DIR__ . '/../vendor/autoload.php';
+require __DIR__ . '/functions.php';
+require __DIR__ . '/database.php';
 
 $app = AppFactory::create();
 $app->addBodyParsingMiddleware();
@@ -68,14 +69,19 @@ $app->post('/{board_id}', function(Request $request, Response $response, array $
   $params = (array) $request->getParsedBody();
   $file = $request->getUploadedFiles()['file'];
 
-  if ($file->getError() === UPLOAD_ERR_OK) {
-    $file_ext = pathinfo($file->getClientFilename(), PATHINFO_EXTENSION);
-    $file_name = sprintf('%s.%0.8s', bin2hex(random_bytes(8)), $file_ext);
-    $file->moveTo(__DIR__ . '/src/' . $file_name);
-    $response->getBody()->write('uploaded: ' . $file_name . '<br>');
-  }
+  // upload file
+  $uploaded_file = upload_file($file);
 
-  $response->getBody()->write('form keys: ' . implode(',', array_keys($params)));
+  // create post
+  $created_post = create_post($args, $params, $uploaded_file);
+
+  // insert post
+  $inserted_post_id = insert_post($created_post);
+
+  $response->getBody()->write('form keys: ' . implode(',', array_keys($params)) . '<br>');
+  $response->getBody()->write('file keys: ' . implode(',', array_keys($uploaded_file)) . '<br>');
+  $response->getBody()->write('post keys: ' . implode(',', array_keys($created_post)) . '<br>');
+  $response->getBody()->write('inserted post: ' . $inserted_post_id);
   return $response;
 });
 

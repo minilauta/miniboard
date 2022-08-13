@@ -25,7 +25,7 @@ services:
       - mariadb
     volumes:
       - flyway:/flyway/sql
-    command: -url=jdbc:mysql://mariadb -schemas=miniboard -user=admin -password=admin -connectRetries=60 migrate
+    command: -url=jdbc:mysql://mariadb -schemas=miniboard -user=root -password=root -connectRetries=60 migrate
     depends_on:
       - mariadb
 

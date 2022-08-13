@@ -8,7 +8,7 @@ function get_db_handle() : PDO {
     return $dbh;
   }
 
-  $dbh = new PDO("mysql:host={strval(MB_DB_HOST)};dbname={strval(MB_DB_NAME)}", MB_DB_USER, MB_DB_PASS, [
+  $dbh = new PDO("mysql:host=127.0.0.1;dbname=miniboard", MB_DB_USER, MB_DB_PASS, [
     PDO::ATTR_PERSISTENT => true
   ]);
 
@@ -16,7 +16,8 @@ function get_db_handle() : PDO {
 }
 
 function select_posts(int $board = NULL, int $parent = 0, int $offset = 0, int $limit = 10) : array {
-  $sth = get_db_handle()->prepare('
+  $dbh = get_db_handle();
+  $sth = $dbh->prepare('
     SELECT * FROM posts
     WHERE board = :board AND parent = :parent
     ORDER BY bumped DESC
@@ -32,8 +33,10 @@ function select_posts(int $board = NULL, int $parent = 0, int $offset = 0, int $
 }
 
 function insert_post($post) : int {
-  $sth = get_db_handle()->prepare('
+  $dbh = get_db_handle();
+  $sth = $dbh->prepare('
     INSERT INTO posts (
+      board,
       parent,
       timestamp,
       bumped,
@@ -55,10 +58,12 @@ function insert_post($post) : int {
       thumb,
       thumb_width,
       thumb_height,
+      stickied,
       moderated,
       country_code
     )
     VALUES (
+      :board,
       :parent,
       :timestamp,
       :bumped,
@@ -80,6 +85,7 @@ function insert_post($post) : int {
       :thumb,
       :thumb_width,
       :thumb_height,
+      :stickied,
       :moderated,
       :country_code
     )

@@ -32,7 +32,7 @@ CREATE TABLE IF NOT EXISTS logs (
 
 CREATE TABLE IF NOT EXISTS posts (
   `id` mediumint(7) unsigned NOT NULL auto_increment,
-  `board` mediumint(7) unsigned NOT NULL,
+  `board` varchar(8) NOT NULL,
   `parent` mediumint(7) unsigned NOT NULL,
   `timestamp` int(20) NOT NULL,
   `bumped` int(20) NOT NULL,
