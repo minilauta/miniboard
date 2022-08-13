@@ -1,0 +1,43 @@
+version: '3.8'
+
+services:
+  mariadb:
+    image: mariadb:10.6
+    restart: always
+    networks:
+      - mariadb
+    volumes:
+      - mariadb:/var/lib/mysql
+    ports:
+      - '3306:3306'
+    environment:
+      MYSQL_CHARSET: 'utf8'
+      MYSQL_COLLATION: 'utf8mb4_unicode_ci'
+      MYSQL_ROOT_PASSWORD: 'root'
+      MYSQL_DATABASE: 'miniboard'
+      MYSQL_USER: 'admin'
+      MYSQL_PASSWORD: 'admin'
+
+  flyway:
+    image: flyway/flyway:latest
+    restart: on-failure
+    networks:
+      - mariadb
+    volumes:
+      - flyway:/flyway/sql
+    command: -url=jdbc:mysql://mariadb -schemas=miniboard -user=admin -password=admin -connectRetries=60 migrate
+    depends_on:
+      - mariadb
+
+networks:
+  mariadb:
+    driver: bridge
+
+volumes:
+  mariadb:
+  flyway:
+    driver: local
+    driver_opts:
+      o: bind
+      type: none
+      device: ./migrations
