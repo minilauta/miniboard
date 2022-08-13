@@ -30,6 +30,10 @@ div.post div.reply {
   background: #F0E0D6;
 }
 
+span.post-subject {
+  color: #CC1105;
+}
+
 span.post-name {
   color: #117743;
 }

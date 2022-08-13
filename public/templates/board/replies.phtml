@@ -1,0 +1,8 @@
+<div class="replies">
+  <?php
+    echo $this->fetch('board/post_op.phtml', ['post' => $thread]);
+    foreach ($replies as $reply) {
+      echo $this->fetch('board/post_reply.phtml', ['post' => $reply]);
+    }
+  ?>
+</div>

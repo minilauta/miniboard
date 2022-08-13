@@ -9,7 +9,7 @@
     <hr>
     <?=$this->fetch('board/postform.phtml')?>
     <hr>
-    <?=$this->fetch('board/threads.phtml', ['threads' => $threads])?>
+    <?=$this->fetch('board/replies.phtml', ['thread' => $thread, 'replies' => $replies])?>
     <hr>
     <?=$this->fetch('common/footer.phtml')?>
   </body>

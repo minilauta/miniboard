@@ -9,18 +9,32 @@ function get_db_handle() : PDO {
   }
 
   $dbh = new PDO("mysql:host=127.0.0.1;dbname=miniboard", MB_DB_USER, MB_DB_PASS, [
-    PDO::ATTR_PERSISTENT => true
+    PDO::ATTR_PERSISTENT => true,
+    PDO::ATTR_EMULATE_PREPARES => false
   ]);
 
   return $dbh;
 }
 
-function select_posts(int $board = NULL, int $parent = 0, int $offset = 0, int $limit = 10) : array {
+function select_post(string $board = NULL, int $id) : array {
+  $dbh = get_db_handle();
+  $sth = $dbh->prepare('
+    SELECT * FROM posts
+    WHERE board = :board AND id = :id
+  ');
+  $sth->execute([
+    'board' => $board,
+    'id' => $id
+  ]); 
+  return $sth->fetch();
+}
+
+function select_posts(string $board = NULL, int $parent = 0, bool $desc = true, int $offset = 0, int $limit = 10) : array {
   $dbh = get_db_handle();
   $sth = $dbh->prepare('
     SELECT * FROM posts
     WHERE board = :board AND parent = :parent
-    ORDER BY bumped DESC
+    ORDER BY bumped ' . ($desc === true ? 'DESC' : 'ASC') . '
     LIMIT :limit OFFSET :offset
   ');
   $sth->execute([

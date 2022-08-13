@@ -38,7 +38,7 @@ function human_filesize(int $bytes, int $dec = 2) : string {
 function create_post(array $args, array $params, array $file) : array {
   return [
     'board'               => $args['board_id'],
-    'parent'              => 0,
+    'parent'              => isset($args['thread_id']) ? $args['thread_id'] : 0,
     'name'                => $params['name'],
     'tripcode'            => 'todo',
     'email'               => $params['email'],

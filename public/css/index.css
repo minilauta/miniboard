@@ -24,6 +24,11 @@ div.post-dash {
   font-size: x-large;
 }
 
+span.post-subject {
+  font-weight: bolder;
+  font-size: large;
+}
+
 span.post-name {
   font-weight: bold;
 }

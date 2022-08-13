@@ -1,8 +1,8 @@
 <div class="threads">
   <?php
-    foreach ($posts as $post) {
-      echo $this->fetch('board/post_op.phtml', ['post' => $post]);
-      foreach ($post['replies'] as $reply) {
+    foreach ($threads as $thread) {
+      echo $this->fetch('board/post_op.phtml', ['post' => $thread]);
+      foreach ($thread['replies'] as $reply) {
         echo $this->fetch('board/post_reply.phtml', ['post' => $reply]);
       }
       echo '<hr>';
