@@ -10,6 +10,20 @@ hr {
 /* footer */
 
 /* post */
+div.post {
+  display: block;
+}
+
+div.post div.reply {
+  display: inline-block;
+}
+
+div.post-dash {
+  float: left;
+  font-weight: bolder;
+  font-size: x-large;
+}
+
 .post-name {
   font-weight: bold;
 }
@@ -41,8 +55,12 @@ div.post-info {
   display: inline-block;
 }
 
-div.post-message {
+div.post div.post-message {
   display: block;
+}
+
+div.reply div.post-message {
+  display: inline-block;
 }
 
 /* postform */

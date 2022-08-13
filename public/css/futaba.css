@@ -26,6 +26,10 @@ a:hover {
 /* footer */
 
 /* post */
+div.post div.reply {
+  background: #F0E0D6;
+}
+
 .post-name {
   color: #117743;
 }

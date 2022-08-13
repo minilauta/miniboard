@@ -1,7 +1,11 @@
 <div class="threads">
   <?php
     foreach ($posts as $post) {
-      echo $this->fetch('board/post.phtml', ['post' => $post]) . '<hr>';
+      echo $this->fetch('board/post_op.phtml', ['post' => $post]);
+      foreach ($post['replies'] as $reply) {
+        echo $this->fetch('board/post_reply.phtml', ['post' => $reply]);
+      }
+      echo '<hr>';
     }
   ?>
 </div>

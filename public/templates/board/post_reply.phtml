@@ -1,0 +1,24 @@
+<div class="post reply">
+  <div class="post-dash">¨</div>
+    <div class="reply">
+      <div class="post-info">
+        <input type="checkbox">
+        <span class="post-name"><?=$post['name']?></span>
+        <span class="post-datetime"><?=$post['datetime']?></span>
+        <span class="post-id">No.<?=$post['id']?></span>
+      </div>
+      <div class="file-info">
+        <a href="<?=$post['file']['path']?>"><?=$post['file']['name']?></a>
+        -
+        (<?=$post['file']['size']?>KB, <?=$post['file']['width']?>x<?=$post['file']['height']?>, <?=$post['file']['name_original']?>)
+      </div>
+      <div class="file-thumb">
+        <a href="<?=$post['file']['path']?>" target="_blank">
+          <img id="thumb-<?=$post['id']?>" src="<?=$post['file']['path']?>">
+        </a>
+      </div>
+      <div class="post-message">
+        <?=$post['message']?>
+      </div>
+  </div>
+</div>
