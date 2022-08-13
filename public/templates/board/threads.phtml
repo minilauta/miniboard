@@ -1,0 +1,7 @@
+<div class="threads">
+  <?php
+    foreach ($posts as $post) {
+      echo $this->fetch('board/post.phtml', ['post' => $post]) . '<hr>';
+    }
+  ?>
+</div>

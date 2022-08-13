@@ -1,0 +1,37 @@
+/* general */
+body {
+  background: #FFFFEE;
+  color: #800000;
+}
+
+hr {
+  border: 0;
+  height: 1px;
+  color: #800000;
+  background-color: #800000;
+	background-image: -webkit-linear-gradient(left, rgba(255,255,238,1), rgba(128,0,0,0.75), rgba(255,255,238,1));
+	background-image: -moz-linear-gradient(left, rgba(255,255,238,1), rgba(128,0,0,0.75), rgba(255,255,238,1));
+	background-image: -ms-linear-gradient(left, rgba(255,255,238,1), rgba(128,0,0,0.75), rgba(255,255,238,1));
+	background-image: -o-linear-gradient(left, rgba(255,255,238,1), rgba(128,0,0,0.75), rgba(255,255,238,1));
+}
+
+a {
+  color: #0000EE;
+}
+
+a:hover {
+  color: #DD0000;
+}
+
+/* footer */
+
+/* post */
+.post-name {
+  color: #117743;
+}
+
+/* postform */
+div.postform-group label {
+  background: #EEAA88;
+  font-weight: bolder;
+}

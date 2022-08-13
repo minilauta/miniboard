@@ -1,0 +1,57 @@
+/* general */
+div.container-centered {
+  text-align: center;
+}
+
+hr {
+  clear: both;
+}
+
+/* footer */
+
+/* post */
+.post-name {
+  font-weight: bold;
+}
+
+div.file-info {
+  display: block;
+}
+
+div.file-thumb {
+  display: block;
+  width: 256px;
+  height: 256px;
+  overflow: hidden;
+  float: left;
+}
+
+.file-thumb a {
+  display: inline-block;
+}
+
+.file-thumb img {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+div.post-info {
+  display: inline-block;
+}
+
+div.post-message {
+  display: block;
+}
+
+/* postform */
+form.postform {
+  display: inline-block;
+  text-align: left;
+}
+
+div.postform-group label {
+  display: inline-block;
+  width: 128px;
+}

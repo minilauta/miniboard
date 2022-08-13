@@ -1,0 +1,16 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <?=$this->fetch('common/meta.phtml')?>
+    <?=$this->fetch('common/styles.phtml')?>
+  </head>
+  <body>
+    <?=$this->fetch('common/header.phtml', ['header' => ['title' => "/{$board_id}/ - {$board_name}", 'subtitle' => $board_desc]])?>
+    <hr>
+    <?=$this->fetch('board/postform.phtml')?>
+    <hr>
+    <?=$this->fetch('board/threads.phtml', ['posts' => $posts])?>
+    <hr>
+    <?=$this->fetch('common/footer.phtml')?>
+  </body>
+</html>
