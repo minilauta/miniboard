@@ -1,6 +1,7 @@
 <?php
 use Psr\Http\Message\ResponseInterface as Response;
 use Psr\Http\Message\ServerRequestInterface as Request;
+use Psr\Http\Message\UploadedFileInterface;
 use Slim\Factory\AppFactory;
 use Slim\Views\PhpRenderer;
 
@@ -62,14 +63,19 @@ $app->get('/{board_id}', function (Request $request, Response $response, array $
 });
 
 // create new post
-$app->post('/', function(Request $request, Response $response, array $args) {
+$app->post('/{board_id}', function(Request $request, Response $response, array $args) {
   // parse request body
   $params = (array) $request->getParsedBody();
-  $files = $request->getUploadedFiles();
+  $file = $request->getUploadedFiles()['file'];
 
-  $response->getBody()->write(implode(',', array_keys($params)));
-  $response->getBody()->write('<br>');
-  $response->getBody()->write(implode(',', array_keys($files)));
+  if ($file->getError() === UPLOAD_ERR_OK) {
+    $file_ext = pathinfo($file->getClientFilename(), PATHINFO_EXTENSION);
+    $file_name = sprintf('%s.%0.8s', bin2hex(random_bytes(8)), $file_ext);
+    $file->moveTo(__DIR__ . '/src/' . $file_name);
+    $response->getBody()->write('uploaded: ' . $file_name . '<br>');
+  }
+
+  $response->getBody()->write('form keys: ' . implode(',', array_keys($params)));
   return $response;
 });
 
