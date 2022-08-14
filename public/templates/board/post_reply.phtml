@@ -2,10 +2,12 @@
   <div class="post-dash">¨</div>
     <div class="reply" id="<?=$post['id']?>">
       <div class="post-info">
-        <input type="checkbox">
-        <span class="post-subject"><?=$post['subject']?></span>
-        <span class="post-name"><?=$post['name']?></span>
-        <span class="post-datetime"><?=@strftime(MB_GLOBAL['datefmt'], $post['timestamp'])?></span>
+        <label>
+          <input type="checkbox">
+          <span class="post-subject"><?=$post['subject']?></span>
+          <span class="post-name"><?=$post['name']?></span>
+          <span class="post-datetime"><?=@strftime(MB_GLOBAL['datefmt'], $post['timestamp'])?></span>
+        </label>
         <span class="post-id">
           <a href="/<?=$post['board']?>/<?=$post['parent']?>/#<?=$post['id']?>">No.</a><a href="/<?=$post['board']?>/<?=$post['parent']?>/#q<?=$post['id']?>"><?=$post['id']?></a>
         </span>
@@ -20,8 +22,10 @@
           <img id="thumb-<?=$post['id']?>" src="/src/<?=$post['file']?>">
         </a>
       </div>
-      <div class="post-message">
-        <?=$post['message']?>
+      <div class="post-message-wrapper">
+        <div class="post-message">
+          <?=$post['message']?>
+        </div>
       </div>
   </div>
 </div>
