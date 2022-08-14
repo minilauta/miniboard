@@ -25,6 +25,12 @@ a:hover {
 
 /* footer */
 
+/* board */
+div.mode {
+  background: #E04000;
+  color: #FFFFFF;
+}
+
 /* post */
 div.post div.reply {
   background: #F0E0D6;

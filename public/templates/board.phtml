@@ -5,11 +5,19 @@
     <?=$this->fetch('common/styles.phtml')?>
   </head>
   <body>
-    <?=$this->fetch('common/header.phtml', ['header' => ['title' => "/{$board_id}/ - {$board_name}", 'subtitle' => $board_desc]])?>
+    <?=$this->fetch('common/header.phtml', ['header' => ['title' => "/{$board['id']}/ - {$board['name']}", 'subtitle' => $board['desc']]])?>
     <hr>
     <?=$this->fetch('board/postform.phtml')?>
     <hr>
-    <?=$this->fetch('board/threads.phtml', ['threads' => $threads])?>
+    <?php
+      foreach ($threads as $thread) {
+        echo $this->fetch('board/post_op.phtml', ['board' => $board, 'post' => $thread]);
+        foreach ($thread['replies'] as $reply) {
+          echo $this->fetch('board/post_reply.phtml', ['board' => $board, 'post' => $reply]);
+        }
+        echo '<hr>';
+      }
+    ?>
     <hr>
     <?=$this->fetch('common/footer.phtml')?>
   </body>

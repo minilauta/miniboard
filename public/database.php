@@ -107,3 +107,16 @@ function insert_post($post) : int {
   $sth->execute($post);
   return $dbh->lastInsertId();
 }
+
+function bump_thread(string $board = NULL, int $id) : bool {
+  $dbh = get_db_handle();
+  $sth = $dbh->prepare('
+    UPDATE posts
+    SET bumped = ' . time() . '
+    WHERE board = :board AND id = :id
+  ');
+  return $sth->execute([
+    'board' => $board,
+    'id' => $id
+  ]);
+}

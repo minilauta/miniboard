@@ -9,6 +9,12 @@ hr {
 
 /* footer */
 
+/* board */
+div.mode {
+  text-align: center;
+  width: 100%;
+}
+
 /* post */
 div.post {
   display: block;
@@ -58,6 +64,15 @@ div.file-thumb img {
 
 div.post-info {
   display: inline-block;
+}
+
+span.post-id a {
+  color: inherit;
+  text-decoration: none;
+}
+
+span.post-id a:hover {
+  font-weight: bold;
 }
 
 div.post div.post-message {

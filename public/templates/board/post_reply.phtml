@@ -1,12 +1,14 @@
 <div class="post reply">
   <div class="post-dash">¨</div>
-    <div class="reply">
+    <div class="reply" id="<?=$post['id']?>">
       <div class="post-info">
         <input type="checkbox">
         <span class="post-subject"><?=$post['subject']?></span>
         <span class="post-name"><?=$post['name']?></span>
-        <span class="post-datetime"><?=$post['timestamp']?></span>
-        <span class="post-id">No.<?=$post['id']?></span>
+        <span class="post-datetime"><?=@strftime(MB_GLOBAL['datefmt'], $post['timestamp'])?></span>
+        <span class="post-id">
+          <a href="/<?=$post['board']?>/<?=$post['parent']?>/#<?=$post['id']?>">No.</a><a href="/<?=$post['board']?>/<?=$post['parent']?>/#q<?=$post['id']?>"><?=$post['id']?></a>
+        </span>
       </div>
       <div class="file-info">
         <a href="/src/<?=$post['file']?>"><?=$post['file']?></a>

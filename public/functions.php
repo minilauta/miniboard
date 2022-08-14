@@ -1,9 +1,11 @@
 <?php
 use Psr\Http\Message\UploadedFileInterface;
 
+require_once __DIR__ . '/config.php';
+
 function upload_file(UploadedFileInterface $file) : array {
   if ($file->getError() !== UPLOAD_ERR_OK) {
-    return NULL;
+    return ['error' => 'UPLOAD_ERR: ' . $file->getError()];
   }
 
   $file_name_client = $file->getClientFilename();
@@ -35,11 +37,39 @@ function human_filesize(int $bytes, int $dec = 2) : string {
   return sprintf("%.{$dec}f", $bytes / pow(1024, $factor)) . @$size[$factor];
 }
 
+function validate_get(array $args) {
+  if (!isset(MB_BOARDS[$args['board_id']])) {
+    return ['error' => 'INVALID_BOARD: ' . $args['board_id']];
+  }
+
+  return [];
+}
+
+function validate_post(array $args, array $params) : array {
+  if (!isset(MB_BOARDS[$args['board_id']])) {
+    return ['error' => 'INVALID_BOARD: ' . $args['board_id']];
+  }
+
+  $board_cfg = MB_BOARDS[$args['board_id']];
+
+  $validated_fields = ['name', 'email', 'subject', 'message'];
+  foreach ($validated_fields as $field) {
+    $max_len = $board_cfg['max_' . $field];
+    if (strlen($params[$field]) > $max_len) {
+      return ['error' => 'FIELD_MAX_LEN_EXCEEDED: ' . $field . '>' . $max_len];
+    }
+  }
+
+  return [];
+}
+
 function create_post(array $args, array $params, array $file) : array {
+  $board_cfg = MB_BOARDS[$args['board_id']];
+
   return [
     'board'               => $args['board_id'],
     'parent'              => isset($args['thread_id']) ? $args['thread_id'] : 0,
-    'name'                => $params['name'],
+    'name'                => strlen($params['name']) !== 0 ? $params['name'] : $board_cfg['anonymous'],
     'tripcode'            => 'todo',
     'email'               => $params['email'],
     'subject'             => $params['subject'],
