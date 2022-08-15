@@ -117,10 +117,15 @@ function handle_postform(Request $request, Response $response, array $args) : Re
   // bump thread
   $bumped_thread = bump_thread($created_post['board'], $created_post['parent']);
 
-  $response->getBody()->write('form keys: ' . implode(',', array_keys($params)) . '<br>');
-  $response->getBody()->write('file keys: ' . implode(',', array_keys($uploaded_file)) . '<br>');
-  $response->getBody()->write('post keys: ' . implode(',', array_keys($created_post)) . '<br>');
-  $response->getBody()->write('inserted post: ' . $inserted_post_id);
+  // handle noko
+  $location_header = '/' . $board_cfg['id'] . '/';
+  if (strtolower($created_post['email']) === 'noko') {
+    $location_header .= ($created_post['parent'] === 0 ? $inserted_post_id : $created_post['parent']) . '/';
+  }
+
+  $response = $response
+    ->withHeader('Location', $location_header)
+    ->withStatus(303);
   return $response;
 }
 
