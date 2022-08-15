@@ -38,6 +38,7 @@ define('MB_BOARDS', [
       'image/pjpeg'         => ['jpg'],
       'image/png'           => ['png'],
       'image/gif'           => ['gif'],
+      'image/bmp'           => ['bmp']
     ],
     'embed_types'       => [
       'YouTube'             => 'https://www.youtube.com/oembed?url=TINYIBEMBED&format=json'

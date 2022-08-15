@@ -22,7 +22,7 @@ $app->get('/{board_id}/', function (Request $request, Response $response, array 
   }
 
   // get board config
-  $board_cfg = MB_BOARDS[$args['board_id']];
+  $board_cfg = $validated_get['board_cfg'];
 
   // get threads
   $threads = select_posts($args['board_id'], 0, true, 0, 10);
@@ -49,7 +49,7 @@ $app->get('/{board_id}/{thread_id}/', function (Request $request, Response $resp
   }
 
   // get board config
-  $board_cfg = MB_BOARDS[$args['board_id']];
+  $board_cfg = $validated_get['board_cfg'];
 
   // get thread
   $thread = select_post($args['board_id'], $args['thread_id']);
@@ -82,12 +82,26 @@ function handle_postform(Request $request, Response $response, array $args) : Re
   $validated_post = validate_post($args, $params);
   if (isset($validated_post['error'])) {
     $response->getBody()->write('Post validation error: ' . $validated_post['error']);
-    $response = $response->withStatus(500);
+    $response = $response->withStatus(400);
     return $response;
   }
 
+  // get board config
+  $board_cfg = $validated_post['board_cfg'];
+
+  // validate file
+  $validated_file = validate_file($file, $board_cfg);
+  if (isset($validated_file['error'])) {
+    $response->getBody()->write('File validation error: ' . $validated_file['error']);
+    $response = $response->withStatus(400);
+    return $response;
+  }
+
+  // check md5 file collisions
+  $file_collisions = select_files_by_md5($validated_file['file_md5']);
+
   // upload file
-  $uploaded_file = upload_file($file);
+  $uploaded_file = upload_file($file, $validated_file, $file_collisions, $board_cfg);
   if (isset($uploaded_file['error'])) {
     $response->getBody()->write('File upload error: ' . $uploaded_file['error']);
     $response = $response->withStatus(500);

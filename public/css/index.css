@@ -46,9 +46,6 @@ div.file-info {
 
 div.file-thumb {
   display: block;
-  width: 256px;
-  height: 256px;
-  overflow: hidden;
   float: left;
   margin-right: 25px;
 }

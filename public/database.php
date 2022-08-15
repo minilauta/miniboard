@@ -120,3 +120,27 @@ function bump_thread(string $board = NULL, int $id) : bool {
     'id' => $id
   ]);
 }
+
+function select_files_by_md5(string $file_md5) : array {
+  $dbh = get_db_handle();
+  $sth = $dbh->prepare('
+    SELECT 
+      id,
+      file,
+      file_hex,
+      file_original,
+      file_size,
+      file_size_formatted,
+      image_width,
+      image_height,
+      thumb,
+      thumb_width,
+      thumb_height
+    FROM posts
+    WHERE file_hex = :file_md5
+  ');
+  $sth->execute([
+    'file_md5' => $file_md5
+  ]); 
+  return $sth->fetchAll();
+}
