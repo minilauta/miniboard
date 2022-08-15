@@ -29,7 +29,7 @@ $app->get('/{board_id}/', function (Request $request, Response $response, array 
   
   // get replies
   foreach ($threads as $key => $thread) {
-    $threads[$key]['replies'] = select_posts($args['board_id'], $thread['id'], false, 0, 4);
+    $threads[$key]['replies'] = select_posts_preview($args['board_id'], $thread['id'], 0, 4);
   }
 
   $renderer = new PhpRenderer('templates/', [

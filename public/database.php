@@ -46,6 +46,26 @@ function select_posts(string $board = NULL, int $parent = 0, bool $desc = true, 
   return $sth->fetchAll();
 }
 
+function select_posts_preview(string $board = NULL, int $parent = 0, int $offset = 0, int $limit = 10) : array {
+  $dbh = get_db_handle();
+  $sth = $dbh->prepare('
+    SELECT t.* FROM (
+      SELECT * FROM posts
+      WHERE board = :board AND parent = :parent
+      ORDER BY bumped DESC
+      LIMIT :limit OFFSET :offset
+    ) AS t
+    ORDER BY bumped ASC
+  ');
+  $sth->execute([
+    'board' => $board,
+    'parent' => $parent,
+    'limit' => $limit,
+    'offset' => $offset
+  ]);
+  return $sth->fetchAll();
+}
+
 function insert_post($post) : int {
   $dbh = get_db_handle();
   $sth = $dbh->prepare('

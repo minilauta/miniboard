@@ -84,7 +84,7 @@ function validate_file(UploadedFileInterface $file, array $board_cfg) : array {
   $file_size = filesize($tmp_file);
   $max_bytes = $board_cfg['maxkb'] * 1000;
   if ($file_size > $max_bytes) {
-    return ['error' >= 'FILE_MAX_SIZE_EXCEEDED: ' . $file_size . '>' . $max_bytes];
+    return ['error' => 'FILE_MAX_SIZE_EXCEEDED: ' . $file_size . '>' . $max_bytes];
   }
 
   // calculate md5 hash
@@ -121,23 +121,33 @@ function upload_file(UploadedFileInterface $file, array $file_info, array $file_
       case 'image/png':
       case 'image/gif':
       case 'image/bmp':
-        $image = new \claviska\SimpleImage();
-        $image->fromFile($file_path);
-        $image_width = $image->getWidth();
-        $image_height = $image->getHeight();
-        
-        // re-calculate thumb dims
-        $width_ratio = $thumb_width / $image_width;
-        $height_ratio = $thumb_height / $image_height;
-        $scale_factor = min($width_ratio, $height_ratio);
-        $thumb_width = $image_width * $scale_factor;
-        $thumb_height = $image_height * $scale_factor;
+        $generated_thumb = generate_thumbnail($file_path, $file_info['file_mime'], $thumb_file_path, $thumb_width, $thumb_height);
+        $image_width = $generated_thumb['image_width'];
+        $image_height = $generated_thumb['image_height'];
+        $thumb_width = $generated_thumb['thumb_width'];
+        $thumb_height = $generated_thumb['thumb_height'];
+        break;
+      case 'video/mp4':
+      case 'video/webm':
+        $thumb_file_name .= '.jpg';
+        $thumb_file_path = __DIR__ . '/src/' . $thumb_file_name;
 
-        $thumb = new \claviska\SimpleImage();
-        $thumb
-          ->fromFile($file_path)
-          ->thumbnail($thumb_width, $thumb_height, 'center')
-          ->toFile($thumb_file_path, $file_info['file_mime'], 100);
+        $ffprobe = FFMpeg\FFProbe::create();
+        $video_duration = $ffprobe
+          ->format($file_path)
+          ->get('duration');
+
+        $ffmpeg = FFMpeg\FFMpeg::create();
+        $video = $ffmpeg->open($file_path);
+        $video
+          ->frame(FFMpeg\Coordinate\TimeCode::fromSeconds($video_duration / 4))
+          ->save($thumb_file_path);
+
+        $generated_thumb = generate_thumbnail($thumb_file_path, 'image/jpeg', $thumb_file_path, $thumb_width, $thumb_height);
+        $image_width = $generated_thumb['image_width'];
+        $image_height = $generated_thumb['image_height'];
+        $thumb_width = $generated_thumb['thumb_width'];
+        $thumb_height = $generated_thumb['thumb_height'];
         break;
     }
   } else {
@@ -171,4 +181,31 @@ function human_filesize(int $bytes, int $dec = 2) : string {
   $factor = floor((strlen($bytes) - 1) / 3);
 
   return sprintf("%.{$dec}f", $bytes / pow(1024, $factor)) . @$size[$factor];
+}
+
+function generate_thumbnail($file_path, $file_mime, $thumb_path, $thumb_width, $thumb_height) : array {
+  $image = new \claviska\SimpleImage();
+  $image->fromFile($file_path);
+  $image_width = $image->getWidth();
+  $image_height = $image->getHeight();
+
+  // re-calculate thumb dims
+  $width_ratio = $thumb_width / $image_width;
+  $height_ratio = $thumb_height / $image_height;
+  $scale_factor = min($width_ratio, $height_ratio);
+  $thumb_width = $image_width * $scale_factor;
+  $thumb_height = $image_height * $scale_factor;
+
+  $thumb = new \claviska\SimpleImage();
+  $thumb
+    ->fromFile($file_path)
+    ->thumbnail($thumb_width, $thumb_height, 'center')
+    ->toFile($thumb_path, $file_mime, 100);
+  
+  return [
+    'image_width'   => $image_width,
+    'image_height'  => $image_height,
+    'thumb_width'   => $thumb_width,
+    'thumb_height'  => $thumb_height
+  ];
 }

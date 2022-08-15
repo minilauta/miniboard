@@ -38,12 +38,14 @@ define('MB_BOARDS', [
       'image/pjpeg'         => ['jpg'],
       'image/png'           => ['png'],
       'image/gif'           => ['gif'],
-      'image/bmp'           => ['bmp']
+      'image/bmp'           => ['bmp'],
+      'video/mp4'           => ['mp4'],
+      'video/webm'          => ['webm']
     ],
     'embed_types'       => [
       'YouTube'             => 'https://www.youtube.com/oembed?url=TINYIBEMBED&format=json'
     ],
-    'maxkb'             => 4096,
+    'maxkb'             => 24000,
     'nofileok'          => false,
     'max_width'         => 250,
     'max_height'        => 250
