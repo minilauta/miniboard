@@ -44,6 +44,10 @@ span.post-name {
   color: #117743;
 }
 
+div.post-message span.quote {
+  color: #789922;
+}
+
 /* postform */
 div.postform-group label {
   background: #EEAA88;

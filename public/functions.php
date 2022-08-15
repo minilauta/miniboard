@@ -1,6 +1,5 @@
 <?php
 
-use abeautifulsite\SimpleImage;
 use Psr\Http\Message\UploadedFileInterface;
 
 require_once __DIR__ . '/config.php';
@@ -34,14 +33,19 @@ function validate_post(array $args, array $params) : array {
 function create_post(array $args, array $params, array $file) : array {
   $board_cfg = MB_BOARDS[$args['board_id']];
 
+  $message = clean_field($params['message']);
+  $message = preg_replace('/(^&gt;&gt;)([0-9]+)/m', "<a class='reference' href=''>$0</a>", $message);
+  $message = preg_replace('/(^&gt;)([^\n]+)/m', '<span class="quote">$0</span>', $message);
+  $message = nl2br($message, false);
+
   return [
     'board'               => $args['board_id'],
     'parent'              => isset($args['thread_id']) ? $args['thread_id'] : 0,
-    'name'                => strlen($params['name']) !== 0 ? $params['name'] : $board_cfg['anonymous'],
+    'name'                => strlen($params['name']) !== 0 ? clean_field($params['name']) : $board_cfg['anonymous'],
     'tripcode'            => 'todo',
-    'email'               => $params['email'],
-    'subject'             => $params['subject'],
-    'message'             => $params['message'],
+    'email'               => clean_field($params['email']),
+    'subject'             => clean_field($params['subject']),
+    'message'             => $message,
     'password'            => 'todo',
     'nameblock'           => 'todo',
     'file'                => $file['file'],
@@ -61,6 +65,10 @@ function create_post(array $args, array $params, array $file) : array {
     'moderated'           => 0,
     'country_code'        => 'a1'
   ];
+}
+
+function clean_field(string $field) : string {
+  return htmlspecialchars($field, ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML401, 'UTF-8');
 }
 
 function validate_file(UploadedFileInterface $file, array $board_cfg) : array {
@@ -183,7 +191,7 @@ function human_filesize(int $bytes, int $dec = 2) : string {
   return sprintf("%.{$dec}f", $bytes / pow(1024, $factor)) . @$size[$factor];
 }
 
-function generate_thumbnail($file_path, $file_mime, $thumb_path, $thumb_width, $thumb_height) : array {
+function generate_thumbnail(string $file_path, string $file_mime, string $thumb_path, int $thumb_width, int $thumb_height) : array {
   $image = new \claviska\SimpleImage();
   $image->fromFile($file_path);
   $image_width = $image->getWidth();
