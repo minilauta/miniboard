@@ -39,6 +39,7 @@ define('MB_BOARDS', [
       'image/png'           => ['png'],
       'image/gif'           => ['gif'],
       'image/bmp'           => ['bmp'],
+      'image/webp'          => ['webp'],
       'video/mp4'           => ['mp4'],
       'video/webm'          => ['webm']
     ],

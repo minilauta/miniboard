@@ -118,7 +118,7 @@ function upload_file(UploadedFileInterface $file, array $file_info, array $file_
     $file_hex = $file_info['file_md5'];
     $file_size = $file_info['file_size'];
     $file_size_formatted = human_filesize($file_size);
-    $thumb_file_name = 'thumb_' . $file_name;
+    $thumb_file_name = 'thumb_' . $file_name . '.png';
     $thumb_file_path = __DIR__ . '/src/' . $thumb_file_name;
     $thumb_width = $board_cfg['max_width'];
     $thumb_height = $board_cfg['max_height'];
@@ -129,7 +129,8 @@ function upload_file(UploadedFileInterface $file, array $file_info, array $file_
       case 'image/png':
       case 'image/gif':
       case 'image/bmp':
-        $generated_thumb = generate_thumbnail($file_path, $file_info['file_mime'], $thumb_file_path, $thumb_width, $thumb_height);
+      case 'image/webp':
+        $generated_thumb = generate_thumbnail($file_path, 'image/png', $thumb_file_path, $thumb_width, $thumb_height);
         $image_width = $generated_thumb['image_width'];
         $image_height = $generated_thumb['image_height'];
         $thumb_width = $generated_thumb['thumb_width'];
@@ -137,9 +138,6 @@ function upload_file(UploadedFileInterface $file, array $file_info, array $file_
         break;
       case 'video/mp4':
       case 'video/webm':
-        $thumb_file_name .= '.jpg';
-        $thumb_file_path = __DIR__ . '/src/' . $thumb_file_name;
-
         $ffprobe = FFMpeg\FFProbe::create();
         $video_duration = $ffprobe
           ->format($file_path)
@@ -151,7 +149,7 @@ function upload_file(UploadedFileInterface $file, array $file_info, array $file_
           ->frame(FFMpeg\Coordinate\TimeCode::fromSeconds($video_duration / 4))
           ->save($thumb_file_path);
 
-        $generated_thumb = generate_thumbnail($thumb_file_path, 'image/jpeg', $thumb_file_path, $thumb_width, $thumb_height);
+        $generated_thumb = generate_thumbnail($thumb_file_path, 'image/png', $thumb_file_path, $thumb_width, $thumb_height);
         $image_width = $generated_thumb['image_width'];
         $image_height = $generated_thumb['image_height'];
         $thumb_width = $generated_thumb['thumb_width'];
@@ -204,9 +202,7 @@ function generate_thumbnail(string $file_path, string $file_mime, string $thumb_
   $thumb_width = $image_width * $scale_factor;
   $thumb_height = $image_height * $scale_factor;
 
-  $thumb = new \claviska\SimpleImage();
-  $thumb
-    ->fromFile($file_path)
+  $image
     ->thumbnail($thumb_width, $thumb_height, 'center')
     ->toFile($thumb_path, $file_mime, 100);
   
