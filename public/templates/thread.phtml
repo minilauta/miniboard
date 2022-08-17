@@ -5,6 +5,7 @@
     <?=$this->fetch('common/styles.phtml')?>
   </head>
   <body>
+    <?=$this->fetch('board/menubar.phtml', ['board' => $board])?>
     <?=$this->fetch('common/header.phtml', ['header' => ['title' => "/{$board['id']}/ - {$board['name']}", 'subtitle' => $board['desc']]])?>
     <hr>
     [<a href="../">Return</a>]

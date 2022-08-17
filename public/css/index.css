@@ -1,4 +1,9 @@
 /* general */
+body {
+  margin: 0 0 auto;
+  padding: 8px;
+}
+
 div.container-centered {
   text-align: center;
 }
@@ -8,6 +13,9 @@ hr {
 }
 
 /* footer */
+div.footer {
+  font-size: small;
+}
 
 /* board */
 div.mode {
@@ -92,4 +100,15 @@ form.postform {
 div.postform-group label {
   display: inline-block;
   width: 128px;
+}
+
+/* menubar */
+div.menubar div.boardlist {
+  float: left;
+  text-align: left;
+}
+
+div.menubar div.boardmenu {
+  float: right;
+  text-align: right;
 }

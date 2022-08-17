@@ -1,0 +1,17 @@
+<div class="menubar">
+  <div class="boardlist">
+    [<?php
+      foreach (MB_BOARDS as $key => $board_cfg) {
+        echo "<a href='/{$board_cfg['id']}/'>{$board_cfg['id']}</a>";
+        if ($key !== array_key_last(MB_BOARDS)) {
+          echo ' / ';
+        }
+      }
+    ?>]
+  </div>
+  <div class="boardmenu">
+    [<a href="/"">Home</a>]
+    [<a href="/<?=$board['id']?>/catalog/">Catalog</a>]
+    [<a href="/manage/">Manage</a>]
+  </div>
+</div>
