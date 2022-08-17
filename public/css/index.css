@@ -50,10 +50,6 @@ div.file-thumb {
   margin-right: 25px;
 }
 
-div.file-thumb a {
-  display: inline-block;
-}
-
 div.file-thumb img {
   display: block;
   width: 100%;

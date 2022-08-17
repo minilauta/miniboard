@@ -155,6 +155,9 @@ function upload_file(UploadedFileInterface $file, array $file_info, array $file_
         $thumb_width = $generated_thumb['thumb_width'];
         $thumb_height = $generated_thumb['thumb_height'];
         break;
+      default:
+        unlink($file_path);
+        return ['error' => 'UNSUPPORTED_MIME_TYPE: ' . $file_info['file_mime']];
     }
   } else {
     $file_name = $file_collisions[0]['file'];
