@@ -12,16 +12,22 @@
           <a href="/<?=$post['board']?>/<?=$post['parent']?>/#<?=$post['id']?>">No.</a><a href="/<?=$post['board']?>/<?=$post['parent']?>/#q<?=$post['id']?>"><?=$post['id']?></a>
         </span>
       </div>
-      <div class="file-info">
-        <a href="/src/<?=$post['file']?>"><?=$post['file']?></a>
-        -
-        (<?=$post['file_size_formatted']?>, <?=$post['image_width']?>x<?=$post['image_height']?>, <?=$post['file_original']?>)
-      </div>
-      <div class="file-thumb">
-        <a href="/src/<?=$post['file']?>" target="_blank">
-          <img id="thumb-<?=$post['id']?>" src="/src/<?=$post['thumb']?>">
-        </a>
-      </div>
+      <?php
+        if ($post['file'] !== '') {
+          echo "
+            <div class='file-info'>
+              <a href='/src/{$post['file']}'>{$post['file']}</a>
+              -
+              ({$post['file_size_formatted']}, {$post['image_width']}x{$post['image_height']}, {$post['file_original']})
+            </div>
+            <div class='file-thumb'>
+              <a href='/src/{$post['file']}' target='_blank'>
+                <img id='thumb-{$post['id']}' src='/src/{$post['thumb']}'>
+              </a>
+            </div>
+          ";
+        }
+      ?>
       <div class="post-message-wrapper">
         <div class="post-message">
           <?=$post['message']?>

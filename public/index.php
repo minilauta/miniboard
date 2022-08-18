@@ -5,12 +5,26 @@ use Slim\Factory\AppFactory;
 use Slim\Views\PhpRenderer;
 
 require __DIR__ . '/../vendor/autoload.php';
-require __DIR__ . '/functions.php';
-require __DIR__ . '/database.php';
+require_once __DIR__ . '/functions.php';
+require_once __DIR__ . '/database.php';
 require_once __DIR__ . '/config.php';
 
 $app = AppFactory::create();
 $app->addBodyParsingMiddleware();
+$app->add(new Middlewares\TrailingSlash(true));
+
+$app->get('/', function (Request $request, Response $response, array $args) {
+  $response = $response
+    ->withHeader('Location', '/' . MB_BOARDS[array_key_first(MB_BOARDS)]['id'] . '/')
+    ->withStatus(303);
+  return $response;
+});
+
+$app->get('/manage/', function (Request $request, Response $response, array $args) {
+  $response->getBody()->write('Management not implemented yet');
+  $response = $response->withStatus(200);
+  return $response;
+});
 
 $app->get('/{board_id}/', function (Request $request, Response $response, array $args) {
   // validate get
@@ -88,7 +102,7 @@ function handle_postform(Request $request, Response $response, array $args) : Re
 
   // get board config
   $board_cfg = $validated_post['board_cfg'];
-
+  
   // validate file
   $validated_file = validate_file($file, $board_cfg);
   if (isset($validated_file['error'])) {
@@ -98,7 +112,10 @@ function handle_postform(Request $request, Response $response, array $args) : Re
   }
 
   // check md5 file collisions
-  $file_collisions = select_files_by_md5($validated_file['file_md5']);
+  $file_collisions = [];
+  if (!isset($validated_file['no_file'])) {
+    $file_collisions = select_files_by_md5($validated_file['file_md5']);
+  }
 
   // upload file
   $uploaded_file = upload_file($file, $validated_file, $file_collisions, $board_cfg);

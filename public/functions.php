@@ -3,6 +3,7 @@
 use Psr\Http\Message\UploadedFileInterface;
 
 require_once __DIR__ . '/config.php';
+require_once __DIR__ . '/database.php';
 
 function validate_get(array $args) : array {
   $board_cfg = MB_BOARDS[$args['board_id']];
@@ -33,13 +34,47 @@ function validate_post(array $args, array $params) : array {
 function create_post(array $args, array $params, array $file) : array {
   $board_cfg = MB_BOARDS[$args['board_id']];
 
+  // escape message HTML entities
   $message = clean_field($params['message']);
-  $message = preg_replace('/(^&gt;&gt;)([0-9]+)/m', "<a class='reference' href=''>$0</a>", $message);
-  $message = preg_replace('/(^&gt;)([^\n]+)/m', '<span class="quote">$0</span>', $message);
+
+  // preprocess message reference links (same board)
+  $message = preg_replace_callback('/(^&gt;&gt;)([0-9]+)/m', function ($matches) use ($board_cfg) {
+    $post = select_post($board_cfg['id'], intval($matches[2]));
+
+    if ($post) {
+      if ($post['parent'] === 0) {
+        return "<a class='reference' href='/{$board_cfg['id']}/{$post['id']}/#{$post['id']}'>{$matches[0]}</a>";
+      } else {
+        return "<a class='reference' href='/{$board_cfg['id']}/{$post['parent']}/#{$post['id']}'>{$matches[0]}</a>";
+      }
+    }
+    
+    return $matches[0];
+  }, $message);
+
+  // preprocess message reference links (any board)
+  $message = preg_replace_callback('/(^&gt;&gt;&gt;)\/([a-z]+)\/([0-9]+)/m', function ($matches) use ($board_cfg) {
+    $post = select_post($matches[2], intval($matches[3]));
+
+    if ($post) {
+      if ($post['parent'] === 0) {
+        return "<a class='reference' href='/{$post['board']}/{$post['id']}/#{$post['id']}'>{$matches[0]}</a>";
+      } else {
+        return "<a class='reference' href='/{$post['board']}/{$post['parent']}/#{$post['id']}'>{$matches[0]}</a>";
+      }
+    }
+    
+    return $matches[0];
+  }, $message);
+  
+  // preprocess message quotes
+  $message = preg_replace('/(^&gt;)([a-zA-Z0-9,.-;:_ ]+)/m', '<span class="quote">$0</span>', $message);
+
+  // convert message line endings
   $message = nl2br($message, false);
 
   return [
-    'board'               => $args['board_id'],
+    'board'               => $board_cfg['id'],
     'parent'              => isset($args['thread_id']) ? $args['thread_id'] : 0,
     'name'                => strlen($params['name']) !== 0 ? clean_field($params['name']) : $board_cfg['anonymous'],
     'tripcode'            => 'todo',
@@ -72,7 +107,11 @@ function clean_field(string $field) : string {
 }
 
 function validate_file(UploadedFileInterface $file, array $board_cfg) : array {
-  if ($file->getError() !== UPLOAD_ERR_OK) {
+  if ($file->getError() === UPLOAD_ERR_NO_FILE) {
+    return [
+      'no_file' => true
+    ];
+  } else if ($file->getError() !== UPLOAD_ERR_OK) {
     return ['error' => 'UPLOAD_ERR: ' . $file->getError()];
   }
 
@@ -107,6 +146,22 @@ function validate_file(UploadedFileInterface $file, array $board_cfg) : array {
 }
 
 function upload_file(UploadedFileInterface $file, array $file_info, array $file_collisions, array $board_cfg) : array {
+  // no file was uploaded
+  if (isset($file_info['no_file'])) {
+    return [
+      'file'                => '',
+      'file_hex'            => '',
+      'file_original'       => '',
+      'file_size'           => 0,
+      'file_size_formatted' => '',
+      'image_width'         => 0,
+      'image_height'        => 0,
+      'thumb'               => '',
+      'thumb_width'         => 0,
+      'thumb_height'        => 0
+    ];
+  }
+
   $file_name_client = $file->getClientFilename();
 
   // either use the uploaded file or an already existing file

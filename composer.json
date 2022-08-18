@@ -5,6 +5,7 @@
         "nyholm/psr7-server": "^1.0",
         "slim/php-view": "^3.2",
         "claviska/simpleimage": "^3.7",
-        "php-ffmpeg/php-ffmpeg": "^1.0"
+        "php-ffmpeg/php-ffmpeg": "^1.0",
+        "middlewares/trailing-slash": "^2.0"
     }
 }

@@ -16,7 +16,7 @@ function get_db_handle() : PDO {
   return $dbh;
 }
 
-function select_post(string $board = NULL, int $id) : array {
+function select_post(string $board = NULL, int $id) : array|bool {
   $dbh = get_db_handle();
   $sth = $dbh->prepare('
     SELECT * FROM posts
@@ -25,11 +25,11 @@ function select_post(string $board = NULL, int $id) : array {
   $sth->execute([
     'board' => $board,
     'id' => $id
-  ]); 
+  ]);
   return $sth->fetch();
 }
 
-function select_posts(string $board = NULL, int $parent = 0, bool $desc = true, int $offset = 0, int $limit = 10) : array {
+function select_posts(string $board = NULL, int $parent = 0, bool $desc = true, int $offset = 0, int $limit = 10) : array|bool {
   $dbh = get_db_handle();
   $sth = $dbh->prepare('
     SELECT * FROM posts
@@ -46,7 +46,7 @@ function select_posts(string $board = NULL, int $parent = 0, bool $desc = true, 
   return $sth->fetchAll();
 }
 
-function select_posts_preview(string $board = NULL, int $parent = 0, int $offset = 0, int $limit = 10) : array {
+function select_posts_preview(string $board = NULL, int $parent = 0, int $offset = 0, int $limit = 10) : array|bool {
   $dbh = get_db_handle();
   $sth = $dbh->prepare('
     SELECT t.* FROM (
@@ -66,7 +66,7 @@ function select_posts_preview(string $board = NULL, int $parent = 0, int $offset
   return $sth->fetchAll();
 }
 
-function insert_post($post) : int {
+function insert_post($post) : int|bool {
   $dbh = get_db_handle();
   $sth = $dbh->prepare('
     INSERT INTO posts (
@@ -141,7 +141,7 @@ function bump_thread(string $board = NULL, int $id) : bool {
   ]);
 }
 
-function select_files_by_md5(string $file_md5) : array {
+function select_files_by_md5(string $file_md5) : array|bool {
   $dbh = get_db_handle();
   $sth = $dbh->prepare('
     SELECT 
