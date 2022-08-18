@@ -88,7 +88,7 @@ div.reply div.post-message-wrapper {
 }
 
 div.post-message {
-  display: inline-block;
+  display: block;
   margin: 1em 0px;
 }
 
