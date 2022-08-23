@@ -24,7 +24,7 @@ services:
     networks:
       - mariadb
     volumes:
-      - flyway:/flyway/sql
+      - ./migrations:/flyway/sql
     command: -url=jdbc:mysql://mariadb -schemas=miniboard -user=root -password=root -connectRetries=60 migrate
     depends_on:
       - mariadb
@@ -35,9 +35,3 @@ networks:
 
 volumes:
   mariadb:
-  flyway:
-    driver: local
-    driver_opts:
-      o: bind
-      type: none
-      device: ./migrations
