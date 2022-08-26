@@ -1,6 +1,20 @@
 version: '3.8'
 
 services:
+  app:
+    build:
+      context: .
+      dockerfile: ./.docker/app/Dockerfile
+    networks:
+      - mariadb
+    volumes:
+      - .:/app
+    environment:
+      - ENVIRONMENT=DEVELOPMENT
+    ports:
+      - "127.0.0.1:80:80"
+    depends_on:
+      - mariadb
   mariadb:
     image: mariadb:10.6
     restart: always
