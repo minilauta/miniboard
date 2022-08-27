@@ -16,7 +16,7 @@ jobs:
         with:
           push: false
           load: true
-        set: |
+          set: |
             web.cache-from=type=gha
             web.cache-to=type=gha
       - name: Build
