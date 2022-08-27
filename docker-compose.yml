@@ -25,7 +25,7 @@ services:
   test:
     image: anonyymi/miniboard:latest
     restart: on-failure
-    command: ['bash', '-c', 'XDEBUG_MODE=coverage ./vendor/bin/phpunit --coverage-text --coverage-cobertura=coverage.xml']
+    command: ['bash', '-c', 'XDEBUG_MODE=coverage ./vendor/bin/phpunit --coverage-text --coverage-clover coverage.xml']
     networks:
       - test
 

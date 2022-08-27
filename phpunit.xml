@@ -8,7 +8,6 @@
   <coverage>
     <include>
       <directory suffix=".php">public</directory>
-      <directory suffix=".phtml">public</directory>
     </include>
   </coverage>
 </phpunit>
