@@ -2,7 +2,7 @@ FROM php:8.0.3-cli-alpine3.12
 
 WORKDIR /
 
-RUN apk update && apk add bash
+RUN apk update && apk add bash ffmpeg
 
 ADD https://github.com/mlocati/docker-php-extension-installer/releases/latest/download/install-php-extensions /usr/local/bin/
 

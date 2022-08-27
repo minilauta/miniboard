@@ -1,1 +1,5 @@
 vendor
+migrations
+.docker
+.git
+.gitignore

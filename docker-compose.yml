@@ -8,13 +8,14 @@ services:
     networks:
       - mariadb
     volumes:
-      - .:/app
+      - ./public:/app/public
     environment:
       - ENVIRONMENT=DEVELOPMENT
     ports:
       - "127.0.0.1:80:80"
     depends_on:
       - mariadb
+
   mariadb:
     image: mariadb:10.6
     restart: always
@@ -23,7 +24,7 @@ services:
     volumes:
       - mariadb:/var/lib/mysql
     ports:
-      - '3306:3306'
+      - '127.0.0.1:3306:3306'
     environment:
       MYSQL_CHARSET: 'utf8'
       MYSQL_COLLATION: 'utf8mb4_unicode_ci'
