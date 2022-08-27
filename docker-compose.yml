@@ -9,6 +9,7 @@ services:
       - mariadb
     volumes:
       - ./public:/app/public
+      - appdata:/app/public/src
     environment:
       - ENVIRONMENT=DEVELOPMENT
     ports:
@@ -49,4 +50,5 @@ networks:
     driver: bridge
 
 volumes:
+  appdata:
   mariadb:

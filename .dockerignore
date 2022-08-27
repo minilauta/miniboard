@@ -1,5 +1,7 @@
-vendor
-migrations
-.docker
-.git
+vendor/
+migrations/
+.docker/
+.git/
+
 .gitignore
+composer.lock
