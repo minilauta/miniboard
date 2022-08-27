@@ -2,26 +2,39 @@ version: '3.8'
 
 services:
   app:
+    image: anonyymi/miniboard:latest
     build:
       context: .
       dockerfile: ./.docker/app/Dockerfile
+    restart: always
+    healthcheck:
+      test: ['CMD', 'curl', '-fs', 'http://localhost:80']
+      interval: 5s
+      timeout: 1s
+      retries: 2
+      start_period: 10s
     networks:
-      - mariadb
+      - app
     volumes:
-      - ./public:/app/public
-      - appdata:/app/public/src
-    environment:
-      - ENVIRONMENT=DEVELOPMENT
+      - ./public:/app/public:Z
+      - app:/app/public/src
     ports:
       - "127.0.0.1:80:80"
     depends_on:
       - mariadb
 
+  test:
+    image: anonyymi/miniboard:latest
+    restart: on-failure
+    command: ['bash', '-c', 'XDEBUG_MODE=coverage ./vendor/bin/phpunit --coverage-text']
+    networks:
+      - test
+
   mariadb:
     image: mariadb:10.6
     restart: always
     networks:
-      - mariadb
+      - app
     volumes:
       - mariadb:/var/lib/mysql
     ports:
@@ -35,20 +48,22 @@ services:
       MYSQL_PASSWORD: 'admin'
 
   flyway:
-    image: flyway/flyway:latest
+    image: flyway/flyway:latest-alpine
     restart: on-failure
     networks:
-      - mariadb
+      - app
     volumes:
-      - ./migrations:/flyway/sql
+      - ./migrations:/flyway/sql:Z
     command: -url=jdbc:mysql://mariadb -schemas=miniboard -user=root -password=root -connectRetries=60 migrate
     depends_on:
       - mariadb
 
 networks:
-  mariadb:
+  app:
+    driver: bridge
+  test:
     driver: bridge
 
 volumes:
-  appdata:
+  app:
   mariadb:

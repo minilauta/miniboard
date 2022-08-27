@@ -6,19 +6,21 @@ require_once __DIR__ . '/config.php';
 require_once __DIR__ . '/database.php';
 
 function validate_get(array $args) : array {
-  $board_cfg = MB_BOARDS[$args['board_id']];
-  if (!isset($board_cfg)) {
-    return ['error' => 'INVALID_BOARD: ' . $args['board_id']];
+  $board_id = $args['board_id'];
+  if (!isset(MB_BOARDS[$board_id])) {
+    return ['error' => 'INVALID_BOARD: ' . $board_id];
   }
 
-  return ['board_cfg' => $board_cfg];
+  return ['board_cfg' => MB_BOARDS[$board_id]];
 }
 
 function validate_post(array $args, array $params) : array {
-  $board_cfg = MB_BOARDS[$args['board_id']];
-  if (!isset($board_cfg)) {
-    return ['error' => 'INVALID_BOARD: ' . $args['board_id']];
+  $board_id = $args['board_id'];
+  if (!isset(MB_BOARDS[$board_id])) {
+    return ['error' => 'INVALID_BOARD: ' . $board_id];
   }
+
+  $board_cfg = MB_BOARDS[$board_id];
 
   $validated_fields = ['name', 'email', 'subject', 'message'];
   foreach ($validated_fields as $field) {
