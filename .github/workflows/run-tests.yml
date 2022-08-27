@@ -17,9 +17,7 @@ jobs:
           push: false
           load: true
           set: |
-            test.cache-from=type=gha
-            test.cache-to=type=gha
-      - name: Build
-        run: docker-compose build
+            app.cache-from=type=gha
+            app.cache-to=type=gha
       - name: Test
         run: docker-compose run test

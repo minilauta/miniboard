@@ -5,7 +5,6 @@ services:
     image: anonyymi/miniboard:latest
     build:
       context: .
-      dockerfile: ./.docker/app/Dockerfile
     restart: always
     healthcheck:
       test: ['CMD', 'curl', '-fs', 'http://localhost:80']
