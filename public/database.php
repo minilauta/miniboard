@@ -8,7 +8,7 @@ function get_db_handle() : PDO {
     return $dbh;
   }
 
-  $dbh = new PDO("mysql:host=127.0.0.1;dbname=miniboard", MB_DB_USER, MB_DB_PASS, [
+  $dbh = new PDO("mysql:host=mariadb;dbname=miniboard", MB_DB_USER, MB_DB_PASS, [
     PDO::ATTR_PERSISTENT => true,
     PDO::ATTR_EMULATE_PREPARES => false
   ]);
