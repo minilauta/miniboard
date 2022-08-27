@@ -7,10 +7,10 @@ RUN apk update && apk add bash
 ADD https://github.com/mlocati/docker-php-extension-installer/releases/latest/download/install-php-extensions /usr/local/bin/
 
 RUN chmod +x /usr/local/bin/install-php-extensions && sync && \
-    install-php-extensions @composer gd pdo pdo_mysql
+    install-php-extensions @composer gd pdo pdo_mysql && \
+    docker-php-ext-enable pdo_mysql
 
 COPY . /app
-COPY ./.docker/app/php.ini /usr/local/etc/php/conf.d/php.ini
 
 WORKDIR /app
 RUN composer install && chmod 640 *
