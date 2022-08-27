@@ -1,0 +1,30 @@
+name: Run tests
+
+on:
+  pull_request:
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+      - uses: docker/setup-buildx-action@v2
+      - uses: docker/bake-action@master
+        with:
+          push: false
+          load: true
+          set: |
+            app.cache-from=type=gha
+            app.cache-to=type=gha
+      - name: Test
+        run: docker-compose run --name 'miniboard_test_${{ github.sha }}' test
+      - name: Copy
+        run: docker cp 'miniboard_test_${{ github.sha }}':/app/coverage.xml ./
+      - name: Coverage
+        uses: slavcodev/coverage-monitor-action@v1
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          coverage_path: coverage.xml
+          threshold_alert: 0
+          threshold_warning: 50
+          threshold_metric: lines
