@@ -1,0 +1,9 @@
+<div id="<?= $post['id'] ?>" class="catalog--single">
+  <div class="catalog--single--file-thumb">
+    <a href="/<?=$post['board']?>/<?=$post['id']?>">
+      <img id="thumb-<?= $post['id'] ?>" src="/src/<?= $post['thumb'] ?>">
+    </a>
+  </div>
+  <div class="catalog--single--reply-count"><?= $post['reply_count'] ?></div>
+  <div class="catalog--single--message"><?= truncate_message(message: $post['message'], length: 72) ?></div>
+</div>

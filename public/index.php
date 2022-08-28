@@ -1,4 +1,5 @@
 <?php
+
 use Psr\Http\Message\ResponseInterface as Response;
 use Psr\Http\Message\ServerRequestInterface as Request;
 use Slim\Factory\AppFactory;
@@ -46,7 +47,7 @@ $app->get('/{board_id}/', function (Request $request, Response $response, array 
 
   // get threads
   $threads = select_posts($args['board_id'], 0, true, $board_threads_per_page * $query_page, $board_threads_per_page);
-  
+
   // get replies
   foreach ($threads as $key => $thread) {
     $threads[$key]['replies'] = select_posts_preview($args['board_id'], $thread['id'], 0, $board_posts_per_preview);
@@ -57,6 +58,40 @@ $app->get('/{board_id}/', function (Request $request, Response $response, array 
     'threads' => $threads
   ]);
   return $renderer->render($response, 'board.phtml');
+});
+
+/**
+ * Board catalog view
+ */
+$app->get('/{board_id}/catalog/', function (Request $request, Response $response, array $args) {
+  // validate get
+  $validated_get = validate_get($args);
+  if (isset($validated_get['error'])) {
+    $response->getBody()->write('Error: ' . $validated_get['error']);
+    $response = $response->withStatus(500);
+    return $response;
+  }
+
+  // get board config
+  $board_cfg = $validated_get['board_cfg'];
+
+  // get threads
+  $threads = select_posts(board: $args['board_id'], parent: 0, desc: true, offset: 0, limit: 50);
+
+  // get reply count
+  foreach ($threads as $key => $thread) {
+    $replies = select_posts_preview(board: $args['board_id'], parent: $thread['id'], offset: 0, limit: 1000);
+    if (isset($replies) && is_countable($replies)) {
+      $threads[$key]['reply_count'] = count($replies);
+    }
+  }
+
+  $renderer = new PhpRenderer('templates/', [
+    'board' => $board_cfg,
+    'threads' => $threads,
+  ]);
+
+  return $renderer->render($response, 'catalog.phtml');
 });
 
 $app->get('/{board_id}/{thread_id}/', function (Request $request, Response $response, array $args) {
@@ -73,7 +108,7 @@ $app->get('/{board_id}/{thread_id}/', function (Request $request, Response $resp
 
   // get thread
   $thread = select_post($args['board_id'], $args['thread_id']);
-  
+
   // get replies
   $replies = select_posts($args['board_id'], $args['thread_id'], false, 0, 1000);
 
@@ -85,15 +120,16 @@ $app->get('/{board_id}/{thread_id}/', function (Request $request, Response $resp
   return $renderer->render($response, 'thread.phtml');
 });
 
-$app->post('/{board_id}/', function(Request $request, Response $response, array $args) {
+$app->post('/{board_id}/', function (Request $request, Response $response, array $args) {
   return handle_postform($request, $response, $args);
 });
 
-$app->post('/{board_id}/{thread_id}/', function(Request $request, Response $response, array $args) {
+$app->post('/{board_id}/{thread_id}/', function (Request $request, Response $response, array $args) {
   return handle_postform($request, $response, $args);
 });
 
-function handle_postform(Request $request, Response $response, array $args) : Response {
+function handle_postform(Request $request, Response $response, array $args): Response
+{
   // parse request body
   $params = (array) $request->getParsedBody();
   $file = $request->getUploadedFiles()['file'];
@@ -108,7 +144,7 @@ function handle_postform(Request $request, Response $response, array $args) : Re
 
   // get board config
   $board_cfg = $validated_post['board_cfg'];
-  
+
   // validate file
   $validated_file = validate_file($file, $board_cfg);
   if (isset($validated_file['error'])) {
