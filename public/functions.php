@@ -259,8 +259,8 @@ function generate_thumbnail(string $file_path, string $file_mime, string $thumb_
   $width_ratio = $thumb_width / $image_width;
   $height_ratio = $thumb_height / $image_height;
   $scale_factor = min($width_ratio, $height_ratio);
-  $thumb_width = $image_width * $scale_factor;
-  $thumb_height = $image_height * $scale_factor;
+  $thumb_width = ceil($image_width * $scale_factor);
+  $thumb_height = ceil($image_height * $scale_factor);
 
   $image
     ->thumbnail($thumb_width, $thumb_height, 'center')

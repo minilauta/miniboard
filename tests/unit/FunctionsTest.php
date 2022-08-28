@@ -112,4 +112,56 @@ final class FunctionsTest extends TestCase {
 
     $this->assertArrayHasKey('error', $result);
   }
+
+  public function provide_clean_field_data() {
+    return [
+      [ '<div>test</div>', '&lt;div&gt;test&lt;/div&gt;' ],
+      [ '<span class="test">test</span>', '&lt;span class=&quot;test&quot;&gt;test&lt;/span&gt;' ],
+      [ '<span class=\'test\'>test</span>', '&lt;span class=&#039;test&#039;&gt;test&lt;/span&gt;' ]
+    ];
+  }
+
+  /**
+   * @test
+   * @dataProvider provide_clean_field_data
+   */
+  public function clean_field_escapes_html_entities(string $field, string $valid) {
+    $result = clean_field($field);
+
+    $this->assertEquals($valid, $result);
+  }
+
+  public function provide_human_filesize_data() {
+    return [
+      [ 512, '512B', '512.00B' ],
+      [ 2048, '2KB', '2.00KB' ],
+      [ 1024 * 1024, '1MB', '1.00MB' ],
+      [ 1024 * 1024 * 1024, '1GB', '1.00GB' ],
+    ];
+  }
+
+  /**
+   * @test
+   * @dataProvider provide_human_filesize_data
+   */
+  public function human_filesize_correct_conversions(int $bytes, string $size_0, string $size_2) {
+    $result_0 = human_filesize($bytes, 0);
+    $result_2 = human_filesize($bytes, 2);
+
+    $this->assertEquals($size_0, $result_0);
+    $this->assertEquals($size_2, $result_2);
+  }
+
+  /**
+   * @test
+   */
+  public function generate_thumbnail_correct_results() {
+    $result = generate_thumbnail(__DIR__ . '/../src/yotsuba.png', 'image/png', __DIR__ . '/../src/thumb_yotsuba.png', 250, 250);
+
+    $this->assertNotNull($result);
+    $this->assertEquals(364, $result['image_width']);
+    $this->assertEquals(652, $result['image_height']);
+    $this->assertEquals(140, $result['thumb_width']);
+    $this->assertEquals(250, $result['thumb_height']);
+  }
 }
