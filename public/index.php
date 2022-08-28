@@ -178,7 +178,7 @@ function handle_postform(Request $request, Response $response, array $args): Res
 
   // handle noko
   $location_header = '/' . $board_cfg['id'] . '/';
-  if (strtolower($created_post['email']) === 'noko') {
+  if (strtolower($created_post['email']) === 'noko' || $board_cfg['alwaysnoko']) {
     $location_header .= ($created_post['parent'] === 0 ? $inserted_post_id : $created_post['parent']) . '/';
   }
 
