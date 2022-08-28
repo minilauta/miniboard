@@ -35,15 +35,21 @@ $app->get('/{board_id}/', function (Request $request, Response $response, array 
     return $response;
   }
 
+  // get query params
+  $query_params = $request->getQueryParams();
+  $query_page = get_query_param_int($query_params, 'page', 0, 0, 1000);
+
   // get board config
   $board_cfg = $validated_get['board_cfg'];
+  $board_threads_per_page = $board_cfg['threads_per_page'];
+  $board_posts_per_preview = $board_cfg['posts_per_preview'];
 
   // get threads
-  $threads = select_posts($args['board_id'], 0, true, 0, 10);
+  $threads = select_posts($args['board_id'], 0, true, $board_threads_per_page * $query_page, $board_threads_per_page);
   
   // get replies
   foreach ($threads as $key => $thread) {
-    $threads[$key]['replies'] = select_posts_preview($args['board_id'], $thread['id'], 0, 4);
+    $threads[$key]['replies'] = select_posts_preview($args['board_id'], $thread['id'], 0, $board_posts_per_preview);
   }
 
   $renderer = new PhpRenderer('templates/', [

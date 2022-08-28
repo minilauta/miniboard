@@ -5,6 +5,32 @@ use Psr\Http\Message\UploadedFileInterface;
 require_once __DIR__ . '/config.php';
 require_once __DIR__ . '/database.php';
 
+function get_query_param_int(array $query, string $key, int $def = 0, int $min = null, int $max = null) : int {
+  if (!isset($query[$key])) {
+    return $def;
+  }
+
+  $result = intval($query[$key]);
+
+  if ($min !== null) {
+    $result = max($min, $result);
+  }
+
+  if ($max !== null) {
+    $result = min($max, $result);
+  }
+
+  return $result;
+}
+
+function get_query_param_str(array $query, string $key, string $def = '') : string {
+  if (!isset($query[$key])) {
+    return $def;
+  }
+
+  return $query[$key];
+}
+
 function validate_get(array $args) : array {
   $board_id = $args['board_id'];
   if (!isset(MB_BOARDS[$board_id])) {
