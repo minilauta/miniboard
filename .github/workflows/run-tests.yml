@@ -20,7 +20,7 @@ jobs:
             app.cache-from=type=gha
             app.cache-to=type=gha
       - name: Test
-        run: docker-compose run --name 'miniboard_test_${{ github.sha }}' test
+        run: docker compose run --name 'miniboard_test_${{ github.sha }}' test
       - name: Copy
         run: |
           docker cp 'miniboard_test_${{ github.sha }}':/app/coverage.xml ./
