@@ -4,3 +4,6 @@ Minimalistic imageboard software, written in PHP 8 with the help of Slim 4 micro
 
 ## How to run in dev mode
 `$ docker compose up --build`
+
+## How to run tests
+`$ docker compose build && docker compose run test`
