@@ -26,6 +26,7 @@ jobs:
           docker cp 'miniboard_test_${{ github.sha }}':/app/coverage.xml ./
           docker cp 'miniboard_test_${{ github.sha }}':/app/coverage ./
       - name: Coverage/Comment
+        if: github.event_name == 'pull_request' && github.event.pull_request.head.repo.fork == false
         uses: slavcodev/coverage-monitor-action@v1
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
