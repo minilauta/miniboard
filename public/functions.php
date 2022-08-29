@@ -103,7 +103,7 @@ function create_post(array $args, array $params, array $file) : array {
 
   return [
     'board'               => $board_cfg['id'],
-    'parent'              => isset($args['thread_id']) ? $args['thread_id'] : 0,
+    'parent'              => isset($args['thread_id']) && is_numeric($args['thread_id']) ? $args['thread_id'] : 0,
     'name'                => strlen($params['name']) !== 0 ? clean_field($params['name']) : $board_cfg['anonymous'],
     'tripcode'            => 'todo',
     'email'               => clean_field($params['email']),
@@ -298,4 +298,19 @@ function generate_thumbnail(string $file_path, string $file_mime, string $thumb_
     'thumb_width'   => $thumb_width,
     'thumb_height'  => $thumb_height
   ];
+}
+
+/**
+ * Truncates message if it is too long for eg. catalog page
+ *
+ * @param string $message
+ * @return string
+ */
+function truncate_message(string $message, int $length): string
+{
+  if (strlen($message) > $length) {
+    return trim(substr(string: $message, offset: 0, length: $length)) . '...';
+  } else {
+    return $message;
+  }
 }

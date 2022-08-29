@@ -15,6 +15,7 @@ hr {
 /* footer */
 div.footer {
   font-size: small;
+  clear: both;
 }
 
 /* board */

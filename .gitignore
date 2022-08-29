@@ -2,3 +2,5 @@ vendor/
 composer.lock
 coverage.xml
 coverage/
+node_modules
+dist

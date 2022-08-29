@@ -1,0 +1,20 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <?=$this->fetch('common/meta.phtml')?>
+    <?=$this->fetch('common/styles.phtml')?>
+  </head>
+  <body>
+    <?=$this->fetch('board/menubar.phtml', ['board' => $board])?>
+    <?=$this->fetch('common/header.phtml', ['header' => ['title' => "/{$board['id']}/ - {$board['name']}", 'subtitle' => $board['desc']]])?>
+    <hr>
+    <?=$this->fetch('board/postform.phtml')?>
+    <hr>
+    <?php
+      foreach ($threads as $thread) {
+        echo $this->fetch('catalog/single.phtml', ['board' => $board, 'post' => $thread]);
+      }
+    ?>
+    <?=$this->fetch('common/footer.phtml')?>
+  </body>
+</html>
