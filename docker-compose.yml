@@ -48,6 +48,18 @@ services:
       MYSQL_USER: 'admin'
       MYSQL_PASSWORD: 'admin'
 
+  phpmyadmin:
+    image: docker.io/phpmyadmin
+    restart: unless-stopped
+    networks:
+      - app
+    ports:
+      - 127.0.0.1:81:80
+    environment:
+      - PMA_HOST=mariadb
+      - PMA_USER=admin
+      - PMA_PASSWORD=admin
+
   flyway:
     image: flyway/flyway:latest-alpine
     restart: on-failure

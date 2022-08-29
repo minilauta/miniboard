@@ -80,9 +80,11 @@ $app->get('/{board_id}/catalog/', function (Request $request, Response $response
 
   // get reply count
   foreach ($threads as $key => $thread) {
-    $replies = select_posts_preview(board: $args['board_id'], parent: $thread['id'], offset: 0, limit: 1000);
-    if (isset($replies) && is_countable($replies)) {
-      $threads[$key]['reply_count'] = count($replies);
+
+    /** @var int */
+    $reply_count = count_replies(board: $args['board_id'], parent: $thread['id']);
+    if (is_int($reply_count)) {
+      $threads[$key]['reply_count'] = $reply_count;
     }
   }
 

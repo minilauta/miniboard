@@ -66,6 +66,19 @@ function select_posts_preview(string $board = NULL, int $parent = 0, int $offset
   return $sth->fetchAll();
 }
 
+function count_replies(string $board = NULL, int $parent) : int {
+  $dbh = get_db_handle();
+  $sth = $dbh->prepare('
+    SELECT COUNT(*) FROM posts
+    WHERE board = :board AND parent = :parent
+  ');
+  $sth->execute([
+    'board' => $board,
+    'parent' => $parent
+  ]);
+  return $sth->fetchColumn();
+}
+
 function insert_post($post) : int|bool {
   $dbh = get_db_handle();
   $sth = $dbh->prepare('

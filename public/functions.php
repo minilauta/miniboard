@@ -304,9 +304,9 @@ function generate_thumbnail(string $file_path, string $file_mime, string $thumb_
  * Truncates message if it is too long for eg. catalog page
  *
  * @param string $message
- * @return void
+ * @return string
  */
-function truncate_message(string $message, int $length)
+function truncate_message(string $message, int $length): string
 {
   if (strlen($message) > $length) {
     return trim(substr(string: $message, offset: 0, length: $length)) . '...';
