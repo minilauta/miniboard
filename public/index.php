@@ -60,9 +60,6 @@ $app->get('/{board_id}/', function (Request $request, Response $response, array 
   return $renderer->render($response, 'board.phtml');
 });
 
-/**
- * Board catalog view
- */
 $app->get('/{board_id}/catalog/', function (Request $request, Response $response, array $args) {
   // validate get
   $validated_get = validate_get($args);
@@ -72,15 +69,18 @@ $app->get('/{board_id}/catalog/', function (Request $request, Response $response
     return $response;
   }
 
+  // get query params
+  $query_params = $request->getQueryParams();
+  $query_page = get_query_param_int($query_params, 'page', 0, 0, 1000);
+
   // get board config
   $board_cfg = $validated_get['board_cfg'];
 
   // get threads
-  $threads = select_posts(board: $args['board_id'], parent: 0, desc: true, offset: 0, limit: 50);
+  $threads = select_posts($args['board_id'], 0, true, 100 * $query_page, 100);
 
-  // get reply count
+  // get thread reply counts
   foreach ($threads as $key => $thread) {
-
     /** @var int */
     $reply_count = count_replies(board: $args['board_id'], parent: $thread['id']);
     if (is_int($reply_count)) {
@@ -92,7 +92,6 @@ $app->get('/{board_id}/catalog/', function (Request $request, Response $response
     'board' => $board_cfg,
     'threads' => $threads,
   ]);
-
   return $renderer->render($response, 'catalog.phtml');
 });
 

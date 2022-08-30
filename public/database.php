@@ -16,7 +16,7 @@ function get_db_handle() : PDO {
   return $dbh;
 }
 
-function select_post(string $board = NULL, int $id) : array|bool {
+function select_post(string $board, int $id) : array|bool {
   $dbh = get_db_handle();
   $sth = $dbh->prepare('
     SELECT * FROM posts
@@ -29,7 +29,7 @@ function select_post(string $board = NULL, int $id) : array|bool {
   return $sth->fetch();
 }
 
-function select_posts(string $board = NULL, int $parent = 0, bool $desc = true, int $offset = 0, int $limit = 10) : array|bool {
+function select_posts(string $board, int $parent = 0, bool $desc = true, int $offset = 0, int $limit = 10) : array|bool {
   $dbh = get_db_handle();
   $sth = $dbh->prepare('
     SELECT * FROM posts
@@ -46,7 +46,7 @@ function select_posts(string $board = NULL, int $parent = 0, bool $desc = true, 
   return $sth->fetchAll();
 }
 
-function select_posts_preview(string $board = NULL, int $parent = 0, int $offset = 0, int $limit = 10) : array|bool {
+function select_posts_preview(string $board, int $parent = 0, int $offset = 0, int $limit = 10) : array|bool {
   $dbh = get_db_handle();
   $sth = $dbh->prepare('
     SELECT t.* FROM (
@@ -66,7 +66,7 @@ function select_posts_preview(string $board = NULL, int $parent = 0, int $offset
   return $sth->fetchAll();
 }
 
-function count_replies(string $board = NULL, int $parent) : int {
+function count_replies(string $board, int $parent) : int|bool {
   $dbh = get_db_handle();
   $sth = $dbh->prepare('
     SELECT COUNT(*) FROM posts
@@ -141,7 +141,7 @@ function insert_post($post) : int|bool {
   return $dbh->lastInsertId();
 }
 
-function bump_thread(string $board = NULL, int $id) : bool {
+function bump_thread(string $board, int $id) : bool {
   $dbh = get_db_handle();
   $sth = $dbh->prepare('
     UPDATE posts

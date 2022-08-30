@@ -93,6 +93,32 @@ div.post-message {
   margin: 1em 0px;
 }
 
+.catalog {
+  &__single {
+    float: left;
+    height: 200px;
+    width: 200px;
+    text-align: center;
+    margin: 10px;
+
+    &__file-thumb {
+      width: 100%;
+      height: 100px;
+      margin: 0 0 10px 0;
+      a > img {
+        max-height: 100px;
+        margin-left: auto;
+        margin-right: auto;
+        display: block;
+      }
+    }
+
+    &__reply-count {
+      font-weight: bold;
+    }
+  }
+}
+
 /* postform */
 form.postform {
   display: inline-block;
