@@ -161,7 +161,7 @@ final class FunctionsTest extends TestCase {
     $this->assertNotNull($result);
     $this->assertEquals(364, $result['image_width']);
     $this->assertEquals(652, $result['image_height']);
-    $this->assertEquals(140, $result['thumb_width']);
+    $this->assertEquals(139, $result['thumb_width']);
     $this->assertEquals(250, $result['thumb_height']);
   }
 }

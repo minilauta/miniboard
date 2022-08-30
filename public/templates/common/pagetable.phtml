@@ -1,0 +1,37 @@
+<table class="pagetable">
+  <tbody>
+    <tr>
+      <td>
+        <?php
+          if ($page > 0) {
+            $page_prev = $page - 1;
+            echo "<a href='?page={$page_prev}'>Previous</a>";
+          } else {
+            echo "Previous";
+          }
+        ?>
+      </td>
+      <td>
+        <?php
+          for ($i = 0; $i < $page_n; $i++) {
+            if ($i !== $page) {
+              echo "[<a href='?page={$i}'>{$i}</a>]";
+            } else {
+              echo "[{$i}]";
+            }
+          }
+        ?>
+      </td>
+      <td>
+        <?php
+          if ($page < $page_n - 1) {
+            $page_next = $page + 1;
+            echo "<a href='?page={$page_next}'>Next</a>";
+          } else {
+            echo "Next";
+          }
+        ?>
+      </td>
+    </tr>
+  </tbody>
+</table>

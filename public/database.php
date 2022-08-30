@@ -66,7 +66,7 @@ function select_posts_preview(string $board, int $parent = 0, int $offset = 0, i
   return $sth->fetchAll();
 }
 
-function count_replies(string $board, int $parent) : int|bool {
+function count_posts(string $board, int $parent) : int|bool {
   $dbh = get_db_handle();
   $sth = $dbh->prepare('
     SELECT COUNT(*) FROM posts

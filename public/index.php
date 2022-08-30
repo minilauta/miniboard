@@ -53,9 +53,14 @@ $app->get('/{board_id}/', function (Request $request, Response $response, array 
     $threads[$key]['replies'] = select_posts_preview($args['board_id'], $thread['id'], 0, $board_posts_per_preview);
   }
 
+  // get thread count
+  $threads_n = count_posts($args['board_id'], 0);
+
   $renderer = new PhpRenderer('templates/', [
     'board' => $board_cfg,
-    'threads' => $threads
+    'threads' => $threads,
+    'page' => $query_page,
+    'page_n' => ceil($threads_n / $board_threads_per_page)
   ]);
   return $renderer->render($response, 'board.phtml');
 });
@@ -82,7 +87,7 @@ $app->get('/{board_id}/catalog/', function (Request $request, Response $response
   // get thread reply counts
   foreach ($threads as $key => $thread) {
     /** @var int */
-    $reply_count = count_replies(board: $args['board_id'], parent: $thread['id']);
+    $reply_count = count_posts(board: $args['board_id'], parent: $thread['id']);
     if (is_int($reply_count)) {
       $threads[$key]['reply_count'] = $reply_count;
     }
