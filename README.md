@@ -7,7 +7,7 @@ Minimalistic imageboard software, written in PHP 8 with the help of Slim 4 micro
 `$ composer require`
 
 ## How to run and develop locally
-`$ docker compose up --build -d & npx gulp`
+`$ docker compose up --build -d && npx gulp`
 
 ## How to build assets
 `$ npx gulp build`
