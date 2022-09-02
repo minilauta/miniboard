@@ -80,9 +80,10 @@ $app->get('/{board_id}/catalog/', function (Request $request, Response $response
 
   // get board config
   $board_cfg = $validated_get['board_cfg'];
+  $board_threads_per_catalog_page = $board_cfg['threads_per_catalog_page'];
 
   // get threads
-  $threads = select_posts($args['board_id'], 0, true, 100 * $query_page, 100);
+  $threads = select_posts($args['board_id'], 0, true, $board_threads_per_catalog_page * $query_page, $board_threads_per_catalog_page);
 
   // get thread reply counts
   foreach ($threads as $key => $thread) {
@@ -93,9 +94,14 @@ $app->get('/{board_id}/catalog/', function (Request $request, Response $response
     }
   }
 
+  // get thread count
+  $threads_n = count_posts($args['board_id'], 0);
+
   $renderer = new PhpRenderer('templates/', [
     'board' => $board_cfg,
     'threads' => $threads,
+    'page' => $query_page,
+    'page_n' => ceil($threads_n / $board_threads_per_catalog_page)
   ]);
   return $renderer->render($response, 'catalog.phtml');
 });
