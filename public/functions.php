@@ -98,8 +98,19 @@ function create_post(array $args, array $params, array $file) : array {
   // preprocess message quotes
   $message = preg_replace('/(^&gt;)([a-zA-Z0-9,.-;:_ ]+)/m', '<span class="quote">$0</span>', $message);
 
+  // preprocess message bbcode
+  $message = preg_replace('/\[(b|i|u|s)\](.*?)\[\/\1\]/ms', '<$1>$2</$1>', $message);
+  $message = preg_replace('/\[code\](.*?)\[\/code\]/ms', '<pre>$1</pre>', $message);
+  $message = preg_replace('/\[quote\](.*?)\[\/quote\]/ms', '<blockquote>$1</blockquote>', $message);
+  $message = preg_replace('/\[quote="(.*?)"\](.*?)\[\/quote\]/ms', '<blockquote>$2</blockquote><p>~ $1 ~</p>', $message);
+
   // convert message line endings
   $message = nl2br($message, false);
+
+  // strip HTML tags inside <pre></pre>
+  $message = preg_replace_callback('/\<pre\>(.*?)\<\/pre\>/ms', function ($matches) {
+    return '<pre>' . strip_tags($matches[1]) . '</pre>';
+  }, $message);
 
   return [
     'board'               => $board_cfg['id'],
