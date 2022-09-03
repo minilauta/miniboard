@@ -105,12 +105,11 @@ function create_post(array $args, array $params, array $file) : array {
     'board'               => $board_cfg['id'],
     'parent'              => isset($args['thread_id']) && is_numeric($args['thread_id']) ? $args['thread_id'] : 0,
     'name'                => strlen($params['name']) !== 0 ? clean_field($params['name']) : $board_cfg['anonymous'],
-    'tripcode'            => 'todo',
+    'tripcode'            => null,
     'email'               => clean_field($params['email']),
     'subject'             => clean_field($params['subject']),
     'message'             => $message,
-    'password'            => 'todo',
-    'nameblock'           => 'todo',
+    'password'            => null,
     'file'                => $file['file'],
     'file_hex'            => $file['file_hex'],
     'file_original'       => $file['file_original'],
@@ -125,8 +124,8 @@ function create_post(array $args, array $params, array $file) : array {
     'bumped'              => time(),
     'ip'                  => '127.0.0.1',
     'stickied'            => 0,
-    'moderated'           => 0,
-    'country_code'        => 'a1'
+    'moderated'           => 1,
+    'country_code'        => null
   ];
 }
 
