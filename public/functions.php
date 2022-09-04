@@ -112,6 +112,10 @@ function create_post(array $args, array $params, array $file) : array {
     return '<pre>' . strip_tags($matches[1]) . '</pre>';
   }, $message);
 
+  // get truncated message
+  $message_truncated = $message;
+  $message_truncated_flag = truncate_message_linebreak($message_truncated, $board_cfg['truncate'], TRUE);
+
   return [
     'board'               => $board_cfg['id'],
     'parent'              => isset($args['thread_id']) && is_numeric($args['thread_id']) ? $args['thread_id'] : 0,
@@ -119,7 +123,9 @@ function create_post(array $args, array $params, array $file) : array {
     'tripcode'            => null,
     'email'               => clean_field($params['email']),
     'subject'             => clean_field($params['subject']),
-    'message'             => $message,
+    'message'             => $params['message'],
+    'message_rendered'    => $message,
+    'message_truncated'   => $message_truncated_flag ? $message_truncated : null,
     'password'            => null,
     'file'                => $file['file'],
     'file_hex'            => $file['file_hex'],
@@ -205,7 +211,7 @@ function upload_file(UploadedFileInterface $file, array $file_info, array $file_
   // either use the uploaded file or an already existing file
   if (empty($file_collisions)) {
     $file_ext = pathinfo($file_name_client, PATHINFO_EXTENSION);
-    $file_name = sprintf('%s.%0.8s', bin2hex(random_bytes(8)), $file_ext);
+    $file_name = time() . substr(microtime(), 2, 3) . '.' . $file_ext;
     $file_path = __DIR__ . '/src/' . $file_name;
     $file->moveTo($file_path);
     $file_hex = $file_info['file_md5'];
@@ -323,4 +329,60 @@ function truncate_message(string $message, int $length): string
   } else {
     return $message;
   }
+}
+
+/**
+ * Truncates a message to N line breaks (\n or <br>)
+ * 
+ * @param string &$message
+ * @param int $br_count
+ * @param bool $handle_html
+ * @return bool
+ */
+function truncate_message_linebreak(string &$input, int $br_count = 15, bool $handle_html = TRUE) : bool {
+  // exit early if nothing to truncate
+  if (substr_count($input, '<br>') + substr_count($input, "\n") <= $br_count)
+      return FALSE;
+
+  // get number of line breaks and their offsets
+  $br_offsets_func = function(string $haystack, string $needle, int $offset) {
+    $result = array();
+    for ($i = $offset; $i < strlen($haystack); $i++) {
+      $pos = strpos($haystack, $needle, $i);
+      if ($pos !== False) {
+        $offset = $pos;
+        if ($offset >= $i) {
+          $i = $offset;
+          $result[] = $offset;
+        }
+      }
+    }
+    return $result;
+  };
+  $br_offsets = array_merge($br_offsets_func($input, '<br>', 0), $br_offsets_func($input, "\n", 0));
+  sort($br_offsets);
+
+  // truncate simply via line break threshold
+  $input = substr($input, 0, $br_offsets[$br_count - 1]);
+
+  // handle HTML elements in-case termination fails
+  if ($handle_html) {
+      $open_tags = [];
+
+      preg_match_all('/(<\/?([\w+]+)[^>]*>)?([^<>]*)/', $input, $matches, PREG_SET_ORDER);
+      foreach ($matches as $match) {
+          if (preg_match('/br/i', $match[2]))
+              continue;
+          
+          if (preg_match('/<[\w]+[^>]*>/', $match[0])) {
+              array_unshift($open_tags, $match[2]);
+          }
+      }
+
+      foreach ($open_tags as $open_tag) {
+          $input .= '</' . $open_tag . '>';
+      }
+  }
+
+  return TRUE;
 }

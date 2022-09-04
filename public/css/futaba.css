@@ -45,6 +45,10 @@ div.post-message span.quote {
   color: #789922;
 }
 
+div.post-message span.truncated {
+  color: #707070;
+}
+
 /* postform */
 div.postform-group label {
   background: #EEAA88;

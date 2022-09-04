@@ -47,6 +47,8 @@ CREATE TABLE IF NOT EXISTS posts (
   `email` varchar(75) NULL,
   `subject` varchar(75) NULL,
   `message` text NOT NULL,
+  `message_rendered` text NOT NULL,
+  `message_truncated` text NULL,
   `password` text NULL,
   `file` varchar(256) NULL,
   `file_hex` varchar(75) NULL,

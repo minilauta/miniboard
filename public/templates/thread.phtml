@@ -13,8 +13,10 @@
     <?=$this->fetch('board/postform.phtml')?>
     <hr>
     <?php
+      $thread['message_truncated'] = null;
       echo $this->fetch('board/post_op.phtml', ['board' => $board, 'post' => $thread]);
       foreach ($replies as $reply) {
+        $reply['message_truncated'] = null;
         echo $this->fetch('board/post_reply.phtml', ['board' => $board, 'post' => $reply]);
       }
     ?>
