@@ -9,10 +9,7 @@ hr {
   height: 1px;
   color: #800000;
   background-color: #800000;
-	background-image: -webkit-linear-gradient(left, rgba(255,255,238,1), rgba(128,0,0,0.75), rgba(255,255,238,1));
-	background-image: -moz-linear-gradient(left, rgba(255,255,238,1), rgba(128,0,0,0.75), rgba(255,255,238,1));
-	background-image: -ms-linear-gradient(left, rgba(255,255,238,1), rgba(128,0,0,0.75), rgba(255,255,238,1));
-	background-image: -o-linear-gradient(left, rgba(255,255,238,1), rgba(128,0,0,0.75), rgba(255,255,238,1));
+	background-image: linear-gradient(to left, rgba(255,255,238,1), rgba(128,0,0,0.75), rgba(255,255,238,1));
 }
 
 a {
@@ -46,6 +43,10 @@ span.post-name {
 
 div.post-message span.quote {
   color: #789922;
+}
+
+div.post-message span.truncated {
+  color: #707070;
 }
 
 /* postform */

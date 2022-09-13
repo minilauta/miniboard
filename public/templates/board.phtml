@@ -19,7 +19,7 @@
         echo '<hr>';
       }
     ?>
-    <hr>
+    <?=$this->fetch('common/pagetable.phtml', ['page' => $page, 'page_n' => $page_n])?>
     <?=$this->fetch('common/footer.phtml')?>
   </body>
 </html>

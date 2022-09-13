@@ -6,7 +6,7 @@
   </div>
   <div class="file-thumb">
     <a href="/src/<?=$post['file']?>" target="_blank">
-      <img id="thumb-<?=$post['id']?>" src="/src/<?=$post['thumb']?>">
+      <img id="thumb-<?=$post['id']?>" src="/src/<?=$post['thumb']?>" loading="lazy">
     </a>
   </div>
   <div class="post-info">
@@ -23,7 +23,14 @@
   </div>
   <div class="post-message-wrapper">
     <div class="post-message">
-      <?=$post['message']?>
+      <?php
+        if (!isset($post['message_truncated'])) {
+          echo $post['message_rendered'];
+        } else {
+          echo $post['message_truncated'];
+          echo '<br><br><span class="truncated">Post truncated. Click reply to view.</span><br>';
+        }
+      ?>
     </div>
   </div>
 </div>

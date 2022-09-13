@@ -98,19 +98,35 @@ function create_post(array $args, array $params, array $file) : array {
   // preprocess message quotes
   $message = preg_replace('/(^&gt;)([a-zA-Z0-9,.-;:_ ]+)/m', '<span class="quote">$0</span>', $message);
 
+  // preprocess message bbcode
+  $message = preg_replace('/\[(b|i|u|s)\](.*?)\[\/\1\]/ms', '<$1>$2</$1>', $message);
+  $message = preg_replace('/\[code\](.*?)\[\/code\]/ms', '<pre>$1</pre>', $message);
+  $message = preg_replace('/\[quote\](.*?)\[\/quote\]/ms', '<blockquote>$1</blockquote>', $message);
+  $message = preg_replace('/\[quote="(.*?)"\](.*?)\[\/quote\]/ms', '<blockquote>$2</blockquote><p>~ $1 ~</p>', $message);
+
   // convert message line endings
   $message = nl2br($message, false);
+
+  // strip HTML tags inside <pre></pre>
+  $message = preg_replace_callback('/\<pre\>(.*?)\<\/pre\>/ms', function ($matches) {
+    return '<pre>' . strip_tags($matches[1]) . '</pre>';
+  }, $message);
+
+  // get truncated message
+  $message_truncated = $message;
+  $message_truncated_flag = truncate_message_linebreak($message_truncated, $board_cfg['truncate'], TRUE);
 
   return [
     'board'               => $board_cfg['id'],
     'parent'              => isset($args['thread_id']) && is_numeric($args['thread_id']) ? $args['thread_id'] : 0,
     'name'                => strlen($params['name']) !== 0 ? clean_field($params['name']) : $board_cfg['anonymous'],
-    'tripcode'            => 'todo',
+    'tripcode'            => null,
     'email'               => clean_field($params['email']),
     'subject'             => clean_field($params['subject']),
-    'message'             => $message,
-    'password'            => 'todo',
-    'nameblock'           => 'todo',
+    'message'             => $params['message'],
+    'message_rendered'    => $message,
+    'message_truncated'   => $message_truncated_flag ? $message_truncated : null,
+    'password'            => null,
     'file'                => $file['file'],
     'file_hex'            => $file['file_hex'],
     'file_original'       => $file['file_original'],
@@ -125,8 +141,8 @@ function create_post(array $args, array $params, array $file) : array {
     'bumped'              => time(),
     'ip'                  => '127.0.0.1',
     'stickied'            => 0,
-    'moderated'           => 0,
-    'country_code'        => 'a1'
+    'moderated'           => 1,
+    'country_code'        => null
   ];
 }
 
@@ -195,7 +211,7 @@ function upload_file(UploadedFileInterface $file, array $file_info, array $file_
   // either use the uploaded file or an already existing file
   if (empty($file_collisions)) {
     $file_ext = pathinfo($file_name_client, PATHINFO_EXTENSION);
-    $file_name = sprintf('%s.%0.8s', bin2hex(random_bytes(8)), $file_ext);
+    $file_name = time() . substr(microtime(), 2, 3) . '.' . $file_ext;
     $file_path = __DIR__ . '/src/' . $file_name;
     $file->moveTo($file_path);
     $file_hex = $file_info['file_md5'];
@@ -285,8 +301,8 @@ function generate_thumbnail(string $file_path, string $file_mime, string $thumb_
   $width_ratio = $thumb_width / $image_width;
   $height_ratio = $thumb_height / $image_height;
   $scale_factor = min($width_ratio, $height_ratio);
-  $thumb_width = ceil($image_width * $scale_factor);
-  $thumb_height = ceil($image_height * $scale_factor);
+  $thumb_width = floor($image_width * $scale_factor);
+  $thumb_height = floor($image_height * $scale_factor);
 
   $image
     ->thumbnail($thumb_width, $thumb_height, 'center')
@@ -313,4 +329,60 @@ function truncate_message(string $message, int $length): string
   } else {
     return $message;
   }
+}
+
+/**
+ * Truncates a message to N line breaks (\n or <br>)
+ * 
+ * @param string &$message
+ * @param int $br_count
+ * @param bool $handle_html
+ * @return bool
+ */
+function truncate_message_linebreak(string &$input, int $br_count = 15, bool $handle_html = TRUE) : bool {
+  // exit early if nothing to truncate
+  if (substr_count($input, '<br>') + substr_count($input, "\n") <= $br_count)
+      return FALSE;
+
+  // get number of line breaks and their offsets
+  $br_offsets_func = function(string $haystack, string $needle, int $offset) {
+    $result = array();
+    for ($i = $offset; $i < strlen($haystack); $i++) {
+      $pos = strpos($haystack, $needle, $i);
+      if ($pos !== False) {
+        $offset = $pos;
+        if ($offset >= $i) {
+          $i = $offset;
+          $result[] = $offset;
+        }
+      }
+    }
+    return $result;
+  };
+  $br_offsets = array_merge($br_offsets_func($input, '<br>', 0), $br_offsets_func($input, "\n", 0));
+  sort($br_offsets);
+
+  // truncate simply via line break threshold
+  $input = substr($input, 0, $br_offsets[$br_count - 1]);
+
+  // handle HTML elements in-case termination fails
+  if ($handle_html) {
+      $open_tags = [];
+
+      preg_match_all('/(<\/?([\w+]+)[^>]*>)?([^<>]*)/', $input, $matches, PREG_SET_ORDER);
+      foreach ($matches as $match) {
+          if (preg_match('/br/i', $match[2]))
+              continue;
+          
+          if (preg_match('/<[\w]+[^>]*>/', $match[0])) {
+              array_unshift($open_tags, $match[2]);
+          }
+      }
+
+      foreach ($open_tags as $open_tag) {
+          $input .= '</' . $open_tag . '>';
+      }
+  }
+
+  return TRUE;
 }

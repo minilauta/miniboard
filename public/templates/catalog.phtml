@@ -12,9 +12,11 @@
     <hr>
     <?php
       foreach ($threads as $thread) {
-        echo $this->fetch('catalog/single.phtml', ['board' => $board, 'post' => $thread]);
+        echo $this->fetch('board/post_catalog.phtml', ['board' => $board, 'post' => $thread]);
       }
     ?>
+    <hr>
+    <?=$this->fetch('common/pagetable.phtml', ['page' => $page, 'page_n' => $page_n])?>
     <?=$this->fetch('common/footer.phtml')?>
   </body>
 </html>

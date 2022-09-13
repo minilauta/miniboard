@@ -53,16 +53,18 @@ $app->get('/{board_id}/', function (Request $request, Response $response, array 
     $threads[$key]['replies'] = select_posts_preview($args['board_id'], $thread['id'], 0, $board_posts_per_preview);
   }
 
+  // get thread count
+  $threads_n = count_posts($args['board_id'], 0);
+
   $renderer = new PhpRenderer('templates/', [
     'board' => $board_cfg,
-    'threads' => $threads
+    'threads' => $threads,
+    'page' => $query_page,
+    'page_n' => ceil($threads_n / $board_threads_per_page)
   ]);
   return $renderer->render($response, 'board.phtml');
 });
 
-/**
- * Board catalog view
- */
 $app->get('/{board_id}/catalog/', function (Request $request, Response $response, array $args) {
   // validate get
   $validated_get = validate_get($args);
@@ -72,27 +74,35 @@ $app->get('/{board_id}/catalog/', function (Request $request, Response $response
     return $response;
   }
 
+  // get query params
+  $query_params = $request->getQueryParams();
+  $query_page = get_query_param_int($query_params, 'page', 0, 0, 1000);
+
   // get board config
   $board_cfg = $validated_get['board_cfg'];
+  $board_threads_per_catalog_page = $board_cfg['threads_per_catalog_page'];
 
   // get threads
-  $threads = select_posts(board: $args['board_id'], parent: 0, desc: true, offset: 0, limit: 50);
+  $threads = select_posts($args['board_id'], 0, true, $board_threads_per_catalog_page * $query_page, $board_threads_per_catalog_page);
 
-  // get reply count
+  // get thread reply counts
   foreach ($threads as $key => $thread) {
-
     /** @var int */
-    $reply_count = count_replies(board: $args['board_id'], parent: $thread['id']);
+    $reply_count = count_posts(board: $args['board_id'], parent: $thread['id']);
     if (is_int($reply_count)) {
       $threads[$key]['reply_count'] = $reply_count;
     }
   }
 
+  // get thread count
+  $threads_n = count_posts($args['board_id'], 0);
+
   $renderer = new PhpRenderer('templates/', [
     'board' => $board_cfg,
     'threads' => $threads,
+    'page' => $query_page,
+    'page_n' => ceil($threads_n / $board_threads_per_catalog_page)
   ]);
-
   return $renderer->render($response, 'catalog.phtml');
 });
 
