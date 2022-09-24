@@ -27,6 +27,25 @@ $app->get('/manage/', function (Request $request, Response $response, array $arg
   return $response;
 });
 
+$app->get('/{board_id}/{post_id}/report/', function (Request $request, Response $response, array $args) {
+  // validate get
+  $validated_get = validate_get($args);
+  if (isset($validated_get['error'])) {
+    $response->getBody()->write('Error: ' . $validated_get['error']);
+    $response = $response->withStatus(500);
+    return $response;
+  }
+
+  // get board config
+  $board_cfg = $validated_get['board_cfg'];
+
+  // TODO: report UI
+
+  $response->getBody()->write('Reporting not implemented yet');
+  $response = $response->withStatus(200);
+  return $response;
+});
+
 $app->get('/{board_id}/', function (Request $request, Response $response, array $args) {
   // validate get
   $validated_get = validate_get($args);
