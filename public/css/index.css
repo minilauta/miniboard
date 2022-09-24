@@ -140,3 +140,32 @@ div.menubar div.boardmenu {
   float: right;
   text-align: right;
 }
+
+/* dropdown menu */
+a.dd-menu-btn {
+  display: inline-block;
+  text-decoration: none;
+  text-align: center;
+  transition: transform 0.1s;
+}
+
+a.dd-menu-btn-open {
+  transform: rotate(90deg);
+}
+
+div.dd-menu {
+  position: absolute;
+}
+
+div.dd-menu ul {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  white-space: nowrap;
+}
+
+div.dd-menu li {
+  cursor: pointer;
+  position: relative;
+  padding: 2px 4px;
+}

@@ -54,3 +54,28 @@ div.postform-group label {
   background: #EEAA88;
   font-weight: bolder;
 }
+
+/* menubar */
+
+/* dropdown menu */
+a.dd-menu-btn {
+  color: #800000;
+}
+
+a.dd-menu-btn:hover {
+  color: #DD0000;
+}
+
+div.dd-menu ul {
+  background: #F0E0D6;
+  border: 1px solid;
+  border-right-width: 2px;
+}
+
+div.dd-menu li {
+  border-bottom: 1px solid;
+}
+
+div.dd-menu li:hover {
+  background: #FFFFEE;
+}
