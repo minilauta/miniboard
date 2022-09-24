@@ -2,13 +2,17 @@ const postcss = require('gulp-postcss')
 const gulp = require('gulp')
 const concat = require('gulp-concat')
 const minify = require('gulp-minify')
+const rename = require('gulp-rename')
 const browserSync = require('browser-sync').create()
 
 gulp.task('css', function () {
   return gulp
     .src('./public/css/*.css')
     .pipe(postcss())
-    .pipe(concat('bundle.min.css'))
+    .pipe(rename({
+      suffix: '.min',
+      extname: '.css'
+    }))
     .pipe(gulp.dest('./public/dist'))
 })
 
