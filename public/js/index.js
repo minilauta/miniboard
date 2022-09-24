@@ -4,6 +4,8 @@
  * @param {*} event 
  */
 function listener_dropdown_menu_button(event) {
+  event.preventDefault();
+
   let target = event.target;
   let rect = target.getBoundingClientRect();
   let data = target.dataset;
@@ -14,7 +16,7 @@ function listener_dropdown_menu_button(event) {
 
     switch (data.cmd) {
       case 'post-menu':
-        create_dropdown_menu(data.board, data.id, rect.bottom, rect.left, [
+        create_dropdown_menu(data.board, data.id, rect.bottom + window.scrollY, rect.left + window.scrollX, [
           {
             type: 'li',
             text: 'Report post',
@@ -51,6 +53,8 @@ function listener_dropdown_menu_button(event) {
  * @param {*} event 
  */
  function listener_dropdown_menu_indice(event) {
+  event.preventDefault();
+
   let target = event.target;
   let rect = target.getBoundingClientRect();
   let data = target.dataset;
