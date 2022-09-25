@@ -26,7 +26,7 @@ final class FunctionsTest extends TestCase {
     $this->assertArrayHasKey('error', $result);
   }
 
-  public function provide_validate_post_success_data() {
+  public function provide_validate_post_post_success_data() {
     return [
       [
         ['board_id' => 'b'], [
@@ -55,16 +55,16 @@ final class FunctionsTest extends TestCase {
 
   /**
    * @test
-   * @dataProvider provide_validate_post_success_data
+   * @dataProvider provide_validate_post_post_success_data
    */
-  public function validate_post_valid_args_success(array $args, array $params) {
-    $result = validate_post($args, $params);
+  public function validate_post_post_valid_args_success(array $args, array $params) {
+    $result = validate_post_post($args, $params);
 
     $this->assertArrayHasKey('board_cfg', $result);
     $this->assertArrayHasKey('id', $result['board_cfg']);
   }
 
-  public function provide_validate_post_failure_data() {
+  public function provide_validate_post_post_failure_data() {
     return [
       [
         ['board_id' => 'none'], [
@@ -107,10 +107,10 @@ final class FunctionsTest extends TestCase {
 
   /**
    * @test
-   * @dataProvider provide_validate_post_failure_data
+   * @dataProvider provide_validate_post_post_failure_data
    */
-  public function validate_post_valid_args_fails(array $args, array $params) {
-    $result = validate_post($args, $params);
+  public function validate_post_post_valid_args_fails(array $args, array $params) {
+    $result = validate_post_post($args, $params);
 
     $this->assertArrayHasKey('error', $result);
   }
