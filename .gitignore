@@ -4,4 +4,4 @@ coverage.xml
 coverage/
 node_modules
 dist
-thumb_*
+tests/src/thumb_*
