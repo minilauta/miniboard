@@ -1,4 +1,6 @@
-<?php declare(strict_types=1);
+<?php
+
+declare(strict_types=1);
 
 use PHPUnit\Framework\TestCase;
 
@@ -115,9 +117,9 @@ final class FunctionsTest extends TestCase {
 
   public function provide_clean_field_data() {
     return [
-      [ '<div>test</div>', '&lt;div&gt;test&lt;/div&gt;' ],
-      [ '<span class="test">test</span>', '&lt;span class=&quot;test&quot;&gt;test&lt;/span&gt;' ],
-      [ '<span class=\'test\'>test</span>', '&lt;span class=&#039;test&#039;&gt;test&lt;/span&gt;' ]
+      ['<div>test</div>', '&lt;div&gt;test&lt;/div&gt;'],
+      ['<span class="test">test</span>', '&lt;span class=&quot;test&quot;&gt;test&lt;/span&gt;'],
+      ['<span class=\'test\'>test</span>', '&lt;span class=&#039;test&#039;&gt;test&lt;/span&gt;']
     ];
   }
 
@@ -133,10 +135,10 @@ final class FunctionsTest extends TestCase {
 
   public function provide_human_filesize_data() {
     return [
-      [ 512, '512B', '512.00B' ],
-      [ 2048, '2KB', '2.00KB' ],
-      [ 1024 * 1024, '1MB', '1.00MB' ],
-      [ 1024 * 1024 * 1024, '1GB', '1.00GB' ],
+      [512, '512B', '512.00B'],
+      [2048, '2KB', '2.00KB'],
+      [1024 * 1024, '1MB', '1.00MB'],
+      [1024 * 1024 * 1024, '1GB', '1.00GB'],
     ];
   }
 
@@ -163,5 +165,14 @@ final class FunctionsTest extends TestCase {
     $this->assertEquals(652, $result['image_height']);
     $this->assertEquals(139, $result['thumb_width']);
     $this->assertEquals(250, $result['thumb_height']);
+  }
+
+  /**
+   * @test
+   */
+  public function test_truncate_message() {
+    $message = 'Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.';
+    $truncated_message = truncate_message(message: $message, length: 10);
+    $this->assertEquals(13, strlen($truncated_message));
   }
 }

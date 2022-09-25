@@ -5,3 +5,4 @@ dist/
 
 composer.lock
 coverage.xml
+tests/src/thumb_*

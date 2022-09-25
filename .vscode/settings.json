@@ -1,5 +1,13 @@
 {
     "css.validate": false,
     "less.validate": false,
-    "scss.validate": false
+    "scss.validate": false,
+    "intelephense.format.braces": "k&r",
+    "intelephense.phpdoc.classTemplate": {
+    
+        "summary": "$1",
+        "tags": [
+            "@package ${1:$SYMBOL_NAMESPACE}"
+        ]
+    }
 }
