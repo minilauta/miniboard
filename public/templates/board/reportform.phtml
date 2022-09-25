@@ -1,0 +1,15 @@
+<form id="reportform" class="reportform" method="post">
+  <fieldset id="reportform-types">
+    <legend>Report type</legend>
+    <?php
+      $select_input = '<select id="types" name="types">';
+      $select_options = '<option value=""></option>';
+      foreach (MB_GLOBAL['report_types'] as $key => $val) {
+        $select_options .= "<option value='{$key}'>{$val}</option>";
+      }
+      echo $select_input . $select_options . '</select>';
+    ?>
+  </fieldset>
+  <p>Submitting <strong>false</strong> or <strong>misclassified</strong> reports will result in a ban.</p>
+  <button type="submit">Submit</button>
+</form>

@@ -1,20 +1,38 @@
 const postcss = require('gulp-postcss')
 const gulp = require('gulp')
 const concat = require('gulp-concat')
+const minify = require('gulp-minify')
+const rename = require('gulp-rename')
 const browserSync = require('browser-sync').create()
 
 gulp.task('css', function () {
   return gulp
     .src('./public/css/*.css')
     .pipe(postcss())
-    .pipe(concat('bundle.min.css'))
+    .pipe(rename({
+      suffix: '.min',
+      extname: '.css'
+    }))
     .pipe(gulp.dest('./public/dist'))
 })
 
-gulp.task('build', gulp.series('css'))
+gulp.task('js', function () {
+  return gulp
+    .src('./public/js/*.js')
+    .pipe(minify({noSource: true}))
+    .pipe(concat('bundle.min.js'))
+    .pipe(gulp.dest('./public/dist'))
+})
+
+gulp.task('build', gulp.series('css', 'js'))
 
 gulp.task('watch', function () {
-  return gulp.watch('./public/css/*.css', gulp.series('css', 'browser-sync-reload'))
+  return gulp.watch([
+    './public/css/*.css',
+    './public/js/*.js',
+    './public/**/*.php',
+    './public/**/*.phtml'
+  ], gulp.series('css', 'js', 'browser-sync-reload'))
 })
 
 gulp.task('browser-sync', function () {
@@ -30,4 +48,4 @@ gulp.task('browser-sync-reload', function (done) {
   done()
 })
 
-gulp.task('default', gulp.series('css', gulp.parallel('browser-sync', 'watch')))
+gulp.task('default', gulp.series('css', 'js', gulp.parallel('browser-sync', 'watch')))

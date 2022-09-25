@@ -27,6 +27,33 @@ $app->get('/manage/', function (Request $request, Response $response, array $arg
   return $response;
 });
 
+$app->get('/{board_id}/{post_id}/report/', function (Request $request, Response $response, array $args) {
+  // validate get
+  $validated_get = validate_get($args);
+  if (isset($validated_get['error'])) {
+    $response->getBody()->write('Error: ' . $validated_get['error']);
+    $response = $response->withStatus(500);
+    return $response;
+  }
+
+  // get board config
+  $board_cfg = $validated_get['board_cfg'];
+
+  // get post
+  $post = select_post($args['board_id'], $args['post_id']);
+  if ($post == null) {
+    $response->getBody()->write('Error: INVALID_POST: ' . $args['board_id'] . '/' . $args['post_id']);
+    $response = $response->withStatus(400);
+    return $response;
+  }
+
+  $renderer = new PhpRenderer('templates/', [
+    'board' => $board_cfg,
+    'post' => $post
+  ]);
+  return $renderer->render($response, 'report.phtml');
+});
+
 $app->get('/{board_id}/', function (Request $request, Response $response, array $args) {
   // validate get
   $validated_get = validate_get($args);
