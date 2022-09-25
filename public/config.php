@@ -18,7 +18,8 @@ define('MB_GLOBAL', [
     2                   => 'Content that sexualizes minors.',
     3                   => 'Spamming and/or flooding.',
     4                   => 'Not work safe content on work safe board.'
-  ]
+  ],
+  'cloudflare'       => false,
 ]);
 
 // board settings

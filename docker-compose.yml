@@ -56,7 +56,7 @@ services:
     networks:
       - app
     ports:
-      - 127.0.0.1:81:80
+      - 127.0.0.1:8080:80
     environment:
       - PMA_HOST=mariadb
       - PMA_USER=admin

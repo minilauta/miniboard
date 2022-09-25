@@ -76,6 +76,7 @@ CREATE TABLE IF NOT EXISTS reports (
   `id` int unsigned NOT NULL auto_increment,
   `ip` varbinary(16) NOT NULL,
   `post` int unsigned NOT NULL,
+  `type` text NOT NULL,
   PRIMARY KEY	(`id`),
   KEY `post` (`post`)
 )

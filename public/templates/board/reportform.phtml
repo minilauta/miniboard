@@ -1,8 +1,9 @@
 <form id="reportform" class="reportform" method="post">
-  <fieldset id="reportform-types">
+  <p>Reporting post <strong><?=$post['id']?></strong> on board <strong>/<?=$post['board']?>/</strong>.</p>
+  <fieldset id="reportform-type">
     <legend>Report type</legend>
     <?php
-      $select_input = '<select id="types" name="types">';
+      $select_input = '<select id="type" name="type">';
       $select_options = '<option value=""></option>';
       foreach (MB_GLOBAL['report_types'] as $key => $val) {
         $select_options .= "<option value='{$key}'>{$val}</option>";

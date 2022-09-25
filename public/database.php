@@ -179,3 +179,21 @@ function select_files_by_md5(string $file_md5) : array|bool {
   ]); 
   return $sth->fetchAll();
 }
+
+function insert_report($report) : int|bool {
+  $dbh = get_db_handle();
+  $sth = $dbh->prepare('
+    INSERT INTO reports (
+      ip,
+      post,
+      type
+    )
+    VALUES (
+      INET6_ATON(:ip),
+      :post,
+      :type
+    )
+  ');
+  $sth->execute($report);
+  return $dbh->lastInsertId();
+}

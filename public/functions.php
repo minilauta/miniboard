@@ -40,7 +40,7 @@ function validate_get(array $args) : array {
   return ['board_cfg' => MB_BOARDS[$board_id]];
 }
 
-function validate_post(array $args, array $params) : array {
+function validate_post_post(array $args, array $params) : array {
   $board_id = $args['board_id'];
   if (!isset(MB_BOARDS[$board_id])) {
     return ['error' => 'INVALID_BOARD: ' . $board_id];
@@ -57,6 +57,31 @@ function validate_post(array $args, array $params) : array {
   }
 
   return ['board_cfg' => $board_cfg];
+}
+
+function validate_post_report(array $args, array $params) : array {
+  $board_id = $args['board_id'];
+  if (!isset(MB_BOARDS[$board_id])) {
+    return ['error' => 'INVALID_BOARD: ' . $board_id];
+  }
+
+  $board_cfg = MB_BOARDS[$board_id];
+
+  if (!array_key_exists($params['type'], MB_GLOBAL['report_types'])) {
+    return ['error' => 'INVALID_REPORT_TYPE: ' . $params['type']];
+  }
+
+  return ['board_cfg' => $board_cfg];
+}
+
+function create_report(array $args, array $params, array $post) : array {
+  $board_cfg = MB_BOARDS[$args['board_id']];
+
+  return [
+    'ip'                  => get_client_remote_address($_SERVER),
+    'post'                => $post['id'],
+    'type'                => MB_GLOBAL['report_types'][$params['type']]
+  ];
 }
 
 function create_post(array $args, array $params, array $file) : array {
@@ -139,7 +164,7 @@ function create_post(array $args, array $params, array $file) : array {
     'thumb_height'        => $file['thumb_height'],
     'timestamp'           => time(),
     'bumped'              => time(),
-    'ip'                  => '127.0.0.1',
+    'ip'                  => get_client_remote_address($_SERVER),
     'stickied'            => 0,
     'moderated'           => 1,
     'country_code'        => null
@@ -385,4 +410,12 @@ function truncate_message_linebreak(string &$input, int $br_count = 15, bool $ha
   }
 
   return TRUE;
+}
+
+function get_client_remote_address(array $server) {
+  if (MB_GLOBAL['cloudflare'] && isset($server['HTTP_CF_CONNECTING_IP'])) {
+    return $server['HTTP_CF_CONNECTING_IP'];
+  }
+
+  return $server['REMOTE_ADDR'];
 }

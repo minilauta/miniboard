@@ -54,6 +54,45 @@ $app->get('/{board_id}/{post_id}/report/', function (Request $request, Response 
   return $renderer->render($response, 'report.phtml');
 });
 
+$app->post('/{board_id}/{post_id}/report/', function (Request $request, Response $response, array $args) {
+  return handle_reportform($request, $response, $args);
+});
+
+function handle_reportform(Request $request, Response $response, array $args): Response
+{
+  // parse request body
+  $params = (array) $request->getParsedBody();
+
+  // validate post
+  $validated_post = validate_post_report($args, $params);
+  if (isset($validated_post['error'])) {
+    $response->getBody()->write('Post validation error: ' . $validated_post['error']);
+    $response = $response->withStatus(400);
+    return $response;
+  }
+
+  // get board config
+  $board_cfg = $validated_post['board_cfg'];
+
+  // get post
+  $post = select_post($args['board_id'], $args['post_id']);
+  if ($post == null) {
+    $response->getBody()->write('Error: INVALID_POST: ' . $args['board_id'] . '/' . $args['post_id']);
+    $response = $response->withStatus(400);
+    return $response;
+  }
+
+  // create report
+  $created_report = create_report($args, $params, $post);
+
+  // insert report
+  $inserted_report_id = insert_report($created_report);
+
+  $response->getBody()->write('Post reported');
+  $response = $response->withStatus(200);
+  return $response;
+}
+
 $app->get('/{board_id}/', function (Request $request, Response $response, array $args) {
   // validate get
   $validated_get = validate_get($args);
@@ -174,7 +213,7 @@ function handle_postform(Request $request, Response $response, array $args): Res
   $file = $request->getUploadedFiles()['file'];
 
   // validate post
-  $validated_post = validate_post($args, $params);
+  $validated_post = validate_post_post($args, $params);
   if (isset($validated_post['error'])) {
     $response->getBody()->write('Post validation error: ' . $validated_post['error']);
     $response = $response->withStatus(400);
