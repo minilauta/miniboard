@@ -27,7 +27,12 @@ gulp.task('js', function () {
 gulp.task('build', gulp.series('css', 'js'))
 
 gulp.task('watch', function () {
-  return gulp.watch(['./public/css/*.css', './public/js/*.js'], gulp.series('css', 'js', 'browser-sync-reload'))
+  return gulp.watch([
+    './public/css/*.css',
+    './public/js/*.js',
+    './public/**/*.php',
+    './public/**/*.phtml'
+  ], gulp.series('css', 'js', 'browser-sync-reload'))
 })
 
 gulp.task('browser-sync', function () {
