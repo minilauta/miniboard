@@ -64,7 +64,7 @@ function handle_reportform(Request $request, Response $response, array $args): R
   $params = (array) $request->getParsedBody();
 
   // validate post
-  $validated_post = validate_post_report($args, $params);
+  $validated_post = validate_post_reportform($args, $params);
   if (isset($validated_post['error'])) {
     $response->getBody()->write('Post validation error: ' . $validated_post['error']);
     $response = $response->withStatus(400);
@@ -213,7 +213,7 @@ function handle_postform(Request $request, Response $response, array $args): Res
   $file = $request->getUploadedFiles()['file'];
 
   // validate post
-  $validated_post = validate_post_post($args, $params);
+  $validated_post = validate_post_postform($args, $params);
   if (isset($validated_post['error'])) {
     $response->getBody()->write('Post validation error: ' . $validated_post['error']);
     $response = $response->withStatus(400);

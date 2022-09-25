@@ -58,7 +58,7 @@ final class FunctionsTest extends TestCase {
    * @dataProvider provide_validate_post_post_success_data
    */
   public function validate_post_post_valid_args_success(array $args, array $params) {
-    $result = validate_post_post($args, $params);
+    $result = validate_post_postform($args, $params);
 
     $this->assertArrayHasKey('board_cfg', $result);
     $this->assertArrayHasKey('id', $result['board_cfg']);
@@ -110,7 +110,7 @@ final class FunctionsTest extends TestCase {
    * @dataProvider provide_validate_post_post_failure_data
    */
   public function validate_post_post_valid_args_fails(array $args, array $params) {
-    $result = validate_post_post($args, $params);
+    $result = validate_post_postform($args, $params);
 
     $this->assertArrayHasKey('error', $result);
   }

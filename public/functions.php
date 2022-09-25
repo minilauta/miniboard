@@ -5,6 +5,16 @@ use Psr\Http\Message\UploadedFileInterface;
 require_once __DIR__ . '/config.php';
 require_once __DIR__ . '/database.php';
 
+/**
+ * Parses query param key value as an integer.
+ * 
+ * @param array $query
+ * @param array $key
+ * @param int $def
+ * @param int $min
+ * @param int $max
+ * @return int
+ */
 function get_query_param_int(array $query, string $key, int $def = 0, int $min = null, int $max = null) : int {
   if (!isset($query[$key])) {
     return $def;
@@ -23,6 +33,14 @@ function get_query_param_int(array $query, string $key, int $def = 0, int $min =
   return $result;
 }
 
+/**
+ * Parses query param key value as a string.
+ * 
+ * @param array $query
+ * @param string $key
+ * @param string $def
+ * @return string
+ */
 function get_query_param_str(array $query, string $key, string $def = '') : string {
   if (!isset($query[$key])) {
     return $def;
@@ -31,6 +49,12 @@ function get_query_param_str(array $query, string $key, string $def = '') : stri
   return $query[$key];
 }
 
+/**
+ * Validates user input in case of GET request.
+ * 
+ * @param array @args
+ * @return array
+ */
 function validate_get(array $args) : array {
   $board_id = $args['board_id'];
   if (!isset(MB_BOARDS[$board_id])) {
@@ -40,7 +64,14 @@ function validate_get(array $args) : array {
   return ['board_cfg' => MB_BOARDS[$board_id]];
 }
 
-function validate_post_post(array $args, array $params) : array {
+/**
+ * Validates user input in case of POST postform request.
+ * 
+ * @param array @args
+ * @param array $params
+ * @return array
+ */
+function validate_post_postform(array $args, array $params) : array {
   $board_id = $args['board_id'];
   if (!isset(MB_BOARDS[$board_id])) {
     return ['error' => 'INVALID_BOARD: ' . $board_id];
@@ -59,7 +90,14 @@ function validate_post_post(array $args, array $params) : array {
   return ['board_cfg' => $board_cfg];
 }
 
-function validate_post_report(array $args, array $params) : array {
+/**
+ * Validates user input in case of POST reportform request.
+ * 
+ * @param array @args
+ * @param array $params
+ * @return array
+ */
+function validate_post_reportform(array $args, array $params) : array {
   $board_id = $args['board_id'];
   if (!isset(MB_BOARDS[$board_id])) {
     return ['error' => 'INVALID_BOARD: ' . $board_id];
@@ -74,6 +112,14 @@ function validate_post_report(array $args, array $params) : array {
   return ['board_cfg' => $board_cfg];
 }
 
+/**
+ * Creates a report object that's ready to be saved into database.
+ * 
+ * @param array $args
+ * @param array $params
+ * @param array $post
+ * @return array
+ */
 function create_report(array $args, array $params, array $post) : array {
   $board_cfg = MB_BOARDS[$args['board_id']];
 
@@ -84,6 +130,14 @@ function create_report(array $args, array $params, array $post) : array {
   ];
 }
 
+/**
+ * Creates a post object that's ready to be saved into database.
+ * 
+ * @param array $args
+ * @param array $params
+ * @param array $file
+ * @return array
+ */
 function create_post(array $args, array $params, array $file) : array {
   $board_cfg = MB_BOARDS[$args['board_id']];
 
@@ -171,10 +225,23 @@ function create_post(array $args, array $params, array $file) : array {
   ];
 }
 
+/**
+ * Escapes an user submitted text field before it's stored in database.
+ * 
+ * @param string $field
+ * @return string
+ */
 function clean_field(string $field) : string {
   return htmlspecialchars($field, ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML401, 'UTF-8');
 }
 
+/**
+ * Takes a temp uploaded file and validates it.
+ * 
+ * @param UploadedFileInterface $file
+ * @param array $board_cfg
+ * @return array
+ */
 function validate_file(UploadedFileInterface $file, array $board_cfg) : array {
   if ($file->getError() === UPLOAD_ERR_NO_FILE) {
     return [
@@ -214,6 +281,15 @@ function validate_file(UploadedFileInterface $file, array $board_cfg) : array {
   ];
 }
 
+/**
+ * Takes a temp uploaded file, processes it, generates thumbnail, etc. and saves result to a persistent location.
+ * 
+ * @param UploadedFileInterface $file
+ * @param array $file_info
+ * @param array $file_collisions
+ * @param array $board_cfg
+ * @return array
+ */
 function upload_file(UploadedFileInterface $file, array $file_info, array $file_collisions, array $board_cfg) : array {
   // no file was uploaded
   if (isset($file_info['no_file'])) {
@@ -309,6 +385,11 @@ function upload_file(UploadedFileInterface $file, array $file_info, array $file_
   ];
 }
 
+/**
+ * Turns a size in bytes to a human readable string representation.
+ * 
+ * @return string
+ */
 function human_filesize(int $bytes, int $dec = 2) : string {
   $size = array('B', 'KB', 'MB', 'GB', 'TB', 'PB', 'EB', 'ZB', 'YB');
   $factor = floor((strlen($bytes) - 1) / 3);
@@ -316,6 +397,16 @@ function human_filesize(int $bytes, int $dec = 2) : string {
   return sprintf("%.{$dec}f", $bytes / pow(1024, $factor)) . @$size[$factor];
 }
 
+/**
+ * Generates a thumbnail based on existing image.
+ * 
+ * @param string $file_path
+ * @param string $file_mime
+ * @param string $thumb_path
+ * @param int $thumb_width
+ * @param int $thumb_height
+ * @return array
+ */
 function generate_thumbnail(string $file_path, string $file_mime, string $thumb_path, int $thumb_width, int $thumb_height) : array {
   $image = new \claviska\SimpleImage();
   $image->fromFile($file_path);
@@ -342,9 +433,10 @@ function generate_thumbnail(string $file_path, string $file_mime, string $thumb_
 }
 
 /**
- * Truncates message if it is too long for eg. catalog page
+ * Truncates a message if it is too long for eg. catalog page.
  *
  * @param string $message
+ * @param int $length
  * @return string
  */
 function truncate_message(string $message, int $length): string
@@ -357,9 +449,9 @@ function truncate_message(string $message, int $length): string
 }
 
 /**
- * Truncates a message to N line breaks (\n or <br>)
+ * Truncates a message to N line breaks (\n or <br>).
  * 
- * @param string &$message
+ * @param string &$input
  * @param int $br_count
  * @param bool $handle_html
  * @return bool
@@ -412,6 +504,11 @@ function truncate_message_linebreak(string &$input, int $br_count = 15, bool $ha
   return TRUE;
 }
 
+/**
+ * Returns client remote IPv4 or IPv6 address.
+ * 
+ * @return string
+ */
 function get_client_remote_address(array $server) {
   if (MB_GLOBAL['cloudflare'] && isset($server['HTTP_CF_CONNECTING_IP'])) {
     return $server['HTTP_CF_CONNECTING_IP'];

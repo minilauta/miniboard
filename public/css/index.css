@@ -32,7 +32,6 @@ div.post {
 
 div.post div.reply {
   display: inline-block;
-  max-width: 97.5%; /* TODO: is there a better way? */
 }
 
 div.post-dash {

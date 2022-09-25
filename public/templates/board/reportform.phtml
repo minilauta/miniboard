@@ -1,5 +1,6 @@
 <form id="reportform" class="reportform" method="post">
   <p>Reporting post <strong><?=$post['id']?></strong> on board <strong>/<?=$post['board']?>/</strong>.</p>
+  <?=$this->fetch('board/post_preview.phtml', ['board' => $board, 'post' => $post])?>
   <fieldset id="reportform-type">
     <legend>Report type</legend>
     <?php

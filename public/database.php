@@ -16,6 +16,9 @@ function get_db_handle() : PDO {
   return $dbh;
 }
 
+// POST related functions below
+// ----------------------------
+
 function select_post(string $board, int $id) : array|bool {
   $dbh = get_db_handle();
   $sth = $dbh->prepare('
@@ -179,6 +182,10 @@ function select_files_by_md5(string $file_md5) : array|bool {
   ]); 
   return $sth->fetchAll();
 }
+
+
+// REPORT related functions below
+// ------------------------------
 
 function insert_report($report) : int|bool {
   $dbh = get_db_handle();
