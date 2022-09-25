@@ -39,11 +39,19 @@ $app->get('/{board_id}/{post_id}/report/', function (Request $request, Response 
   // get board config
   $board_cfg = $validated_get['board_cfg'];
 
-  // TODO: report UI
+  // get post
+  $post = select_post($args['board_id'], $args['post_id']);
+  if ($post == null) {
+    $response->getBody()->write('Error: INVALID_POST: ' . $args['board_id'] . '/' . $args['post_id']);
+    $response = $response->withStatus(400);
+    return $response;
+  }
 
-  $response->getBody()->write('Reporting not implemented yet');
-  $response = $response->withStatus(200);
-  return $response;
+  $renderer = new PhpRenderer('templates/', [
+    'board' => $board_cfg,
+    'post' => $post
+  ]);
+  return $renderer->render($response, 'report.phtml');
 });
 
 $app->get('/{board_id}/', function (Request $request, Response $response, array $args) {

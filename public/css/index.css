@@ -169,3 +169,8 @@ div.dd-menu li {
   position: relative;
   padding: 2px 4px;
 }
+
+/* reportform */
+form.reportform select {
+  width: 100%;
+}

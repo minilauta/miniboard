@@ -61,7 +61,7 @@ function listener_dropdown_menu_button(event) {
 
   switch (data.cmd) {
     case 'report':
-      let report_window = window.open('/' + data.board + '/' + data.id + '/report', '_blank', 'location=true,status=true,width=285,height=456');
+      let report_window = window.open('/' + data.board + '/' + data.id + '/report', '_blank', 'location=true,status=true,width=480,height=640');
       break;
     case 'hide':
       break;
