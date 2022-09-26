@@ -31,7 +31,7 @@ div.post {
 }
 
 div.post div.reply {
-  display: inline-block;
+  display: table;
 }
 
 div.post-dash {
