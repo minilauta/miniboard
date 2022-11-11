@@ -50,12 +50,12 @@ function get_query_param_str(array $query, string $key, string $def = '') : stri
 }
 
 /**
- * Validates user input in case of GET request.
+ * Validates user input in case of a generic GET/POST/etc request.
  * 
  * @param array @args
  * @return array
  */
-function validate_get(array $args) : array {
+function validate_request(array $args) : array {
   $board_id = $args['board_id'];
   if (!isset(MB_BOARDS[$board_id])) {
     return ['error' => 'INVALID_BOARD: ' . $board_id];
@@ -88,6 +88,23 @@ function validate_post_postform(array $args, array $params) : array {
   }
 
   return ['board_cfg' => $board_cfg];
+}
+
+/**
+ * Creates a hide object that's ready to be saved into database.
+ * 
+ * @param array $args
+ * @param array $params
+ * @return array
+ */
+function create_hide(array $args, array $params) : array {
+  $board_cfg = MB_BOARDS[$args['board_id']];
+
+  return [
+    'session_id'          => session_id(),
+    'board_id'            => $board_cfg['id'],
+    'post_id'             => $args['post_id']
+  ];
 }
 
 /**
@@ -125,7 +142,8 @@ function create_report(array $args, array $params, array $post) : array {
 
   return [
     'ip'                  => get_client_remote_address($_SERVER),
-    'post'                => $post['id'],
+    'timestamp'           => time(),
+    'post_id'             => $post['id'],
     'type'                => MB_GLOBAL['report_types'][$params['type']]
   ];
 }
@@ -149,10 +167,10 @@ function create_post(array $args, array $params, array $file) : array {
     $post = select_post($board_cfg['id'], intval($matches[2]));
 
     if ($post) {
-      if ($post['parent'] === 0) {
+      if ($post['parent_id'] === 0) {
         return "<a class='reference' href='/{$board_cfg['id']}/{$post['id']}/#{$post['id']}'>{$matches[0]}</a>";
       } else {
-        return "<a class='reference' href='/{$board_cfg['id']}/{$post['parent']}/#{$post['id']}'>{$matches[0]}</a>";
+        return "<a class='reference' href='/{$board_cfg['id']}/{$post['parent_id']}/#{$post['id']}'>{$matches[0]}</a>";
       }
     }
     
@@ -164,10 +182,10 @@ function create_post(array $args, array $params, array $file) : array {
     $post = select_post($matches[2], intval($matches[3]));
 
     if ($post) {
-      if ($post['parent'] === 0) {
-        return "<a class='reference' href='/{$post['board']}/{$post['id']}/#{$post['id']}'>{$matches[0]}</a>";
+      if ($post['parent_id'] === 0) {
+        return "<a class='reference' href='/{$post['board_id']}/{$post['id']}/#{$post['id']}'>{$matches[0]}</a>";
       } else {
-        return "<a class='reference' href='/{$post['board']}/{$post['parent']}/#{$post['id']}'>{$matches[0]}</a>";
+        return "<a class='reference' href='/{$post['board_id']}/{$post['parent_id']}/#{$post['id']}'>{$matches[0]}</a>";
       }
     }
     
@@ -196,8 +214,8 @@ function create_post(array $args, array $params, array $file) : array {
   $message_truncated_flag = truncate_message_linebreak($message_truncated, $board_cfg['truncate'], TRUE);
 
   return [
-    'board'               => $board_cfg['id'],
-    'parent'              => isset($args['thread_id']) && is_numeric($args['thread_id']) ? $args['thread_id'] : 0,
+    'board_id'            => $board_cfg['id'],
+    'parent_id'           => isset($args['thread_id']) && is_numeric($args['thread_id']) ? $args['thread_id'] : 0,
     'name'                => strlen($params['name']) !== 0 ? clean_field($params['name']) : $board_cfg['anonymous'],
     'tripcode'            => null,
     'email'               => clean_field($params['email']),

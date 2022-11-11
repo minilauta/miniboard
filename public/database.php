@@ -19,65 +19,69 @@ function get_db_handle() : PDO {
 // POST related functions below
 // ----------------------------
 
-function select_post(string $board, int $id) : array|bool {
+function select_post(string $board_id, int $id) : array|bool {
   $dbh = get_db_handle();
   $sth = $dbh->prepare('
     SELECT * FROM posts
-    WHERE board = :board AND id = :id
+    WHERE board_id = :board_id AND id = :id
   ');
   $sth->execute([
-    'board' => $board,
+    'board_id' => $board_id,
     'id' => $id
   ]);
   return $sth->fetch();
 }
 
-function select_posts(string $board, int $parent = 0, bool $desc = true, int $offset = 0, int $limit = 10) : array|bool {
+function select_posts(string $session_id, string $board_id, int $parent_id = 0, bool $desc = true, int $offset = 0, int $limit = 10) : array|bool {
   $dbh = get_db_handle();
   $sth = $dbh->prepare('
     SELECT * FROM posts
-    WHERE board = :board AND parent = :parent
+    WHERE board_id = :board_id1 AND parent_id = :parent_id AND id NOT IN (
+      SELECT post_id FROM hides WHERE session_id = :session_id AND board_id = :board_id2
+    )
     ORDER BY bumped ' . ($desc === true ? 'DESC' : 'ASC') . '
     LIMIT :limit OFFSET :offset
   ');
   $sth->execute([
-    'board' => $board,
-    'parent' => $parent,
+    'session_id' => $session_id,
+    'board_id1' => $board_id,
+    'board_id2' => $board_id,
+    'parent_id' => $parent_id,
     'limit' => $limit,
     'offset' => $offset
   ]);
   return $sth->fetchAll();
 }
 
-function select_posts_preview(string $board, int $parent = 0, int $offset = 0, int $limit = 10) : array|bool {
+function select_posts_preview(string $board_id, int $parent_id = 0, int $offset = 0, int $limit = 10) : array|bool {
   $dbh = get_db_handle();
   $sth = $dbh->prepare('
     SELECT t.* FROM (
       SELECT * FROM posts
-      WHERE board = :board AND parent = :parent
+      WHERE board_id = :board_id AND parent_id = :parent_id
       ORDER BY bumped DESC
       LIMIT :limit OFFSET :offset
     ) AS t
     ORDER BY bumped ASC
   ');
   $sth->execute([
-    'board' => $board,
-    'parent' => $parent,
+    'board_id' => $board_id,
+    'parent_id' => $parent_id,
     'limit' => $limit,
     'offset' => $offset
   ]);
   return $sth->fetchAll();
 }
 
-function count_posts(string $board, int $parent) : int|bool {
+function count_posts(string $board_id, int $parent_id) : int|bool {
   $dbh = get_db_handle();
   $sth = $dbh->prepare('
     SELECT COUNT(*) FROM posts
-    WHERE board = :board AND parent = :parent
+    WHERE board_id = :board_id AND parent_id = :parent_id
   ');
   $sth->execute([
-    'board' => $board,
-    'parent' => $parent
+    'board_id' => $board_id,
+    'parent_id' => $parent_id
   ]);
   return $sth->fetchColumn();
 }
@@ -86,8 +90,8 @@ function insert_post($post) : int|bool {
   $dbh = get_db_handle();
   $sth = $dbh->prepare('
     INSERT INTO posts (
-      board,
-      parent,
+      board_id,
+      parent_id,
       timestamp,
       bumped,
       ip,
@@ -114,8 +118,8 @@ function insert_post($post) : int|bool {
       country_code
     )
     VALUES (
-      :board,
-      :parent,
+      :board_id,
+      :parent_id,
       :timestamp,
       :bumped,
       INET6_ATON(:ip),
@@ -146,15 +150,15 @@ function insert_post($post) : int|bool {
   return $dbh->lastInsertId();
 }
 
-function bump_thread(string $board, int $id) : bool {
+function bump_thread(string $board_id, int $id) : bool {
   $dbh = get_db_handle();
   $sth = $dbh->prepare('
     UPDATE posts
     SET bumped = ' . time() . '
-    WHERE board = :board AND id = :id
+    WHERE board_id = :board_id AND id = :id
   ');
   return $sth->execute([
-    'board' => $board,
+    'board_id' => $board_id,
     'id' => $id
   ]);
 }
@@ -184,6 +188,56 @@ function select_files_by_md5(string $file_md5) : array|bool {
 }
 
 
+// HIDE related functions below
+// ----------------------------
+
+function select_hide(string $session_id, string $board_id, int $post_id) : array|bool {
+  $dbh = get_db_handle();
+  $sth = $dbh->prepare('
+    SELECT * FROM hides
+    WHERE session_id = :session_id AND board_id = :board_id AND post_id = :post_id
+  ');
+  $sth->execute([
+    'session_id' => $session_id,
+    'board_id' => $board_id,
+    'post_id' => $post_id
+  ]);
+  return $sth->fetch();
+}
+
+function insert_hide($hide) : int|bool {
+  $dbh = get_db_handle();
+  $sth = $dbh->prepare('
+    INSERT INTO hides (
+      session_id,
+      board_id,
+      post_id
+    )
+    VALUES (
+      :session_id,
+      :board_id,
+      :post_id
+    )
+  ');
+  $sth->execute($hide);
+  return $dbh->lastInsertId();
+}
+
+function delete_hide($hide) : int {
+  $dbh = get_db_handle();
+  $sth = $dbh->prepare('
+    DELETE FROM hides
+    WHERE session_id = :session_id AND board_id = :board_id AND post_id = :post_id
+  ');
+  $sth->execute([
+    'session_id' => $hide['session_id'],
+    'board_id' => $hide['board_id'],
+    'post_id' => $hide['post_id']
+  ]);
+  return $sth->rowCount();
+}
+
+
 // REPORT related functions below
 // ------------------------------
 
@@ -192,12 +246,14 @@ function insert_report($report) : int|bool {
   $sth = $dbh->prepare('
     INSERT INTO reports (
       ip,
-      post,
+      timestamp,
+      post_id,
       type
     )
     VALUES (
       INET6_ATON(:ip),
-      :post,
+      :timestamp,
+      :post_id,
       :type
     )
   ');

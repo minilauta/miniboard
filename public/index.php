@@ -6,6 +6,7 @@ use Slim\Factory\AppFactory;
 use Slim\Views\PhpRenderer;
 
 require __DIR__ . '/../vendor/autoload.php';
+require_once __DIR__ . '/middleware.php';
 require_once __DIR__ . '/functions.php';
 require_once __DIR__ . '/database.php';
 require_once __DIR__ . '/config.php';
@@ -13,6 +14,7 @@ require_once __DIR__ . '/config.php';
 $app = AppFactory::create();
 $app->addBodyParsingMiddleware();
 $app->add(new Middlewares\TrailingSlash(true));
+$app->add($session_middleware);
 
 $app->get('/', function (Request $request, Response $response, array $args) {
   $response = $response
@@ -29,7 +31,7 @@ $app->get('/manage/', function (Request $request, Response $response, array $arg
 
 $app->get('/{board_id}/{post_id}/report/', function (Request $request, Response $response, array $args) {
   // validate get
-  $validated_get = validate_get($args);
+  $validated_get = validate_request($args);
   if (isset($validated_get['error'])) {
     $response->getBody()->write('Error: ' . $validated_get['error']);
     $response = $response->withStatus(500);
@@ -52,6 +54,34 @@ $app->get('/{board_id}/{post_id}/report/', function (Request $request, Response 
     'post' => $post
   ]);
   return $renderer->render($response, 'report.phtml');
+});
+
+$app->post('/{board_id}/{post_id}/hide/', function (Request $request, Response $response, array $args) {
+  // parse request body
+  $params = (array) $request->getParsedBody();
+
+  // validate post
+  $validated_post = validate_request($args);
+  if (isset($validated_post['error'])) {
+    $response->getBody()->write('Error: ' . $validated_post['error']);
+    $response = $response->withStatus(500);
+    return $response;
+  }
+
+  // get board config
+  $board_cfg = $validated_post['board_cfg'];
+
+  // toggle hide
+  $hide = select_hide(session_id(), $args['board_id'], $args['post_id']);
+  if ($hide == null) {
+    $hide = create_hide($args, $params);
+    insert_hide($hide);
+  } else {
+    delete_hide($hide);
+  }
+
+  $response = $response->withStatus(200);
+  return $response;
 });
 
 $app->post('/{board_id}/{post_id}/report/', function (Request $request, Response $response, array $args) {
@@ -95,7 +125,7 @@ function handle_reportform(Request $request, Response $response, array $args): R
 
 $app->get('/{board_id}/', function (Request $request, Response $response, array $args) {
   // validate get
-  $validated_get = validate_get($args);
+  $validated_get = validate_request($args);
   if (isset($validated_get['error'])) {
     $response->getBody()->write('Error: ' . $validated_get['error']);
     $response = $response->withStatus(500);
@@ -112,7 +142,7 @@ $app->get('/{board_id}/', function (Request $request, Response $response, array 
   $board_posts_per_preview = $board_cfg['posts_per_preview'];
 
   // get threads
-  $threads = select_posts($args['board_id'], 0, true, $board_threads_per_page * $query_page, $board_threads_per_page);
+  $threads = select_posts(session_id(), $args['board_id'], 0, true, $board_threads_per_page * $query_page, $board_threads_per_page);
 
   // get replies
   foreach ($threads as $key => $thread) {
@@ -133,7 +163,7 @@ $app->get('/{board_id}/', function (Request $request, Response $response, array 
 
 $app->get('/{board_id}/catalog/', function (Request $request, Response $response, array $args) {
   // validate get
-  $validated_get = validate_get($args);
+  $validated_get = validate_request($args);
   if (isset($validated_get['error'])) {
     $response->getBody()->write('Error: ' . $validated_get['error']);
     $response = $response->withStatus(500);
@@ -149,12 +179,12 @@ $app->get('/{board_id}/catalog/', function (Request $request, Response $response
   $board_threads_per_catalog_page = $board_cfg['threads_per_catalog_page'];
 
   // get threads
-  $threads = select_posts($args['board_id'], 0, true, $board_threads_per_catalog_page * $query_page, $board_threads_per_catalog_page);
+  $threads = select_posts(session_id(), $args['board_id'], 0, true, $board_threads_per_catalog_page * $query_page, $board_threads_per_catalog_page);
 
   // get thread reply counts
   foreach ($threads as $key => $thread) {
     /** @var int */
-    $reply_count = count_posts(board: $args['board_id'], parent: $thread['id']);
+    $reply_count = count_posts(board_id: $args['board_id'], parent_id: $thread['id']);
     if (is_int($reply_count)) {
       $threads[$key]['reply_count'] = $reply_count;
     }
@@ -174,7 +204,7 @@ $app->get('/{board_id}/catalog/', function (Request $request, Response $response
 
 $app->get('/{board_id}/{thread_id}/', function (Request $request, Response $response, array $args) {
   // validate get
-  $validated_get = validate_get($args);
+  $validated_get = validate_request($args);
   if (isset($validated_get['error'])) {
     $response->getBody()->write('Error: ' . $validated_get['error']);
     $response = $response->withStatus(500);
@@ -188,7 +218,7 @@ $app->get('/{board_id}/{thread_id}/', function (Request $request, Response $resp
   $thread = select_post($args['board_id'], $args['thread_id']);
 
   // get replies
-  $replies = select_posts($args['board_id'], $args['thread_id'], false, 0, 1000);
+  $replies = select_posts(session_id(), $args['board_id'], $args['thread_id'], false, 0, 1000);
 
   $renderer = new PhpRenderer('templates/', [
     'board' => $board_cfg,
@@ -252,12 +282,12 @@ function handle_postform(Request $request, Response $response, array $args): Res
   $inserted_post_id = insert_post($created_post);
 
   // bump thread
-  $bumped_thread = bump_thread($created_post['board'], $created_post['parent']);
+  $bumped_thread = bump_thread($created_post['board_id'], $created_post['parent_id']);
 
   // handle noko
   $location_header = '/' . $board_cfg['id'] . '/';
   if (strtolower($created_post['email']) === 'noko' || $board_cfg['alwaysnoko']) {
-    $location_header .= ($created_post['parent'] === 0 ? $inserted_post_id : $created_post['parent']) . '/';
+    $location_header .= ($created_post['parent_id'] === 0 ? $inserted_post_id : $created_post['parent_id']) . '/';
   }
 
   $response = $response
