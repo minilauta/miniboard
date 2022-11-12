@@ -17,7 +17,7 @@ class FuncException extends Exception {
 }
 
 class DbException extends Exception {
-  public function __construct(string $message, int $status_code, Throwable $previous = null) {
-    parent::__construct($message, $status_code, $previous);
+  public function __construct(string $message, Throwable $previous = null) {
+    parent::__construct($message, 0, $previous);
   }
 }

@@ -2,14 +2,16 @@
 
 use Psr\Http\Message\ResponseInterface as Response;
 use Psr\Http\Message\ServerRequestInterface as Request;
+use Psr\Log\LoggerInterface;
 use Slim\Factory\AppFactory;
 use Slim\Views\PhpRenderer;
 
 require __DIR__ . '/../vendor/autoload.php';
 require_once __DIR__ . '/middleware.php';
-require_once __DIR__ . '/functions.php';
 require_once __DIR__ . '/database.php';
 require_once __DIR__ . '/config.php';
+require_once __DIR__ . '/funcs_common.php';
+require_once __DIR__ . '/functions.php';
 
 $app = AppFactory::create();
 $app->addBodyParsingMiddleware();
@@ -30,16 +32,8 @@ $app->get('/manage/', function (Request $request, Response $response, array $arg
 });
 
 $app->get('/{board_id}/{post_id}/report/', function (Request $request, Response $response, array $args) {
-  // validate get
-  $validated_get = validate_request($args);
-  if (isset($validated_get['error'])) {
-    $response->getBody()->write('Error: ' . $validated_get['error']);
-    $response = $response->withStatus(500);
-    return $response;
-  }
-
   // get board config
-  $board_cfg = $validated_get['board_cfg'];
+  $board_cfg = funcs_common_get_board_cfg($args['board_id']);
 
   // get post
   $post = select_post($args['board_id'], $args['post_id']);
@@ -57,6 +51,9 @@ $app->get('/{board_id}/{post_id}/report/', function (Request $request, Response 
 });
 
 $app->post('/{board_id}/{post_id}/hide/', function (Request $request, Response $response, array $args) {
+  // get board config
+  $board_cfg = funcs_common_get_board_cfg($args['board_id']);
+
   // parse request body
   $params = (array) $request->getParsedBody();
 
@@ -67,9 +64,6 @@ $app->post('/{board_id}/{post_id}/hide/', function (Request $request, Response $
     $response = $response->withStatus(500);
     return $response;
   }
-
-  // get board config
-  $board_cfg = $validated_post['board_cfg'];
 
   // toggle hide
   $hide = select_hide(session_id(), $args['board_id'], $args['post_id']);
@@ -88,8 +82,10 @@ $app->post('/{board_id}/{post_id}/report/', function (Request $request, Response
   return handle_reportform($request, $response, $args);
 });
 
-function handle_reportform(Request $request, Response $response, array $args): Response
-{
+function handle_reportform(Request $request, Response $response, array $args): Response {
+  // get board config
+  $board_cfg = funcs_common_get_board_cfg($args['board_id']);
+
   // parse request body
   $params = (array) $request->getParsedBody();
 
@@ -100,9 +96,6 @@ function handle_reportform(Request $request, Response $response, array $args): R
     $response = $response->withStatus(400);
     return $response;
   }
-
-  // get board config
-  $board_cfg = $validated_post['board_cfg'];
 
   // get post
   $post = select_post($args['board_id'], $args['post_id']);
@@ -124,22 +117,14 @@ function handle_reportform(Request $request, Response $response, array $args): R
 }
 
 $app->get('/{board_id}/', function (Request $request, Response $response, array $args) {
-  // validate get
-  $validated_get = validate_request($args);
-  if (isset($validated_get['error'])) {
-    $response->getBody()->write('Error: ' . $validated_get['error']);
-    $response = $response->withStatus(500);
-    return $response;
-  }
+  // get board config
+  $board_cfg = funcs_common_get_board_cfg($args['board_id']);
+  $board_threads_per_page = $board_cfg['threads_per_page'];
+  $board_posts_per_preview = $board_cfg['posts_per_preview'];
 
   // get query params
   $query_params = $request->getQueryParams();
   $query_page = get_query_param_int($query_params, 'page', 0, 0, 1000);
-
-  // get board config
-  $board_cfg = $validated_get['board_cfg'];
-  $board_threads_per_page = $board_cfg['threads_per_page'];
-  $board_posts_per_preview = $board_cfg['posts_per_preview'];
 
   // get threads
   $threads = select_posts(session_id(), $args['board_id'], 0, true, $board_threads_per_page * $query_page, $board_threads_per_page);
@@ -162,21 +147,13 @@ $app->get('/{board_id}/', function (Request $request, Response $response, array 
 });
 
 $app->get('/{board_id}/catalog/', function (Request $request, Response $response, array $args) {
-  // validate get
-  $validated_get = validate_request($args);
-  if (isset($validated_get['error'])) {
-    $response->getBody()->write('Error: ' . $validated_get['error']);
-    $response = $response->withStatus(500);
-    return $response;
-  }
+  // get board config
+  $board_cfg = funcs_common_get_board_cfg($args['board_id']);
+  $board_threads_per_catalog_page = $board_cfg['threads_per_catalog_page'];
 
   // get query params
   $query_params = $request->getQueryParams();
   $query_page = get_query_param_int($query_params, 'page', 0, 0, 1000);
-
-  // get board config
-  $board_cfg = $validated_get['board_cfg'];
-  $board_threads_per_catalog_page = $board_cfg['threads_per_catalog_page'];
 
   // get threads
   $threads = select_posts(session_id(), $args['board_id'], 0, true, $board_threads_per_catalog_page * $query_page, $board_threads_per_catalog_page);
@@ -203,16 +180,8 @@ $app->get('/{board_id}/catalog/', function (Request $request, Response $response
 });
 
 $app->get('/{board_id}/{thread_id}/', function (Request $request, Response $response, array $args) {
-  // validate get
-  $validated_get = validate_request($args);
-  if (isset($validated_get['error'])) {
-    $response->getBody()->write('Error: ' . $validated_get['error']);
-    $response = $response->withStatus(500);
-    return $response;
-  }
-
   // get board config
-  $board_cfg = $validated_get['board_cfg'];
+  $board_cfg = funcs_common_get_board_cfg($args['board_id']);
 
   // get thread
   $thread = select_post($args['board_id'], $args['thread_id']);
@@ -236,8 +205,10 @@ $app->post('/{board_id}/{thread_id}/', function (Request $request, Response $res
   return handle_postform($request, $response, $args);
 });
 
-function handle_postform(Request $request, Response $response, array $args): Response
-{
+function handle_postform(Request $request, Response $response, array $args): Response {
+  // get board config
+  $board_cfg = funcs_common_get_board_cfg($args['board_id']);
+
   // parse request body
   $params = (array) $request->getParsedBody();
   $file = $request->getUploadedFiles()['file'];
@@ -249,9 +220,6 @@ function handle_postform(Request $request, Response $response, array $args): Res
     $response = $response->withStatus(400);
     return $response;
   }
-
-  // get board config
-  $board_cfg = $validated_post['board_cfg'];
 
   // validate file
   $validated_file = validate_file($file, $board_cfg);
@@ -295,5 +263,32 @@ function handle_postform(Request $request, Response $response, array $args): Res
     ->withStatus(303);
   return $response;
 }
+
+/**
+ * Handle exceptions accordingly, produce sensible error page as a response.
+ */
+$error_handler = function(
+  Request $request,
+  Throwable $exception,
+  bool $display_error_details,
+  bool $log_errors,
+  bool $log_error_details,
+  ?LoggerInterface $logger = null
+) use ($app) {
+  if ($logger != null) {
+    $logger->error($exception->getMessage());
+  }
+
+  if ($exception instanceof ApiException || $exception instanceof FuncException || $exception instanceof DbException) {
+    $response = $app->getResponseFactory()->createResponse();
+    $response->getBody()->write($exception->getMessage());
+    return $response;
+  }
+
+  throw $exception;
+};
+
+$app->addErrorMiddleware(true, true, true)
+  ->setDefaultErrorHandler($error_handler);
 
 $app->run();

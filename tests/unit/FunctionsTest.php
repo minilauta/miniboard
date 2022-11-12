@@ -7,25 +7,6 @@ use PHPUnit\Framework\TestCase;
 require __DIR__ . '/../../public/functions.php';
 
 final class FunctionsTest extends TestCase {
-  /**
-   * @test
-   */
-  public function validate_get_board_exists_success() {
-    $result = validate_get(['board_id' => 'b']);
-
-    $this->assertArrayHasKey('board_cfg', $result);
-    $this->assertArrayHasKey('id', $result['board_cfg']);
-  }
-
-  /**
-   * @test
-   */
-  public function validate_get_board_invalid_fails() {
-    $result = validate_get(['board_id' => 'none']);
-
-    $this->assertArrayHasKey('error', $result);
-  }
-
   public function provide_validate_post_post_success_data() {
     return [
       [

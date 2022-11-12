@@ -3,6 +3,24 @@
 require_once __DIR__ . '/config.php';
 require_once __DIR__ . '/exception.php';
 
+function funcs_common_get_board_cfg(string $board_id): array {
+  if (!isset(MB_BOARDS[$board_id])) {
+    throw new FuncException('funcs_common_get_board_cfg null err', SC_BAD_REQUEST);
+  }
+
+  return MB_BOARDS[$board_id];
+}
+
+/**
+ * Parses an input string as a string, throws on errors.
+ * 
+ * @param array $input
+ * @param string $key
+ * @param string $default
+ * @param int $min
+ * @param int $max
+ * @return string
+ */
 function funcs_common_parse_input_str(array $input, string $key, string $default = null, int $min = null, int $max = null): string {
   if (!isset($input[$key])) {
     if ($default !== null) {
@@ -25,7 +43,17 @@ function funcs_common_parse_input_str(array $input, string $key, string $default
   return $result;
 }
 
-function funcs_common_parse_input_int(array $input, string $key, string $default = null, int $min = null, int $max = null): int {
+/**
+ * Parses an input string as an integer, throws on errors.
+ * 
+ * @param array $input
+ * @param string $key
+ * @param int $default
+ * @param int $min
+ * @param int $max
+ * @return string
+ */
+function funcs_common_parse_input_int(array $input, string $key, int $default = null, int $min = null, int $max = null): int {
   if (!isset($input[$key])) {
     if ($default !== null) {
       return $default;
@@ -83,4 +111,75 @@ function funcs_common_get_client_remote_address(array $server) {
   }
 
   return $server['REMOTE_ADDR'];
+}
+
+/**
+ * Truncates a string if it is too long for eg. catalog page.
+ *
+ * @param string $input String to truncate.
+ * @param int $length Length the string should be truncated to.
+ * @return string
+ */
+function funcs_common_truncate_string(string $input, int $length): string {
+  if (strlen($input) > $length) {
+    return trim(substr(string: $input, offset: 0, length: $length)) . '...';
+  }
+
+  return $input;
+}
+
+/**
+ * Truncates a string to N line breaks (\n or <br>).
+ * 
+ * @param string &$input String to truncate.
+ * @param int $br_count Line break count the string should be truncated to.
+ * @param bool $handle_html Terminate HTML elements if they were cut on truncate?
+ * @return bool
+ */
+function funcs_common_truncate_string_linebreak(string &$input, int $br_count = 15, bool $handle_html = TRUE): bool {
+  // exit early if nothing to truncate
+  if (substr_count($input, '<br>') + substr_count($input, "\n") <= $br_count)
+      return FALSE;
+
+  // get number of line breaks and their offsets
+  $br_offsets_func = function(string $haystack, string $needle, int $offset) {
+    $result = array();
+    for ($i = $offset; $i < strlen($haystack); $i++) {
+      $pos = strpos($haystack, $needle, $i);
+      if ($pos !== False) {
+        $offset = $pos;
+        if ($offset >= $i) {
+          $i = $offset;
+          $result[] = $offset;
+        }
+      }
+    }
+    return $result;
+  };
+  $br_offsets = array_merge($br_offsets_func($input, '<br>', 0), $br_offsets_func($input, "\n", 0));
+  sort($br_offsets);
+
+  // truncate simply via line break threshold
+  $input = substr($input, 0, $br_offsets[$br_count - 1]);
+
+  // handle HTML elements in-case termination fails
+  if ($handle_html) {
+    $open_tags = [];
+
+    preg_match_all('/(<\/?([\w+]+)[^>]*>)?([^<>]*)/', $input, $matches, PREG_SET_ORDER);
+    foreach ($matches as $match) {
+      if (preg_match('/br/i', $match[2]))
+        continue;
+      
+      if (preg_match('/<[\w]+[^>]*>/', $match[0])) {
+        array_unshift($open_tags, $match[2]);
+      }
+    }
+
+    foreach ($open_tags as $open_tag) {
+      $input .= '</' . $open_tag . '>';
+    }
+  }
+
+  return TRUE;
 }
