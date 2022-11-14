@@ -39,16 +39,16 @@ function select_posts(string $session_id, string $board_id, int $parent_id = 0, 
   $dbh = get_db_handle();
   $sth = $dbh->prepare('
     SELECT * FROM posts
-    WHERE board_id = :board_id1 AND parent_id = :parent_id AND id NOT IN (
-      SELECT post_id FROM hides WHERE session_id = :session_id AND board_id = :board_id2
+    WHERE board_id = :board_id_outer AND parent_id = :parent_id AND id NOT IN (
+      SELECT post_id FROM hides WHERE session_id = :session_id AND board_id = :board_id_inner
     )
     ORDER BY bumped ' . ($desc === true ? 'DESC' : 'ASC') . '
     LIMIT :limit OFFSET :offset
   ');
   $sth->execute([
     'session_id' => $session_id,
-    'board_id1' => $board_id,
-    'board_id2' => $board_id,
+    'board_id_outer' => $board_id,
+    'board_id_inner' => $board_id,
     'parent_id' => $parent_id,
     'limit' => $limit,
     'offset' => $offset
@@ -56,19 +56,23 @@ function select_posts(string $session_id, string $board_id, int $parent_id = 0, 
   return $sth->fetchAll();
 }
 
-function select_posts_preview(string $board_id, int $parent_id = 0, int $offset = 0, int $limit = 10) : array|bool {
+function select_posts_preview(string $session_id, string $board_id, int $parent_id = 0, int $offset = 0, int $limit = 10) : array|bool {
   $dbh = get_db_handle();
   $sth = $dbh->prepare('
     SELECT t.* FROM (
       SELECT * FROM posts
-      WHERE board_id = :board_id AND parent_id = :parent_id
+      WHERE board_id = :board_id_outer AND parent_id = :parent_id AND id NOT IN (
+        SELECT post_id FROM hides WHERE session_id = :session_id AND board_id = :board_id_inner
+      )
       ORDER BY bumped DESC
       LIMIT :limit OFFSET :offset
     ) AS t
     ORDER BY bumped ASC
   ');
   $sth->execute([
-    'board_id' => $board_id,
+    'session_id' => $session_id,
+    'board_id_outer' => $board_id,
+    'board_id_inner' => $board_id,
     'parent_id' => $parent_id,
     'limit' => $limit,
     'offset' => $offset
@@ -76,14 +80,18 @@ function select_posts_preview(string $board_id, int $parent_id = 0, int $offset 
   return $sth->fetchAll();
 }
 
-function count_posts(string $board_id, int $parent_id) : int|bool {
+function count_posts(string $session_id, string $board_id, int $parent_id) : int|bool {
   $dbh = get_db_handle();
   $sth = $dbh->prepare('
     SELECT COUNT(*) FROM posts
-    WHERE board_id = :board_id AND parent_id = :parent_id
+    WHERE board_id = :board_id_outer AND parent_id = :parent_id AND id NOT IN (
+      SELECT post_id FROM hides WHERE session_id = :session_id AND board_id = :board_id_inner
+    )
   ');
   $sth->execute([
-    'board_id' => $board_id,
+    'session_id' => $session_id,
+    'board_id_outer' => $board_id,
+    'board_id_inner' => $board_id,
     'parent_id' => $parent_id
   ]);
   return $sth->fetchColumn();

@@ -5,10 +5,29 @@ require_once __DIR__ . '/exception.php';
 
 function funcs_common_get_board_cfg(string $board_id): array {
   if (!isset(MB_BOARDS[$board_id])) {
-    throw new FuncException('funcs_common_get_board_cfg null err', SC_BAD_REQUEST);
+    throw new FuncException('funcs_common', 'get_board_cfg', "board with id /{$board_id}/ cannot be found", SC_BAD_REQUEST);
   }
 
   return MB_BOARDS[$board_id];
+}
+
+function funcs_common_validate_fields(array $input, array $fields) {
+  foreach ($fields as $key => $val) {
+    $required = $val['required'];
+
+    $input_set = isset($input[$key]);
+    if (!$input_set && $required === true) {
+      throw new FuncException('funcs_common', 'validate_fields', "required field {$key} is NULL", SC_BAD_REQUEST);
+    } else if (!$input_set) {
+      continue;
+    }
+
+    $max_len = $val['max_len'];
+    $input_len = strlen($input[$key]);
+    if ($input_len > $max_len) {
+      throw new FuncException('funcs_common', 'validate_fields', "field {$key} length {$input_len} is longer than {$max_len}", SC_BAD_REQUEST);
+    }
+  }
 }
 
 /**
@@ -27,17 +46,17 @@ function funcs_common_parse_input_str(array $input, string $key, string $default
       return $default;
     }
 
-    throw new FuncException('funcs_common_parse_input_str null err', SC_BAD_REQUEST);
+    throw new FuncException('funcs_common', 'parse_input_str', 'null error', SC_BAD_REQUEST);
   }
 
   $result = $input[$key];
 
   if ($min !== null && strlen($result) < $min) {
-    throw new FuncException('funcs_common_parse_input_str min len err', SC_BAD_REQUEST);
+    throw new FuncException('funcs_common', 'parse_input_str', 'min len error', SC_BAD_REQUEST);
   }
 
   if ($max !== null && strlen($result) > $max) {
-    throw new FuncException('funcs_common_parse_input_str max len err', SC_BAD_REQUEST);
+    throw new FuncException('funcs_common', 'parse_input_str', 'max len error', SC_BAD_REQUEST);
   }
 
   return $result;
@@ -59,7 +78,7 @@ function funcs_common_parse_input_int(array $input, string $key, int $default = 
       return $default;
     }
 
-    throw new FuncException('funcs_common_parse_input_int null err', SC_BAD_REQUEST);
+    throw new FuncException('funcs_common', 'parse_input_int', 'null error', SC_BAD_REQUEST);
   }
 
   $result = intval($input[$key]);
@@ -139,14 +158,14 @@ function funcs_common_truncate_string(string $input, int $length): string {
 function funcs_common_truncate_string_linebreak(string &$input, int $br_count = 15, bool $handle_html = TRUE): bool {
   // exit early if nothing to truncate
   if (substr_count($input, '<br>') + substr_count($input, "\n") <= $br_count)
-      return FALSE;
+      return false;
 
   // get number of line breaks and their offsets
   $br_offsets_func = function(string $haystack, string $needle, int $offset) {
     $result = array();
     for ($i = $offset; $i < strlen($haystack); $i++) {
       $pos = strpos($haystack, $needle, $i);
-      if ($pos !== False) {
+      if ($pos !== false) {
         $offset = $pos;
         if ($offset >= $i) {
           $i = $offset;
@@ -181,5 +200,5 @@ function funcs_common_truncate_string_linebreak(string &$input, int $br_count = 
     }
   }
 
-  return TRUE;
+  return true;
 }

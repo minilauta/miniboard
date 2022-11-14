@@ -11,6 +11,8 @@ require_once __DIR__ . '/middleware.php';
 require_once __DIR__ . '/database.php';
 require_once __DIR__ . '/config.php';
 require_once __DIR__ . '/funcs_common.php';
+require_once __DIR__ . '/funcs_file.php';
+require_once __DIR__ . '/funcs_post.php';
 require_once __DIR__ . '/functions.php';
 
 $app = AppFactory::create();
@@ -127,15 +129,15 @@ $app->get('/{board_id}/', function (Request $request, Response $response, array 
   $query_page = get_query_param_int($query_params, 'page', 0, 0, 1000);
 
   // get threads
-  $threads = select_posts(session_id(), $args['board_id'], 0, true, $board_threads_per_page * $query_page, $board_threads_per_page);
+  $threads = select_posts(session_id(), $board_cfg['id'], 0, true, $board_threads_per_page * $query_page, $board_threads_per_page);
 
   // get replies
   foreach ($threads as $key => $thread) {
-    $threads[$key]['replies'] = select_posts_preview($args['board_id'], $thread['id'], 0, $board_posts_per_preview);
+    $threads[$key]['replies'] = select_posts_preview(session_id(), $thread['board_id'], $thread['id'], 0, $board_posts_per_preview);
   }
 
   // get thread count
-  $threads_n = count_posts($args['board_id'], 0);
+  $threads_n = count_posts(session_id(), $board_cfg['id'], 0);
 
   $renderer = new PhpRenderer('templates/', [
     'board' => $board_cfg,
@@ -156,19 +158,18 @@ $app->get('/{board_id}/catalog/', function (Request $request, Response $response
   $query_page = get_query_param_int($query_params, 'page', 0, 0, 1000);
 
   // get threads
-  $threads = select_posts(session_id(), $args['board_id'], 0, true, $board_threads_per_catalog_page * $query_page, $board_threads_per_catalog_page);
+  $threads = select_posts(session_id(), $board_cfg['id'], 0, true, $board_threads_per_catalog_page * $query_page, $board_threads_per_catalog_page);
 
   // get thread reply counts
   foreach ($threads as $key => $thread) {
-    /** @var int */
-    $reply_count = count_posts(board_id: $args['board_id'], parent_id: $thread['id']);
+    $reply_count = count_posts(session_id(), $thread['board_id'], $thread['id']);
     if (is_int($reply_count)) {
       $threads[$key]['reply_count'] = $reply_count;
     }
   }
 
   // get thread count
-  $threads_n = count_posts($args['board_id'], 0);
+  $threads_n = count_posts(session_id(), $board_cfg['id'], 0);
 
   $renderer = new PhpRenderer('templates/', [
     'board' => $board_cfg,
@@ -184,10 +185,13 @@ $app->get('/{board_id}/{thread_id}/', function (Request $request, Response $resp
   $board_cfg = funcs_common_get_board_cfg($args['board_id']);
 
   // get thread
-  $thread = select_post($args['board_id'], $args['thread_id']);
+  $thread = select_post($board_cfg['id'], $args['thread_id']);
+  if ($thread['parent_id'] !== 0) {
+    throw new ApiException('not a valid thread', SC_BAD_REQUEST);
+  }
 
   // get replies
-  $replies = select_posts(session_id(), $args['board_id'], $args['thread_id'], false, 0, 1000);
+  $replies = select_posts(session_id(), $thread['board_id'], $thread['id'], false, 0, 1000);
 
   $renderer = new PhpRenderer('templates/', [
     'board' => $board_cfg,
@@ -213,38 +217,23 @@ function handle_postform(Request $request, Response $response, array $args): Res
   $params = (array) $request->getParsedBody();
   $file = $request->getUploadedFiles()['file'];
 
-  // validate post
-  $validated_post = validate_post_postform($args, $params);
-  if (isset($validated_post['error'])) {
-    $response->getBody()->write('Post validation error: ' . $validated_post['error']);
-    $response = $response->withStatus(400);
-    return $response;
-  }
+  // validate request fields
+  funcs_common_validate_fields($params, $board_cfg['fields_post']);
 
-  // validate file
-  $validated_file = validate_file($file, $board_cfg);
-  if (isset($validated_file['error'])) {
-    $response->getBody()->write('File validation error: ' . $validated_file['error']);
-    $response = $response->withStatus(400);
-    return $response;
-  }
+  // validate request file
+  $file_info = funcs_file_validate_upload($file, true, $board_cfg['mime_ext_types'], $board_cfg['maxkb'] * 1000);
 
   // check md5 file collisions
   $file_collisions = [];
-  if (!isset($validated_file['no_file'])) {
-    $file_collisions = select_files_by_md5($validated_file['file_md5']);
+  if ($file_info != null) {
+    $file_collisions = select_files_by_md5($file_info['md5']);
   }
 
   // upload file
-  $uploaded_file = upload_file($file, $validated_file, $file_collisions, $board_cfg);
-  if (isset($uploaded_file['error'])) {
-    $response->getBody()->write('File upload error: ' . $uploaded_file['error']);
-    $response = $response->withStatus(500);
-    return $response;
-  }
+  $file_upload = funcs_file_execute_upload($file, $file_info, $file_collisions, $board_cfg['max_width'], $board_cfg['max_height']);
 
   // create post
-  $created_post = create_post($args, $params, $uploaded_file);
+  $created_post = create_post($args, $params, $file_upload);
 
   // insert post
   $inserted_post_id = insert_post($created_post);
@@ -282,7 +271,8 @@ $error_handler = function(
   if ($exception instanceof ApiException || $exception instanceof FuncException || $exception instanceof DbException) {
     $response = $app->getResponseFactory()->createResponse();
     $response->getBody()->write($exception->getMessage());
-    return $response;
+    return $response
+      ->withStatus($exception->getCode());
   }
 
   throw $exception;
