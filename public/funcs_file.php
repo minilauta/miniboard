@@ -70,7 +70,7 @@ function funcs_file_execute_upload(UploadedFileInterface $file, ?array $file_inf
     $file->moveTo($file_path);
     $file_hex = $file_info['md5'];
     $file_size = $file_info['size'];
-    $file_size_formatted = human_filesize($file_size);
+    $file_size_formatted = funcs_common_human_filesize($file_size);
     $thumb_file_name = 'thumb_' . $file_name . '.png';
     $thumb_file_path = __DIR__ . '/src/' . $thumb_file_name;
 

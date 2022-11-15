@@ -59,14 +59,6 @@ $app->post('/{board_id}/{post_id}/hide/', function (Request $request, Response $
   // parse request body
   $params = (array) $request->getParsedBody();
 
-  // validate post
-  $validated_post = validate_request($args);
-  if (isset($validated_post['error'])) {
-    $response->getBody()->write('Error: ' . $validated_post['error']);
-    $response = $response->withStatus(500);
-    return $response;
-  }
-
   // toggle hide
   $hide = select_hide(session_id(), $args['board_id'], $args['post_id']);
   if ($hide == null) {
@@ -126,7 +118,7 @@ $app->get('/{board_id}/', function (Request $request, Response $response, array 
 
   // get query params
   $query_params = $request->getQueryParams();
-  $query_page = get_query_param_int($query_params, 'page', 0, 0, 1000);
+  $query_page = funcs_common_parse_input_int($query_params, 'page', 0, 0, 1000);
 
   // get threads
   $threads = select_posts(session_id(), $board_cfg['id'], 0, true, $board_threads_per_page * $query_page, $board_threads_per_page);
@@ -155,7 +147,7 @@ $app->get('/{board_id}/catalog/', function (Request $request, Response $response
 
   // get query params
   $query_params = $request->getQueryParams();
-  $query_page = get_query_param_int($query_params, 'page', 0, 0, 1000);
+  $query_page = funcs_common_parse_input_int($query_params, 'page', 0, 0, 1000);
 
   // get threads
   $threads = select_posts(session_id(), $board_cfg['id'], 0, true, $board_threads_per_catalog_page * $query_page, $board_threads_per_catalog_page);

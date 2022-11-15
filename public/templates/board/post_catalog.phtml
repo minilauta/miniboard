@@ -5,5 +5,5 @@
     </a>
   </div>
   <div class="catalog__single__reply-count"><?= $post['reply_count'] ?></div>
-  <div class="catalog__single__message"><?= truncate_message(message: $post['message'], length: 72) ?></div>
+  <div class="catalog__single__message"><?= funcs_common_truncate_string($post['message'], 72) ?></div>
 </div>

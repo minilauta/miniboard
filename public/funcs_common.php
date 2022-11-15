@@ -155,7 +155,7 @@ function funcs_common_truncate_string(string $input, int $length): string {
  * @param bool $handle_html Terminate HTML elements if they were cut on truncate?
  * @return bool
  */
-function funcs_common_truncate_string_linebreak(string &$input, int $br_count = 15, bool $handle_html = TRUE): bool {
+function funcs_common_truncate_string_linebreak(string &$input, int $br_count = 15, bool $handle_html = true): bool {
   // exit early if nothing to truncate
   if (substr_count($input, '<br>') + substr_count($input, "\n") <= $br_count)
       return false;
