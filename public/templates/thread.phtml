@@ -10,7 +10,9 @@
     <hr>
     [<a href="../">Return</a>]
     <div class="mode">Posting mode: Reply</div>
-    <?=$this->fetch('board/postform.phtml')?>
+    <div class="container-centered">
+      <?=$this->fetch('board/postform.phtml')?>
+    </div>
     <hr>
     <?php
       $thread['message_truncated'] = null;
@@ -22,7 +24,9 @@
     ?>
     <hr>
     [<a href="../">Return</a>]
-    <?=$this->fetch('common/footer.phtml')?>
+    <div class="container-centered">
+      <?=$this->fetch('common/footer.phtml')?>
+    </div>
 
     <?=$this->fetch('common/scripts.phtml')?>
   </body>

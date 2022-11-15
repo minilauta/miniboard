@@ -8,7 +8,9 @@
     <?=$this->fetch('board/menubar.phtml', ['board_id' => $board])?>
     <?=$this->fetch('common/header.phtml', ['header' => ['title' => "/{$board['id']}/ - {$board['name']}", 'subtitle' => $board['desc']]])?>
     <hr>
-    <?=$this->fetch('board/postform.phtml')?>
+    <div class="container-centered">
+      <?=$this->fetch('board/postform.phtml')?>
+    </div>
     <hr>
     <?php
       foreach ($threads as $thread) {
@@ -20,7 +22,9 @@
       }
     ?>
     <?=$this->fetch('common/pagetable.phtml', ['page' => $page, 'page_n' => $page_n])?>
-    <?=$this->fetch('common/footer.phtml')?>
+    <div class="container-centered">
+      <?=$this->fetch('common/footer.phtml')?>
+    </div>
 
     <?=$this->fetch('common/scripts.phtml')?>
   </body>

@@ -10,7 +10,9 @@
     <hr>
     [<a href="../">Return</a>]
     <div class="mode">Catalog</div>
-    <?=$this->fetch('board/postform.phtml')?>
+    <div class="container-centered">
+      <?=$this->fetch('board/postform.phtml')?>
+    </div>
     <hr>
     <?php
       foreach ($threads as $thread) {
@@ -19,7 +21,9 @@
     ?>
     <hr>
     <?=$this->fetch('common/pagetable.phtml', ['page' => $page, 'page_n' => $page_n])?>
-    <?=$this->fetch('common/footer.phtml')?>
+    <div class="container-centered">
+      <?=$this->fetch('common/footer.phtml')?>
+    </div>
 
     <?=$this->fetch('common/scripts.phtml')?>
   </body>
