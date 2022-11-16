@@ -15,7 +15,6 @@ require_once __DIR__ . '/funcs_file.php';
 require_once __DIR__ . '/funcs_post.php';
 require_once __DIR__ . '/funcs_report.php';
 require_once __DIR__ . '/funcs_hide.php';
-require_once __DIR__ . '/functions.php';
 
 $app = AppFactory::create();
 $app->addBodyParsingMiddleware();
@@ -216,21 +215,33 @@ function handle_postform(Request $request, Response $response, array $args): Res
   }
 
   // upload file
-  $file_upload = funcs_file_execute_upload($file, $file_info, $file_collisions, $board_cfg['max_width'], $board_cfg['max_height']);
+  $file = funcs_file_execute_upload($file, $file_info, $file_collisions, $board_cfg['max_width'], $board_cfg['max_height']);
+
+  // get thread if replying
+  $thread_id = null;
+  if (isset($args['thread_id'])) {
+    $parent = select_post($board_cfg['id'], $args['thread_id']);
+    if ($parent != null && $parent['parent_id'] > 0) {
+      throw new ApiException("thread with ID /{$board_cfg['id']}/{$args['thread_id']} not found", SC_BAD_REQUEST);
+    } else if ($parent != null) {
+      $thread_id = $parent['id'];
+    }
+  }
 
   // create post
-  $created_post = create_post($args, $params, $file_upload);
+  $ip = funcs_common_get_client_remote_address(MB_GLOBAL['cloudflare'], $_SERVER);
+  $post = funcs_post_create($ip, $board_cfg, $thread_id, $file, $params);
 
   // insert post
-  $inserted_post_id = insert_post($created_post);
+  $inserted_post_id = insert_post($post);
 
   // bump thread
-  $bumped_thread = bump_thread($created_post['board_id'], $created_post['parent_id']);
+  $bumped_thread = bump_thread($post['board_id'], $post['parent_id']);
 
   // handle noko
   $location_header = '/' . $board_cfg['id'] . '/';
-  if (strtolower($created_post['email']) === 'noko' || $board_cfg['alwaysnoko']) {
-    $location_header .= ($created_post['parent_id'] === 0 ? $inserted_post_id : $created_post['parent_id']) . '/';
+  if (strtolower($post['email']) === 'noko' || $board_cfg['alwaysnoko']) {
+    $location_header .= ($post['parent_id'] === 0 ? $inserted_post_id : $post['parent_id']) . '/';
   }
 
   $response = $response
