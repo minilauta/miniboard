@@ -5,7 +5,7 @@
     <?=$this->fetch('common/styles.phtml')?>
   </head>
   <body>
-    <?=$this->fetch('board/menubar.phtml', ['board_id' => $board])?>
+    <?=$this->fetch('board/menubar.phtml', ['board_id' => $board['id'], 'thread_id' => null])?>
     <?=$this->fetch('common/header.phtml', ['header' => ['title' => "/{$board['id']}/ - {$board['name']}", 'subtitle' => $board['desc']]])?>
     <hr>
     <div class="container-centered">
@@ -14,10 +14,7 @@
     <hr>
     <?php
       foreach ($threads as $thread) {
-        echo $this->fetch('board/post_op.phtml', ['board_id' => $board, 'post' => $thread]);
-        foreach ($thread['replies'] as $reply) {
-          echo $this->fetch('board/post_reply.phtml', ['board_id' => $board, 'post' => $reply]);
-        }
+        echo $this->fetch('board/post_op.phtml', ['context' => 'board', 'post' => $thread]);
         echo '<hr>';
       }
     ?>

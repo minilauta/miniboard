@@ -16,26 +16,28 @@ function listener_dropdown_menu_button(event) {
 
     switch (data.cmd) {
       case 'post-menu':
-        create_dropdown_menu(data.board_id, data.id, rect.bottom + window.scrollY, rect.left + window.scrollX, [
-          {
+        var lis = [];
+        lis.push({
+          type: 'li',
+          text: 'Report post',
+          data: {
+            cmd: 'report',
+            board_id: data.board_id,
+            id: data.id
+          }
+        });
+        if (data.parent_id == null) {
+          lis.push({
             type: 'li',
-            text: 'Report post',
-            data: {
-              cmd: 'report',
-              board_id: data.board_id,
-              id: data.id
-            }
-          },
-          {
-            type: 'li',
-            text: 'Hide post',
+            text: 'Hide thread',
             data: {
               cmd: 'hide',
               board_id: data.board_id,
               id: data.id
             }
-          }
-        ]);
+          });
+        }
+        create_dropdown_menu(data.board_id, data.id, rect.bottom + window.scrollY, rect.left + window.scrollX, lis);
         break;
       default:
         break;
@@ -65,6 +67,16 @@ function listener_dropdown_menu_button(event) {
       break;
     case 'hide':
       var xhr = new XMLHttpRequest();
+      xhr.onreadystatechange = function() {
+        var post = document.getElementById(data.id);
+        if (post != null) {
+          if (post.parentElement.classList.contains('reply')) {
+            post.parentElement.remove();
+          } else {
+            post.remove();
+          }
+        }
+      };
       xhr.open('POST', '/' + data.board_id + '/' + data.id + '/hide', true);
       xhr.send();
       break;

@@ -34,4 +34,12 @@
       ?>
     </div>
   </div>
+  <?php
+    foreach ($post['replies'] as $reply) {
+      if ($context === 'thread') {
+        $reply['message_truncated'] = null;
+      }
+      echo $this->fetch('board/post_reply.phtml', ['context' => $context, 'post' => $reply]);
+    }
+  ?>
 </div>

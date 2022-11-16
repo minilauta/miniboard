@@ -35,11 +35,11 @@ function select_post(string $board_id, int $id) : array|bool {
   return $sth->fetch();
 }
 
-function select_posts(string $session_id, string $board_id, int $parent_id = 0, bool $desc = true, int $offset = 0, int $limit = 10) : array|bool {
+function select_posts(string $session_id, string $board_id, int $parent_id = 0, bool $desc = true, int $offset = 0, int $limit = 10, bool $hidden = false) : array|bool {
   $dbh = get_db_handle();
   $sth = $dbh->prepare('
     SELECT * FROM posts
-    WHERE board_id = :board_id_outer AND parent_id = :parent_id AND id NOT IN (
+    WHERE board_id = :board_id_outer AND parent_id = :parent_id AND id ' . ($hidden === true ? '' : 'NOT') . ' IN (
       SELECT post_id FROM hides WHERE session_id = :session_id AND board_id = :board_id_inner
     )
     ORDER BY bumped ' . ($desc === true ? 'DESC' : 'ASC') . '

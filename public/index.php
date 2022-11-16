@@ -114,7 +114,7 @@ $app->get('/{board_id}/', function (Request $request, Response $response, array 
   $query_page = funcs_common_parse_input_int($query_params, 'page', 0, 0, 1000);
 
   // get threads
-  $threads = select_posts(session_id(), $board_cfg['id'], 0, true, $board_threads_per_page * $query_page, $board_threads_per_page);
+  $threads = select_posts(session_id(), $board_cfg['id'], 0, true, $board_threads_per_page * $query_page, $board_threads_per_page, false);
 
   // get replies
   foreach ($threads as $key => $thread) {
@@ -133,6 +133,36 @@ $app->get('/{board_id}/', function (Request $request, Response $response, array 
   return $renderer->render($response, 'board.phtml');
 });
 
+$app->get('/{board_id}/hidden/', function (Request $request, Response $response, array $args) {
+  // get board config
+  $board_cfg = funcs_common_get_board_cfg($args['board_id']);
+  $board_threads_per_page = $board_cfg['threads_per_page'];
+  $board_posts_per_preview = $board_cfg['posts_per_preview'];
+
+  // get query params
+  $query_params = $request->getQueryParams();
+  $query_page = funcs_common_parse_input_int($query_params, 'page', 0, 0, 1000);
+
+  // get threads
+  $threads = select_posts(session_id(), $board_cfg['id'], 0, true, $board_threads_per_page * $query_page, $board_threads_per_page, true);
+
+  // get replies
+  foreach ($threads as $key => $thread) {
+    $threads[$key]['replies'] = select_posts_preview(session_id(), $thread['board_id'], $thread['id'], 0, $board_posts_per_preview);
+  }
+
+  // get thread count
+  $threads_n = count_posts(session_id(), $board_cfg['id'], 0);
+
+  $renderer = new PhpRenderer('templates/', [
+    'board' => $board_cfg,
+    'threads' => $threads,
+    'page' => $query_page,
+    'page_n' => ceil($threads_n / $board_threads_per_page)
+  ]);
+  return $renderer->render($response, 'hidden.phtml');
+});
+
 $app->get('/{board_id}/catalog/', function (Request $request, Response $response, array $args) {
   // get board config
   $board_cfg = funcs_common_get_board_cfg($args['board_id']);
@@ -143,7 +173,7 @@ $app->get('/{board_id}/catalog/', function (Request $request, Response $response
   $query_page = funcs_common_parse_input_int($query_params, 'page', 0, 0, 1000);
 
   // get threads
-  $threads = select_posts(session_id(), $board_cfg['id'], 0, true, $board_threads_per_catalog_page * $query_page, $board_threads_per_catalog_page);
+  $threads = select_posts(session_id(), $board_cfg['id'], 0, true, $board_threads_per_catalog_page * $query_page, $board_threads_per_catalog_page, false);
 
   // get thread reply counts
   foreach ($threads as $key => $thread) {
@@ -176,12 +206,11 @@ $app->get('/{board_id}/{thread_id}/', function (Request $request, Response $resp
   }
 
   // get replies
-  $replies = select_posts(session_id(), $thread['board_id'], $thread['id'], false, 0, 1000);
+  $thread['replies'] = select_posts(session_id(), $thread['board_id'], $thread['id'], false, 0, 1000, false);
 
   $renderer = new PhpRenderer('templates/', [
     'board' => $board_cfg,
-    'thread' => $thread,
-    'replies' => $replies
+    'thread' => $thread
   ]);
   return $renderer->render($response, 'thread.phtml');
 });
