@@ -125,9 +125,14 @@ form.postform {
   text-align: left;
 }
 
+div.postform-group {
+  margin-top: 2px;
+}
+
 div.postform-group label {
   display: inline-block;
   width: 128px;
+  height: 23px;
 }
 
 /* menubar */

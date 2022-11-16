@@ -3,7 +3,7 @@
 
 CREATE TABLE IF NOT EXISTS accounts (
   `id` int unsigned NOT NULL auto_increment,
-  `username` varchar(255) NOT NULL,
+  `username` varchar(256) NOT NULL,
   `password` text NOT NULL,
   `role` tinyint unsigned NOT NULL,
   `lastactive` int unsigned NOT NULL,
@@ -28,8 +28,7 @@ CREATE TABLE IF NOT EXISTS logs (
   `id` int unsigned NOT NULL auto_increment,
   `ip` varbinary(16) NOT NULL,
   `timestamp` int unsigned NOT NULL,
-  `expire` int unsigned NOT NULL,
-  `reason` varchar(256) NOT NULL,
+  `message` varchar(256) NOT NULL,
   PRIMARY KEY (`id`),
   KEY `ip` (`ip`)
 )
@@ -37,11 +36,11 @@ CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
 
 CREATE TABLE IF NOT EXISTS posts (
   `id` int unsigned NOT NULL auto_increment,
-  `parent` int unsigned NOT NULL,
-  `board` varchar(8) NOT NULL,
+  `parent_id` int unsigned NOT NULL,
+  `board_id` varchar(8) NOT NULL,
+  `ip` varbinary(16) NOT NULL,
   `timestamp` int unsigned NOT NULL,
   `bumped` int unsigned NOT NULL,
-  `ip` varbinary(16) NOT NULL,
   `name` varchar(75) NOT NULL,
   `tripcode` varchar(24) NULL,
   `email` varchar(75) NULL,
@@ -57,27 +56,38 @@ CREATE TABLE IF NOT EXISTS posts (
   `file_size_formatted` varchar(75) NULL,
   `image_width` smallint unsigned NULL,
   `image_height` smallint unsigned NULL,
-  `thumb` varchar(255) NULL,
+  `thumb` varchar(256) NULL,
   `thumb_width` smallint(5) unsigned NULL,
   `thumb_height` smallint(5) unsigned NULL,
   `stickied` tinyint NOT NULL default 0,
   `moderated` tinyint NOT NULL default 1,
   `country_code` varchar(3) NULL,
   PRIMARY KEY	(`id`),
-  KEY `parent` (`parent`),
-  KEY `board` (`board`),
+  KEY `parent_id` (`parent_id`),
+  KEY `board_id` (`board_id`),
   KEY `bumped` (`bumped`),
   KEY `stickied` (`stickied`),
   KEY `moderated` (`moderated`)
 )
 CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
 
+CREATE TABLE IF NOT EXISTS hides (
+  `session_id` varchar(64) NOT NULL,
+  `board_id` varchar(8) NOT NULL,
+  `post_id` int unsigned NOT NULL,
+  PRIMARY KEY (`session_id`, `board_id`, `post_id`)
+)
+CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
+
 CREATE TABLE IF NOT EXISTS reports (
   `id` int unsigned NOT NULL auto_increment,
   `ip` varbinary(16) NOT NULL,
-  `post` int unsigned NOT NULL,
+  `timestamp` int unsigned NOT NULL,
+  `board_id` varchar(8) NOT NULL,
+  `post_id` int unsigned NOT NULL,
   `type` text NOT NULL,
   PRIMARY KEY	(`id`),
-  KEY `post` (`post`)
+  KEY `board_id` (`board_id`),
+  KEY `post_id` (`post_id`)
 )
 CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;

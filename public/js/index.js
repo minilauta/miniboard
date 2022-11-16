@@ -16,13 +16,13 @@ function listener_dropdown_menu_button(event) {
 
     switch (data.cmd) {
       case 'post-menu':
-        create_dropdown_menu(data.board, data.id, rect.bottom + window.scrollY, rect.left + window.scrollX, [
+        create_dropdown_menu(data.board_id, data.id, rect.bottom + window.scrollY, rect.left + window.scrollX, [
           {
             type: 'li',
             text: 'Report post',
             data: {
               cmd: 'report',
-              board: data.board,
+              board_id: data.board_id,
               id: data.id
             }
           },
@@ -31,7 +31,7 @@ function listener_dropdown_menu_button(event) {
             text: 'Hide post',
             data: {
               cmd: 'hide',
-              board: data.board,
+              board_id: data.board_id,
               id: data.id
             }
           }
@@ -61,9 +61,12 @@ function listener_dropdown_menu_button(event) {
 
   switch (data.cmd) {
     case 'report':
-      let report_window = window.open('/' + data.board + '/' + data.id + '/report', '_blank', 'location=true,status=true,width=480,height=640');
+      window.open('/' + data.board_id + '/' + data.id + '/report', '_blank', 'location=true,status=true,width=480,height=640');
       break;
     case 'hide':
+      var xhr = new XMLHttpRequest();
+      xhr.open('POST', '/' + data.board_id + '/' + data.id + '/hide', true);
+      xhr.send();
       break;
   }
 
@@ -72,16 +75,16 @@ function listener_dropdown_menu_button(event) {
 
 /**
  * Creates a new dropdown menu.
- * @param {string} board 
+ * @param {string} board_id 
  * @param {number} id 
  * @param {number} top 
  * @param {number} left 
  * @param {array} indices 
  */
-function create_dropdown_menu(board, id, top, left, indices) {
+function create_dropdown_menu(board_id, id, top, left, indices) {
   // create container element
   let div = document.createElement('div');
-  div.dataset.board = board;
+  div.dataset.board_id = board_id;
   div.dataset.id = id;
   div.classList.add('dd-menu');
   div.style.top = top + 'px';
@@ -96,7 +99,7 @@ function create_dropdown_menu(board, id, top, left, indices) {
       case 'li':
         let li = document.createElement('li');
         li.dataset.cmd = indice.data.cmd;
-        li.dataset.board = indice.data.board;
+        li.dataset.board_id = indice.data.board_id;
         li.dataset.id = indice.data.id;
         li.innerHTML = indice.text;
         

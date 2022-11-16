@@ -5,22 +5,26 @@
     <?=$this->fetch('common/styles.phtml')?>
   </head>
   <body>
-    <?=$this->fetch('board/menubar.phtml', ['board' => $board])?>
+    <?=$this->fetch('board/menubar.phtml', ['board_id' => $board])?>
     <?=$this->fetch('common/header.phtml', ['header' => ['title' => "/{$board['id']}/ - {$board['name']}", 'subtitle' => $board['desc']]])?>
     <hr>
-    <?=$this->fetch('board/postform.phtml')?>
+    <div class="container-centered">
+      <?=$this->fetch('board/postform.phtml')?>
+    </div>
     <hr>
     <?php
       foreach ($threads as $thread) {
-        echo $this->fetch('board/post_op.phtml', ['board' => $board, 'post' => $thread]);
+        echo $this->fetch('board/post_op.phtml', ['board_id' => $board, 'post' => $thread]);
         foreach ($thread['replies'] as $reply) {
-          echo $this->fetch('board/post_reply.phtml', ['board' => $board, 'post' => $reply]);
+          echo $this->fetch('board/post_reply.phtml', ['board_id' => $board, 'post' => $reply]);
         }
         echo '<hr>';
       }
     ?>
     <?=$this->fetch('common/pagetable.phtml', ['page' => $page, 'page_n' => $page_n])?>
-    <?=$this->fetch('common/footer.phtml')?>
+    <div class="container-centered">
+      <?=$this->fetch('common/footer.phtml')?>
+    </div>
 
     <?=$this->fetch('common/scripts.phtml')?>
   </body>

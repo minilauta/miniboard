@@ -1,7 +1,7 @@
 <?php
 
 // database settings
-define('MB_DB_HOST', '127.0.0.1');
+define('MB_DB_HOST', 'mariadb');
 define('MB_DB_NAME', 'miniboard');
 define('MB_DB_USER', 'admin');
 define('MB_DB_PASS', 'admin');
@@ -37,10 +37,12 @@ define('MB_BOARDS', [
     'anonymous'         => 'Anonymous',
     'max_threads'       => 100,
     'max_replies'       => 100,
-    'max_name'          => 75,
-    'max_email'         => 320,
-    'max_subject'       => 75,
-    'max_message'       => 8192,
+    'fields_post'       => [
+      'name'    => ['required' => false,  'max_len' => 75   ],
+      'email'   => ['required' => false,  'max_len' => 320  ],
+      'subject' => ['required' => false,  'max_len' => 75   ],
+      'message' => ['required' => true,   'max_len' => 8192 ]
+    ],
     'mime_ext_types'    => [
       'image/jpeg'          => ['jpg'],
       'image/pjpeg'         => ['jpg'],
@@ -72,10 +74,12 @@ define('MB_BOARDS', [
     'anonymous'         => 'Anonymous',
     'max_threads'       => 100,
     'max_replies'       => 100,
-    'max_name'          => 75,
-    'max_email'         => 320,
-    'max_subject'       => 75,
-    'max_message'       => 8192,
+    'fields_post'       => [
+      'name'    => ['required' => false,  'max_len' => 75   ],
+      'email'   => ['required' => false,  'max_len' => 320  ],
+      'subject' => ['required' => false,  'max_len' => 75   ],
+      'message' => ['required' => true,   'max_len' => 8192 ]
+    ],
     'mime_ext_types'    => [
       'image/jpeg'          => ['jpg'],
       'image/pjpeg'         => ['jpg'],
