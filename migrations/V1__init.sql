@@ -38,9 +38,9 @@ CREATE TABLE IF NOT EXISTS posts (
   `id` int unsigned NOT NULL auto_increment,
   `parent_id` int unsigned NOT NULL,
   `board_id` varchar(8) NOT NULL,
+  `ip` varbinary(16) NOT NULL,
   `timestamp` int unsigned NOT NULL,
   `bumped` int unsigned NOT NULL,
-  `ip` varbinary(16) NOT NULL,
   `name` varchar(75) NOT NULL,
   `tripcode` varchar(24) NULL,
   `email` varchar(75) NULL,
@@ -83,9 +83,11 @@ CREATE TABLE IF NOT EXISTS reports (
   `id` int unsigned NOT NULL auto_increment,
   `ip` varbinary(16) NOT NULL,
   `timestamp` int unsigned NOT NULL,
+  `board_id` varchar(8) NOT NULL,
   `post_id` int unsigned NOT NULL,
   `type` text NOT NULL,
   PRIMARY KEY	(`id`),
+  KEY `board_id` (`board_id`),
   KEY `post_id` (`post_id`)
 )
 CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;

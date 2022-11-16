@@ -124,8 +124,8 @@ function funcs_common_human_filesize(int $bytes, int $dec = 2) : string {
  * @param array $server
  * @return string
  */
-function funcs_common_get_client_remote_address(array $server) {
-  if (MB_GLOBAL['cloudflare'] && isset($server['HTTP_CF_CONNECTING_IP'])) {
+function funcs_common_get_client_remote_address(bool $cloudflare, array $server): string {
+  if ($cloudflare && isset($server['HTTP_CF_CONNECTING_IP'])) {
     return $server['HTTP_CF_CONNECTING_IP'];
   }
 

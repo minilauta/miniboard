@@ -6,64 +6,6 @@ require_once __DIR__ . '/config.php';
 require_once __DIR__ . '/database.php';
 
 /**
- * Creates a hide object that's ready to be saved into database.
- * 
- * @param array $args
- * @param array $params
- * @return array
- */
-function create_hide(array $args, array $params) : array {
-  $board_cfg = MB_BOARDS[$args['board_id']];
-
-  return [
-    'session_id'          => session_id(),
-    'board_id'            => $board_cfg['id'],
-    'post_id'             => $args['post_id']
-  ];
-}
-
-/**
- * Validates user input in case of POST reportform request.
- * 
- * @param array @args
- * @param array $params
- * @return array
- */
-function validate_post_reportform(array $args, array $params) : array {
-  $board_id = $args['board_id'];
-  if (!isset(MB_BOARDS[$board_id])) {
-    return ['error' => 'INVALID_BOARD: ' . $board_id];
-  }
-
-  $board_cfg = MB_BOARDS[$board_id];
-
-  if (!array_key_exists($params['type'], MB_GLOBAL['report_types'])) {
-    return ['error' => 'INVALID_REPORT_TYPE: ' . $params['type']];
-  }
-
-  return ['board_cfg' => $board_cfg];
-}
-
-/**
- * Creates a report object that's ready to be saved into database.
- * 
- * @param array $args
- * @param array $params
- * @param array $post
- * @return array
- */
-function create_report(array $args, array $params, array $post) : array {
-  $board_cfg = MB_BOARDS[$args['board_id']];
-
-  return [
-    'ip'                  => funcs_common_get_client_remote_address($_SERVER),
-    'timestamp'           => time(),
-    'post_id'             => $post['id'],
-    'type'                => MB_GLOBAL['report_types'][$params['type']]
-  ];
-}
-
-/**
  * Creates a post object that's ready to be saved into database.
  * 
  * @param array $args
@@ -151,7 +93,7 @@ function create_post(array $args, array $params, array $file) : array {
     'thumb_height'        => $file['thumb_height'],
     'timestamp'           => time(),
     'bumped'              => time(),
-    'ip'                  => funcs_common_get_client_remote_address($_SERVER),
+    'ip'                  => funcs_common_get_client_remote_address(true, $_SERVER),
     'stickied'            => 0,
     'moderated'           => 1,
     'country_code'        => null

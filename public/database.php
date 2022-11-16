@@ -103,9 +103,9 @@ function insert_post($post) : int|bool {
     INSERT INTO posts (
       board_id,
       parent_id,
+      ip,
       timestamp,
       bumped,
-      ip,
       name,
       tripcode,
       email,
@@ -131,9 +131,9 @@ function insert_post($post) : int|bool {
     VALUES (
       :board_id,
       :parent_id,
+      INET6_ATON(:ip),
       :timestamp,
       :bumped,
-      INET6_ATON(:ip),
       :name,
       :tripcode,
       :email,
@@ -258,12 +258,14 @@ function insert_report($report) : int|bool {
     INSERT INTO reports (
       ip,
       timestamp,
+      board_id,
       post_id,
       type
     )
     VALUES (
       INET6_ATON(:ip),
       :timestamp,
+      :board_id,
       :post_id,
       :type
     )

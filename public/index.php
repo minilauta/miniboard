@@ -13,6 +13,8 @@ require_once __DIR__ . '/config.php';
 require_once __DIR__ . '/funcs_common.php';
 require_once __DIR__ . '/funcs_file.php';
 require_once __DIR__ . '/funcs_post.php';
+require_once __DIR__ . '/funcs_report.php';
+require_once __DIR__ . '/funcs_hide.php';
 require_once __DIR__ . '/functions.php';
 
 $app = AppFactory::create();
@@ -38,11 +40,9 @@ $app->get('/{board_id}/{post_id}/report/', function (Request $request, Response 
   $board_cfg = funcs_common_get_board_cfg($args['board_id']);
 
   // get post
-  $post = select_post($args['board_id'], $args['post_id']);
+  $post = select_post($board_cfg['id'], $args['post_id']);
   if ($post == null) {
-    $response->getBody()->write('Error: INVALID_POST: ' . $args['board_id'] . '/' . $args['post_id']);
-    $response = $response->withStatus(400);
-    return $response;
+    throw new ApiException("post with ID /{$board_cfg['id']}/{$args['post_id']} not found", SC_BAD_REQUEST);
   }
 
   $renderer = new PhpRenderer('templates/', [
@@ -60,9 +60,9 @@ $app->post('/{board_id}/{post_id}/hide/', function (Request $request, Response $
   $params = (array) $request->getParsedBody();
 
   // toggle hide
-  $hide = select_hide(session_id(), $args['board_id'], $args['post_id']);
+  $hide = select_hide(session_id(), $board_cfg['id'], $args['post_id']);
   if ($hide == null) {
-    $hide = create_hide($args, $params);
+    $hide = funcs_hide_create(session_id(), $board_cfg['id'], $args['post_id']);
     insert_hide($hide);
   } else {
     delete_hide($hide);
@@ -83,27 +83,21 @@ function handle_reportform(Request $request, Response $response, array $args): R
   // parse request body
   $params = (array) $request->getParsedBody();
 
-  // validate post
-  $validated_post = validate_post_reportform($args, $params);
-  if (isset($validated_post['error'])) {
-    $response->getBody()->write('Post validation error: ' . $validated_post['error']);
-    $response = $response->withStatus(400);
-    return $response;
-  }
+  // validate request fields
+  funcs_report_validate_fields($params, MB_GLOBAL['report_types']);
 
   // get post
-  $post = select_post($args['board_id'], $args['post_id']);
+  $post = select_post($board_cfg['id'], $args['post_id']);
   if ($post == null) {
-    $response->getBody()->write('Error: INVALID_POST: ' . $args['board_id'] . '/' . $args['post_id']);
-    $response = $response->withStatus(400);
-    return $response;
+    throw new ApiException("post with ID /{$board_cfg['id']}/{$args['post_id']} not found", SC_BAD_REQUEST);
   }
 
   // create report
-  $created_report = create_report($args, $params, $post);
+  $ip = funcs_common_get_client_remote_address(MB_GLOBAL['cloudflare'], $_SERVER);
+  $report = funcs_report_create($ip, $board_cfg['id'], $post['id'], $params['type'], MB_GLOBAL['report_types']);
 
   // insert report
-  $inserted_report_id = insert_report($created_report);
+  $inserted_report_id = insert_report($report);
 
   $response->getBody()->write('Post reported');
   $response = $response->withStatus(200);
