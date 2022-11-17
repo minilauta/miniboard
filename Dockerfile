@@ -2,7 +2,7 @@ FROM php:8.0.3-cli-alpine3.12
 
 WORKDIR /
 
-RUN apk update && apk add bash ffmpeg
+RUN apk update && apk add bash ffmpeg exiftool
 RUN mv $PHP_INI_DIR/php.ini-development $PHP_INI_DIR/php.ini
 ADD https://github.com/mlocati/docker-php-extension-installer/releases/latest/download/install-php-extensions /usr/local/bin/
 RUN chmod +x /usr/local/bin/install-php-extensions && sync && \

@@ -201,7 +201,9 @@ $app->get('/{board_id}/{thread_id}/', function (Request $request, Response $resp
 
   // get thread
   $thread = select_post($board_cfg['id'], $args['thread_id']);
-  if ($thread['parent_id'] !== 0) {
+  if ($thread == null) {
+    throw new ApiException("thread with ID /{$board_cfg['id']}/{$args['thread_id']} not found", SC_BAD_REQUEST);
+  } else if ($thread['parent_id'] !== 0) {
     throw new ApiException('not a valid thread', SC_BAD_REQUEST);
   }
 

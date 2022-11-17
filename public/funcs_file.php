@@ -73,6 +73,13 @@ function funcs_file_execute_upload(UploadedFileInterface $file, ?array $file_inf
     $file_size_formatted = funcs_common_human_filesize($file_size);
     $thumb_file_name = 'thumb_' . $file_name . '.png';
     $thumb_file_path = __DIR__ . '/src/' . $thumb_file_name;
+    
+    // strip metadata from all files
+    $exiftool_status = funcs_file_strip_metadata($file_path);
+    if ($exiftool_status !== 0) {
+      unlink($file_path);
+      throw new FuncException('funcs_file', 'funcs_file_execute_upload', "exiftool returned an error status: {$exiftool_status}", SC_INTERNAL_ERROR);
+    }
 
     switch ($file_info['mime']) {
       case 'image/jpeg':
@@ -134,6 +141,26 @@ function funcs_file_execute_upload(UploadedFileInterface $file, ?array $file_inf
     'thumb_width'         => $thumb_width,
     'thumb_height'        => $thumb_height
   ];
+}
+
+function funcs_file_strip_metadata(string $file_path): int {
+  // check if exiftool is available
+  $exiftool_output = '';
+  $exiftool_status = 1;
+  exec('exiftool -ver', $exiftool_output, $exiftool_status);
+  if ($exiftool_status !== 0) {
+    return $exiftool_status;
+  }
+
+  // execute exiftool to strip any metadata
+  $exiftool_output = '';
+  $exiftool_status = 1;
+  exec('exiftool -All= -overwrite_original_in_place ' . escapeshellarg($file_path), $exiftool_output, $exiftool_status);
+  if ($exiftool_status !== 0) {
+    return $exiftool_status;
+  }
+
+  return $exiftool_status;
 }
 
 function funcs_file_generate_thumbnail(string $file_path, string $file_mime, string $thumb_path, int $thumb_width, int $thumb_height): array {
