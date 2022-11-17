@@ -267,7 +267,7 @@ function handle_postform(Request $request, Response $response, array $args): Res
 
   // create post
   $ip = funcs_common_get_client_remote_address(MB_GLOBAL['cloudflare'], $_SERVER);
-  $post = funcs_post_create($ip, $board_cfg, $thread_id, $file, $params);
+  $post = funcs_post_create($ip, $board_cfg, $thread_id, $file_info, $file, $params);
 
   // insert post
   $inserted_post_id = insert_post($post);

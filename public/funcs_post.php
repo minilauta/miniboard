@@ -3,7 +3,12 @@
 require_once __DIR__ . '/config.php';
 require_once __DIR__ . '/exception.php';
 
-function funcs_post_create(string $ip, array $board_cfg, ?int $parent_id, array $file, array $input): array {
+function funcs_post_create(string $ip, array $board_cfg, ?int $parent_id, ?array $file_info, array $file, array $input): array {
+  // handle anonfile flag
+  if ($file_info != null && isset($input['anonfile']) && $input['anonfile'] == true) {
+    $file['file_original'] = substr(str_shuffle('0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ'), 1, 8) . '.' . $file_info['ext'];
+  }
+
   // escape message HTML entities
   $message = funcs_common_clean_field($input['message']);
 
