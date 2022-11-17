@@ -234,18 +234,6 @@ function handle_postform(Request $request, Response $response, array $args): Res
   // validate request fields
   funcs_common_validate_fields($params, $board_cfg['fields_post']);
 
-  // validate request file
-  $file_info = funcs_file_validate_upload($file, true, $board_cfg['mime_ext_types'], $board_cfg['maxkb'] * 1000);
-
-  // check md5 file collisions
-  $file_collisions = [];
-  if ($file_info != null) {
-    $file_collisions = select_files_by_md5($file_info['md5']);
-  }
-
-  // upload file
-  $file = funcs_file_execute_upload($file, $file_info, $file_collisions, $board_cfg['max_width'], $board_cfg['max_height']);
-
   // get thread if replying
   $thread_id = null;
   if (isset($args['thread_id'])) {
@@ -256,6 +244,24 @@ function handle_postform(Request $request, Response $response, array $args): Res
       $thread_id = $parent['id'];
     }
   }
+
+  // validate request file
+  $no_file_ok = $thread_id != null ? true : $board_cfg['nofileok'];
+  $file_info = funcs_file_validate_upload($file, $no_file_ok, $board_cfg['mime_ext_types'], $board_cfg['maxkb'] * 1000);
+
+  // validate request message + file
+  if (strlen(trim($params['message'])) === 0 && $file_info == null) {
+    throw new ApiException('message and file cannot both be null', SC_BAD_REQUEST);
+  }
+
+  // check md5 file collisions
+  $file_collisions = [];
+  if ($file_info != null) {
+    $file_collisions = select_files_by_md5($file_info['md5']);
+  }
+
+  // upload file
+  $file = funcs_file_execute_upload($file, $file_info, $file_collisions, $board_cfg['max_width'], $board_cfg['max_height']);
 
   // create post
   $ip = funcs_common_get_client_remote_address(MB_GLOBAL['cloudflare'], $_SERVER);

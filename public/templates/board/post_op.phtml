@@ -1,14 +1,20 @@
 <div class="post" id="<?=$post['id']?>">
-  <div class="file-info">
-    File: <a href="/src/<?=$post['file']?>"><?=$post['file']?></a>
-    -
-    (<?=$post['file_size_formatted']?>, <?=$post['image_width']?>x<?=$post['image_height']?>, <?=$post['file_original']?>)
-  </div>
-  <div class="file-thumb">
-    <a href="/src/<?=$post['file']?>" target="_blank">
-      <img id="thumb-<?=$post['id']?>" src="/src/<?=$post['thumb']?>" loading="lazy">
-    </a>
-  </div>
+  <?php
+    if ($post['file'] !== '') {
+      echo "
+        <div class='file-info'>
+          File: <a href='/src/{$post['file']}'>{$post['file']}</a>
+          -
+          ({$post['file_size_formatted']}, {$post['image_width']}x{$post['image_height']}, {$post['file_original']})
+        </div>
+        <div class='file-thumb'>
+          <a href='/src/{$post['file']}' target='_blank'>
+            <img id='thumb-{$post['id']}' src='/src/{$post['thumb']}' loading='lazy'>
+          </a>
+        </div>
+      ";
+    }
+  ?>
   <div class="post-info">
     <label>
       <input type="checkbox">
