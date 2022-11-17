@@ -29,7 +29,7 @@ div.mode {
 }
 
 /* post */
-div.post div.reply {
+div.post.reply div.reply {
   background: #F0E0D6;
 }
 

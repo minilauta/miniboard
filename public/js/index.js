@@ -29,7 +29,7 @@ function listener_dropdown_menu_button(event) {
         if (data.parent_id == null) {
           lis.push({
             type: 'li',
-            text: 'Hide thread',
+            text: !window.location.pathname.includes('/hidden/') ? 'Hide thread' : 'Unhide thread',
             data: {
               cmd: 'hide',
               board_id: data.board_id,
