@@ -312,7 +312,12 @@ $error_handler = function(
   throw $exception;
 };
 
-$app->addErrorMiddleware(true, true, true)
-  ->setDefaultErrorHandler($error_handler);
+if (MB_ENV === 'dev') {
+  $app->addErrorMiddleware(true, true, true)
+    ->setDefaultErrorHandler($error_handler);
+} else {
+  $app->addErrorMiddleware(false, false, false)
+    ->setDefaultErrorHandler($error_handler);
+}
 
 $app->run();

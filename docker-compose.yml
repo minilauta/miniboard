@@ -6,6 +6,7 @@ services:
     pull_policy: build
     build:
       context: .
+      dockerfile: docker/miniboard/Dockerfile.dev
     restart: always
     healthcheck:
       test: ['CMD', 'curl', '-fs', 'http://localhost:80']
@@ -20,6 +21,11 @@ services:
       - app:/app/public/src
     ports:
       - "127.0.0.1:80:80"
+    environment:
+      MB_DB_HOST: mariadb
+      MB_DB_NAME: ${DB_NAME}
+      MB_DB_USER: ${DB_USER}
+      MB_DB_PASS: ${DB_PASS}
     depends_on:
       - mariadb
 
@@ -45,10 +51,10 @@ services:
     environment:
       MYSQL_CHARSET: 'utf8'
       MYSQL_COLLATION: 'utf8mb4_unicode_ci'
-      MYSQL_ROOT_PASSWORD: 'root'
-      MYSQL_DATABASE: 'miniboard'
-      MYSQL_USER: 'admin'
-      MYSQL_PASSWORD: 'admin'
+      MYSQL_ROOT_PASSWORD: ${DB_ROOT_PASS}
+      MYSQL_DATABASE: ${DB_NAME}
+      MYSQL_USER: ${DB_USER}
+      MYSQL_PASSWORD: ${DB_PASS}
 
   phpmyadmin:
     image: phpmyadmin:latest
@@ -58,18 +64,18 @@ services:
     ports:
       - 127.0.0.1:8080:80
     environment:
-      - PMA_HOST=mariadb
-      - PMA_USER=admin
-      - PMA_PASSWORD=admin
+      PMA_HOST: ${DB_NAME}
+      PMA_USER: ${DB_USER}
+      PMA_PASSWORD: ${DB_PASS}
 
   flyway:
-    image: flyway/flyway:latest-alpine
+    image: flyway/flyway:9-alpine
     restart: on-failure
     networks:
       - app
     volumes:
       - ./migrations:/flyway/sql:Z
-    command: -url=jdbc:mysql://mariadb -schemas=miniboard -user=root -password=root -connectRetries=60 migrate
+    command: -url=jdbc:mysql://mariadb -schemas=${DB_NAME} -user=root -password=${DB_ROOT_PASS} -connectRetries=60 migrate
     depends_on:
       - mariadb
 

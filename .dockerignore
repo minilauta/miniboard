@@ -1,7 +1,6 @@
 vendor/
 coverage/
 node_modules/
-migrations/
 .git/
 .docs/
 .github/

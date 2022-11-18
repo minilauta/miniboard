@@ -1,10 +1,13 @@
 <?php
 
+// environment settings
+define('MB_ENV', getenv('MB_ENV'));
+
 // database settings
-define('MB_DB_HOST', 'mariadb');
-define('MB_DB_NAME', 'miniboard');
-define('MB_DB_USER', 'admin');
-define('MB_DB_PASS', 'admin');
+define('MB_DB_HOST', getenv('MB_DB_HOST'));
+define('MB_DB_NAME', getenv('MB_DB_NAME'));
+define('MB_DB_USER', getenv('MB_DB_USER'));
+define('MB_DB_PASS', getenv('MB_DB_PASS'));
 
 // global settings
 define('MB_GLOBAL', [
