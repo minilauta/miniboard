@@ -70,7 +70,7 @@ services:
     volumes:
       - app:/app/public/src:ro
     ports:
-      - '80:80'
+      - '443:443'
     depends_on:
       - app
 
