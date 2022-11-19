@@ -273,7 +273,10 @@ function handle_postform(Request $request, Response $response, array $args): Res
   $inserted_post_id = insert_post($post);
 
   // bump thread
-  $bumped_thread = bump_thread($post['board_id'], $post['parent_id']);
+  $thread_bumped = false;
+  if ($post['parent_id'] !== 0 && strtolower($post['email']) !== 'sage') {
+    $thread_bumped = bump_thread($post['board_id'], $post['parent_id']);
+  }
 
   // handle noko
   $location_header = '/' . $board_cfg['id'] . '/';

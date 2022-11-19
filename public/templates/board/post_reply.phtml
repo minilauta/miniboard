@@ -5,7 +5,13 @@
         <label>
           <input type="checkbox">
           <span class="post-subject"><?=$post['subject']?></span>
-          <span class="post-name"><?=$post['name']?></span>
+          <?php
+            if (isset($post['email']) && strlen($post['email']) > 0) {
+              echo "<a href='mailto:{$post['email']}'><span class='post-name'>{$post['name']}</span></a>";
+            } else {
+              echo "<span class='post-name'>{$post['name']}</span>";
+            }
+          ?>
           <span class="post-datetime"><?=@strftime(MB_GLOBAL['datefmt'], $post['timestamp'])?></span>
         </label>
         <span class="post-id">
