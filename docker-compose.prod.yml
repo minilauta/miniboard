@@ -50,7 +50,7 @@ services:
     pull_policy: build
     build:
       context: .
-      dockerfile: docker/flyway/Dockerfile.prod
+      dockerfile: docker/flyway/Dockerfile
     restart: on-failure
     networks:
       - app
@@ -63,7 +63,7 @@ services:
     pull_policy: build
     build:
       context: .
-      dockerfile: docker/nginx/Dockerfile.prod
+      dockerfile: docker/nginx/Dockerfile
     restart: on-failure
     networks:
       - app
@@ -71,6 +71,10 @@ services:
       - app:/app/public/src:ro
     ports:
       - '443:443'
+    environment:
+      NGINX_CLIENT_MAX_BODY_SIZE: ${NGINX_CLIENT_MAX_BODY_SIZE}
+      NGINX_REAL_IP_HEADER: ${NGINX_REAL_IP_HEADER}
+      NGINX_REAL_IP_VAR: ${NGINX_REAL_IP_VAR}
     depends_on:
       - app
 

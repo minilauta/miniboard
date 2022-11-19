@@ -13,7 +13,7 @@ COPY . /app
 
 WORKDIR /app
 
-RUN composer install && chmod 640 *
+RUN composer install && chown www-data:www-data -R public
 EXPOSE 80
 ENV MB_ENV dev
 
