@@ -85,10 +85,7 @@ function listener_post_reference_link_mouseover(event) {
 function listener_post_reference_link_mouseout(event) {
   event.preventDefault();
 
-  let post_previews = document.getElementsByClassName('post-preview');
-  Array.from(post_previews).forEach(element => {
-    element.remove();
-  });
+  delete_post_previews();
 }
 
 /**
@@ -227,6 +224,36 @@ function delete_dropdown_menu(id) {
 }
 
 /**
+ * Deletes all existing post previews.
+ */
+function delete_post_previews() {
+  let post_previews = document.getElementsByClassName('post-preview');
+
+  Array.from(post_previews).forEach(element => {
+    element.remove();
+  });
+}
+
+/**
+ * Highlights a post.
+ */
+function create_post_highlight(id) {
+  // cleanup old highlights
+  let highlighted_elements = document.getElementsByClassName('highlight');
+
+  Array.from(highlighted_elements).forEach(element => {
+    element.classList.remove('highlight');
+  });
+
+  // add current highlight
+  let post_element = document.getElementById(id);
+  
+  if (post_element != null && post_element.classList.contains('reply')) {
+    post_element.classList.add('highlight');
+  }
+}
+
+/**
  * Initializes all dropdown menu buttons.
  */
 function init_dropdown_menu_buttons() {
@@ -249,7 +276,21 @@ function init_post_reference_links() {
   });
 }
 
+/**
+ * Initializes post highlights.
+ */
+function init_post_highlights() {
+  if (location.hash.length > 1) {
+    create_post_highlight(location.hash.substring(1));
+  }
+  
+  window.addEventListener('hashchange', function(event) {
+    create_post_highlight(location.hash.substring(1));
+  });
+}
+
 document.addEventListener('DOMContentLoaded', function(event) {
   init_dropdown_menu_buttons();
   init_post_reference_links();
+  init_post_highlights();
 });

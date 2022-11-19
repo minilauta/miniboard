@@ -1,4 +1,4 @@
-<div class="post" id="<?=$post['id']?>">
+<div class="post">
   <?php
     if ($post['file'] !== '') {
       $thumb_src = "/src/{$post['thumb']}";
@@ -14,7 +14,7 @@
         </div>
         <div class='file-thumb'>
           <a href='/src/{$post['file']}' target='_blank'>
-            <img id='thumb-{$post['id']}' src='{$thumb_src}' loading='lazy'>
+            <img src='{$thumb_src}' loading='lazy'>
           </a>
         </div>
       ";

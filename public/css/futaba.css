@@ -84,3 +84,8 @@ div.dd-menu li:hover {
 div.post-preview {
   border: 1px solid;
 }
+
+/* highlights (posts, etc) */
+.highlight {
+  border: 2px dashed;
+}
