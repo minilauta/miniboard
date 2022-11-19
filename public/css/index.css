@@ -175,6 +175,12 @@ div.dd-menu li {
   padding: 2px 4px;
 }
 
+/* post preview */
+div.post-preview {
+  position: absolute;
+  background-color: inherit;
+}
+
 /* reportform */
 form.reportform select {
   width: 100%;

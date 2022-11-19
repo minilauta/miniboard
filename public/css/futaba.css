@@ -79,3 +79,8 @@ div.dd-menu li {
 div.dd-menu li:hover {
   background: #FFFFEE;
 }
+
+/* post preview */
+div.post-preview {
+  border: 1px solid;
+}

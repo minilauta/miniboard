@@ -1,0 +1,60 @@
+<div class="post" id="<?=$post['id']?>">
+  <?php
+    if ($post['file'] !== '') {
+      $thumb_src = "/src/{$post['thumb']}";
+      if (isset($post['spoiler']) && $post['spoiler'] == true) {
+        $thumb_src = '/static/spoiler.png';
+      }
+
+      echo "
+        <div class='file-info'>
+          File: <a href='/src/{$post['file']}'>{$post['file']}</a>
+          -
+          ({$post['file_size_formatted']}, {$post['image_width']}x{$post['image_height']}, {$post['file_original']})
+        </div>
+        <div class='file-thumb'>
+          <a href='/src/{$post['file']}' target='_blank'>
+            <img id='thumb-{$post['id']}' src='{$thumb_src}' loading='lazy'>
+          </a>
+        </div>
+      ";
+    }
+  ?>
+  <div class="post-info">
+    <label>
+      <input type="checkbox">
+      <span class="post-subject"><?=$post['subject']?></span>
+      <?php
+        if (isset($post['email']) && strlen($post['email']) > 0) {
+          echo "<a href='mailto:{$post['email']}'><span class='post-name'>{$post['name']}</span></a>";
+        } else {
+          echo "<span class='post-name'>{$post['name']}</span>";
+        }
+      ?>
+      <span class="post-datetime"><?=@strftime(MB_GLOBAL['datefmt'], $post['timestamp'])?></span>
+    </label>
+    <span class="post-id">
+      <a href="/<?=$post['board_id']?>/<?=$post['id']?>/#<?=$post['id']?>">No.</a><a href="/<?=$post['board_id']?>/<?=$post['id']?>/#q<?=$post['id']?>"><?=$post['id']?></a>
+    </span>
+  </div>
+  <div class="post-message-wrapper">
+    <div class="post-message">
+      <?php
+        if (!isset($post['message_truncated'])) {
+          echo $post['message_rendered'];
+        } else {
+          echo $post['message_truncated'];
+          echo '<br><br><span class="truncated">Post truncated. Click reply to view.</span><br>';
+        }
+      ?>
+    </div>
+  </div>
+  <?php
+    foreach ($post['replies'] as $reply) {
+      if ($context === 'thread') {
+        $reply['message_truncated'] = null;
+      }
+      echo $this->fetch('board/post_reply.phtml', ['context' => $context, 'post' => $reply]);
+    }
+  ?>
+</div>

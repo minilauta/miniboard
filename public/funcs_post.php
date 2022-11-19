@@ -21,9 +21,11 @@ function funcs_post_create(string $ip, array $board_cfg, ?int $parent_id, ?array
 
     if ($post) {
       if ($post['parent_id'] === 0) {
-        return "<a class='reference' href='/{$post['board_id']}/{$post['id']}/#{$post['id']}'>{$matches[0]}</a>";
+        $data_fields = "data-board_id='{$post['board_id']}' data-parent_id='{$post['id']}' data-id='{$post['id']}'";
+        return "<a class='reference' {$data_fields} href='/{$post['board_id']}/{$post['id']}/#{$post['id']}'>{$matches[0]}</a>";
       } else {
-        return "<a class='reference' href='/{$post['board_id']}/{$post['parent_id']}/#{$post['id']}'>{$matches[0]}</a>";
+        $data_fields = "data-board_id='{$post['board_id']}' data-parent_id='{$post['parent_id']}' data-id='{$post['id']}'";
+        return "<a class='reference' {$data_fields} href='/{$post['board_id']}/{$post['parent_id']}/#{$post['id']}'>{$matches[0]}</a>";
       }
     }
     
@@ -36,9 +38,11 @@ function funcs_post_create(string $ip, array $board_cfg, ?int $parent_id, ?array
 
     if ($post) {
       if ($post['parent_id'] === 0) {
-        return "<a class='reference' href='/{$post['board_id']}/{$post['id']}/#{$post['id']}'>{$matches[0]}</a>";
+        $data_fields = "data-board_id='{$post['board_id']}' data-parent_id='{$post['id']}' data-id='{$post['id']}'";
+        return "<a class='reference' {$data_fields} href='/{$post['board_id']}/{$post['id']}/#{$post['id']}'>{$matches[0]}</a>";
       } else {
-        return "<a class='reference' href='/{$post['board_id']}/{$post['parent_id']}/#{$post['id']}'>{$matches[0]}</a>";
+        $data_fields = "data-board_id='{$post['board_id']}' data-parent_id='{$post['parent_id']}' data-id='{$post['id']}'";
+        return "<a class='reference' {$data_fields} href='/{$post['board_id']}/{$post['parent_id']}/#{$post['id']}'>{$matches[0]}</a>";
       }
     }
     

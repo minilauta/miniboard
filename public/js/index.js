@@ -16,7 +16,7 @@ function listener_dropdown_menu_button(event) {
 
     switch (data.cmd) {
       case 'post-menu':
-        var lis = [];
+        let lis = [];
         lis.push({
           type: 'li',
           text: 'Report post',
@@ -37,7 +37,7 @@ function listener_dropdown_menu_button(event) {
             }
           });
         }
-        create_dropdown_menu(data.board_id, data.id, rect.bottom + window.scrollY, rect.left + window.scrollX, lis);
+        create_dropdown_menu(data.board_id, data.id, rect, lis);
         break;
       default:
         break;
@@ -47,6 +47,48 @@ function listener_dropdown_menu_button(event) {
 
     delete_dropdown_menu(data.id);
   }
+}
+
+/**
+ * Event listener: mouse over on post reference link.
+ * Opens a preview.
+ * @param {*} event 
+ */
+function listener_post_reference_link_mouseover(event) {
+  event.preventDefault();
+
+  let target = event.target;
+  let rect = target.getBoundingClientRect();
+  let data = target.dataset;
+  
+  if (data.board_id == null || data.parent_id == null || data.id == null) {
+    return;
+  }
+
+  let xhr = new XMLHttpRequest();
+  xhr.onreadystatechange = function() {
+    if (xhr.readyState !== XMLHttpRequest.DONE) {
+      return;
+    }
+  
+    create_post_preview(data.board_id, data.parent_id, data.id, rect, xhr.responseText);
+  }
+  xhr.open('GET', '/' + data.board_id + '/' + data.parent_id + '/' + data.id, true);
+  xhr.send();
+}
+
+/**
+ * Event listener: mouse out from post reference link.
+ * Closes all opened previews.
+ * @param {*} event 
+ */
+function listener_post_reference_link_mouseout(event) {
+  event.preventDefault();
+
+  let post_previews = document.getElementsByClassName('post-preview');
+  Array.from(post_previews).forEach(element => {
+    element.remove();
+  });
 }
 
 /**
@@ -66,9 +108,13 @@ function listener_dropdown_menu_button(event) {
       window.open('/' + data.board_id + '/' + data.id + '/report', '_blank', 'location=true,status=true,width=480,height=640');
       break;
     case 'hide':
-      var xhr = new XMLHttpRequest();
+      let xhr = new XMLHttpRequest();
       xhr.onreadystatechange = function() {
-        var post = document.getElementById(data.id);
+        if (xhr.readyState !== XMLHttpRequest.DONE) {
+          return;
+        }
+
+        let post = document.getElementById(data.id);
         if (post != null) {
           if (post.parentElement.classList.contains('reply')) {
             post.parentElement.remove();
@@ -89,18 +135,17 @@ function listener_dropdown_menu_button(event) {
  * Creates a new dropdown menu.
  * @param {string} board_id 
  * @param {number} id 
- * @param {number} top 
- * @param {number} left 
+ * @param {Rect} rect 
  * @param {array} indices 
  */
-function create_dropdown_menu(board_id, id, top, left, indices) {
+function create_dropdown_menu(board_id, id, rect, indices) {
   // create container element
   let div = document.createElement('div');
   div.dataset.board_id = board_id;
   div.dataset.id = id;
   div.classList.add('dd-menu');
-  div.style.top = top + 'px';
-  div.style.left = left + 'px';
+  div.style.top = (rect.bottom + window.scrollY) + 'px';
+  div.style.left = (rect.left + window.scrollX) + 'px';
 
   // create list element
   let ul = document.createElement('ul');
@@ -128,6 +173,43 @@ function create_dropdown_menu(board_id, id, top, left, indices) {
 
   // append container to body
   document.body.appendChild(div);
+
+  // shift container up if overflow-y
+  let div_rect = div.getBoundingClientRect();
+  if (div_rect.bottom > window.innerHeight) {
+    div.style.top = (rect.top + window.scrollY - div_rect.height) + 'px';
+  }
+}
+
+/**
+ * Creates a new post preview.
+ * @param {string} board_id 
+ * @param {number} parent_id 
+ * @param {number} id 
+ * @param {Rect} rect 
+ * @param {array} content 
+ */
+function create_post_preview(board_id, parent_id, id, rect, content) {
+  // create container element
+  let div = document.createElement('div');
+  div.dataset.board_id = board_id;
+  div.dataset.parent_id = parent_id;
+  div.dataset.id = id;
+  div.classList.add('post-preview');
+  div.style.top = (rect.bottom + window.scrollY) + 'px';
+  div.style.left = (rect.left + window.scrollX) + 'px';
+
+  // append post HTML content
+  div.innerHTML = content;
+
+  // append container to body
+  document.body.appendChild(div);
+
+  // shift container up if overflow-y
+  let div_rect = div.getBoundingClientRect();
+  if (div_rect.bottom > window.innerHeight) {
+    div.style.top = (rect.top + window.scrollY - div_rect.height) + 'px';
+  }
 }
 
 /**
@@ -155,6 +237,19 @@ function init_dropdown_menu_buttons() {
   });
 }
 
+/**
+ * Initializes all post reference links.
+ */
+function init_post_reference_links() {
+  let post_ref_links = document.getElementsByClassName('reference');
+
+  Array.from(post_ref_links).forEach(element => {
+    element.addEventListener('mouseover', listener_post_reference_link_mouseover);
+    element.addEventListener('mouseout', listener_post_reference_link_mouseout);
+  });
+}
+
 document.addEventListener('DOMContentLoaded', function(event) {
   init_dropdown_menu_buttons();
+  init_post_reference_links();
 });

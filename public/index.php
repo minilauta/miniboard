@@ -217,6 +217,23 @@ $app->get('/{board_id}/{thread_id}/', function (Request $request, Response $resp
   return $renderer->render($response, 'thread.phtml');
 });
 
+$app->get('/{board_id}/{thread_id}/{post_id}/', function (Request $request, Response $response, array $args) {
+  // get board config
+  $board_cfg = funcs_common_get_board_cfg($args['board_id']);
+
+  // get post
+  $post = select_post($board_cfg['id'], $args['post_id']);
+  if ($post == null || ($post['parent_id'] !== 0 && $post['parent_id'] != $args['thread_id'])) {
+    throw new ApiException("post with ID /{$board_cfg['id']}/{$args['thread_id']}/{$args['post_id']} not found", SC_BAD_REQUEST);
+  }
+  $post['replies'] = [];
+
+  $renderer = new PhpRenderer('templates/', [
+    'post' => $post
+  ]);
+  return $renderer->render($response, $post['parent_id'] === 0 ? 'board/post_preview_op.phtml' : 'board/post_preview_reply.phtml');
+});
+
 $app->post('/{board_id}/', function (Request $request, Response $response, array $args) {
   return handle_postform($request, $response, $args);
 });
