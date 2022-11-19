@@ -11,7 +11,7 @@
     [<a href="../">Return</a>]
     <div class="mode">Catalog</div>
     <div class="container-centered">
-      <?=$this->fetch('board/postform.phtml')?>
+      <?=$this->fetch('board/postform.phtml', ['action' => "/{$board['id']}"])?>
     </div>
     <hr>
     <?php
