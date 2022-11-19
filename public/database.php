@@ -124,6 +124,7 @@ function insert_post($post) : int|bool {
       thumb,
       thumb_width,
       thumb_height,
+      spoiler,
       stickied,
       moderated,
       country_code
@@ -152,6 +153,7 @@ function insert_post($post) : int|bool {
       :thumb,
       :thumb_width,
       :thumb_height,
+      :spoiler,
       :stickied,
       :moderated,
       :country_code
@@ -188,7 +190,8 @@ function select_files_by_md5(string $file_md5) : array|bool {
       image_height,
       thumb,
       thumb_width,
-      thumb_height
+      thumb_height,
+      spoiler
     FROM posts
     WHERE file_hex = :file_md5
   ');

@@ -21,6 +21,11 @@
       </div>
       <?php
         if ($post['file'] !== '') {
+          $thumb_src = "/src/{$post['thumb']}";
+          if (isset($post['spoiler']) && $post['spoiler'] == true) {
+            $thumb_src = '/static/spoiler.png';
+          }
+    
           echo "
             <div class='file-info'>
               <a href='/src/{$post['file']}'>{$post['file']}</a>
@@ -29,7 +34,7 @@
             </div>
             <div class='file-thumb'>
               <a href='/src/{$post['file']}' target='_blank'>
-                <img id='thumb-{$post['id']}' src='/src/{$post['thumb']}' loading='lazy'>
+                <img id='thumb-{$post['id']}' src='{$thumb_src}' loading='lazy'>
               </a>
             </div>
           ";
