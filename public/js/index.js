@@ -29,9 +29,21 @@ function listener_dropdown_menu_button(event) {
         if (data.parent_id == null) {
           lis.push({
             type: 'li',
-            text: !window.location.pathname.includes('/hidden/') ? 'Hide thread' : 'Unhide thread',
+            text: !location.pathname.includes('/hidden/') ? 'Hide thread' : 'Unhide thread',
             data: {
               cmd: 'hide',
+              board_id: data.board_id,
+              id: data.id
+            }
+          });
+        }
+        let thumb_img = document.getElementById('thumb-' + data.id);
+        if (thumb_img != null && !thumb_img.src.includes('/static/')) {
+          lis.push({
+            type: 'li',
+            text: 'Search: SauceNAO',
+            data: {
+              cmd: 'search_saucenao',
               board_id: data.board_id,
               id: data.id
             }
@@ -123,6 +135,14 @@ function listener_post_reference_link_mouseout(event) {
       xhr.open('POST', '/' + data.board_id + '/' + data.id + '/hide', true);
       xhr.send();
       break;
+    case 'search_saucenao':
+      let thumb_img = document.getElementById('thumb-' + data.id);
+      if (thumb_img != null) {
+        window.open('https://saucenao.com/search.php?url=' + thumb_img.src, '_blank');
+      }
+      break;
+    default:
+      console.error('listener_dropdown_menu_indice unhandled cmd: ' + data.cmd);
   }
 
   delete_dropdown_menu(data.id);
