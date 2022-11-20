@@ -50,7 +50,7 @@ function funcs_post_create(string $ip, array $board_cfg, ?int $parent_id, ?array
   }, $message);
   
   // preprocess message quotes
-  $message = preg_replace('/(^&gt;)([^&gt;][^\r\n]*)/m', '<span class="quote">$0</span>', $message);
+  $message = preg_replace('/(^&gt;)(?!&gt;)([^\r\n]*)/m', '<span class="quote">$0</span>', $message);
 
   // preprocess message bbcode
   $message = preg_replace('/\[(b|i|u|s)\](.*?)\[\/\1\]/ms', '<$1>$2</$1>', $message);
