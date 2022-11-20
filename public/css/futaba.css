@@ -85,6 +85,14 @@ div.post-preview {
   border: 1px solid;
 }
 
+div.post-preview > div.post {
+  background: #FFFFEE;
+}
+
+a > div.post-preview {
+  color: #800000;
+}
+
 /* highlights (posts, etc) */
 .highlight {
   border: 2px dashed;

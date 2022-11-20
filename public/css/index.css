@@ -27,11 +27,11 @@ div.mode {
 /* post */
 div.post {
   display: block;
-  margin-bottom: 5px;
 }
 
 div.post div.reply {
   display: table;
+  margin-bottom: 2px;
 }
 
 div.post-dash {
@@ -182,7 +182,15 @@ div.dd-menu li {
 /* post preview */
 div.post-preview {
   position: absolute;
-  background-color: inherit;
+}
+
+div.post-preview > div.post {
+  display: table;
+  margin-bottom: 0px;
+}
+
+div.post-preview > div.post.reply > div.reply  {
+  margin-bottom: 0px;
 }
 
 /* reportform */

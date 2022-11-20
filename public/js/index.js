@@ -130,7 +130,7 @@ function listener_post_reference_link_mouseover(event) {
       return;
     }
   
-    create_post_preview(data.board_id, data.parent_id, data.id, rect, xhr.responseText);
+    create_post_preview(target, data.board_id, data.parent_id, data.id, rect, xhr.responseText);
   }
   xhr.open('GET', '/' + data.board_id + '/' + data.parent_id + '/' + data.id, true);
   xhr.send();
@@ -274,7 +274,7 @@ function create_dropdown_menu(board_id, id, rect, indices) {
  * @param {Rect} rect 
  * @param {array} content 
  */
-function create_post_preview(board_id, parent_id, id, rect, content) {
+function create_post_preview(target, board_id, parent_id, id, rect, content) {
   // create container element
   let div = document.createElement('div');
   div.dataset.board_id = board_id;
@@ -287,19 +287,14 @@ function create_post_preview(board_id, parent_id, id, rect, content) {
   // append post HTML content
   div.innerHTML = content;
 
-  // append container to body
-  document.body.appendChild(div);
+  // append container to target element
+  target.appendChild(div);
 
   // shift container up if overflow-y
   let div_rect = div.getBoundingClientRect();
   if (div_rect.bottom > window.innerHeight) {
     div.style.top = (rect.top + window.scrollY - div_rect.height) + 'px';
   }
-
-  // destroy container element on mouseleave
-  div.addEventListener('mouseleave', function(event) {
-    delete_post_previews();
-  });
 }
 
 /**
@@ -391,9 +386,8 @@ function init_post_reference_links() {
   let post_ref_links = document.getElementsByClassName('reference');
 
   Array.from(post_ref_links).forEach(element => {
-    element.addEventListener('mouseover', listener_post_reference_link_mouseover);
-    // NOTE: this is handled by the created element for now, to allow clicking on preview links
-    //element.addEventListener('mouseout', listener_post_reference_link_mouseout);
+    element.addEventListener('mouseenter', listener_post_reference_link_mouseover);
+    element.addEventListener('mouseleave', listener_post_reference_link_mouseout);
   });
 }
 
