@@ -3,7 +3,7 @@
  * Opens/closes the menu.
  * @param {*} event 
  */
-function listener_dropdown_menu_button(event) {
+function listener_dropdown_menu_button_click(event) {
   event.preventDefault();
 
   let target = event.target;
@@ -87,9 +87,22 @@ function listener_dropdown_menu_button(event) {
         break;
     }
   } else {
-    target.classList.remove('dd-menu-btn-open');
-
     delete_dropdown_menu(data.id);
+  }
+}
+
+/**
+ * Event listener: focus shifts from dropdown menu button.
+ * Closes all dropdown menus.
+ * @param {*} event 
+ */
+function listener_dropdown_menu_button_blur(event) {
+  event.preventDefault();
+
+  let target_related = event.relatedTarget;
+
+  if (target_related == null) {
+    delete_dropdown_menu();
   }
 }
 
@@ -100,6 +113,8 @@ function listener_dropdown_menu_button(event) {
  */
 function listener_post_reference_link_mouseover(event) {
   event.preventDefault();
+
+  delete_post_previews();
 
   let target = event.target;
   let rect = target.getBoundingClientRect();
@@ -196,7 +211,7 @@ function listener_post_reference_link_mouseout(event) {
     default:
       console.error('listener_dropdown_menu_indice unhandled cmd: ' + data.cmd);
   }
-
+  
   delete_dropdown_menu(data.id);
 }
 
@@ -215,6 +230,7 @@ function create_dropdown_menu(board_id, id, rect, indices) {
   div.classList.add('dd-menu');
   div.style.top = (rect.bottom + window.scrollY) + 'px';
   div.style.left = (rect.left + window.scrollX) + 'px';
+  div.tabIndex = 0; // blur event hack
 
   // create list element
   let ul = document.createElement('ul');
@@ -279,6 +295,11 @@ function create_post_preview(board_id, parent_id, id, rect, content) {
   if (div_rect.bottom > window.innerHeight) {
     div.style.top = (rect.top + window.scrollY - div_rect.height) + 'px';
   }
+
+  // destroy container element on mouseleave
+  div.addEventListener('mouseleave', function(event) {
+    delete_post_previews();
+  });
 }
 
 /**
@@ -289,8 +310,16 @@ function delete_dropdown_menu(id) {
   let dd_menus = document.getElementsByClassName('dd-menu');
 
   Array.from(dd_menus).forEach(element => {
-    if (element.dataset.id === id) {
+    if (id == null || element.dataset.id === id) {
       element.remove();
+    }
+  });
+
+  let dd_menu_btns = document.getElementsByClassName('dd-menu-btn');
+
+  Array.from(dd_menu_btns).forEach(element => {
+    if (id == null || element.dataset.id === id) {
+      element.classList.remove('dd-menu-btn-open');
     }
   });
 }
@@ -350,7 +379,8 @@ function init_dropdown_menu_buttons() {
   let dd_menu_btns = document.getElementsByClassName('dd-menu-btn');
 
   Array.from(dd_menu_btns).forEach(element => {
-    element.addEventListener('click', listener_dropdown_menu_button);
+    element.addEventListener('click', listener_dropdown_menu_button_click);
+    element.addEventListener('blur', listener_dropdown_menu_button_blur);
   });
 }
 
@@ -362,7 +392,8 @@ function init_post_reference_links() {
 
   Array.from(post_ref_links).forEach(element => {
     element.addEventListener('mouseover', listener_post_reference_link_mouseover);
-    element.addEventListener('mouseout', listener_post_reference_link_mouseout);
+    // NOTE: this is handled by the created element for now, to allow clicking on preview links
+    //element.addEventListener('mouseout', listener_post_reference_link_mouseout);
   });
 }
 
