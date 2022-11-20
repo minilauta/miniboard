@@ -47,6 +47,38 @@ function listener_dropdown_menu_button(event) {
               board_id: data.board_id,
               id: data.id
             }
+          }, {
+            type: 'li',
+            text: 'Search: IQDB',
+            data: {
+              cmd: 'search_iqdb',
+              board_id: data.board_id,
+              id: data.id
+            }
+          }, {
+            type: 'li',
+            text: 'Search: IQDB 3D',
+            data: {
+              cmd: 'search_iqdb3d',
+              board_id: data.board_id,
+              id: data.id
+            }
+          }, {
+            type: 'li',
+            text: 'Search: ASCII2D',
+            data: {
+              cmd: 'search_ascii2d',
+              board_id: data.board_id,
+              id: data.id
+            }
+          }, {
+            type: 'li',
+            text: 'Search: TinEye',
+            data: {
+              cmd: 'search_tineye',
+              board_id: data.board_id,
+              id: data.id
+            }
           });
         }
         create_dropdown_menu(data.board_id, data.id, rect, lis);
@@ -111,6 +143,7 @@ function listener_post_reference_link_mouseout(event) {
   let target = event.target;
   let rect = target.getBoundingClientRect();
   let data = target.dataset;
+  let thumb = document.getElementById('thumb-' + data.id);
 
   switch (data.cmd) {
     case 'report':
@@ -136,9 +169,28 @@ function listener_post_reference_link_mouseout(event) {
       xhr.send();
       break;
     case 'search_saucenao':
-      let thumb_img = document.getElementById('thumb-' + data.id);
-      if (thumb_img != null) {
-        window.open('https://saucenao.com/search.php?url=' + thumb_img.src, '_blank');
+      if (thumb != null) {
+        window.open('https://saucenao.com/search.php?url=' + thumb.src, '_blank');
+      }
+      break;
+    case 'search_iqdb':
+      if (thumb != null) {
+        window.open('http://iqdb.org/?url=' + thumb.src, '_blank');
+      }
+      break;
+    case 'search_iqdb3d':
+      if (thumb != null) {
+        window.open('http://3d.iqdb.org/?url=' + thumb.src, '_blank');
+      }
+      break;
+    case 'search_ascii2d':
+      if (thumb != null) {
+        window.open('https://ascii2d.net/search/url/' + thumb.src, '_blank');
+      }
+      break;
+    case 'search_tineye':
+      if (thumb != null) {
+        window.open('https://tineye.com/search?url=' + thumb.src, '_blank');
       }
       break;
     default:
