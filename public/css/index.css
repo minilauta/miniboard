@@ -135,6 +135,10 @@ div.postform-group label {
   height: 23px;
 }
 
+div.postform-group label.postform-message-label {
+  vertical-align: top;
+}
+
 /* menubar */
 div.menubar div.boardlist {
   float: left;
