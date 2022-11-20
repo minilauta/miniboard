@@ -5,8 +5,15 @@ use Psr\Http\Message\ServerRequestInterface as Request;
 use Psr\Http\Server\RequestHandlerInterface as RequestHandler;
 
 $session_middleware = function(Request $request, RequestHandler $handler) : Response {
+  session_set_cookie_params([
+    'lifetime' => 31536000,
+    'path' => '/',
+    'domain' => '',
+    'secure' => false,
+    'httponly' => false,
+    'samesite' => 'Lax'
+  ]);
   session_start();
-  setcookie(session_name(), session_id(), 2147483647, '/');
 
   return $handler->handle($request);
 };

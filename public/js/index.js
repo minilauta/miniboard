@@ -254,6 +254,24 @@ function create_post_highlight(id) {
 }
 
 /**
+ * Insert a post ref to the message.
+ */
+function insert_ref_to_message(id) {
+  let postform_message = document.getElementById('postform-message');
+
+  if (postform_message == null) {
+    return;
+  }
+
+  let text_idx = postform_message.selectionEnd;
+  let text_val = postform_message.value;
+  let text_ref = '>>' + id + '\n';
+  postform_message.value = text_val.slice(0, text_idx) + text_ref + text_val.slice(text_idx);
+  postform_message.setSelectionRange(text_idx + text_ref.length, text_idx + text_ref.length);
+  postform_message.focus();
+}
+
+/**
  * Initializes all dropdown menu buttons.
  */
 function init_dropdown_menu_buttons() {
@@ -277,20 +295,30 @@ function init_post_reference_links() {
 }
 
 /**
- * Initializes post highlights.
+ * Initializes features related to interpreting location.hash value.
+ * - Post highlights (#ID)
+ * - Insert post ref link to postform message (#qID)
  */
-function init_post_highlights() {
+function init_location_hash_features() {
+  function highlight_or_ref(hash) {
+    if (hash.startsWith('#q')) {
+      insert_ref_to_message(hash.substring(2));
+    } else {
+      create_post_highlight(hash.substring(1));
+    }
+  }
+
   if (location.hash.length > 1) {
-    create_post_highlight(location.hash.substring(1));
+    highlight_or_ref(location.hash);
   }
   
   window.addEventListener('hashchange', function(event) {
-    create_post_highlight(location.hash.substring(1));
+    highlight_or_ref(location.hash);
   });
 }
 
 document.addEventListener('DOMContentLoaded', function(event) {
   init_dropdown_menu_buttons();
   init_post_reference_links();
-  init_post_highlights();
+  init_location_hash_features();
 });
