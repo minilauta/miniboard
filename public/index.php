@@ -122,7 +122,7 @@ $app->get('/{board_id}/', function (Request $request, Response $response, array 
   }
 
   // get thread count
-  $threads_n = count_posts(session_id(), $board_cfg['id'], 0);
+  $threads_n = count_posts(session_id(), $board_cfg['id'], 0, false);
 
   $renderer = new PhpRenderer('templates/', [
     'board' => $board_cfg,
@@ -152,7 +152,7 @@ $app->get('/{board_id}/hidden/', function (Request $request, Response $response,
   }
 
   // get thread count
-  $threads_n = count_posts(session_id(), $board_cfg['id'], 0);
+  $threads_n = count_posts(session_id(), $board_cfg['id'], 0, true);
 
   $renderer = new PhpRenderer('templates/', [
     'board' => $board_cfg,
@@ -177,14 +177,14 @@ $app->get('/{board_id}/catalog/', function (Request $request, Response $response
 
   // get thread reply counts
   foreach ($threads as $key => $thread) {
-    $reply_count = count_posts(session_id(), $thread['board_id'], $thread['id']);
+    $reply_count = count_posts(session_id(), $thread['board_id'], $thread['id'], false);
     if (is_int($reply_count)) {
       $threads[$key]['reply_count'] = $reply_count;
     }
   }
 
   // get thread count
-  $threads_n = count_posts(session_id(), $board_cfg['id'], 0);
+  $threads_n = count_posts(session_id(), $board_cfg['id'], 0, false);
 
   $renderer = new PhpRenderer('templates/', [
     'board' => $board_cfg,
@@ -243,6 +243,10 @@ $app->post('/{board_id}/{thread_id}/', function (Request $request, Response $res
 });
 
 function handle_postform(Request $request, Response $response, array $args): Response {
+  if ($args['board_id'] === 'main') {
+    throw new ApiException("posting on /main/ board is disabled", SC_BAD_REQUEST);
+  }
+
   // get board config
   $board_cfg = funcs_common_get_board_cfg($args['board_id']);
 

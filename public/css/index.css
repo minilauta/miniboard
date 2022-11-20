@@ -40,6 +40,11 @@ div.post-dash {
   font-size: x-large;
 }
 
+span.post-board {
+  font-weight: bolder;
+  font-size: large;
+}
+
 span.post-subject {
   font-weight: bolder;
   font-size: large;

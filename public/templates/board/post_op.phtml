@@ -27,6 +27,11 @@
   <div class="post-info">
     <label>
       <input type="checkbox">
+      <?php
+        if ($board_id === 'main') {
+          echo "<span class='post-board'>/{$post['board_id']}/</span>";
+        }
+      ?>
       <span class="post-subject"><?=$post['subject']?></span>
       <?php
         if (isset($post['email']) && strlen($post['email']) > 0) {

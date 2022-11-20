@@ -27,6 +27,43 @@ define('MB_GLOBAL', [
 
 // board settings
 define('MB_BOARDS', [
+  'main' => [
+    'id'                => 'main',
+    'name'              => 'Main',
+    'desc'              => 'Board of all boards',
+    'alwaysnoko'        => true,
+    'threads_per_page'  => 10,
+    'threads_per_catalog_page' => 50,
+    'posts_per_preview' => 4,
+    'truncate'          => 15,
+    'wordbreak'         => 80,
+    'anonymous'         => 'Anonymous',
+    'max_threads'       => 100,
+    'max_replies'       => 100,
+    'fields_post'       => [
+      'name'    => ['required' => false,  'max_len' => 75   ],
+      'email'   => ['required' => false,  'max_len' => 320  ],
+      'subject' => ['required' => false,  'max_len' => 75   ],
+      'message' => ['required' => true,   'max_len' => 8192 ]
+    ],
+    'mime_ext_types'    => [
+      'image/jpeg'          => ['jpg'],
+      'image/pjpeg'         => ['jpg'],
+      'image/png'           => ['png'],
+      'image/gif'           => ['gif'],
+      'image/bmp'           => ['bmp'],
+      'image/webp'          => ['webp'],
+      'video/mp4'           => ['mp4'],
+      'video/webm'          => ['webm']
+    ],
+    'embed_types'       => [
+      'YouTube'             => 'https://www.youtube.com/oembed?url=TINYIBEMBED&format=json'
+    ],
+    'maxkb'             => 24000,
+    'nofileok'          => false,
+    'max_width'         => 250,
+    'max_height'        => 250
+  ],
   'b' => [
     'id'                => 'b',
     'name'              => 'Random',

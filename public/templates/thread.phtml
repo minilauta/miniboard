@@ -16,7 +16,7 @@
     <hr>
     <?php
       $thread['message_truncated'] = null;
-      echo $this->fetch('board/post_op.phtml', ['context' => 'thread', 'post' => $thread]);
+      echo $this->fetch('board/post_op.phtml', ['context' => 'thread', 'board_id' => $board['id'], 'post' => $thread]);
     ?>
     <hr>
     [<a href="../">Return</a>]

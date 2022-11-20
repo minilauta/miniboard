@@ -33,6 +33,10 @@ div.post.reply div.reply {
   background: #F0E0D6;
 }
 
+span.post-board {
+  color: #0000EE;
+}
+
 span.post-subject {
   color: #CC1105;
 }
