@@ -380,20 +380,17 @@ function init_dropdown_menu_buttons() {
 }
 
 /**
- * Initializes all post reference links.
+ * Initializes all post reference links under target element.
  */
-function init_post_reference_links() {
-  let post_ref_links = document.getElementsByClassName('reference');
+function init_post_reference_links(target) {
+  if (target == null) {
+    target = document;
+  }
 
+  let post_ref_links = target.getElementsByClassName('reference');
   Array.from(post_ref_links).forEach(element => {
-    let timeout_id = null;
-    element.addEventListener('mouseenter', function(event) {
-      timeout_id = setTimeout(function() { listener_post_reference_link_mouseenter(event) }, 250);
-    });
-    element.addEventListener('mouseleave', function(event) {
-      clearTimeout(timeout_id);
-      listener_post_reference_link_mouseleave(event);
-    });
+    element.addEventListener('mouseenter', listener_post_reference_link_mouseenter);
+    element.addEventListener('mouseleave', listener_post_reference_link_mouseleave);
   });
 }
 
