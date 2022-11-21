@@ -22,6 +22,7 @@ services:
     ports:
       - "127.0.0.1:80:80"
     environment:
+      MB_TIMEZONE: Europe/Helsinki
       MB_DB_HOST: mariadb
       MB_DB_NAME: ${DB_NAME}
       MB_DB_USER: ${DB_USER}

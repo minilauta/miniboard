@@ -1,5 +1,8 @@
 <?php
 
+// timezone settings
+date_default_timezone_set(getenv('MB_TIMEZONE'));
+
 // environment settings
 define('MB_ENV', getenv('MB_ENV'));
 

@@ -2,7 +2,7 @@ FROM php:8.0.3-fpm-alpine3.12
 
 WORKDIR /
 
-RUN apk update && apk add --no-cache bash ffmpeg exiftool fcgi
+RUN apk update && apk add --no-cache ffmpeg exiftool fcgi
 COPY docker/miniboard/php.ini $PHP_INI_DIR/php.ini
 RUN chmod 644 $PHP_INI_DIR/php.ini && rm $PHP_INI_DIR/php.ini-development
 ADD https://github.com/mlocati/docker-php-extension-installer/releases/latest/download/install-php-extensions /usr/local/bin/
