@@ -81,7 +81,7 @@ function listener_dropdown_menu_button_click(event) {
             }
           });
         }
-        create_dropdown_menu(data.board_id, data.id, rect, lis);
+        create_dropdown_menu(target, data.board_id, data.parent_id, data.id, rect, lis);
         break;
       default:
         break;
@@ -111,10 +111,8 @@ function listener_dropdown_menu_button_blur(event) {
  * Opens a preview.
  * @param {*} event 
  */
-function listener_post_reference_link_mouseover(event) {
+function listener_post_reference_link_mouseenter(event) {
   event.preventDefault();
-
-  delete_post_previews();
 
   let target = event.target;
   let rect = target.getBoundingClientRect();
@@ -141,7 +139,7 @@ function listener_post_reference_link_mouseover(event) {
  * Closes all opened previews.
  * @param {*} event 
  */
-function listener_post_reference_link_mouseout(event) {
+function listener_post_reference_link_mouseleave(event) {
   event.preventDefault();
 
   delete_post_previews();
@@ -222,15 +220,16 @@ function listener_post_reference_link_mouseout(event) {
  * @param {Rect} rect 
  * @param {array} indices 
  */
-function create_dropdown_menu(board_id, id, rect, indices) {
+function create_dropdown_menu(target, board_id, parent_id, id, rect, indices) {
   // create container element
   let div = document.createElement('div');
   div.dataset.board_id = board_id;
+  div.dataset.parent_id = parent_id;
   div.dataset.id = id;
   div.classList.add('dd-menu');
   div.style.top = (rect.bottom + window.scrollY) + 'px';
   div.style.left = (rect.left + window.scrollX) + 'px';
-  div.tabIndex = 0; // blur event hack
+  div.tabIndex = -1; // blur event hack
 
   // create list element
   let ul = document.createElement('ul');
@@ -257,6 +256,7 @@ function create_dropdown_menu(board_id, id, rect, indices) {
   div.appendChild(ul);
 
   // append container to body
+  // NOTE: figure out why appending to target glitches out
   document.body.appendChild(div);
 
   // shift container up if overflow-y
@@ -386,8 +386,14 @@ function init_post_reference_links() {
   let post_ref_links = document.getElementsByClassName('reference');
 
   Array.from(post_ref_links).forEach(element => {
-    element.addEventListener('mouseenter', listener_post_reference_link_mouseover);
-    element.addEventListener('mouseleave', listener_post_reference_link_mouseout);
+    let timeout_id = null;
+    element.addEventListener('mouseenter', function(event) {
+      timeout_id = setTimeout(function() { listener_post_reference_link_mouseenter(event) }, 250);
+    });
+    element.addEventListener('mouseleave', function(event) {
+      clearTimeout(timeout_id);
+      listener_post_reference_link_mouseleave(event);
+    });
   });
 }
 
