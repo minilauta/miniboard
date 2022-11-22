@@ -28,7 +28,7 @@
     <label>
       <input type="checkbox">
       <?php
-        if ($board_id === 'main') {
+        if ($board['type'] === 'main') {
           echo "<span class='post-board'>/{$post['board_id']}/</span>";
         }
       ?>

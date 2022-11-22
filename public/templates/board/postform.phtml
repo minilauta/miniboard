@@ -1,7 +1,28 @@
 <form id="postform" class="postform" method="post" action="<?=$action?>" enctype="multipart/form-data">
   <div class="postform-group">
-    <label for="name">Name</label>
-    <input type="text" name="name" autocomplete="off">
+    <?php
+      if ($board['type'] === 'main') {
+        echo "
+          <label for='name'>Name/Board</label>
+          <input type='text' name='name' autocomplete='off'>
+        ";
+        $select_input = '<select id="board" name="board">';
+        $select_options = '';
+        foreach (MB_BOARDS as $key => $val) {
+          if ($val['type'] === 'main') {
+            continue;
+          }
+          
+          $select_options .= "<option value='{$key}'>/{$key}/ - {$val['name']}</option>";
+        }
+        echo $select_input . $select_options . '</select>';
+      } else {
+        echo "
+          <label for='name'>Name</label>
+          <input type='text' name='name' autocomplete='off'>
+        ";
+      }
+    ?>
   </div>
   <div class="postform-group">
     <label for="email">E-mail</label>

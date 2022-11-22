@@ -9,12 +9,12 @@
     <?=$this->fetch('common/header.phtml', ['header' => ['title' => "/{$board['id']}/ - {$board['name']}", 'subtitle' => $board['desc']]])?>
     <hr>
     <div class="container-centered">
-      <?=$this->fetch('board/postform.phtml', ['action' => "/{$board['id']}"])?>
+      <?=$this->fetch('board/postform.phtml', ['board' => $board, 'action' => "/{$board['id']}"])?>
     </div>
     <hr>
     <?php
       foreach ($threads as $thread) {
-        echo $this->fetch('board/post_op.phtml', ['context' => 'board', 'board_id' => $board['id'], 'post' => $thread]);
+        echo $this->fetch('board/post_op.phtml', ['context' => 'board', 'board' => $board, 'post' => $thread]);
         echo '<hr>';
       }
     ?>

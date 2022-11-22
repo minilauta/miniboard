@@ -11,12 +11,12 @@
     [<a href="../">Return</a>]
     <div class="mode">Catalog</div>
     <div class="container-centered">
-      <?=$this->fetch('board/postform.phtml', ['action' => "/{$board['id']}"])?>
+      <?=$this->fetch('board/postform.phtml', ['board' => $board, 'action' => "/{$board['id']}"])?>
     </div>
     <hr>
     <?php
       foreach ($threads as $thread) {
-        echo $this->fetch('board/post_catalog.phtml', ['board_id' => $board, 'post' => $thread]);
+        echo $this->fetch('board/post_catalog.phtml', ['board' => $board, 'post' => $thread]);
       }
     ?>
     <hr>

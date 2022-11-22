@@ -52,11 +52,11 @@ $app->get('/{board_id}/{post_id}/report/', function (Request $request, Response 
 });
 
 $app->post('/{board_id}/{post_id}/hide/', function (Request $request, Response $response, array $args) {
-  // get board config
-  $board_cfg = funcs_common_get_board_cfg($args['board_id']);
-
   // parse request body
   $params = (array) $request->getParsedBody();
+
+  // get board config
+  $board_cfg = funcs_common_get_board_cfg($args['board_id']);
 
   // toggle hide
   $hide = select_hide(session_id(), $board_cfg['id'], $args['post_id']);
@@ -76,11 +76,11 @@ $app->post('/{board_id}/{post_id}/report/', function (Request $request, Response
 });
 
 function handle_reportform(Request $request, Response $response, array $args): Response {
-  // get board config
-  $board_cfg = funcs_common_get_board_cfg($args['board_id']);
-
   // parse request body
   $params = (array) $request->getParsedBody();
+
+  // get board config
+  $board_cfg = funcs_common_get_board_cfg($args['board_id']);
 
   // validate request fields
   funcs_report_validate_fields($params, MB_GLOBAL['report_types']);
@@ -106,6 +106,7 @@ function handle_reportform(Request $request, Response $response, array $args): R
 $app->get('/{board_id}/', function (Request $request, Response $response, array $args) {
   // get board config
   $board_cfg = funcs_common_get_board_cfg($args['board_id']);
+  $board_query_id = $board_cfg['type'] !== 'main' ? $board_cfg['id'] : null;
   $board_threads_per_page = $board_cfg['threads_per_page'];
   $board_posts_per_preview = $board_cfg['posts_per_preview'];
 
@@ -114,7 +115,7 @@ $app->get('/{board_id}/', function (Request $request, Response $response, array 
   $query_page = funcs_common_parse_input_int($query_params, 'page', 0, 0, 1000);
 
   // get threads
-  $threads = select_posts(session_id(), $board_cfg['id'], 0, true, $board_threads_per_page * $query_page, $board_threads_per_page, false);
+  $threads = select_posts(session_id(), $board_query_id, 0, true, $board_threads_per_page * $query_page, $board_threads_per_page, false);
 
   // get replies
   foreach ($threads as $key => $thread) {
@@ -122,7 +123,7 @@ $app->get('/{board_id}/', function (Request $request, Response $response, array 
   }
 
   // get thread count
-  $threads_n = count_posts(session_id(), $board_cfg['id'], 0, false);
+  $threads_n = count_posts(session_id(), $board_query_id, 0, false);
 
   $renderer = new PhpRenderer('templates/', [
     'board' => $board_cfg,
@@ -136,6 +137,7 @@ $app->get('/{board_id}/', function (Request $request, Response $response, array 
 $app->get('/{board_id}/hidden/', function (Request $request, Response $response, array $args) {
   // get board config
   $board_cfg = funcs_common_get_board_cfg($args['board_id']);
+  $board_query_id = $board_cfg['type'] !== 'main' ? $board_cfg['id'] : null;
   $board_threads_per_page = $board_cfg['threads_per_page'];
   $board_posts_per_preview = $board_cfg['posts_per_preview'];
 
@@ -144,7 +146,7 @@ $app->get('/{board_id}/hidden/', function (Request $request, Response $response,
   $query_page = funcs_common_parse_input_int($query_params, 'page', 0, 0, 1000);
 
   // get threads
-  $threads = select_posts(session_id(), $board_cfg['id'], 0, true, $board_threads_per_page * $query_page, $board_threads_per_page, true);
+  $threads = select_posts(session_id(), $board_query_id, 0, true, $board_threads_per_page * $query_page, $board_threads_per_page, true);
 
   // get replies
   foreach ($threads as $key => $thread) {
@@ -152,7 +154,7 @@ $app->get('/{board_id}/hidden/', function (Request $request, Response $response,
   }
 
   // get thread count
-  $threads_n = count_posts(session_id(), $board_cfg['id'], 0, true);
+  $threads_n = count_posts(session_id(), $board_query_id, 0, true);
 
   $renderer = new PhpRenderer('templates/', [
     'board' => $board_cfg,
@@ -166,6 +168,7 @@ $app->get('/{board_id}/hidden/', function (Request $request, Response $response,
 $app->get('/{board_id}/catalog/', function (Request $request, Response $response, array $args) {
   // get board config
   $board_cfg = funcs_common_get_board_cfg($args['board_id']);
+  $board_query_id = $board_cfg['type'] !== 'main' ? $board_cfg['id'] : null;
   $board_threads_per_catalog_page = $board_cfg['threads_per_catalog_page'];
 
   // get query params
@@ -173,7 +176,7 @@ $app->get('/{board_id}/catalog/', function (Request $request, Response $response
   $query_page = funcs_common_parse_input_int($query_params, 'page', 0, 0, 1000);
 
   // get threads
-  $threads = select_posts(session_id(), $board_cfg['id'], 0, true, $board_threads_per_catalog_page * $query_page, $board_threads_per_catalog_page, false);
+  $threads = select_posts(session_id(), $board_query_id, 0, true, $board_threads_per_catalog_page * $query_page, $board_threads_per_catalog_page, false);
 
   // get thread reply counts
   foreach ($threads as $key => $thread) {
@@ -184,7 +187,7 @@ $app->get('/{board_id}/catalog/', function (Request $request, Response $response
   }
 
   // get thread count
-  $threads_n = count_posts(session_id(), $board_cfg['id'], 0, false);
+  $threads_n = count_posts(session_id(), $board_query_id, 0, false);
 
   $renderer = new PhpRenderer('templates/', [
     'board' => $board_cfg,
@@ -243,19 +246,29 @@ $app->post('/{board_id}/{thread_id}/', function (Request $request, Response $res
 });
 
 function handle_postform(Request $request, Response $response, array $args): Response {
-  if ($args['board_id'] === 'main') {
-    throw new ApiException("posting on /main/ board is disabled", SC_BAD_REQUEST);
-  }
-
-  // get board config
-  $board_cfg = funcs_common_get_board_cfg($args['board_id']);
-
   // parse request body
   $params = (array) $request->getParsedBody();
   $file = $request->getUploadedFiles()['file'];
 
+  // get board config
+  $board_cfg = funcs_common_get_board_cfg($args['board_id']);
+
   // validate request fields
   funcs_common_validate_fields($params, $board_cfg['fields_post']);
+
+  // if board type is 'main', get target board config
+  if ($board_cfg['type'] === 'main') {
+    // get board config
+    $board_cfg = funcs_common_get_board_cfg($params['board']);
+
+    // do not allow posting directly on boards of type 'main'
+    if ($board_cfg['type'] === 'main') {
+      throw new ApiException("posting on /{$board_cfg['id']}/ board is disabled", SC_BAD_REQUEST);
+    }
+
+    // validate request fields
+    funcs_common_validate_fields($params, $board_cfg['fields_post']);
+  }
 
   // get thread if replying
   $thread_id = null;

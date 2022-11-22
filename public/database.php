@@ -35,10 +35,10 @@ function select_post(string $board_id, int $id) : array|bool {
   return $sth->fetch();
 }
 
-function select_posts(string $session_id, string $board_id, int $parent_id = 0, bool $desc = true, int $offset = 0, int $limit = 10, bool $hidden = false) : array|bool {
+function select_posts(string $session_id, ?string $board_id, int $parent_id = 0, bool $desc = true, int $offset = 0, int $limit = 10, bool $hidden = false) : array|bool {
   $dbh = get_db_handle();
   $sth = null;
-  if ($board_id !== 'main') {
+  if ($board_id != null) {
     $sth = $dbh->prepare('
       SELECT * FROM posts
       WHERE board_id = :board_id_outer AND parent_id = :parent_id AND id ' . ($hidden === true ? '' : 'NOT') . ' IN (
@@ -98,10 +98,10 @@ function select_posts_preview(string $session_id, string $board_id, int $parent_
   return $sth->fetchAll();
 }
 
-function count_posts(string $session_id, string $board_id, int $parent_id, bool $hidden = false) : int|bool {
+function count_posts(string $session_id, ?string $board_id, int $parent_id, bool $hidden = false) : int|bool {
   $dbh = get_db_handle();
   $sth = null;
-  if ($board_id !== 'main') {
+  if ($board_id != null) {
     $sth = $dbh->prepare('
       SELECT COUNT(*) FROM posts
       WHERE board_id = :board_id_outer AND parent_id = :parent_id AND id ' . ($hidden === true ? '' : 'NOT') . ' IN (
