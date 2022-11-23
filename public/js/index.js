@@ -259,10 +259,17 @@ function create_dropdown_menu(target, board_id, parent_id, id, rect, indices) {
   // NOTE: figure out why appending to target glitches out
   document.body.appendChild(div);
 
-  // shift container up if overflow-y
+  // get the result div client rect
   let div_rect = div.getBoundingClientRect();
+
+  // shift container up if overflow-y
   if (div_rect.bottom > window.innerHeight) {
     div.style.top = (rect.top + window.scrollY - div_rect.height) + 'px';
+  }
+
+  // shift container left if overflow-x
+  if (div_rect.right > window.innerWidth) {
+    div.style.left = (rect.right + window.scrollX - div_rect.width) + 'px';
   }
 }
 
@@ -290,8 +297,10 @@ function create_post_preview(target, board_id, parent_id, id, rect, content) {
   // append container to target element
   target.appendChild(div);
 
-  // shift container up if overflow-y
+  // get the result div client rect
   let div_rect = div.getBoundingClientRect();
+
+  // shift container up if overflow-y
   if (div_rect.bottom > window.innerHeight) {
     div.style.top = (rect.top + window.scrollY - div_rect.height) + 'px';
   }
