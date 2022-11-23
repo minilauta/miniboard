@@ -26,7 +26,7 @@
   ?>
   <div class="post-info">
     <label>
-      <input type="checkbox">
+      <input type="checkbox" name="delete[]" value="<?=$post['board_id']?>/<?=$post['id']?>">
       <?php
         if ($board['type'] === 'main') {
           echo "<span class='post-board'>/{$post['board_id']}/</span>";
@@ -51,7 +51,7 @@
   <div class="post-message-wrapper">
     <div class="post-message">
       <?php
-        if (!isset($post['message_truncated'])) {
+        if ($context === 'thread' || !isset($post['message_truncated'])) {
           echo $post['message_rendered'];
         } else {
           echo $post['message_truncated'];
@@ -62,9 +62,6 @@
   </div>
   <?php
     foreach ($post['replies'] as $reply) {
-      if ($context === 'thread') {
-        $reply['message_truncated'] = null;
-      }
       echo $this->fetch('board/post_reply.phtml', ['context' => $context, 'post' => $reply]);
     }
   ?>

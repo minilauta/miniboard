@@ -139,6 +139,11 @@ div.postform-group label.postform-message-label {
   vertical-align: top;
 }
 
+/* deleteform */
+div.deleteform-group {
+  float: right;
+}
+
 /* menubar */
 div.menubar div.boardlist {
   float: left;
@@ -182,7 +187,7 @@ div.dd-menu li {
 /* post preview */
 div.post-preview {
   position: absolute;
-  animation: anim-fadein 0.5s;
+  animation: anim-fadein 0.2s;
 }
 
 div.post-preview > div.post {

@@ -148,9 +148,9 @@ $app->get('/{board_id}/hidden/', function (Request $request, Response $response,
   // get threads
   $threads = select_posts(session_id(), $board_query_id, 0, true, $board_threads_per_page * $query_page, $board_threads_per_page, true);
 
-  // get replies
+  // do not show replies for hidden threads
   foreach ($threads as $key => $thread) {
-    $threads[$key]['replies'] = select_posts_preview(session_id(), $thread['board_id'], $thread['id'], 0, $board_posts_per_preview);
+    $threads[$key]['replies'] = [];
   }
 
   // get thread count

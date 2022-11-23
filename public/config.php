@@ -14,6 +14,8 @@ define('MB_DB_PASS', getenv('MB_DB_PASS'));
 
 // global settings
 define('MB_GLOBAL', [
+  'name'             => 'Miniboard',
+  'desc'             => 'Minimalistic oldschool imageboard software',
   'timezone'         => 'UTC',
   'datefmt'          => '%d/%m/%g(%a)%H:%M:%S',
   'captcha_thread'   => false,

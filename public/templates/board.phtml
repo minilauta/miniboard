@@ -12,12 +12,7 @@
       <?=$this->fetch('board/postform.phtml', ['board' => $board, 'action' => "/{$board['id']}"])?>
     </div>
     <hr>
-    <?php
-      foreach ($threads as $thread) {
-        echo $this->fetch('board/post_op.phtml', ['context' => 'board', 'board' => $board, 'post' => $thread]);
-        echo '<hr>';
-      }
-    ?>
+    <?=$this->fetch('board/deleteform.phtml', ['context' => 'board', 'board' => $board, 'threads' => $threads])?>
     <?=$this->fetch('common/pagetable.phtml', ['page' => $page, 'page_n' => $page_n])?>
     <div class="container-centered">
       <?=$this->fetch('common/footer.phtml')?>

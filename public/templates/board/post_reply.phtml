@@ -3,7 +3,7 @@
   <div class="reply" id="<?=$post['id']?>">
     <div class="post-info">
       <label>
-        <input type="checkbox">
+        <input type="checkbox" name="delete[]" value="<?=$post['board_id']?>/<?=$post['id']?>">
         <span class="post-subject"><?=$post['subject']?></span>
         <?php
           if (isset($post['email']) && strlen($post['email']) > 0) {
@@ -47,7 +47,7 @@
     <div class="post-message-wrapper">
       <div class="post-message">
         <?php
-          if (!isset($post['message_truncated'])) {
+          if ($context === 'thread' || !isset($post['message_truncated'])) {
             echo $post['message_rendered'];
           } else {
             echo $post['message_truncated'];

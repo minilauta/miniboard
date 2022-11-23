@@ -14,11 +14,7 @@
       <?=$this->fetch('board/postform.phtml', ['board' => $board, 'action' => "/{$board['id']}/{$thread['id']}"])?>
     </div>
     <hr>
-    <?php
-      $thread['message_truncated'] = null;
-      echo $this->fetch('board/post_op.phtml', ['context' => 'thread', 'board' => $board, 'post' => $thread]);
-    ?>
-    <hr>
+    <?=$this->fetch('board/deleteform.phtml', ['context' => 'thread', 'board' => $board, 'threads' => [$thread]])?>
     [<a href="../">Return</a>]
     <div class="container-centered">
       <?=$this->fetch('common/footer.phtml')?>
