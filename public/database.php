@@ -195,6 +195,18 @@ function insert_post($post) : int|bool {
   return $dbh->lastInsertId();
 }
 
+function delete_post(string $board_id, int $id) : bool {
+  $dbh = get_db_handle();
+  $sth = $dbh->prepare('
+    DELETE FROM posts
+    WHERE board_id = :board_id AND id = :id
+  ');
+  return $sth->execute([
+    'board_id' => $board_id,
+    'id' => $id
+  ]);
+}
+
 function bump_thread(string $board_id, int $id) : bool {
   $dbh = get_db_handle();
   $sth = $dbh->prepare('

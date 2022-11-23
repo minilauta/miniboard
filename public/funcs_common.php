@@ -13,19 +13,46 @@ function funcs_common_get_board_cfg(string $board_id): array {
 
 function funcs_common_validate_fields(array $input, array $fields) {
   foreach ($fields as $key => $val) {
-    $required = $val['required'];
-
+    // check for required field
     $input_set = isset($input[$key]);
-    if (!$input_set && $required === true) {
+    if (!$input_set && $val['required'] === true) {
       throw new FuncException('funcs_common', 'validate_fields', "required field {$key} is NULL", SC_BAD_REQUEST);
     } else if (!$input_set) {
       continue;
     }
 
-    $max_len = $val['max_len'];
-    $input_len = strlen($input[$key]);
-    if ($input_len > $max_len) {
-      throw new FuncException('funcs_common', 'validate_fields', "field {$key} length {$input_len} is longer than {$max_len}", SC_BAD_REQUEST);
+    $ival = $input[$key];
+
+    // check if actual type matches required type
+    $input_type = gettype($ival);
+    if ($input_type != $val['type']) {
+      throw new FuncException('funcs_common', 'validate_fields', "field {$key} data type {$input_type} is invalid", SC_BAD_REQUEST);
+    }
+
+    // check for requirements based on type
+    switch ($val['type']) {
+      case 'string':
+        $input_len = strlen($ival);
+
+        if (isset($val['max_len'])) {
+          $max_len = $val['max_len'];
+          if ($input_len > $max_len) {
+            throw new FuncException('funcs_common', 'validate_fields', "field {$key} length {$input_len} is longer than {$max_len}", SC_BAD_REQUEST);
+          }
+        }
+
+        if (isset($val['min_len']) && !empty($ival)) {
+          $min_len = $val['min_len'];
+          if ($input_len < $min_len) {
+            throw new FuncException('funcs_common', 'validate_fields', "field {$key} length {$input_len} is shorter than {$min_len}", SC_BAD_REQUEST);
+          }
+        }
+        break;
+      case 'array':
+        if (!$ival) {
+          throw new FuncException('funcs_common', 'validate_fields', "field {$key} of type 'array' length is 0", SC_BAD_REQUEST);
+        }
+        break;
     }
   }
 }
@@ -201,4 +228,17 @@ function funcs_common_truncate_string_linebreak(string &$input, int $br_count = 
   }
 
   return true;
+}
+
+function funcs_common_hash_password(string $input): string {
+  $hashed = password_hash($input, PASSWORD_BCRYPT, ['cost' => 10]);
+  if ($hashed == null || $hashed === FALSE) {
+    throw new FuncException('funcs_common', 'hash_password', 'password_hash returned NULL or FALSE', SC_INTERNAL_ERROR);
+  }
+
+  return $hashed;
+}
+
+function funcs_common_verify_password(string $input, string $hash): bool {
+  return password_verify($input, $hash);
 }

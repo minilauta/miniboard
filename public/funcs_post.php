@@ -80,7 +80,7 @@ function funcs_post_create(string $ip, array $board_cfg, ?int $parent_id, ?array
     'message'             => $input['message'],
     'message_rendered'    => $message,
     'message_truncated'   => $message_truncated_flag ? $message_truncated : null,
-    'password'            => null,
+    'password'            => (isset($input['password']) && strlen($input['password']) > 0) ? funcs_common_hash_password($input['password']) : null,
     'file'                => $file['file'],
     'file_hex'            => $file['file_hex'],
     'file_original'       => $file['file_original'],

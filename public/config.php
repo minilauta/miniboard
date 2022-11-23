@@ -47,11 +47,12 @@ define('MB_BOARDS', [
     'max_threads'       => 100,
     'max_replies'       => 100,
     'fields_post'       => [
-      'board'   => ['required' => true,   'max_len' => 8    ],
-      'name'    => ['required' => false,  'max_len' => 75   ],
-      'email'   => ['required' => false,  'max_len' => 320  ],
-      'subject' => ['required' => false,  'max_len' => 75   ],
-      'message' => ['required' => true,   'max_len' => 8192 ]
+      'board'     => ['required' => true,   'type' => 'string', 'max_len' => 8    ],
+      'name'      => ['required' => false,  'type' => 'string', 'max_len' => 75   ],
+      'email'     => ['required' => false,  'type' => 'string', 'max_len' => 320  ],
+      'subject'   => ['required' => false,  'type' => 'string', 'max_len' => 75   ],
+      'message'   => ['required' => true,   'type' => 'string', 'max_len' => 8192 ],
+      'password'  => ['required' => false,  'type' => 'string', 'max_len' => 64,  'min_len' => 8],
     ],
     'mime_ext_types'    => [
       'image/jpeg'          => ['jpg'],
@@ -86,10 +87,11 @@ define('MB_BOARDS', [
     'max_threads'       => 100,
     'max_replies'       => 100,
     'fields_post'       => [
-      'name'    => ['required' => false,  'max_len' => 75   ],
-      'email'   => ['required' => false,  'max_len' => 320  ],
-      'subject' => ['required' => false,  'max_len' => 75   ],
-      'message' => ['required' => true,   'max_len' => 8192 ]
+      'name'      => ['required' => false,  'type' => 'string', 'max_len' => 75   ],
+      'email'     => ['required' => false,  'type' => 'string', 'max_len' => 320  ],
+      'subject'   => ['required' => false,  'type' => 'string', 'max_len' => 75   ],
+      'message'   => ['required' => true,   'type' => 'string', 'max_len' => 8192 ],
+      'password'  => ['required' => false,  'type' => 'string', 'max_len' => 64,  'min_len' => 8],
     ],
     'mime_ext_types'    => [
       'image/jpeg'          => ['jpg'],
@@ -124,10 +126,11 @@ define('MB_BOARDS', [
     'max_threads'       => 100,
     'max_replies'       => 100,
     'fields_post'       => [
-      'name'    => ['required' => false,  'max_len' => 75   ],
-      'email'   => ['required' => false,  'max_len' => 320  ],
-      'subject' => ['required' => false,  'max_len' => 75   ],
-      'message' => ['required' => true,   'max_len' => 8192 ]
+      'name'      => ['required' => false,  'type' => 'string', 'max_len' => 75   ],
+      'email'     => ['required' => false,  'type' => 'string', 'max_len' => 320  ],
+      'subject'   => ['required' => false,  'type' => 'string', 'max_len' => 75   ],
+      'message'   => ['required' => true,   'type' => 'string', 'max_len' => 8192 ],
+      'password'  => ['required' => false,  'type' => 'string', 'max_len' => 64,  'min_len' => 8],
     ],
     'mime_ext_types'    => [
       'image/jpeg'          => ['jpg'],

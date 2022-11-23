@@ -241,6 +241,54 @@ $app->post('/{board_id}/', function (Request $request, Response $response, array
   return handle_postform($request, $response, $args);
 });
 
+$app->post('/{board_id}/delete/', function (Request $request, Response $response, array $args) {
+  return handle_deleteform($request, $response, $args);
+});
+
+function handle_deleteform(Request $request, Response $response, array $args): Response {
+  // parse request body
+  $params = (array) $request->getParsedBody();
+
+  // get board config
+  $board_cfg = funcs_common_get_board_cfg($args['board_id']);
+
+  // validate request fields
+  funcs_common_validate_fields($params, [
+    'password'  => ['required' => true, 'type' => 'string', 'max_len' => 64],
+    'delete'    => ['required' => true, 'type' => 'array']
+  ]);
+
+  // loop over each post, check pass and delete
+  foreach ($params['delete'] as $val) {
+    // parse board id and post id
+    $delete_parsed = explode('/', $val);
+    $delete_board_id = $delete_parsed[0];
+    $delete_post_id = intval($delete_parsed[1]);
+
+    // get post
+    $post = select_post($delete_board_id, $delete_post_id);
+    if ($post == null || $post['password'] == null) {
+      continue;
+    }
+
+    // verify password
+    if (funcs_common_verify_password($params['password'], $post['password']) !== true) {
+      continue;
+    }
+
+    // delete post
+    // TODO: cascade delete thread replies
+    if (!delete_post($delete_board_id, $delete_post_id)) {
+      throw new ApiException("failed to delete post with ID /{$delete_board_id}/{$delete_post_id}", SC_INTERNAL_ERROR);
+    }
+  }
+
+  $response = $response
+    ->withHeader('Location', '/' . $board_cfg['id'] . '/')
+    ->withStatus(303);
+  return $response;
+}
+
 $app->post('/{board_id}/{thread_id}/', function (Request $request, Response $response, array $args) {
   return handle_postform($request, $response, $args);
 });
