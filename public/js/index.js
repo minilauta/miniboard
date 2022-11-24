@@ -1,3 +1,8 @@
+// app state
+var state = {
+  mouse_over_post_ref_link: false
+};
+
 /**
  * Event listener: click on dropdown menu button.
  * Opens/closes the menu.
@@ -114,6 +119,9 @@ function listener_dropdown_menu_button_blur(event) {
 function listener_post_reference_link_mouseenter(event) {
   event.preventDefault();
 
+  // update state
+  state.mouse_over_post_ref_link = true;
+
   let target = event.target;
   let rect = target.getBoundingClientRect();
   let data = target.dataset;
@@ -124,10 +132,15 @@ function listener_post_reference_link_mouseenter(event) {
 
   let xhr = new XMLHttpRequest();
   xhr.onreadystatechange = function() {
+    if (!state.mouse_over_post_ref_link) {
+      xhr.abort();
+      return;
+    }
+
     if (xhr.readyState !== XMLHttpRequest.DONE) {
       return;
     }
-  
+    
     create_post_preview(target, data.board_id, data.parent_id, data.id, rect, xhr.responseText);
   }
   xhr.open('GET', '/' + data.board_id + '/' + data.parent_id + '/' + data.id, true);
@@ -141,6 +154,9 @@ function listener_post_reference_link_mouseenter(event) {
  */
 function listener_post_reference_link_mouseleave(event) {
   event.preventDefault();
+
+  // update state
+  state.mouse_over_post_ref_link = false;
 
   delete_post_previews();
 }
@@ -259,7 +275,7 @@ function create_dropdown_menu(target, board_id, parent_id, id, rect, indices) {
   // NOTE: figure out why appending to target glitches out
   document.body.appendChild(div);
 
-  // get the result div client rect
+  // get initial container client rect
   let div_rect = div.getBoundingClientRect();
 
   // shift container up if overflow-y
@@ -268,6 +284,7 @@ function create_dropdown_menu(target, board_id, parent_id, id, rect, indices) {
   }
 
   // shift container left if overflow-x
+  div_rect = div.getBoundingClientRect();
   if (div_rect.right > window.innerWidth) {
     div.style.left = (rect.right + window.scrollX - div_rect.width) + 'px';
   }
@@ -288,8 +305,7 @@ function create_post_preview(target, board_id, parent_id, id, rect, content) {
   div.dataset.parent_id = parent_id;
   div.dataset.id = id;
   div.classList.add('post-preview');
-  div.style.top = (rect.bottom + window.scrollY) + 'px';
-  div.style.left = (rect.left + window.scrollX) + 'px';
+  div.style.left = (rect.right + window.scrollX) + 'px';
 
   // append post HTML content
   div.innerHTML = content;
@@ -297,12 +313,20 @@ function create_post_preview(target, board_id, parent_id, id, rect, content) {
   // append container to target element
   target.appendChild(div);
 
-  // get the result div client rect
+  // get initial container client rect
   let div_rect = div.getBoundingClientRect();
 
-  // shift container up if overflow-y
+  // position container next to target
+  div.style.top = (rect.bottom + 0.5 * (div_rect.top - div_rect.bottom) + window.scrollY) + 'px';
+
+  // overflow on y-axis: shift container up/down by overflow amount
+  div_rect = div.getBoundingClientRect();
   if (div_rect.bottom > window.innerHeight) {
-    div.style.top = (rect.top + window.scrollY - div_rect.height) + 'px';
+    let overflow_y = div_rect.bottom - window.innerHeight;
+    div.style.top = (parseInt(div.style.top, 10) - overflow_y) + 'px';
+  } else if (div_rect.top < 0) {
+    let overflow_y = div_rect.top;
+    div.style.top = (parseInt(div.style.top, 10) - overflow_y) + 'px';
   }
 }
 

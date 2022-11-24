@@ -187,7 +187,6 @@ div.dd-menu li {
 /* post preview */
 div.post-preview {
   position: absolute;
-  animation: anim-fadein 0.2s;
 }
 
 div.post-preview > div.post {
@@ -202,10 +201,4 @@ div.post-preview > div.post.reply > div.reply  {
 /* reportform */
 form.reportform select {
   width: 100%;
-}
-
-/* animations */
-@keyframes anim-fadein {
-  0% { opacity: 0; }
-  100% { opacity: 1; }
 }
