@@ -37,6 +37,6 @@ jobs:
         run: docker compose -f docker-compose.prod.yml build
       - name: Push
         run: |
-          docker push ghcr.io/${{ env.REPO }}/app:latest
-          docker push ghcr.io/${{ env.REPO }}/flyway:latest
-          docker push ghcr.io/${{ env.REPO }}/nginx:latest
+          docker push ghcr.io/anonyymi/app:latest
+          docker push ghcr.io/anonyymi/miniboard/flyway:latest
+          docker push ghcr.io/anonyymi/miniboard/nginx:latest
