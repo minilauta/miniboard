@@ -22,28 +22,29 @@ function get_db_handle() : PDO {
 // POST related functions below
 // ----------------------------
 
-function select_post(string $board_id, int $id) : array|bool {
+function select_post(string $board_id, int $id, bool $deleted = false) : array|bool {
   $dbh = get_db_handle();
   $sth = $dbh->prepare('
     SELECT * FROM posts
-    WHERE board_id = :board_id AND id = :id
+    WHERE board_id = :board_id AND id = :id AND deleted = :deleted
   ');
   $sth->execute([
     'board_id' => $board_id,
-    'id' => $id
+    'id' => $id,
+    'deleted' => $deleted ? 1 : 0
   ]);
   return $sth->fetch();
 }
 
-function select_posts(string $session_id, ?string $board_id, int $parent_id = 0, bool $desc = true, int $offset = 0, int $limit = 10, bool $hidden = false) : array|bool {
+function select_posts(string $session_id, ?string $board_id, int $parent_id = 0, bool $desc = true, int $offset = 0, int $limit = 10, bool $hidden = false, bool $deleted = false) : array|bool {
   $dbh = get_db_handle();
   $sth = null;
   if ($board_id != null) {
     $sth = $dbh->prepare('
       SELECT * FROM posts
-      WHERE deleted = 0 AND board_id = :board_id_outer AND parent_id = :parent_id AND id ' . ($hidden === true ? '' : 'NOT') . ' IN (
+      WHERE board_id = :board_id_outer AND parent_id = :parent_id AND id ' . ($hidden === true ? '' : 'NOT') . ' IN (
         SELECT post_id FROM hides WHERE session_id = :session_id AND board_id = :board_id_inner
-      )
+      ) AND deleted = :deleted
       ORDER BY bumped ' . ($desc === true ? 'DESC' : 'ASC') . '
       LIMIT :limit OFFSET :offset
     ');
@@ -52,21 +53,23 @@ function select_posts(string $session_id, ?string $board_id, int $parent_id = 0,
       'board_id_outer' => $board_id,
       'board_id_inner' => $board_id,
       'parent_id' => $parent_id,
+      'deleted' => $deleted ? 1 : 0,
       'limit' => $limit,
       'offset' => $offset
     ]);
   } else {
     $sth = $dbh->prepare('
       SELECT * FROM posts
-      WHERE deleted = 0 AND parent_id = :parent_id AND id ' . ($hidden === true ? '' : 'NOT') . ' IN (
+      WHERE parent_id = :parent_id AND id ' . ($hidden === true ? '' : 'NOT') . ' IN (
         SELECT post_id FROM hides WHERE session_id = :session_id
-      )
+      ) AND deleted = :deleted
       ORDER BY bumped ' . ($desc === true ? 'DESC' : 'ASC') . '
       LIMIT :limit OFFSET :offset
     ');
     $sth->execute([
       'session_id' => $session_id,
       'parent_id' => $parent_id,
+      'deleted' => $deleted ? 1 : 0,
       'limit' => $limit,
       'offset' => $offset
     ]);
@@ -74,14 +77,14 @@ function select_posts(string $session_id, ?string $board_id, int $parent_id = 0,
   return $sth->fetchAll();
 }
 
-function select_posts_preview(string $session_id, string $board_id, int $parent_id = 0, int $offset = 0, int $limit = 10) : array|bool {
+function select_posts_preview(string $session_id, string $board_id, int $parent_id = 0, int $offset = 0, int $limit = 10, bool $deleted = false) : array|bool {
   $dbh = get_db_handle();
   $sth = $dbh->prepare('
     SELECT t.* FROM (
       SELECT * FROM posts
-      WHERE deleted = 0 AND board_id = :board_id_outer AND parent_id = :parent_id AND id NOT IN (
+      WHERE board_id = :board_id_outer AND parent_id = :parent_id AND id NOT IN (
         SELECT post_id FROM hides WHERE session_id = :session_id AND board_id = :board_id_inner
-      )
+      ) AND deleted = :deleted
       ORDER BY bumped DESC
       LIMIT :limit OFFSET :offset
     ) AS t
@@ -92,38 +95,41 @@ function select_posts_preview(string $session_id, string $board_id, int $parent_
     'board_id_outer' => $board_id,
     'board_id_inner' => $board_id,
     'parent_id' => $parent_id,
+    'deleted' => $deleted ? 1 : 0,
     'limit' => $limit,
     'offset' => $offset
   ]);
   return $sth->fetchAll();
 }
 
-function count_posts(string $session_id, ?string $board_id, int $parent_id, bool $hidden = false) : int|bool {
+function count_posts(string $session_id, ?string $board_id, int $parent_id, bool $hidden = false,  bool $deleted = false) : int|bool {
   $dbh = get_db_handle();
   $sth = null;
   if ($board_id != null) {
     $sth = $dbh->prepare('
       SELECT COUNT(*) FROM posts
-      WHERE deleted = 0 AND board_id = :board_id_outer AND parent_id = :parent_id AND id ' . ($hidden === true ? '' : 'NOT') . ' IN (
+      WHERE board_id = :board_id_outer AND parent_id = :parent_id AND id ' . ($hidden === true ? '' : 'NOT') . ' IN (
         SELECT post_id FROM hides WHERE session_id = :session_id AND board_id = :board_id_inner
-      )
+      ) AND deleted = :deleted
     ');
     $sth->execute([
       'session_id' => $session_id,
       'board_id_outer' => $board_id,
       'board_id_inner' => $board_id,
-      'parent_id' => $parent_id
+      'parent_id' => $parent_id,
+      'deleted' => $deleted ? 1 : 0
     ]);
   } else {
     $sth = $dbh->prepare('
       SELECT COUNT(*) FROM posts
-      WHERE deleted = 0 AND parent_id = :parent_id AND id ' . ($hidden === true ? '' : 'NOT') . ' IN (
+      WHERE parent_id = :parent_id AND id ' . ($hidden === true ? '' : 'NOT') . ' IN (
         SELECT post_id FROM hides WHERE session_id = :session_id
-      )
+      ) AND deleted = :deleted
     ');
     $sth->execute([
       'session_id' => $session_id,
-      'parent_id' => $parent_id
+      'parent_id' => $parent_id,
+      'deleted' => $deleted ? 1 : 0
     ]);
   }
   return $sth->fetchColumn();
