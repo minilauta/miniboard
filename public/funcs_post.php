@@ -97,6 +97,7 @@ function funcs_post_create(string $ip, array $board_cfg, ?int $parent_id, ?array
     'ip'                  => $ip,
     'stickied'            => 0,
     'moderated'           => 1,
+    'deleted'             => 0,
     'country_code'        => null
   ];
 }

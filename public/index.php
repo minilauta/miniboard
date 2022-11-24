@@ -258,7 +258,7 @@ function handle_deleteform(Request $request, Response $response, array $args): R
     'delete'    => ['required' => true, 'type' => 'array']
   ]);
 
-  // loop over each post, check pass and delete
+  // loop over each post, check pass and mark as deleted
   foreach ($params['delete'] as $val) {
     // parse board id and post id
     $delete_parsed = explode('/', $val);
@@ -277,8 +277,7 @@ function handle_deleteform(Request $request, Response $response, array $args): R
     }
 
     // delete post
-    // TODO: cascade delete thread replies
-    if (!delete_post($delete_board_id, $delete_post_id)) {
+    if (!delete_post($delete_board_id, $delete_post_id, false)) {
       throw new ApiException("failed to delete post with ID /{$delete_board_id}/{$delete_post_id}", SC_INTERNAL_ERROR);
     }
   }

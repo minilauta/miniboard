@@ -41,7 +41,7 @@ function select_posts(string $session_id, ?string $board_id, int $parent_id = 0,
   if ($board_id != null) {
     $sth = $dbh->prepare('
       SELECT * FROM posts
-      WHERE board_id = :board_id_outer AND parent_id = :parent_id AND id ' . ($hidden === true ? '' : 'NOT') . ' IN (
+      WHERE deleted = 0 AND board_id = :board_id_outer AND parent_id = :parent_id AND id ' . ($hidden === true ? '' : 'NOT') . ' IN (
         SELECT post_id FROM hides WHERE session_id = :session_id AND board_id = :board_id_inner
       )
       ORDER BY bumped ' . ($desc === true ? 'DESC' : 'ASC') . '
@@ -58,7 +58,7 @@ function select_posts(string $session_id, ?string $board_id, int $parent_id = 0,
   } else {
     $sth = $dbh->prepare('
       SELECT * FROM posts
-      WHERE parent_id = :parent_id AND id ' . ($hidden === true ? '' : 'NOT') . ' IN (
+      WHERE deleted = 0 AND parent_id = :parent_id AND id ' . ($hidden === true ? '' : 'NOT') . ' IN (
         SELECT post_id FROM hides WHERE session_id = :session_id
       )
       ORDER BY bumped ' . ($desc === true ? 'DESC' : 'ASC') . '
@@ -79,7 +79,7 @@ function select_posts_preview(string $session_id, string $board_id, int $parent_
   $sth = $dbh->prepare('
     SELECT t.* FROM (
       SELECT * FROM posts
-      WHERE board_id = :board_id_outer AND parent_id = :parent_id AND id NOT IN (
+      WHERE deleted = 0 AND board_id = :board_id_outer AND parent_id = :parent_id AND id NOT IN (
         SELECT post_id FROM hides WHERE session_id = :session_id AND board_id = :board_id_inner
       )
       ORDER BY bumped DESC
@@ -104,7 +104,7 @@ function count_posts(string $session_id, ?string $board_id, int $parent_id, bool
   if ($board_id != null) {
     $sth = $dbh->prepare('
       SELECT COUNT(*) FROM posts
-      WHERE board_id = :board_id_outer AND parent_id = :parent_id AND id ' . ($hidden === true ? '' : 'NOT') . ' IN (
+      WHERE deleted = 0 AND board_id = :board_id_outer AND parent_id = :parent_id AND id ' . ($hidden === true ? '' : 'NOT') . ' IN (
         SELECT post_id FROM hides WHERE session_id = :session_id AND board_id = :board_id_inner
       )
     ');
@@ -117,7 +117,7 @@ function count_posts(string $session_id, ?string $board_id, int $parent_id, bool
   } else {
     $sth = $dbh->prepare('
       SELECT COUNT(*) FROM posts
-      WHERE parent_id = :parent_id AND id ' . ($hidden === true ? '' : 'NOT') . ' IN (
+      WHERE deleted = 0 AND parent_id = :parent_id AND id ' . ($hidden === true ? '' : 'NOT') . ' IN (
         SELECT post_id FROM hides WHERE session_id = :session_id
       )
     ');
@@ -159,6 +159,7 @@ function insert_post($post) : int|bool {
       spoiler,
       stickied,
       moderated,
+      deleted,
       country_code
     )
     VALUES (
@@ -188,6 +189,7 @@ function insert_post($post) : int|bool {
       :spoiler,
       :stickied,
       :moderated,
+      :deleted,
       :country_code
     )
   ');
@@ -195,12 +197,21 @@ function insert_post($post) : int|bool {
   return $dbh->lastInsertId();
 }
 
-function delete_post(string $board_id, int $id) : bool {
+function delete_post(string $board_id, int $id, bool $delete = false) : bool {
   $dbh = get_db_handle();
-  $sth = $dbh->prepare('
-    DELETE FROM posts
-    WHERE board_id = :board_id AND id = :id
-  ');
+  $sth = null;
+  if ($delete) {
+    $sth = $dbh->prepare('
+      DELETE FROM posts
+      WHERE board_id = :board_id AND id = :id
+    ');
+  } else {
+    $sth = $dbh->prepare('
+      UPDATE posts
+      SET deleted = 1
+      WHERE board_id = :board_id AND id = :id
+    ');
+  }
   return $sth->execute([
     'board_id' => $board_id,
     'id' => $id
