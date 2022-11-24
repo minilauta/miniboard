@@ -4,7 +4,9 @@ on:
   push:
     branches:
       - 'master'
-  pull_request:
+
+env:
+  REPO: ${{ github.repository }}
 
 jobs:
   build:
@@ -12,6 +14,18 @@ jobs:
     steps:
       - uses: actions/checkout@v3
       - uses: docker/setup-buildx-action@v2
+      - uses: docker/login-action@2
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+      # - id: meta
+      #   uses: docker/metadata-action@4
+      #   with:
+      #     images: |
+      #       ghcr.io/anonyymi/miniboard/app
+      #       ghcr.io/anonyymi/miniboard/flyway
+      #       ghcr.io/anonyymi/miniboard/nginx
       - uses: docker/bake-action@master
         with:
           push: false
@@ -21,3 +35,8 @@ jobs:
             app.cache-to=type=gha
       - name: Build
         run: docker compose -f docker-compose.prod.yml build
+      - name: Push
+        run: |
+          docker push ghcr.io/${{ env.REPO }}/app:latest
+          docker push ghcr.io/${{ env.REPO }}/flyway:latest
+          docker push ghcr.io/${{ env.REPO }}/nginx:latest

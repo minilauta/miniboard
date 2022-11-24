@@ -2,7 +2,7 @@ version: '3.8'
 
 services:
   app:
-    image: anonyymi/miniboard:latest
+    image: ghcr.io/anonyymi/miniboard/app:latest
     pull_policy: build
     build:
       context: .
@@ -47,7 +47,7 @@ services:
       MYSQL_PASSWORD: ${DB_PASS}
 
   flyway:
-    image: anonyymi/flyway:latest
+    image: ghcr.io/anonyymi/miniboard/flyway:latest
     pull_policy: build
     build:
       context: .
@@ -60,7 +60,7 @@ services:
       - mariadb
 
   nginx:
-    image: anonyymi/nginx:latest
+    image: ghcr.io/anonyymi/miniboard/nginx:latest
     pull_policy: build
     build:
       context: .
