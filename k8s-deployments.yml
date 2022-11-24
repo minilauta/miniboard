@@ -30,6 +30,13 @@ spec: # spec for deployment
           value: miniboard_db_user
         - name: MYSQL_PASSWORD
           value: miniboard_db_pass
+        volumeMounts:
+        - name: miniboard-mariadb-pv
+          mountPath: /var/lib/mysql
+      volumes:
+      - name: miniboard-mariadb-pv
+        persistentVolumeClaim:
+          claimName: miniboard-mariadb-pv-claim
 
 ---
 apiVersion: apps/v1
@@ -40,7 +47,7 @@ spec: # spec for deployment
   selector:
     matchLabels:
       run: miniboard-app
-  replicas: 1
+  replicas: 4
   template: # blueprint for pods
     metadata:
       labels:
@@ -62,6 +69,13 @@ spec: # spec for deployment
           value: miniboard_db_user
         - name: MB_DB_PASS
           value: miniboard_db_pass
+        volumeMounts:
+        - name: miniboard-app-pv
+          mountPath: /app/public/src
+      volumes:
+      - name: miniboard-app-pv
+        persistentVolumeClaim:
+          claimName: miniboard-app-pv-claim
 
 ---
 apiVersion: apps/v1
@@ -72,7 +86,7 @@ spec:
   selector:
     matchLabels:
       run: miniboard-nginx
-  replicas: 1
+  replicas: 2
   template:
     metadata:
       labels:
@@ -95,3 +109,12 @@ spec:
           value: miniboard-app
         - name: APP_PORT
           value: '9000'
+        volumeMounts:
+        - name: miniboard-nginx-pv
+          mountPath: /app/public/src
+          readOnly: true
+      volumes:
+      - name: miniboard-nginx-pv
+        persistentVolumeClaim:
+          claimName: miniboard-app-pv-claim
+          readOnly: true

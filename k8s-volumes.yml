@@ -1,0 +1,26 @@
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: miniboard-mariadb-pv-claim
+  labels:
+    run: miniboard-mariadb
+spec:
+  accessModes:
+    - ReadWriteOnce
+  resources:
+    requests:
+      storage: 512M
+
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: miniboard-app-pv-claim
+  labels:
+    run: miniboard-app
+spec:
+  accessModes:
+    - ReadWriteOnce
+  resources:
+    requests:
+      storage: 1024M
