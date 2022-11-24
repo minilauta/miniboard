@@ -15,6 +15,18 @@ Minimalistic imageboard software, written in PHP 8 with the help of Slim 4 micro
 ## How to run tests
 `$ docker compose build && docker compose run test`
 
+## How to deploy on k8s
+```bash
+$ kubectl apply -f k8s-volumes.yml
+$ kubectl apply -f k8s-services.yml
+$ kubectl apply -f k8s-deployments.yml
+$ kubectl apply -f k8s-pods.yml
+```
+
+## List of cool k8s tools
+- minikube
+- k9s
+
 ## Screenshots
 
 ![Example screenshot](/.docs/screenshot.png "Example screenshot")
