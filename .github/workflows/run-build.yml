@@ -38,6 +38,6 @@ jobs:
       - name: Push
         run: |
           docker image ls
-          docker push ghcr.io/anonyymi/app:latest
+          docker push ghcr.io/anonyymi/miniboard/app:latest
           docker push ghcr.io/anonyymi/miniboard/flyway:latest
           docker push ghcr.io/anonyymi/miniboard/nginx:latest
