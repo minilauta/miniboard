@@ -1,0 +1,10 @@
+apiVersion: v1
+kind: Pod
+metadata:
+  name: pod-miniboard-flyway
+spec: # spec for pod
+  containers:
+  - name: miniboard-flyway
+    image: ghcr.io/anonyymi/miniboard/flyway:latest
+    args: ["-url=jdbc:mysql://miniboard-mariadb", "-schemas=miniboard_db", "-user=root", "-password=root", "-connectRetries=60", "migrate"]
+  restartPolicy: OnFailure

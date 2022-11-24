@@ -1,0 +1,97 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: deployment-miniboard-mariadb
+spec: # spec for deployment
+  selector:
+    matchLabels:
+      run: miniboard-mariadb
+  replicas: 1
+  template: # blueprint for pods
+    metadata:
+      labels:
+        run: miniboard-mariadb # service looks for this label
+    spec: # spec for pods
+      containers:
+      - name: miniboard-mariadb
+        image: mariadb:10.6
+        ports:
+        - containerPort: 3306
+        env:
+        - name: MYSQL_CHARSET
+          value: utf8
+        - name: MYSQL_COLLATION
+          value: utf8mb4_unicode_ci
+        - name: MYSQL_ROOT_PASSWORD
+          value: root
+        - name: MYSQL_DATABASE
+          value: miniboard_db
+        - name: MYSQL_USER
+          value: miniboard_db_user
+        - name: MYSQL_PASSWORD
+          value: miniboard_db_pass
+
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: deployment-miniboard-app
+spec: # spec for deployment
+  selector:
+    matchLabels:
+      run: miniboard-app
+  replicas: 1
+  template: # blueprint for pods
+    metadata:
+      labels:
+        run: miniboard-app # service looks for this label
+    spec: # spec for pods
+      containers:
+      - name: miniboard-app
+        image: ghcr.io/anonyymi/miniboard/app:latest
+        ports:
+        - containerPort: 9000
+        env:
+        - name: MB_TIMEZONE
+          value: Europe/Helsinki
+        - name: MB_DB_HOST
+          value: miniboard-mariadb
+        - name: MB_DB_NAME
+          value: miniboard_db
+        - name: MB_DB_USER
+          value: miniboard_db_user
+        - name: MB_DB_PASS
+          value: miniboard_db_pass
+
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: deployment-miniboard-nginx
+spec:
+  selector:
+    matchLabels:
+      run: miniboard-nginx
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        run: miniboard-nginx
+    spec:
+      containers:
+      - name: miniboard-nginx
+        image: ghcr.io/anonyymi/miniboard/nginx:latest
+        ports:
+        - containerPort: 80
+        - containerPort: 443
+        env:
+        - name: NGINX_CLIENT_MAX_BODY_SIZE
+          value: 32M
+        - name: NGINX_REAL_IP_HEADER
+          value: X-Real-IP
+        - name: NGINX_REAL_IP_VAR
+          value: $$binary_remote_addr
+        - name: APP_HOST
+          value: miniboard-app
+        - name: APP_PORT
+          value: 9000

@@ -76,6 +76,8 @@ services:
       NGINX_CLIENT_MAX_BODY_SIZE: ${NGINX_CLIENT_MAX_BODY_SIZE}
       NGINX_REAL_IP_HEADER: ${NGINX_REAL_IP_HEADER}
       NGINX_REAL_IP_VAR: ${NGINX_REAL_IP_VAR}
+      APP_HOST: app
+      APP_PORT: 9000
     depends_on:
       - app
 
