@@ -1,7 +1,7 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: deployment-miniboard-mariadb
+  name: miniboard-mariadb
 spec: # spec for deployment
   selector:
     matchLabels:
@@ -35,7 +35,7 @@ spec: # spec for deployment
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: deployment-miniboard-app
+  name: miniboard-app
 spec: # spec for deployment
   selector:
     matchLabels:
@@ -67,7 +67,7 @@ spec: # spec for deployment
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: deployment-miniboard-nginx
+  name: miniboard-nginx
 spec:
   selector:
     matchLabels:
@@ -90,8 +90,8 @@ spec:
         - name: NGINX_REAL_IP_HEADER
           value: X-Real-IP
         - name: NGINX_REAL_IP_VAR
-          value: $$binary_remote_addr
+          value: $binary_remote_addr
         - name: APP_HOST
           value: miniboard-app
         - name: APP_PORT
-          value: 9000
+          value: '9000'
