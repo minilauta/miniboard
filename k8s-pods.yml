@@ -6,5 +6,13 @@ spec: # spec for pod
   containers:
   - name: miniboard-flyway
     image: ghcr.io/anonyymi/miniboard/flyway:latest
-    args: ["-url=jdbc:mysql://miniboard-mariadb", "-schemas=miniboard_db", "-user=root", "-password=root", "-connectRetries=60", "migrate"]
+    args: ["-url=jdbc:mysql://miniboard-mariadb", "-schemas=$(DB_NAME)", "-user=root", "-password=$(DB_ROOT_PASS)", "-connectRetries=60", "migrate"]
+    env:
+    - name: DB_NAME
+      value: miniboard_db
+    - name: DB_ROOT_PASS
+      valueFrom:
+        secretKeyRef:
+          name: miniboard-mariadb-root
+          key: PASSWORD
   restartPolicy: OnFailure

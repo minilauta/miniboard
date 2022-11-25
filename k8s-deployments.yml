@@ -23,13 +23,22 @@ spec: # spec for deployment
         - name: MYSQL_COLLATION
           value: utf8mb4_unicode_ci
         - name: MYSQL_ROOT_PASSWORD
-          value: root
+          valueFrom:
+            secretKeyRef:
+              name: miniboard-mariadb-root
+              key: PASSWORD
         - name: MYSQL_DATABASE
           value: miniboard_db
         - name: MYSQL_USER
-          value: miniboard_db_user
+          valueFrom:
+            secretKeyRef:
+              name: miniboard-mariadb-user
+              key: USER
         - name: MYSQL_PASSWORD
-          value: miniboard_db_pass
+          valueFrom:
+            secretKeyRef:
+              name: miniboard-mariadb-user
+              key: PASSWORD
         volumeMounts:
         - name: miniboard-mariadb-pv
           mountPath: /var/lib/mysql
@@ -66,9 +75,15 @@ spec: # spec for deployment
         - name: MB_DB_NAME
           value: miniboard_db
         - name: MB_DB_USER
-          value: miniboard_db_user
+          valueFrom:
+            secretKeyRef:
+              name: miniboard-mariadb-user
+              key: USER
         - name: MB_DB_PASS
-          value: miniboard_db_pass
+          valueFrom:
+            secretKeyRef:
+              name: miniboard-mariadb-user
+              key: PASSWORD
         volumeMounts:
         - name: miniboard-app-pv
           mountPath: /app/public/src
