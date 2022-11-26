@@ -1,0 +1,38 @@
+# TODO: not working yet, I have to learn more about k8s
+
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: miniboard-mariadb-pv-claim
+  labels:
+    run: miniboard-mariadb
+spec:
+  accessModes:
+    - ReadWriteOnce
+  resources:
+    requests:
+      storage: 512M
+  storageClassName: csi-hostpath-sc
+  dataSource:
+    name: miniboard-mariadb-snapshot
+    kind: VolumeSnapshot
+    apiGroup: snapshot.storage.k8s.io
+
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: miniboard-app-pv-claim
+  labels:
+    run: miniboard-app
+spec:
+  accessModes:
+    - ReadWriteOnce
+  resources:
+    requests:
+      storage: 512M
+  storageClassName: csi-hostpath-sc
+  dataSource:
+    name: miniboard-app-snapshot
+    kind: VolumeSnapshot
+    apiGroup: snapshot.storage.k8s.io

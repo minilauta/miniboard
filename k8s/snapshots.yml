@@ -1,0 +1,20 @@
+# TODO: not working yet, I have to learn more about k8s
+
+apiVersion: snapshot.storage.k8s.io/v1
+kind: VolumeSnapshot
+metadata:
+  name: miniboard-mariadb-snapshot
+spec:
+  volumeSnapshotClassName: csi-hostpath-snapclass
+  source:
+    persistentVolumeClaimName: miniboard-mariadb-pv-claim
+
+---
+apiVersion: snapshot.storage.k8s.io/v1
+kind: VolumeSnapshot
+metadata:
+  name: miniboard-app-snapshot
+spec:
+  volumeSnapshotClassName: csi-hostpath-snapclass
+  source:
+    persistentVolumeClaimName: miniboard-app-pv-claim
