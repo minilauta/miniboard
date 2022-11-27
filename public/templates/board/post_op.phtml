@@ -55,10 +55,23 @@
           echo $post['message_rendered'];
         } else {
           echo $post['message_truncated'];
-          echo '<br><br><span class="truncated">Post truncated. Click reply to view.</span><br>';
         }
       ?>
     </div>
+    <?php
+      $truncated = false;
+      if ($context === 'board' && isset($post['message_truncated'])) {
+        $truncated = true;
+        echo '<span class="truncated">Post truncated. Click reply to view.</span>';
+      }
+
+      if ($context === 'board') {
+        $replies_omitted = $post['replies_n'] - count($post['replies']);
+        if ($replies_omitted > 0) {
+          echo ($truncated ? '<br>' : '') . "<span class='omitted'>{$replies_omitted} posts omitted. Click reply to view.</span>";
+        }
+      }
+    ?>
   </div>
   <?php
     foreach ($post['replies'] as $reply) {

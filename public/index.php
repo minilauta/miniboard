@@ -120,6 +120,7 @@ $app->get('/{board_id}/', function (Request $request, Response $response, array 
   // get replies
   foreach ($threads as $key => $thread) {
     $threads[$key]['replies'] = select_posts_preview(session_id(), $thread['board_id'], $thread['id'], 0, $board_posts_per_preview);
+    $threads[$key]['replies_n'] = count_posts(session_id(), $thread['board_id'], $thread['id'], false, false);
   }
 
   // get thread count

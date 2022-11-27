@@ -95,6 +95,22 @@ div.post-message {
   margin: 1em 0px;
 }
 
+div.post-message .spoiler {
+  color: transparent;
+  text-decoration: none;
+}
+
+div.post-message .spoiler:hover {
+  color: inherit;
+  text-shadow: none;
+}
+
+div.post-message pre {
+  margin: 0px;
+  padding-bottom: 12px;
+  overflow-x: scroll;
+}
+
 .catalog {
   &__single {
     float: left;

@@ -49,7 +49,15 @@ div.post-message span.quote {
   color: #789922;
 }
 
-div.post-message span.truncated {
+div.post-message .spoiler {
+  text-shadow: 0 0 8px #000000;
+}
+
+div.post-message-wrapper span.truncated {
+  color: #707070;
+}
+
+div.post-message-wrapper span.omitted {
   color: #707070;
 }
 

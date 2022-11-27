@@ -55,8 +55,7 @@ function funcs_post_create(string $ip, array $board_cfg, ?int $parent_id, ?array
   // preprocess message bbcode
   $message = preg_replace('/\[(b|i|u|s)\](.*?)\[\/\1\]/ms', '<$1>$2</$1>', $message);
   $message = preg_replace('/\[code\](.*?)\[\/code\]/ms', '<pre>$1</pre>', $message);
-  $message = preg_replace('/\[quote\](.*?)\[\/quote\]/ms', '<blockquote>$1</blockquote>', $message);
-  $message = preg_replace('/\[quote="(.*?)"\](.*?)\[\/quote\]/ms', '<blockquote>$2</blockquote><p>~ $1 ~</p>', $message);
+  $message = preg_replace('/\[spoiler\](.*?)\[\/spoiler\]/ms', '<span class="spoiler">$1</span>', $message);
 
   // convert message line endings
   $message = nl2br($message, false);
