@@ -21,6 +21,17 @@ function funcs_file_validate_upload(UploadedFileInterface $input, bool $no_file_
   $finfo = finfo_open(FILEINFO_MIME);
   $file_mime = explode(';', finfo_file($finfo, $tmp_file))[0];
   finfo_close($finfo);
+
+  // NOTE: mp3 files are tricky! check for id3v1 and id3v2 tags if finfo_file fails...
+  $file_ext_pathinfo = pathinfo($input->getClientFilename(), PATHINFO_EXTENSION);
+  if ($file_mime === 'application/octet-stream' && $file_ext_pathinfo === 'mp3') {
+    $get_id3 = new getID3;
+    $id3_info = $get_id3->analyze($tmp_file);
+    if (isset($id3_info['id3v1']) || isset($id3_info['id3v2'])) {
+      $file_mime = 'audio/mpeg';
+    }
+  }
+  
   if (!isset($mime_types[$file_mime])) {
     throw new FuncException('funcs_file', 'validate_upload', "file mime type invalid: {$file_mime}", SC_BAD_REQUEST);
   }
@@ -76,10 +87,6 @@ function funcs_file_execute_upload(UploadedFileInterface $file, ?array $file_inf
     
     // strip metadata from all files
     $exiftool_status = funcs_file_strip_metadata($file_path);
-    if ($exiftool_status !== 0) {
-      unlink($file_path);
-      throw new FuncException('funcs_file', 'funcs_file_execute_upload', "exiftool returned an error status: {$exiftool_status}", SC_INTERNAL_ERROR);
-    }
 
     switch ($file_info['mime']) {
       case 'image/jpeg':
@@ -88,6 +95,12 @@ function funcs_file_execute_upload(UploadedFileInterface $file, ?array $file_inf
       case 'image/gif':
       case 'image/bmp':
       case 'image/webp':
+        // make exiftool success mandatory for images
+        if ($exiftool_status !== 0) {
+          unlink($file_path);
+          throw new FuncException('funcs_file', 'funcs_file_execute_upload', "exiftool returned an error status: {$exiftool_status}", SC_INTERNAL_ERROR);
+        }
+
         $generated_thumb = funcs_file_generate_thumbnail($file_path, 'image/png', $thumb_file_path, $max_w, $max_h);
         $image_width = $generated_thumb['image_width'];
         $image_height = $generated_thumb['image_height'];
@@ -96,6 +109,12 @@ function funcs_file_execute_upload(UploadedFileInterface $file, ?array $file_inf
         break;
       case 'video/mp4':
       case 'video/webm':
+        // make exiftool success mandatory for videos
+        if ($exiftool_status !== 0) {
+          unlink($file_path);
+          throw new FuncException('funcs_file', 'funcs_file_execute_upload', "exiftool returned an error status: {$exiftool_status}", SC_INTERNAL_ERROR);
+        }
+
         $ffprobe = FFMpeg\FFProbe::create();
         $video_duration = $ffprobe
           ->format($file_path)
@@ -112,6 +131,24 @@ function funcs_file_execute_upload(UploadedFileInterface $file, ?array $file_inf
         $image_height = $generated_thumb['image_height'];
         $thumb_width = $generated_thumb['thumb_width'];
         $thumb_height = $generated_thumb['thumb_height'];
+        break;
+      case 'audio/mpeg':
+        $album_file_path = __DIR__ . '/src/' . 'album_' . $file_name;
+        $album_file_path = funcs_file_get_mp3_album_art($file_path, $album_file_path);
+        
+        if ($album_file_path != null) {
+          $generated_thumb = funcs_file_generate_thumbnail($album_file_path, 'image/png', $thumb_file_path, $max_w, $max_h);
+          $image_width = $generated_thumb['image_width'];
+          $image_height = $generated_thumb['image_height'];
+          $thumb_width = $generated_thumb['thumb_width'];
+          $thumb_height = $generated_thumb['thumb_height'];
+        } else {
+          $thumb_file_name = '';
+          $image_width = 0;
+          $image_height = 0;
+          $thumb_width = 0;
+          $thumb_height = 0;
+        }
         break;
       default:
         unlink($file_path);
@@ -186,4 +223,39 @@ function funcs_file_generate_thumbnail(string $file_path, string $file_mime, str
     'thumb_width'   => $thumb_width,
     'thumb_height'  => $thumb_height
   ];
+}
+
+function funcs_file_get_mp3_album_art(string $file_path, string $output_path): string {
+  // get file info
+  $get_id3 = new getID3;
+  $id3_info = $get_id3->analyze($file_path);
+
+  // extract album art data
+  $album_mime = null;
+  $album_path = null;
+  if (isset($id3_info['comments']['picture'][0])) {
+    $album_mime = $id3_info['comments']['picture'][0]['image_mime'];
+    $album_ext = null;
+    switch ($album_mime) {
+      case 'image/jpeg':
+      case 'image/pjpeg':
+        $album_ext = 'jpg';
+        break;
+      case 'image/png':
+        $album_ext = 'png';
+        break;
+      default:
+        break;
+    }
+
+    if ($album_ext != null) {
+      $album_data = $id3_info['comments']['picture'][0]['data'];
+      $album_path = "{$output_path}.{$album_ext}";
+      if (!file_put_contents($album_path, $album_data)) {
+        return null;
+      }
+    }
+  }
+
+  return $album_path;
 }

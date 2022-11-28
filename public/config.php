@@ -101,7 +101,8 @@ define('MB_BOARDS', [
       'image/bmp'           => ['bmp'],
       'image/webp'          => ['webp'],
       'video/mp4'           => ['mp4'],
-      'video/webm'          => ['webm']
+      'video/webm'          => ['webm'],
+      'audio/mpeg'          => ['mp3']
     ],
     'embed_types'       => [
       'YouTube'             => 'https://www.youtube.com/oembed?url=TINYIBEMBED&format=json'
@@ -139,7 +140,8 @@ define('MB_BOARDS', [
       'image/gif'           => ['gif'],
       'image/bmp'           => ['bmp'],
       'video/mp4'           => ['mp4'],
-      'video/webm'          => ['webm']
+      'video/webm'          => ['webm'],
+      'audio/mpeg'          => ['mp3']
     ],
     'embed_types'       => [
       'YouTube'             => 'https://www.youtube.com/oembed?url=TINYIBEMBED&format=json'
