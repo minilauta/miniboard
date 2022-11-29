@@ -4,6 +4,49 @@ var state = {
 };
 
 /**
+ * Set cookie value.
+ * @param {*} key 
+ * @param {*} val 
+ * @param {*} samesite 
+ * @param {*} expires 
+ */
+function set_cookie(key, val, samesite, expires) {
+  key = 'miniboard/' + key;
+
+  if (expires instanceof Date) {
+    expires = expires.toUTCString();
+  }
+
+  document.cookie = key + '=' + encodeURIComponent(val) + '; path=/; SameSite=' + samesite + '; expires=' + expires;
+}
+
+/**
+ * Get cookie value by key.
+ * @param {*} key 
+ * @returns 
+ */
+function get_cookie(key) {
+  key = 'miniboard/' + key;
+
+  let decoded = decodeURIComponent(document.cookie);
+  let cookies = decoded.split(';');
+
+  for (let i = 0; i < cookies.length; i++) {
+    let cookie = cookies[i].split('=');
+
+    if (cookie.length !== 2) {
+      return;
+    }
+
+    if (cookie[0].trimStart() === key) {
+      return cookie[1];
+    }
+  };
+
+  return null;
+}
+
+/**
  * Event listener: click on dropdown menu button.
  * Opens/closes the menu.
  * @param {*} event 
@@ -450,8 +493,30 @@ function init_location_hash_features() {
   });
 }
 
+function init_postform_features() {
+  // update password fields appropriately
+  let cookie_pass = get_cookie('password');
+  let postform_pass = document.getElementById('postform-password');
+  let deleteform_pass = document.getElementById('deleteform-password');
+
+  if (postform_pass != null && deleteform_pass != null) {
+    if (cookie_pass != null) {
+      postform_pass.value = cookie_pass;
+      deleteform_pass.value = cookie_pass;
+    }
+
+    let cookie_pass_expires = new Date();
+    cookie_pass_expires.setFullYear(cookie_pass_expires.getFullYear() + 1);
+    postform_pass.addEventListener('input', function(event) {
+      set_cookie('password', event.target.value, 'Strict', cookie_pass_expires);
+      deleteform_pass.value = event.target.value;
+    });
+  }
+}
+
 document.addEventListener('DOMContentLoaded', function(event) {
   init_dropdown_menu_buttons();
   init_post_reference_links();
   init_location_hash_features();
+  init_postform_features();
 });
