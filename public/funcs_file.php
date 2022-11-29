@@ -225,7 +225,7 @@ function funcs_file_generate_thumbnail(string $file_path, string $file_mime, str
   ];
 }
 
-function funcs_file_get_mp3_album_art(string $file_path, string $output_path): string {
+function funcs_file_get_mp3_album_art(string $file_path, string $output_path): ?string {
   // get file info
   $get_id3 = new getID3;
   $id3_info = $get_id3->analyze($file_path);
