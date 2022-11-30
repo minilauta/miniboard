@@ -3,6 +3,7 @@
   <head>
     <?=$this->fetch('common/meta.phtml')?>
     <?=$this->fetch('common/styles.phtml')?>
+    <title>/<?=$board['id']?>/ - Hidden</title>
   </head>
   <body>
     <?=$this->fetch('board/menubar.phtml', ['board_id' => $board['id'], 'thread_id' => null])?>

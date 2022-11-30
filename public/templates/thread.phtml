@@ -3,6 +3,15 @@
   <head>
     <?=$this->fetch('common/meta.phtml')?>
     <?=$this->fetch('common/styles.phtml')?>
+    <?php
+      $title = "/{$board['id']}/ - ";
+      if (strlen($thread['subject']) > 0) {
+        $title .= $thread['subject'];
+      } else {
+        $title .= substr(trim(str_ireplace("\n", '', strip_tags($thread['message_rendered']))), 0, 75);
+      }
+      echo "<title>{$title}</title>";
+    ?>
   </head>
   <body>
     <?=$this->fetch('board/menubar.phtml', ['board_id' => $board['id'], 'thread_id' => $thread['id']])?>
