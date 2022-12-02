@@ -69,11 +69,21 @@ function funcs_post_create(string $ip, array $board_cfg, ?int $parent_id, ?array
   $message_truncated = $message;
   $message_truncated_flag = funcs_common_truncate_string_linebreak($message_truncated, $board_cfg['truncate'], true);
 
+  // parse name, additionally handle trip and secure trip
+  $name_trip = [$board_cfg['anonymous'], null];
+  if (strlen($input['name']) > 0) {
+    $name_trip = funcs_common_generate_tripcode($input['name'], MB_GLOBAL['tripsalt']);
+    $name_trip[0] = funcs_common_clean_field($name_trip[0]);
+    if ($name_trip[1] != null) {
+      $name_trip[1] = funcs_common_clean_field($name_trip[1]);
+    }
+  }
+
   return [
     'board_id'            => $board_cfg['id'],
     'parent_id'           => $parent_id != null ? $parent_id : 0,
-    'name'                => strlen($input['name']) !== 0 ? funcs_common_clean_field($input['name']) : $board_cfg['anonymous'],
-    'tripcode'            => null,
+    'name'                => $name_trip[0],
+    'tripcode'            => $name_trip[1],
     'email'               => funcs_common_clean_field($input['email']),
     'subject'             => funcs_common_clean_field($input['subject']),
     'message'             => $input['message'],

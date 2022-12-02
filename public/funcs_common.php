@@ -242,3 +242,63 @@ function funcs_common_hash_password(string $input): string {
 function funcs_common_verify_password(string $input, string $hash): bool {
   return password_verify($input, $hash);
 }
+
+function funcs_common_generate_tripcode(string $input, string $secure_salt): ?array {
+  // find name(!|#)tripcode separator(s)
+  $separators = ['!', '#'];
+  $separator_pos = [];
+  foreach ($separators as $separator) {
+    // normal tripcode
+    $pos = strpos($input, $separator, 0);
+    if ($pos !== false) {
+      $separator_pos[] = $pos;
+
+      // secure tripcode
+      $pos = strpos($input, $separator, $pos + 1);
+      if ($pos !== false) {
+        $separator_pos[] = $pos;
+      }
+    }
+  }
+  
+  // return name if no tripcode given
+  if (count($separator_pos) === 0) {
+    return [$input, null];
+  }
+
+  // get name, separator and pass
+  $name = substr($input, 0, $separator_pos[0]);
+  $normal_pass = null;
+  $secure_pass = null;
+  if (count($separator_pos) === 1) {
+    $normal_pass = substr($input, $separator_pos[0] + 1);
+    $secure_pass = "";
+  } else {
+    $normal_pass = substr($input, $separator_pos[0] + 1, $separator_pos[1] - $separator_pos[0] - 1);
+    $secure_pass = substr($input, $separator_pos[1] + 1);
+  }
+
+  $tripcode = "";
+
+  // generate normal tripcode (logic from Futabally)
+  if (strlen($normal_pass) > 0) {
+    $normal_pass = strtr($normal_pass, "&amp;", "&");   // just in case...
+    $normal_pass = strtr($normal_pass, "&#44;", ", ");  // just in case...
+    $normal_salt = substr($normal_pass . "H.", 1, 2);
+    $normal_salt = preg_replace("/[^\.-z]/", ".", $normal_salt);
+    $normal_salt = strtr($normal_salt, ":;<=>?@[\\]^_`", "ABCDEFGabcdef");
+    $tripcode = substr(crypt($normal_pass, $normal_salt), -10);
+  }
+
+  // generate secure tripcode
+  if (strlen($secure_pass) > 0) {
+    $tripcode .= ($normal_pass != "" ? "!!" : "!") . substr(md5($secure_pass . $secure_salt), 2, 10);
+  }
+
+  // return name if empty passwords given
+  if (strlen($tripcode) === 0) {
+    return [$input, null];
+  }
+
+  return [$name, $tripcode];
+}

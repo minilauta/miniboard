@@ -11,6 +11,10 @@
           } else {
             echo "<span class='post-name'>{$post['name']}</span>";
           }
+
+          if (isset($post['tripcode']) && strlen($post['tripcode']) > 0) {
+            echo "<span class='post-trip'>!{$post['tripcode']}</span>";
+          }
         ?>
         <span class="post-datetime"><?=@strftime(MB_GLOBAL['datefmt'], $post['timestamp'])?></span>
       </label>

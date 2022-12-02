@@ -28,6 +28,7 @@ define('MB_GLOBAL', [
     4                   => 'Not work safe content on work safe board.'
   ],
   'cloudflare'       => false,
+  'tripsalt'         => '#!12345_MAKE_THIS_SECURE_67890!#'
 ]);
 
 // board settings
