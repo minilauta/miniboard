@@ -250,11 +250,12 @@ function funcs_common_generate_tripcode(string $input, string $secure_salt): ?ar
   foreach ($separators as $separator) {
     // normal tripcode
     $pos = strpos($input, $separator, 0);
-    if ($pos !== false) {
-      $separator_pos[] = $pos;
+    $pos_min = count($separator_pos) > 0 ? min($separator_pos) : false;
+    if ($pos !== false && ($pos_min === false || $pos < $pos_min)) {
+      $separator_pos = [$pos];
 
       // secure tripcode
-      $pos = strpos($input, $separator, $pos + 1);
+      $pos = strrpos($input, $separator, $pos + 1);
       if ($pos !== false) {
         $separator_pos[] = $pos;
       }
