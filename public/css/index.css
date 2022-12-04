@@ -161,6 +161,7 @@ div.postform-group label.postform-captcha-label {
 
 div.postform-group div.h-captcha {
   display: inline-block;
+  min-height: 78px;
 }
 
 /* deleteform */
