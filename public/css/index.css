@@ -227,3 +227,7 @@ div.post-preview > div.post.reply > div.reply  {
 form.reportform select {
   width: 100%;
 }
+
+form.reportform div.h-captcha {
+  min-height: 82px;
+}
