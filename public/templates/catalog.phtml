@@ -12,7 +12,7 @@
     [<a href="../">Return</a>]
     <div class="mode">Catalog</div>
     <div class="container-centered">
-      <?=$this->fetch('board/postform.phtml', ['board' => $board, 'action' => "/{$board['id']}"])?>
+      <?=$this->fetch('board/postform.phtml', ['context' => 'board', 'board' => $board, 'action' => "/{$board['id']}"])?>
     </div>
     <hr>
     <?php

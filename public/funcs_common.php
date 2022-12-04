@@ -243,7 +243,7 @@ function funcs_common_verify_password(string $input, string $hash): bool {
   return password_verify($input, $hash);
 }
 
-function funcs_common_generate_tripcode(string $input, string $secure_salt): ?array {
+function funcs_common_generate_tripcode(string $input, string $secure_salt): array {
   // find name(!|#)tripcode separator(s)
   $separators = ['!', '#'];
   $separator_pos = [];
@@ -302,4 +302,25 @@ function funcs_common_generate_tripcode(string $input, string $secure_salt): ?ar
   }
 
   return [$name, $tripcode];
+}
+
+function funcs_common_validate_captcha($input) {
+  if (!isset($input['h-captcha-response'])) {
+    throw new FuncException('funcs_common', 'validate_captcha', 'h-captcha-response not found in input form data', SC_BAD_REQUEST);
+  }
+
+  $curl = curl_init();
+  curl_setopt($curl, CURLOPT_URL, "https://hcaptcha.com/siteverify");
+  curl_setopt($curl, CURLOPT_POST, true);
+  curl_setopt($curl, CURLOPT_POSTFIELDS, http_build_query([
+    'secret' => MB_GLOBAL['hcaptcha_secret'],
+    'response' => $input['h-captcha-response']
+  ]));
+  curl_setopt($curl, CURLOPT_RETURNTRANSFER, true);
+  $response = curl_exec($curl);
+  $response = json_decode($response);
+
+  if (!isset($response->success) || !$response->success) {
+    throw new FuncException('funcs_common', 'validate_captcha', 'h-captcha validation failed', SC_BAD_REQUEST);
+  }
 }

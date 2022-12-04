@@ -20,7 +20,7 @@
     [<a href="../">Return</a>]
     <div class="mode">Posting mode: Reply</div>
     <div class="container-centered">
-      <?=$this->fetch('board/postform.phtml', ['board' => $board, 'action' => "/{$board['id']}/{$thread['id']}"])?>
+      <?=$this->fetch('board/postform.phtml', ['context' => 'thread', 'board' => $board, 'action' => "/{$board['id']}/{$thread['id']}"])?>
     </div>
     <hr>
     <?=$this->fetch('board/deleteform.phtml', ['context' => 'thread', 'board' => $board, 'threads' => [$thread]])?>

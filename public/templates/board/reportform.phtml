@@ -12,5 +12,10 @@
     ?>
   </fieldset>
   <p>Submitting <strong>false</strong> or <strong>misclassified</strong> reports will result in a ban.</p>
+  <?php
+    if (MB_GLOBAL['captcha_report']) {
+      echo '<div class="h-captcha" data-sitekey="' . MB_GLOBAL['hcaptcha_site'] . '"></div>';
+    }
+  ?>
   <button type="submit">Submit</button>
 </form>

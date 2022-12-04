@@ -82,6 +82,11 @@ function handle_reportform(Request $request, Response $response, array $args): R
   // get board config
   $board_cfg = funcs_common_get_board_cfg($args['board_id']);
 
+  // validate captcha
+  if (MB_GLOBAL['captcha_report']) {
+    funcs_common_validate_captcha($params);
+  }
+
   // validate request fields
   funcs_report_validate_fields($params, MB_GLOBAL['report_types']);
 
@@ -240,7 +245,7 @@ $app->get('/{board_id}/{thread_id}/{post_id}/', function (Request $request, Resp
 });
 
 $app->post('/{board_id}/', function (Request $request, Response $response, array $args) {
-  return handle_postform($request, $response, $args);
+  return handle_postform($request, $response, $args, 'board');
 });
 
 $app->post('/{board_id}/delete/', function (Request $request, Response $response, array $args) {
@@ -291,16 +296,21 @@ function handle_deleteform(Request $request, Response $response, array $args): R
 }
 
 $app->post('/{board_id}/{thread_id}/', function (Request $request, Response $response, array $args) {
-  return handle_postform($request, $response, $args);
+  return handle_postform($request, $response, $args, 'thread');
 });
 
-function handle_postform(Request $request, Response $response, array $args): Response {
+function handle_postform(Request $request, Response $response, array $args, string $context): Response {
   // parse request body
   $params = (array) $request->getParsedBody();
   $file = $request->getUploadedFiles()['file'];
 
   // get board config
   $board_cfg = funcs_common_get_board_cfg($args['board_id']);
+
+  // validate captcha
+  if (MB_GLOBAL['captcha_thread'] && $context === 'board' || MB_GLOBAL['captcha_reply'] && $context === 'thread') {
+    funcs_common_validate_captcha($params);
+  }
 
   // validate request fields
   funcs_common_validate_fields($params, $board_cfg['fields_post']);

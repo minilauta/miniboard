@@ -1,11 +1,11 @@
 <form id="postform" class="postform" method="post" action="<?=$action?>" enctype="multipart/form-data">
   <div class="postform-group">
     <label for="name">Name</label>
-    <input type="text" name="name" autocomplete="off">
+    <input type="text" name="name">
   </div>
   <div class="postform-group">
     <label for="email">E-mail</label>
-    <input type="text" name="email" autocomplete="off">
+    <input type="text" name="email">
   </div>
   <div class="postform-group">
     <label for="subject">Subject</label>
@@ -15,6 +15,15 @@
   <div class="postform-group">
     <label class="postform-message-label" for="message">Message</label>
     <textarea id="postform-message" name="message" autocomplete="off" cols="48" rows="4" maxlength="8192"></textarea>
+  </div>
+  <div class="postform-group">
+    <?php
+      if ($context === 'board' && MB_GLOBAL['captcha_thread'] || $context === 'thread' && MB_GLOBAL['captcha_reply']) {
+        $label = "<label class='postform-captcha-label' for='captcha'>Captcha</label>\n";
+        $captcha = '<div class="h-captcha" data-sitekey="' . MB_GLOBAL['hcaptcha_site'] . '"></div>';
+        echo $label . $captcha;
+      }
+    ?>
   </div>
   <div class="postform-group">
     <?php
