@@ -92,7 +92,7 @@ function funcs_post_create(string $ip, array $board_cfg, ?int $parent_id, ?array
     'password'            => (isset($input['password']) && strlen($input['password']) > 0) ? funcs_common_hash_password($input['password']) : null,
     'file'                => $file['file'],
     'file_hex'            => $file['file_hex'],
-    'file_original'       => $file['file_original'],
+    'file_original'       => funcs_common_clean_field($file['file_original']),
     'file_size'           => $file['file_size'],
     'file_size_formatted' => $file['file_size_formatted'],
     'image_width'         => $file['image_width'],
