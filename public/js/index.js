@@ -471,6 +471,58 @@ function init_post_reference_links(target) {
 }
 
 /**
+ * Initializes all post backref links under target element.
+ */
+function init_post_backref_links(target) {
+  if (target == null) {
+    target = document;
+  }
+
+  // get all post elements
+  let post_elements = target.getElementsByClassName('post');
+
+  // create a map of post elements and array of ref objects
+  let post_map = {};
+  let ref_array = [];
+  Array.from(post_elements).forEach(element => {
+    // select post root element with ID
+    let post = element.id !== '' ? element : element.getElementsByClassName('reply')[0];
+
+    // append to map
+    post_map[post.id] = post;
+
+    // append to refs
+    let ref_elements = post.getElementsByClassName('reference');
+    if (ref_elements.length > 0 && !post.classList.contains('post')) {
+      ref_array.push({
+        post_id: post.id,
+        ref_elements: ref_elements
+      });
+    }
+  });
+
+  // insert backref links to posts
+  for (let i = 0; i < ref_array.length; i++) {
+    const ref = ref_array[i];
+
+    for (let j = 0; j < ref.ref_elements.length; j++) {
+      let ref_element = ref.ref_elements[j];
+      let post_element = post_map[ref_element.dataset.id];
+      if (post_element == null || post_element.id === ref.post_id) {
+        continue;
+      }
+
+      // insert backref to post info section
+      let info = post_element.getElementsByClassName('post-info')[0];
+      let backref = document.createElement('a');
+      backref.classList.add('backreference');
+      backref.innerHTML = '>>' + ref.post_id;
+      info.appendChild(backref);
+    }
+  }
+}
+
+/**
  * Initializes features related to interpreting location.hash value.
  * - Post highlights (#ID)
  * - Insert post ref link to postform message (#qID)
@@ -493,6 +545,10 @@ function init_location_hash_features() {
   });
 }
 
+/**
+ * Initializes features related to postform fields.
+ * - Remember password (local cookie)
+ */
 function init_postform_features() {
   // update password fields appropriately
   let cookie_pass = get_cookie('password');
@@ -517,6 +573,7 @@ function init_postform_features() {
 document.addEventListener('DOMContentLoaded', function(event) {
   init_dropdown_menu_buttons();
   init_post_reference_links();
+  init_post_backref_links();
   init_location_hash_features();
   init_postform_features();
 });
