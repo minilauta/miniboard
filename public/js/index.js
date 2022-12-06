@@ -85,7 +85,7 @@ function listener_dropdown_menu_button_click(event) {
             }
           });
         }
-        let thumb_img = document.getElementById('thumb-' + data.id);
+        let thumb_img = document.getElementById('thumb-' + data.board_id + '-' + data.id);
         if (thumb_img != null && !thumb_img.src.includes('/static/')) {
           lis.push({
             type: 'li',
@@ -215,7 +215,7 @@ function listener_post_reference_link_mouseleave(event) {
   let target = event.target;
   let rect = target.getBoundingClientRect();
   let data = target.dataset;
-  let thumb = document.getElementById('thumb-' + data.id);
+  let thumb = document.getElementById('thumb-' + data.board_id + '-' + data.id);
 
   switch (data.cmd) {
     case 'report':
@@ -228,7 +228,7 @@ function listener_post_reference_link_mouseleave(event) {
           return;
         }
 
-        let post = document.getElementById(data.id);
+        let post = document.getElementById(data.board_id + '-' + data.id);
         if (post != null) {
           if (post.parentElement.classList.contains('reply')) {
             post.parentElement.remove();
@@ -471,6 +471,75 @@ function init_post_reference_links(target) {
 }
 
 /**
+ * Initializes all post backreference links under target element.
+ */
+function init_post_backreference_links(target) {
+  if (target == null) {
+    target = document;
+  }
+
+  // get all post elements
+  let post_elements = target.getElementsByClassName('post');
+
+  // create a lookup map of posts and array of {post, refs} objs
+  let post_lookup = {};
+  let post_ref_array = [];
+  Array.from(post_elements).forEach(e => {
+    // select the correct element from op|reply type of elements
+    let post = e.id !== '' ? e : e.getElementsByClassName('reply')[0];
+
+    // append post to the lookup map
+    post_lookup[post.id] = post;
+
+    // append to post_ref array (skip op post)
+    let post_msg_element = post.getElementsByClassName('post-message')[0];
+    let post_ref_elements = post_msg_element.getElementsByClassName('reference');
+    if (post_ref_elements.length > 0) {
+      post_ref_array.push({
+        board_id: post.id.split('-')[0],
+        parent_id: post.dataset.parent_id,
+        post_id: post.id.split('-')[1],
+        refs: post_ref_elements
+      });
+    }
+  });
+
+  // insert backreference links to posts
+  for (let i = 0; i < post_ref_array.length; i++) {
+    const post_ref_obj = post_ref_array[i];
+
+    for (let j = 0; j < post_ref_obj.refs.length; j++) {
+      // get ref (skip circular refs)
+      const ref = post_ref_obj.refs[j];
+      if (post_ref_obj.post_id == ref.dataset.id) {
+        continue;
+      }
+      
+      // get target post to append backref to (skip if not found)
+      let backref_post = post_lookup[ref.dataset.board_id + '-' + ref.dataset.id];
+      if (backref_post == null) {
+        continue;
+      }
+
+      // construct the backreference element
+      let backreference = document.createElement('a');
+      backreference.classList.add('backreference');
+      if (post_ref_obj.parent_id == null) {
+        backreference.href = '/' + post_ref_obj.board_id + '/' + post_ref_obj.post_id + '/';
+      } else {
+        backreference.href = '/' + post_ref_obj.board_id + '/' + post_ref_obj.parent_id + '/#' + post_ref_obj.board_id + '-' + post_ref_obj.post_id;
+      }
+      backreference.innerHTML = '>>' + post_ref_obj.post_id;
+
+      // append to post-info section
+      let backref_post_info = backref_post.getElementsByClassName('post-info')[0];
+      backref_post_info.appendChild(backreference);
+      backref_post_info.insertAdjacentHTML('beforeend', ' ');
+    }
+  }
+}
+
+/**
  * Initializes features related to interpreting location.hash value.
  * - Post highlights (#ID)
  * - Insert post ref link to postform message (#qID)
@@ -493,6 +562,10 @@ function init_location_hash_features() {
   });
 }
 
+/**
+ * Initializes features related to postform fields.
+ * - Remember password (local cookie)
+ */
 function init_postform_features() {
   // update password fields appropriately
   let cookie_pass = get_cookie('password');
@@ -515,8 +588,23 @@ function init_postform_features() {
 }
 
 document.addEventListener('DOMContentLoaded', function(event) {
+  console.time('init_dropdown_menu_buttons');
   init_dropdown_menu_buttons();
+  console.timeEnd('init_dropdown_menu_buttons');
+
+  console.time('init_post_reference_links');
   init_post_reference_links();
+  console.timeEnd('init_post_reference_links');
+
+  console.time('init_post_backreference_links');
+  init_post_backreference_links();
+  console.timeEnd('init_post_backreference_links');
+
+  console.time('init_location_hash_features');
   init_location_hash_features();
+  console.timeEnd('init_location_hash_features');
+  
+  console.time('init_postform_features');
   init_postform_features();
+  console.timeEnd('init_postform_features');
 });

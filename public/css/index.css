@@ -72,6 +72,10 @@ div.post-info {
   display: inline-block;
 }
 
+div.post-info .backreference {
+  font-size: small;
+}
+
 span.post-id a {
   color: inherit;
   text-decoration: none;
