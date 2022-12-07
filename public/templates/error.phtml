@@ -1,0 +1,18 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <?=$this->fetch('common/meta.phtml')?>
+    <?=$this->fetch('common/styles.phtml')?>
+    <title><?=$error_type?></title>
+  </head>
+  <body>
+    <?=$this->fetch('board/menubar.phtml', ['board_id' => $board['id'], 'thread_id' => null])?>
+    <?=$this->fetch('common/header.phtml', ['header' => ['title' => $error_type, 'subtitle' => $error_message]])?>
+    <hr>
+    <div class="container-centered">
+      <?=$this->fetch('common/footer.phtml')?>
+    </div>
+
+    <?=$this->fetch('common/scripts.phtml')?>
+  </body>
+</html>

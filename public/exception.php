@@ -2,6 +2,7 @@
 
 define('SC_OK', 200);
 define('SC_BAD_REQUEST', 400);
+define('SC_NOT_FOUND', 404);
 define('SC_INTERNAL_ERROR', 500);
 
 class ApiException extends Exception {

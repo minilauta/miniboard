@@ -41,7 +41,7 @@ $app->get('/{board_id}/{post_id}/report/', function (Request $request, Response 
   // get post
   $post = select_post($board_cfg['id'], $args['post_id']);
   if ($post == null) {
-    throw new ApiException("post with ID /{$board_cfg['id']}/{$args['post_id']} not found", SC_BAD_REQUEST);
+    throw new ApiException("post with ID /{$board_cfg['id']}/{$args['post_id']} not found", SC_NOT_FOUND);
   }
 
   $renderer = new PhpRenderer('templates/', [
@@ -93,7 +93,7 @@ function handle_reportform(Request $request, Response $response, array $args): R
   // get post
   $post = select_post($board_cfg['id'], $args['post_id']);
   if ($post == null) {
-    throw new ApiException("post with ID /{$board_cfg['id']}/{$args['post_id']} not found", SC_BAD_REQUEST);
+    throw new ApiException("post with ID /{$board_cfg['id']}/{$args['post_id']} not found", SC_NOT_FOUND);
   }
 
   // create report
@@ -212,7 +212,7 @@ $app->get('/{board_id}/{thread_id}/', function (Request $request, Response $resp
   // get thread
   $thread = select_post($board_cfg['id'], $args['thread_id']);
   if ($thread == null) {
-    throw new ApiException("thread with ID /{$board_cfg['id']}/{$args['thread_id']} not found", SC_BAD_REQUEST);
+    throw new ApiException("thread with ID /{$board_cfg['id']}/{$args['thread_id']} not found", SC_NOT_FOUND);
   } else if ($thread['parent_id'] !== 0) {
     throw new ApiException('not a valid thread', SC_BAD_REQUEST);
   }
@@ -234,7 +234,7 @@ $app->get('/{board_id}/{thread_id}/{post_id}/', function (Request $request, Resp
   // get post
   $post = select_post($board_cfg['id'], $args['post_id']);
   if ($post == null || ($post['parent_id'] !== 0 && $post['parent_id'] != $args['thread_id'])) {
-    throw new ApiException("post with ID /{$board_cfg['id']}/{$args['thread_id']}/{$args['post_id']} not found", SC_BAD_REQUEST);
+    throw new ApiException("post with ID /{$board_cfg['id']}/{$args['thread_id']}/{$args['post_id']} not found", SC_NOT_FOUND);
   }
   $post['replies'] = [];
 
@@ -334,7 +334,7 @@ function handle_postform(Request $request, Response $response, array $args, stri
   if (isset($args['thread_id'])) {
     $parent = select_post($board_cfg['id'], $args['thread_id']);
     if ($parent != null && $parent['parent_id'] > 0) {
-      throw new ApiException("thread with ID /{$board_cfg['id']}/{$args['thread_id']} not found", SC_BAD_REQUEST);
+      throw new ApiException("thread with ID /{$board_cfg['id']}/{$args['thread_id']} not found", SC_NOT_FOUND);
     } else if ($parent != null) {
       $thread_id = $parent['id'];
     }
@@ -398,14 +398,36 @@ $error_handler = function(
     $logger->error($exception->getMessage());
   }
 
-  if ($exception instanceof ApiException || $exception instanceof FuncException || $exception instanceof DbException) {
-    $response = $app->getResponseFactory()->createResponse();
-    $response->getBody()->write($exception->getMessage());
-    return $response
-      ->withStatus($exception->getCode());
+  // Handle 404 error page
+  if ($exception instanceof Slim\Exception\HttpNotFoundException) {
+    $response = $app->getResponseFactory()->createResponse(SC_NOT_FOUND);
+    $renderer = new PhpRenderer('templates/', [
+      'board' => MB_BOARDS[array_key_first(MB_BOARDS)],
+      'error_type' => '404',
+      'error_message' => 'Not Found'
+    ]);
+    return $renderer->render($response, 'error.phtml');
   }
 
-  throw $exception;
+  // Handle custom exceptions
+  if ($exception instanceof ApiException || $exception instanceof FuncException || $exception instanceof DbException) {
+    $response = $app->getResponseFactory()->createResponse($exception->getCode());
+    $renderer = new PhpRenderer('templates/', [
+      'board' => MB_BOARDS[array_key_first(MB_BOARDS)],
+      'error_type' => $exception->getCode() === SC_NOT_FOUND ? '404' : 'Error',
+      'error_message' => $exception->getMessage()
+    ]);
+    return $renderer->render($response, 'error.phtml');
+  }
+  
+  // Handle all other exceptions
+  $response = $app->getResponseFactory()->createResponse(SC_INTERNAL_ERROR);
+  $renderer = new PhpRenderer('templates/', [
+    'board' => MB_BOARDS[array_key_first(MB_BOARDS)],
+    'error_type' => 'Critical Error',
+    'error_message' => $exception->getMessage()
+  ]);
+  return $renderer->render($response, 'error.phtml');
 };
 
 if (MB_ENV === 'dev') {
