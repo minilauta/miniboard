@@ -3,6 +3,7 @@ const gulp = require('gulp')
 const concat = require('gulp-concat')
 const minify = require('gulp-minify')
 const rename = require('gulp-rename')
+const babel = require('gulp-babel')
 const browserSync = require('browser-sync').create()
 
 gulp.task('css', function () {
@@ -19,6 +20,9 @@ gulp.task('css', function () {
 gulp.task('js', function () {
   return gulp
     .src('./public/js/*.js')
+    .pipe(babel({
+      presets: ['@babel/preset-env']
+    }))
     .pipe(minify({noSource: true}))
     .pipe(concat('bundle.min.js'))
     .pipe(gulp.dest('./public/dist'))

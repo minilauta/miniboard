@@ -6,9 +6,12 @@
   "license": "MIT",
   "private": false,
   "devDependencies": {
+    "@babel/core": "^7.20.5",
+    "@babel/preset-env": "^7.20.2",
     "autoprefixer": "^10.4.8",
     "browser-sync": "^2.27.10",
     "gulp": "^4.0.2",
+    "gulp-babel": "^8.0.0",
     "gulp-concat": "^2.6.1",
     "gulp-minify": "^3.1.0",
     "gulp-postcss": "^9.0.1",
