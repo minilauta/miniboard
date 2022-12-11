@@ -12,7 +12,7 @@ COPY . /app
 
 WORKDIR /app
 
-RUN yarn && npx gulp build
+RUN yarn && yarn run build
 
 
 FROM nginx:1.23.2-alpine
