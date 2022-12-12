@@ -32,11 +32,19 @@ module.exports = {
       }
     ]
   },
-  target: ['web', 'es5'],
+  target: ['development', 'none'].includes(env) ? ['web'] : ['web', 'es5'],
   devServer: {
-    static:  {
-      directory: path.join(__dirname, 'public')
+    proxy: {
+      '/': 'http://127.0.0.1'
     },
+    watchFiles: [
+      'public/**/*.php',
+      'public/**/*.phtml',
+      'public/**/*.js',
+      'public/**/*.css'
+    ],
+    hot: true,
+    open: true,
     compress: true,
     port: 9000
   }
