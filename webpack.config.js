@@ -6,7 +6,8 @@ module.exports = {
   entry: './public/js/index.js',
   output: {
     filename: 'bundle.js',
-    path: path.resolve(__dirname, 'public', 'dist')
+    path: path.resolve(__dirname, 'public', 'dist'),
+    publicPath: '/dist/'
   },
   module: {
     rules: [
@@ -43,7 +44,6 @@ module.exports = {
       'public/**/*.js',
       'public/**/*.css'
     ],
-    hot: true,
     open: true,
     compress: true,
     port: 9000

@@ -65,6 +65,10 @@ div.post-message-wrapper span.omitted {
   color: #707070;
 }
 
+span.post-catalog-subject {
+  color: #CC1105;
+}
+
 /* postform */
 div.postform-group label {
   background: #EEAA88;

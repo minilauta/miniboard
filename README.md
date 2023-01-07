@@ -3,14 +3,15 @@
 Minimalistic imageboard software, written in PHP 8 with the help of Slim 4 micro framework.
 
 ## How to install dependencies
-`$ yarn`  
+`$ yarn`
 `$ composer install`
 
 ## How to run and develop locally
-`$ docker compose up --build -d && npx gulp`
+`$ docker compose up --build -d`
+`$ npm start`
 
 ## How to build assets
-`$ npx gulp build`
+`$ npm run build`
 
 ## How to run tests
 `$ docker compose build && docker compose run test`
