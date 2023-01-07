@@ -115,28 +115,29 @@ div.post-message pre {
   overflow-x: scroll;
 }
 
-.catalog {
-  &__single {
-    float: left;
-    height: 200px;
-    width: 200px;
-    text-align: center;
-    margin: 10px;
+div.post-catalog {
+  display: inline-block;
+  width: 150px;
+  max-height: 320px;
+  text-align: center;
+  margin: 8px;
+  vertical-align: top;
+  word-wrap: break-word;
+  overflow: hidden;
+}
 
-    &__file-thumb {
-      margin: 0 0 10px 0;
-      a > img {
-        max-height: 100px;
-        margin-left: auto;
-        margin-right: auto;
-        display: block;
-      }
-    }
+div.post-catalog-meta {
+  display: block;
+  font-size: small;
+}
 
-    &__reply-count {
-      font-weight: bold;
-    }
-  }
+div.post-catalog-title {
+  display: block;
+  font-size: small;
+}
+
+span.post-catalog-subject {
+  font-weight: bold;
 }
 
 /* postform */

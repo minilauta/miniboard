@@ -572,37 +572,45 @@ function init_postform_features() {
   let postform_pass = document.getElementById('postform-password');
   let deleteform_pass = document.getElementById('deleteform-password');
 
-  if (postform_pass != null && deleteform_pass != null) {
+  if (postform_pass != null) {
     if (cookie_pass != null) {
       postform_pass.value = cookie_pass;
-      deleteform_pass.value = cookie_pass;
+      if (deleteform_pass != null) {
+        deleteform_pass.value = cookie_pass;
+      }
     }
 
     let cookie_pass_expires = new Date();
     cookie_pass_expires.setFullYear(cookie_pass_expires.getFullYear() + 1);
     postform_pass.addEventListener('input', function(event) {
       set_cookie('password', event.target.value, 'Strict', cookie_pass_expires);
-      deleteform_pass.value = event.target.value;
+      
+      if (deleteform_pass != null) {
+        deleteform_pass.value = event.target.value;
+      }
     });
   }
 }
 
+
 document.addEventListener('DOMContentLoaded', function(event) {
-  console.time('init_dropdown_menu_buttons');
-  init_dropdown_menu_buttons();
-  console.timeEnd('init_dropdown_menu_buttons');
+  if (!location.pathname.includes('/catalog/')) {
+    console.time('init_dropdown_menu_buttons');
+    init_dropdown_menu_buttons();
+    console.timeEnd('init_dropdown_menu_buttons');
 
-  console.time('init_post_reference_links');
-  init_post_reference_links();
-  console.timeEnd('init_post_reference_links');
+    console.time('init_post_reference_links');
+    init_post_reference_links();
+    console.timeEnd('init_post_reference_links');
 
-  console.time('init_post_backreference_links');
-  init_post_backreference_links();
-  console.timeEnd('init_post_backreference_links');
+    console.time('init_post_backreference_links');
+    init_post_backreference_links();
+    console.timeEnd('init_post_backreference_links');
 
-  console.time('init_location_hash_features');
-  init_location_hash_features();
-  console.timeEnd('init_location_hash_features');
+    console.time('init_location_hash_features');
+    init_location_hash_features();
+    console.timeEnd('init_location_hash_features');
+  }
   
   console.time('init_postform_features');
   init_postform_features();
