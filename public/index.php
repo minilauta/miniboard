@@ -29,9 +29,8 @@ $app->get('/', function (Request $request, Response $response, array $args) {
 });
 
 $app->get('/manage/', function (Request $request, Response $response, array $args) {
-  $response->getBody()->write('Management not implemented yet');
-  $response = $response->withStatus(200);
-  return $response;
+  $renderer = new PhpRenderer('templates/', []);
+  return $renderer->render($response, 'login.phtml');
 });
 
 $app->get('/{board_id}/{post_id}/report/', function (Request $request, Response $response, array $args) {
