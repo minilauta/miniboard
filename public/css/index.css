@@ -236,3 +236,28 @@ form.reportform select {
 form.reportform div.h-captcha {
   min-height: 82px;
 }
+
+/* loginform */
+form.loginform {
+  display: inline-block;
+  text-align: left;
+}
+
+div.loginform-group {
+  margin-top: 2px;
+}
+
+div.loginform-group label {
+  display: inline-block;
+  width: 128px;
+  height: 23px;
+}
+
+div.loginform-group label.loginform-captcha-label {
+  vertical-align: top;
+}
+
+div.loginform-group div.h-captcha {
+  display: inline-block;
+  min-height: 78px;
+}

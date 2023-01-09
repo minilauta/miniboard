@@ -117,3 +117,9 @@ a > div.post-preview {
 .highlight {
   border: 2px dashed;
 }
+
+/* loginform */
+div.loginform-group label {
+  background: #EEAA88;
+  font-weight: bolder;
+}

@@ -9,7 +9,9 @@
     <?=$this->fetch('board/menubar.phtml', ['board_id' => array_key_first(MB_BOARDS), 'thread_id' => null])?>
     <?=$this->fetch('common/header.phtml', ['header' => ['title' => 'Login', 'subtitle' => 'Management login']])?>
     <hr>
-
+    <div class="container-centered">
+      <?=$this->fetch('manage/loginform.phtml')?>
+    </div>
     <hr>
     <div class="container-centered">
       <?=$this->fetch('common/footer.phtml')?>

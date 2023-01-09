@@ -15,6 +15,7 @@ require_once __DIR__ . '/funcs_file.php';
 require_once __DIR__ . '/funcs_post.php';
 require_once __DIR__ . '/funcs_report.php';
 require_once __DIR__ . '/funcs_hide.php';
+require_once __DIR__ . '/funcs_manage.php';
 
 $app = AppFactory::create();
 $app->addBodyParsingMiddleware();
@@ -32,6 +33,48 @@ $app->get('/manage/', function (Request $request, Response $response, array $arg
   $renderer = new PhpRenderer('templates/', []);
   return $renderer->render($response, 'login.phtml');
 });
+
+$app->post('/manage/login/', function (Request $request, Response $response, array $args) {
+  return handle_loginform($request, $response, $args);
+});
+
+function handle_loginform(Request $request, Response $response, array $args): Response {
+  // parse request body
+  $params = (array) $request->getParsedBody();
+
+  // validate captcha
+  if (MB_GLOBAL['captcha_login']) {
+    funcs_common_validate_captcha($params);
+  }
+
+  // validate request fields
+  funcs_common_validate_fields($params, [
+    'username'  => ['required' => true, 'type' => 'string', 'min_len' => 4, 'max_len' => 75],
+    'password'  => ['required' => true, 'type' => 'string', 'min_len' => 4, 'max_len' => 256]
+  ]);
+
+  // get account
+  $account = select_account($params['username']);
+  if ($account == null) {
+    throw new ApiException("invalid username or password for user '{$params['username']}'", SC_NOT_FOUND);
+  }
+
+  // attempt to login
+  $login = funcs_manage_login($account['username'], $params['password'], $account['password']);
+  if ($login !== true) {
+    throw new ApiException("invalid username or password for user '{$params['username']}'", SC_NOT_FOUND);
+  }
+
+  // update lastactive
+  $account['lastactive'] = time();
+  if (update_account($account) !== TRUE) {
+    throw new ApiException("failed to update account info for user {$params['username']}", SC_INTERNAL_ERROR);
+  }
+
+  $response->getBody()->write(print_r($params, true));
+  $response = $response->withStatus(200);
+  return $response;
+}
 
 $app->get('/{board_id}/{post_id}/report/', function (Request $request, Response $response, array $args) {
   // get board config

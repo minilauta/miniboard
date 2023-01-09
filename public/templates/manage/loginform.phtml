@@ -1,0 +1,25 @@
+<form id="loginform" class="loginform" method="post" action="login">
+  <fieldset id="loginform-credentials">
+    <legend>Login credentials</legend>
+    <div class="loginform-group">
+      <label for="username">Username</label>
+      <input type="text" name="username">
+    </div>
+    <div class="loginform-group">
+      <label for="password">Password</label>
+      <input type="password" name="password">
+    </div>
+    <div class="loginform-group">
+      <?php
+        if (MB_GLOBAL['captcha_login']) {
+          $label = "<label class='loginform-captcha-label' for='captcha'>Captcha</label>\n";
+          $captcha = '<div class="h-captcha" data-sitekey="' . MB_GLOBAL['hcaptcha_site'] . '"></div>';
+          echo $label . $captcha;
+        }
+      ?>
+    </div>
+  </fieldset>
+  <div class="loginform-group" style="text-align: right">
+		<input type="submit" value="Log In">
+  </div>
+</form>

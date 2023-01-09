@@ -337,3 +337,36 @@ function insert_report($report) : int|bool {
   $sth->execute($report);
   return $dbh->lastInsertId();
 }
+
+
+// MANAGE related functions below
+
+function select_account(string $username): array|bool {
+  $dbh = get_db_handle();
+  $sth = $dbh->prepare('
+    SELECT * FROM accounts
+    WHERE username = :username
+  ');
+  $sth->execute([
+    'username' => $username
+  ]);
+  return $sth->fetch();
+}
+
+function update_account(array $account): bool {
+  $dbh = get_db_handle();
+  $sth = $dbh->prepare('
+    UPDATE accounts
+    SET
+      password = :password,
+      role = :role,
+      lastactive = :lastactive
+    WHERE id = :id
+  ');
+  return $sth->execute([
+    'password' => $account['password'],
+    'role' => $account['role'],
+    'lastactive' => $account['lastactive'],
+    'id' => $account['id']
+  ]);
+}

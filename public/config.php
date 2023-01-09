@@ -23,6 +23,7 @@ define('MB_GLOBAL', [
   'captcha_thread'   => true,
   'captcha_reply'    => true,
   'captcha_report'   => true,
+  'captcha_login'    => true,
   'report_types'     => [
     1                   => 'Content that contains violence.',
     2                   => 'Content that sexualizes minors.',
