@@ -1,0 +1,41 @@
+<form id="importform" class="importform" method="post" action="import">
+  <fieldset id="sourcedb" class="importform-fieldset">
+    <legend>Source database</legend>
+    <div class="importform-group">
+      <label for="dbname">DB name</label>
+      <input type="text" name="dbname">
+    </div>
+    <div class="importform-group">
+      <label for="dbuser">DB user</label>
+      <input type="text" name="dbuser">
+    </div>
+    <div class="importform-group">
+      <label for="dbpass">DB pass</label>
+      <input type="password" name="dbpass">
+    </div>
+  </fieldset>
+  <fieldset id="sourcetable" class="importform-fieldset">
+    <legend>Source table</legend>
+    <div class="importform-group">
+      <label for="tablename">TABLE name</label>
+      <input type="text" name="tablename">
+    </div>
+    <div class="importform-group">
+      <label for="tabletype">TABLE type</label>
+      <?php
+        $select_input = '<select id="tabletype" name="tabletype">';
+        $select_options = '<option value=""></option>';
+        foreach (MB_GLOBAL['import_table_types'] as $key => $val) {
+          $select_options .= "<option value='{$key}'>{$val}</option>";
+        }
+        echo $select_input . $select_options . '</select>';
+      ?>
+    </div>
+  </fieldset>
+  <div class="importform-group" style="text-align: right">
+		<input type="submit" value="Import">
+  </div>
+  <div class="importform-results">
+    <b><?=$status?></b>
+  </div>
+</form>

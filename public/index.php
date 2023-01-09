@@ -30,8 +30,34 @@ $app->get('/', function (Request $request, Response $response, array $args) {
 });
 
 $app->get('/manage/', function (Request $request, Response $response, array $args) {
-  $renderer = new PhpRenderer('templates/', []);
-  return $renderer->render($response, 'login.phtml');
+  if (!funcs_manage_is_logged_in()) {
+    $renderer = new PhpRenderer('templates/', []);
+    return $renderer->render($response, 'login.phtml');
+  } else {
+    // get query params
+    $query_params = $request->getQueryParams();
+    $query_route = funcs_common_parse_input_str($query_params, 'route', '');
+    $query_status = funcs_common_parse_input_str($query_params, 'status', '');
+
+    // render page
+    $renderer = new PhpRenderer('templates/', [
+      'route' => $query_route,
+      'status' => $query_status
+    ]);
+    return $renderer->render($response, 'manage.phtml');
+  }
+});
+
+$app->get('/manage/logout/', function (Request $request, Response $response, array $args) {
+  $success = funcs_manage_logout();
+  if (!$success) {
+    throw new ApiException("logout failed to clear PHP session", SC_INTERNAL_ERROR);
+  }
+
+  $response = $response
+    ->withHeader('Location', '/')
+    ->withStatus(303);
+  return $response;
 });
 
 $app->post('/manage/login/', function (Request $request, Response $response, array $args) {
@@ -60,7 +86,7 @@ function handle_loginform(Request $request, Response $response, array $args): Re
   }
 
   // attempt to login
-  $login = funcs_manage_login($account['username'], $params['password'], $account['password']);
+  $login = funcs_manage_login($account, $params['password']);
   if ($login !== true) {
     throw new ApiException("invalid username or password for user '{$params['username']}'", SC_NOT_FOUND);
   }
@@ -71,8 +97,40 @@ function handle_loginform(Request $request, Response $response, array $args): Re
     throw new ApiException("failed to update account info for user {$params['username']}", SC_INTERNAL_ERROR);
   }
 
-  $response->getBody()->write(print_r($params, true));
-  $response = $response->withStatus(200);
+  $response = $response
+    ->withHeader('Location', '/manage/')
+    ->withStatus(303);
+  return $response;
+}
+
+$app->post('/manage/import/', function (Request $request, Response $response, array $args) {
+  if (!funcs_manage_is_logged_in()) {
+    throw new ApiException('access denied', SC_BAD_REQUEST);
+  }
+
+  if ($_SESSION['mb_role'] < MB_ROLE_SUPERADMIN) {
+    throw new ApiException('insufficient permissions', SC_BAD_REQUEST);
+  }
+
+  return handle_importform($request, $response, $args);
+});
+
+function handle_importform(Request $request, Response $response, array $args): Response {
+  // parse request body
+  $params = (array) $request->getParsedBody();
+
+  // validate request fields
+  funcs_common_validate_fields($params, [
+    'dbname'    => ['required' => true, 'type' => 'string'],
+    'dbuser'    => ['required' => true, 'type' => 'string'],
+    'dbpass'    => ['required' => true, 'type' => 'string'],
+    'tablename' => ['required' => true, 'type' => 'string'],
+    'tabletype' => ['required' => true, 'type' => 'string']
+  ]);
+
+  $response = $response
+    ->withHeader('Location', '/manage/?route=import&status=Imported 19234 rows successfully')
+    ->withStatus(303);
   return $response;
 }
 

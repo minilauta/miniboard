@@ -261,3 +261,24 @@ div.loginform-group div.h-captcha {
   display: inline-block;
   min-height: 78px;
 }
+
+/* importform */
+fieldset.importform-fieldset {
+  display: inline-block;
+  vertical-align: top;
+}
+
+form.importform {
+  display: inline-block;
+  text-align: left;
+}
+
+div.importform-group {
+  margin-top: 2px;
+}
+
+div.importform-group label {
+  display: inline-block;
+  width: 128px;
+  height: 23px;
+}

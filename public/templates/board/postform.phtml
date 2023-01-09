@@ -30,7 +30,7 @@
       if ($board['type'] === 'main') {
         $label = "<label for='board'>Board</label>\n";
         $select_input = '<select id="board" name="board">';
-        $select_options = '';
+        $select_options = '<option value=""></option>';
         foreach (MB_BOARDS as $key => $val) {
           if ($val['type'] === 'main') {
             continue;
