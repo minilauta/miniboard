@@ -25,3 +25,21 @@ function funcs_manage_logout(): bool {
   // destroy session variables and return success code
   return session_unset();
 }
+
+function funcs_manage_import(array $params): string {
+  // handle each table type separately
+  switch ($params['tabletype']) {
+    case TINYIB_POSTS:
+      // validate params
+      if (!array_key_exists($params['boardid'], MB_BOARDS)) {
+        return "Target BOARD id '{$params['boardid']}' not found";
+      }
+
+      // execute import
+      $inserted = insert_import_posts_tinyib($params, $params['tablename'], $params['boardid']);
+      
+      return "Inserted {$inserted} rows from target database '{$params['dbname']}' table '{$params['tablename']}' successfully";
+    default:
+      return "Unsupported table_type '{$params['tabletype']}'";
+  }
+}

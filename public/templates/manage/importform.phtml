@@ -32,6 +32,24 @@
       ?>
     </div>
   </fieldset>
+  <fieldset id="targetboard" class="importform-fieldset">
+    <legend>Target board</legend>
+    <div class="importform-group">
+      <label for="boardid">BOARD id</label>
+      <?php
+        $select_input = '<select id="boardid" name="boardid">';
+        $select_options = '<option value=""></option>';
+        foreach (MB_BOARDS as $key => $val) {
+          if ($val['type'] === 'main') {
+            continue;
+          }
+          
+          $select_options .= "<option value='{$key}'>/{$key}/ - {$val['name']}</option>";
+        }
+        echo $select_input . $select_options . '</select>';
+      ?>
+    </div>
+  </fieldset>
   <div class="importform-group" style="text-align: right">
 		<input type="submit" value="Import">
   </div>

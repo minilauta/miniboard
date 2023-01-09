@@ -108,7 +108,7 @@ $app->post('/manage/import/', function (Request $request, Response $response, ar
     throw new ApiException('access denied', SC_BAD_REQUEST);
   }
 
-  if ($_SESSION['mb_role'] < MB_ROLE_SUPERADMIN) {
+  if ($_SESSION['mb_role'] !== MB_ROLE_SUPERADMIN) {
     throw new ApiException('insufficient permissions', SC_BAD_REQUEST);
   }
 
@@ -125,11 +125,15 @@ function handle_importform(Request $request, Response $response, array $args): R
     'dbuser'    => ['required' => true, 'type' => 'string'],
     'dbpass'    => ['required' => true, 'type' => 'string'],
     'tablename' => ['required' => true, 'type' => 'string'],
-    'tabletype' => ['required' => true, 'type' => 'string']
+    'tabletype' => ['required' => true, 'type' => 'string'],
+    'boardid'   => ['required' => true, 'type' => 'string']
   ]);
 
+  // execute import
+  $status = funcs_manage_import($params);
+
   $response = $response
-    ->withHeader('Location', '/manage/?route=import&status=Imported 19234 rows successfully')
+    ->withHeader('Location', "/manage/?route=import&status={$status}")
     ->withStatus(303);
   return $response;
 }

@@ -6,6 +6,12 @@ define('MB_ROLE_ADMIN', 2);
 define('MB_ROLE_MODERATOR', 3);
 define('MB_ROLE_DISABLED', 99);
 
+define('TINYIB_ACCOUNTS', 1);
+define('TINYIB_BANS', 2);
+define('TINYIB_LOGS', 3);
+define('TINYIB_POSTS', 4);
+define('TINYIB_REPORTS', 5);
+
 // timezone settings
 date_default_timezone_set(getenv('MB_TIMEZONE'));
 
@@ -39,11 +45,11 @@ define('MB_GLOBAL', [
   'cloudflare'       => false,
   'tripsalt'         => '#!12345_MAKE_THIS_SECURE_67890!#',
   'import_table_types' => [
-    1 => 'TINYIB_ACCOUNTS',
-    2 => 'TINYIB_BANS',
-    3 => 'TINYIB_LOGS',
-    4 => 'TINYIB_POSTS',
-    5 => 'TINYIB_REPORTS'
+    TINYIB_ACCOUNTS   => 'TINYIB_ACCOUNTS',
+    TINYIB_BANS       => 'TINYIB_BANS',
+    TINYIB_LOGS       => 'TINYIB_LOGS',
+    TINYIB_POSTS      => 'TINYIB_POSTS',
+    TINYIB_REPORTS    => 'TINYIB_REPORTS'
   ]
 ]);
 

@@ -340,6 +340,7 @@ function insert_report($report) : int|bool {
 
 
 // MANAGE related functions below
+// ------------------------------
 
 function select_account(string $username): array|bool {
   $dbh = get_db_handle();
@@ -369,4 +370,90 @@ function update_account(array $account): bool {
     'lastactive' => $account['lastactive'],
     'id' => $account['id']
   ]);
+}
+
+
+// MANAGE/IMPORT related functions below
+// -------------------------------------
+
+function get_db_handle_import(array $db_creds) : PDO {
+  $mb_db_host = MB_DB_HOST;
+
+  $dbh = new PDO("mysql:host={$mb_db_host};dbname={$db_creds['dbname']}", $db_creds['dbuser'], $db_creds['dbpass'], [
+    PDO::ATTR_PERSISTENT => true,
+    PDO::ATTR_EMULATE_PREPARES => false
+  ]);
+
+  return $dbh;
+}
+
+function insert_import_posts_tinyib(array $db_creds, string $table_name, string $board_id) {
+  $dbh = get_db_handle_import($db_creds);
+  $sth = $dbh->prepare('
+    INSERT INTO ' . MB_DB_NAME . '.posts (
+      id,
+      board_id,
+      parent_id,
+      ip,
+      timestamp,
+      bumped,
+      name,
+      tripcode,
+      email,
+      subject,
+      message,
+      message_rendered,
+      message_truncated,
+      password,
+      file,
+      file_hex,
+      file_original,
+      file_size,
+      file_size_formatted,
+      image_width,
+      image_height,
+      thumb,
+      thumb_width,
+      thumb_height,
+      spoiler,
+      stickied,
+      moderated,
+      deleted,
+      country_code
+    )
+    SELECT
+      id,
+      :board_id AS board_id,
+      parent AS parent_id,
+      INET6_ATON(\'127.0.0.1\'),
+      timestamp,
+      bumped,
+      name,
+      tripcode,
+      email,
+      subject,
+      message,
+      message AS message_rendered,
+      NULL AS message_truncated,
+      password,
+      CAST(file AS varchar(1028)) AS file,
+      file_hex,
+      file_original,
+      file_size,
+      file_size_formatted,
+      image_width,
+      image_height,
+      thumb,
+      thumb_width,
+      thumb_height,
+      0 AS spoiler,
+      stickied,
+      moderated,
+      0 AS deleted,
+      country_code
+    FROM ' . $table_name);
+  $sth->execute([
+    'board_id' => $board_id
+  ]);
+  return $sth->rowCount();
 }
