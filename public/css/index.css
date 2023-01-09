@@ -37,7 +37,7 @@ div.post div.reply {
 div.post-dash {
   float: left;
   font-weight: bolder;
-  font-size: x-large;
+  font-size: 1.75em;
 }
 
 span.post-board {
