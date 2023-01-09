@@ -8,6 +8,7 @@
       if (strlen($thread['subject']) > 0) {
         $title .= $thread['subject'];
       } else {
+        // TODO: create specific function for this
         $title .= substr(trim(str_ireplace("\n", '', strip_tags($thread['message_rendered']))), 0, 75);
       }
       echo "<title>{$title}</title>";
