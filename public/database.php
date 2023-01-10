@@ -147,6 +147,7 @@ function insert_post($post) : int|bool {
       name,
       tripcode,
       email,
+      nameblock,
       subject,
       message,
       message_rendered,
@@ -162,11 +163,8 @@ function insert_post($post) : int|bool {
       thumb,
       thumb_width,
       thumb_height,
-      spoiler,
-      stickied,
-      moderated,
-      deleted,
-      country_code
+      country_code,
+      spoiler
     )
     VALUES (
       :board_id,
@@ -177,6 +175,7 @@ function insert_post($post) : int|bool {
       :name,
       :tripcode,
       :email,
+      :nameblock,
       :subject,
       :message,
       :message_rendered,
@@ -192,11 +191,8 @@ function insert_post($post) : int|bool {
       :thumb,
       :thumb_width,
       :thumb_height,
-      :spoiler,
-      :stickied,
-      :moderated,
-      :deleted,
-      :country_code
+      :country_code,
+      :spoiler
     )
   ');
   $sth->execute($post);
@@ -400,6 +396,7 @@ function insert_import_posts_tinyib(array $db_creds, string $table_name, string 
       name,
       tripcode,
       email,
+      nameblock,
       subject,
       message,
       message_rendered,
@@ -415,11 +412,13 @@ function insert_import_posts_tinyib(array $db_creds, string $table_name, string 
       thumb,
       thumb_width,
       thumb_height,
+      country_code,
       spoiler,
       stickied,
       moderated,
+      locked,
       deleted,
-      country_code
+      imported
     )
     SELECT
       id,
@@ -431,12 +430,13 @@ function insert_import_posts_tinyib(array $db_creds, string $table_name, string 
       name,
       tripcode,
       email,
+      nameblock,
       subject,
       message,
       message AS message_rendered,
       NULL AS message_truncated,
       password,
-      CAST(file AS varchar(1028)) AS file,
+      CAST(file AS varchar(1024)) AS file,
       file_hex,
       file_original,
       file_size,
@@ -446,11 +446,13 @@ function insert_import_posts_tinyib(array $db_creds, string $table_name, string 
       thumb,
       thumb_width,
       thumb_height,
+      country_code,
       0 AS spoiler,
       stickied,
       moderated,
+      locked,
       0 AS deleted,
-      country_code
+      1 AS imported
     FROM ' . $table_name);
   $sth->execute([
     'board_id' => $board_id
@@ -465,7 +467,7 @@ function insert_import_posts_tinyib(array $db_creds, string $table_name, string 
 function select_rebuild_posts(string $board_id) : array|bool {
   $dbh = get_db_handle();
   $sth = $dbh->prepare('
-    SELECT id, board_id, message FROM posts
+    SELECT id, board_id, message, name, imported FROM posts
     WHERE board_id = :board_id
   ');
   $sth->execute([
@@ -480,7 +482,8 @@ function update_rebuild_post(array $rebuild_post) : bool {
     UPDATE posts
     SET
       message_rendered = :message_rendered,
-      message_truncated = :message_truncated
+      message_truncated = :message_truncated,
+      name = :name
     WHERE
       id = :id AND board_id = :board_id
   ');

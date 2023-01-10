@@ -50,6 +50,9 @@ function funcs_manage_rebuild(array $params): string {
     return "Target BOARD id '{$params['boardid']}' not found";
   }
 
+  // get board config
+  $board_cfg = MB_BOARDS[$params['boardid']];
+
   // select posts
   $posts = select_rebuild_posts($params['boardid']);
 
@@ -57,18 +60,22 @@ function funcs_manage_rebuild(array $params): string {
   $processed = 0;
   $total = count($posts);
   foreach ($posts as &$post) {
-    // process message
-    $message = htmlspecialchars_decode(strip_tags($post['message']), ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML401);
+    // process message + do extra cleanup for imported data because of raw HTML
+    $name = $post['name'] !== '' ? funcs_common_clean_field($post['name']) : $board_cfg['anonymous'];
+    if ($post['imported']) {
+      $message = htmlspecialchars_decode(strip_tags($post['message']), ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML401);
+    }
 
     // render message
-    $message = funcs_post_render_message($params['boardid'], $message, MB_BOARDS[$params['boardid']]['truncate']);
+    $message = funcs_post_render_message($params['boardid'], $message, $board_cfg['truncate']);
 
     // update post
     $rebuild_post = [
       'id' => $post['id'],
       'board_id' => $post['board_id'],
       'message_rendered' => $message['rendered'],
-      'message_truncated' => $message['truncated']
+      'message_truncated' => $message['truncated'],
+      'name' => $name
     ];
     if (!update_rebuild_post($rebuild_post)) {
       return "Failed to rebuild post /{$post['board_id']}/{$post['id']}/, processed {$processed}/{$total}";

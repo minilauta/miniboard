@@ -30,6 +30,7 @@ function funcs_post_create(string $ip, array $board_cfg, ?int $parent_id, ?array
     'parent_id'           => $parent_id != null ? $parent_id : 0,
     'name'                => $name_trip[0],
     'tripcode'            => $name_trip[1],
+    'nameblock'           => '', // TODO
     'email'               => funcs_common_clean_field($input['email']),
     'subject'             => funcs_common_clean_field($input['subject']),
     'message'             => $input['message'],
@@ -50,9 +51,6 @@ function funcs_post_create(string $ip, array $board_cfg, ?int $parent_id, ?array
     'timestamp'           => time(),
     'bumped'              => time(),
     'ip'                  => $ip,
-    'stickied'            => 0,
-    'moderated'           => 1,
-    'deleted'             => 0,
     'country_code'        => null
   ];
 }
