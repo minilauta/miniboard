@@ -383,6 +383,27 @@ function get_db_handle_import(array $db_creds) : PDO {
   return $dbh;
 }
 
+function insert_import_accounts_tinyib(array $db_creds, string $table_name) {
+  $dbh = get_db_handle_import($db_creds);
+  $sth = $dbh->prepare('
+    INSERT INTO ' . MB_DB_NAME . '.accounts (
+      username,
+      password,
+      role,
+      lastactive,
+      imported
+    )
+    SELECT
+      username,
+      password,
+      role,
+      lastactive,
+      1 AS imported
+    FROM ' . $table_name);
+  $sth->execute();
+  return $sth->rowCount();
+}
+
 function insert_import_posts_tinyib(array $db_creds, string $table_name, string $board_id) {
   $dbh = get_db_handle_import($db_creds);
   $sth = $dbh->prepare('

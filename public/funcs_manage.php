@@ -27,8 +27,14 @@ function funcs_manage_logout(): bool {
 }
 
 function funcs_manage_import(array $params): string {
+  $inserted = 0;
+
   // handle each table type separately
   switch ($params['tabletype']) {
+    case TINYIB_ACCOUNTS:
+      // execute import
+      $inserted = insert_import_accounts_tinyib($params, $params['tablename']);
+      break;
     case TINYIB_POSTS:
       // validate params
       if (!array_key_exists($params['boardid'], MB_BOARDS)) {
@@ -37,11 +43,11 @@ function funcs_manage_import(array $params): string {
 
       // execute import
       $inserted = insert_import_posts_tinyib($params, $params['tablename'], $params['boardid']);
-      
-      return "Inserted {$inserted} rows from target database '{$params['dbname']}' table '{$params['tablename']}' successfully";
     default:
       return "Unsupported table_type '{$params['tabletype']}'";
   }
+
+  return "Inserted {$inserted} rows from target database '{$params['dbname']}' table '{$params['tablename']}' successfully";
 }
 
 function funcs_manage_rebuild(array $params): string {

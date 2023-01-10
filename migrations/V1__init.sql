@@ -9,7 +9,7 @@ CREATE TABLE IF NOT EXISTS accounts (
   `lastactive` int unsigned NOT NULL,
   `imported` tinyint NOT NULL default 0,
   PRIMARY KEY (`id`),
-  KEY `username` (`username`),
+  UNIQUE KEY `username` (`username`),
   KEY `role` (`role`),
   KEY `imported` (`imported`)
 ) ENGINE=InnoDB
@@ -23,7 +23,8 @@ CREATE TABLE IF NOT EXISTS bans (
   `reason` varchar(256) NOT NULL,
   `imported` tinyint NOT NULL default 0,
   PRIMARY KEY (`id`),
-  KEY `ip` (`ip`),
+  UNIQUE KEY `ip` (`ip`),
+  KEY `expire` (`expire`),
   KEY `imported` (`imported`)
 ) ENGINE=InnoDB
 CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
@@ -32,10 +33,12 @@ CREATE TABLE IF NOT EXISTS logs (
   `id` int unsigned NOT NULL auto_increment,
   `ip` varbinary(16) NOT NULL,
   `timestamp` int unsigned NOT NULL,
+  `username` varchar(256) NOT NULL,
   `message` varchar(256) NOT NULL,
   `imported` tinyint NOT NULL default 0,
   PRIMARY KEY (`id`),
   KEY `ip` (`ip`),
+  KEY `username` (`username`),
   KEY `imported` (`imported`)
 ) ENGINE=InnoDB
 CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
@@ -76,10 +79,14 @@ CREATE TABLE IF NOT EXISTS posts (
   PRIMARY KEY	(`id`),
   UNIQUE KEY (`board_id`, `id`),
   KEY `parent_id` (`parent_id`),
+  KEY `ip` (`ip`),
   KEY `bumped` (`bumped`),
+  KEY `file_hex` (`file_hex`),
+  KEY `country_code` (`country_code`),
   KEY `stickied` (`stickied`),
   KEY `moderated` (`moderated`),
   KEY `locked` (`locked`),
+  KEY `deleted` (`deleted`),
   KEY `imported` (`imported`)
 ) ENGINE=InnoDB
 CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
@@ -101,6 +108,8 @@ CREATE TABLE IF NOT EXISTS reports (
   `type` text NOT NULL,
   `imported` tinyint NOT NULL default 0,
   PRIMARY KEY	(`id`),
+  KEY `ip` (`ip`),
+  KEY `timestamp` (`timestamp`),
   KEY `board_id` (`board_id`),
   KEY `post_id` (`post_id`),
   KEY `imported` (`imported`)
