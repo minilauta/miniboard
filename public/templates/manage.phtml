@@ -14,6 +14,9 @@
         case 'import':
           echo $this->fetch('manage/importform.phtml');
           break;
+        case 'rebuild':
+          echo $this->fetch('manage/rebuildform.phtml');
+          break;
         default: echo 'Default route'; break;
       }
     ?>

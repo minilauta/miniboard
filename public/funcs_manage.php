@@ -43,3 +43,39 @@ function funcs_manage_import(array $params): string {
       return "Unsupported table_type '{$params['tabletype']}'";
   }
 }
+
+function funcs_manage_rebuild(array $params): string {
+  // validate params
+  if (!array_key_exists($params['boardid'], MB_BOARDS)) {
+    return "Target BOARD id '{$params['boardid']}' not found";
+  }
+
+  // select posts
+  $posts = select_rebuild_posts($params['boardid']);
+
+  // rebuild each post
+  $processed = 0;
+  $total = count($posts);
+  foreach ($posts as &$post) {
+    // process message
+    $message = htmlspecialchars_decode(strip_tags($post['message']), ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML401);
+
+    // render message
+    $message = funcs_post_render_message($params['boardid'], $message, MB_BOARDS[$params['boardid']]['truncate']);
+
+    // update post
+    $rebuild_post = [
+      'id' => $post['id'],
+      'board_id' => $post['board_id'],
+      'message_rendered' => $message['rendered'],
+      'message_truncated' => $message['truncated']
+    ];
+    if (!update_rebuild_post($rebuild_post)) {
+      return "Failed to rebuild post /{$post['board_id']}/{$post['id']}/, processed {$processed}/{$total}";
+    }
+
+    $processed++;
+  }
+
+  return "Rebuilt all posts on board /{$post['board_id']}/, processed {$processed}/{$total}";
+}

@@ -457,3 +457,32 @@ function insert_import_posts_tinyib(array $db_creds, string $table_name, string 
   ]);
   return $sth->rowCount();
 }
+
+
+// MANAGE/REBUILD related functions below
+// -------------------------------------
+
+function select_rebuild_posts(string $board_id) : array|bool {
+  $dbh = get_db_handle();
+  $sth = $dbh->prepare('
+    SELECT id, board_id, message FROM posts
+    WHERE board_id = :board_id
+  ');
+  $sth->execute([
+    'board_id' => $board_id
+  ]);
+  return $sth->fetchAll();
+}
+
+function update_rebuild_post(array $rebuild_post) : bool {
+  $dbh = get_db_handle();
+  $sth = $dbh->prepare('
+    UPDATE posts
+    SET
+      message_rendered = :message_rendered,
+      message_truncated = :message_truncated
+    WHERE
+      id = :id AND board_id = :board_id
+  ');
+  return $sth->execute($rebuild_post);
+}

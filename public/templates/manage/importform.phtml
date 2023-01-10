@@ -1,26 +1,26 @@
-<form id="importform" class="importform" method="post" action="import">
-  <fieldset id="sourcedb" class="importform-fieldset">
+<form id="importform" class="manageform" method="post" action="import">
+  <fieldset id="sourcedb" class="manageform-fieldset">
     <legend>Source database</legend>
-    <div class="importform-group">
+    <div class="manageform-group">
       <label for="dbname">DB name</label>
       <input type="text" name="dbname">
     </div>
-    <div class="importform-group">
+    <div class="manageform-group">
       <label for="dbuser">DB user</label>
       <input type="text" name="dbuser">
     </div>
-    <div class="importform-group">
+    <div class="manageform-group">
       <label for="dbpass">DB pass</label>
       <input type="password" name="dbpass">
     </div>
   </fieldset>
-  <fieldset id="sourcetable" class="importform-fieldset">
+  <fieldset id="sourcetable" class="manageform-fieldset">
     <legend>Source table</legend>
-    <div class="importform-group">
+    <div class="manageform-group">
       <label for="tablename">TABLE name</label>
       <input type="text" name="tablename">
     </div>
-    <div class="importform-group">
+    <div class="manageform-group">
       <label for="tabletype">TABLE type</label>
       <?php
         $select_input = '<select id="tabletype" name="tabletype">';
@@ -32,9 +32,9 @@
       ?>
     </div>
   </fieldset>
-  <fieldset id="targetboard" class="importform-fieldset">
+  <fieldset id="targetboard" class="manageform-fieldset">
     <legend>Target board</legend>
-    <div class="importform-group">
+    <div class="manageform-group">
       <label for="boardid">BOARD id</label>
       <?php
         $select_input = '<select id="boardid" name="boardid">';
@@ -50,10 +50,10 @@
       ?>
     </div>
   </fieldset>
-  <div class="importform-group" style="text-align: right">
+  <div class="manageform-group" style="text-align: right">
 		<input type="submit" value="Import">
   </div>
-  <div class="importform-results">
+  <div class="manageform-results">
     <b><?=$status?></b>
   </div>
 </form>

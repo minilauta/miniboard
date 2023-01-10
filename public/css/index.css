@@ -262,22 +262,22 @@ div.loginform-group div.h-captcha {
   min-height: 78px;
 }
 
-/* importform */
-fieldset.importform-fieldset {
+/* manageform */
+fieldset.manageform-fieldset {
   display: inline-block;
   vertical-align: top;
 }
 
-form.importform {
+form.manageform {
   display: inline-block;
   text-align: left;
 }
 
-div.importform-group {
+div.manageform-group {
   margin-top: 2px;
 }
 
-div.importform-group label {
+div.manageform-group label {
   display: inline-block;
   width: 128px;
   height: 23px;

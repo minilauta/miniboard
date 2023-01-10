@@ -138,6 +138,36 @@ function handle_importform(Request $request, Response $response, array $args): R
   return $response;
 }
 
+$app->post('/manage/rebuild/', function (Request $request, Response $response, array $args) {
+  if (!funcs_manage_is_logged_in()) {
+    throw new ApiException('access denied', SC_BAD_REQUEST);
+  }
+
+  if ($_SESSION['mb_role'] !== MB_ROLE_SUPERADMIN) {
+    throw new ApiException('insufficient permissions', SC_BAD_REQUEST);
+  }
+
+  return handle_rebuildform($request, $response, $args);
+});
+
+function handle_rebuildform(Request $request, Response $response, array $args): Response {
+  // parse request body
+  $params = (array) $request->getParsedBody();
+
+  // validate request fields
+  funcs_common_validate_fields($params, [
+    'boardid'   => ['required' => true, 'type' => 'string']
+  ]);
+
+  // execute import
+  $status = funcs_manage_rebuild($params);
+
+  $response = $response
+    ->withHeader('Location', "/manage/?route=rebuild&status={$status}")
+    ->withStatus(303);
+  return $response;
+}
+
 $app->get('/{board_id}/{post_id}/report/', function (Request $request, Response $response, array $args) {
   // get board config
   $board_cfg = funcs_common_get_board_cfg($args['board_id']);

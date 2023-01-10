@@ -12,12 +12,58 @@ function funcs_post_create(string $ip, array $board_cfg, ?int $parent_id, ?array
   // handle spoiler flag
   $spoiler_flag = isset($input['spoiler']) && $input['spoiler'] == true ? 1 : 0;
 
+  // render message
+  $message = funcs_post_render_message($board_cfg['id'], $input['message'], $board_cfg['truncate']);
+
+  // parse name, additionally handle trip and secure trip
+  $name_trip = [$board_cfg['anonymous'], null];
+  if (strlen($input['name']) > 0) {
+    $name_trip = funcs_common_generate_tripcode($input['name'], MB_GLOBAL['tripsalt']);
+    $name_trip[0] = funcs_common_clean_field($name_trip[0]);
+    if ($name_trip[1] != null) {
+      $name_trip[1] = funcs_common_clean_field($name_trip[1]);
+    }
+  }
+
+  return [
+    'board_id'            => $board_cfg['id'],
+    'parent_id'           => $parent_id != null ? $parent_id : 0,
+    'name'                => $name_trip[0],
+    'tripcode'            => $name_trip[1],
+    'email'               => funcs_common_clean_field($input['email']),
+    'subject'             => funcs_common_clean_field($input['subject']),
+    'message'             => $input['message'],
+    'message_rendered'    => $message['rendered'],
+    'message_truncated'   => $message['truncated'],
+    'password'            => (isset($input['password']) && strlen($input['password']) > 0) ? funcs_common_hash_password($input['password']) : null,
+    'file'                => $file['file'],
+    'file_hex'            => $file['file_hex'],
+    'file_original'       => funcs_common_clean_field($file['file_original']),
+    'file_size'           => $file['file_size'],
+    'file_size_formatted' => $file['file_size_formatted'],
+    'image_width'         => $file['image_width'],
+    'image_height'        => $file['image_height'],
+    'thumb'               => $file['thumb'],
+    'thumb_width'         => $file['thumb_width'],
+    'thumb_height'        => $file['thumb_height'],
+    'spoiler'             => $spoiler_flag,
+    'timestamp'           => time(),
+    'bumped'              => time(),
+    'ip'                  => $ip,
+    'stickied'            => 0,
+    'moderated'           => 1,
+    'deleted'             => 0,
+    'country_code'        => null
+  ];
+}
+
+function funcs_post_render_message(string $board_id, string $input, int $truncate): array {
   // escape message HTML entities
-  $message = funcs_common_clean_field($input['message']);
+  $message = funcs_common_clean_field($input);
 
   // preprocess message reference links (same board)
-  $message = preg_replace_callback('/(^&gt;&gt;)([0-9]+)/m', function ($matches) use ($board_cfg) {
-    $post = select_post($board_cfg['id'], intval($matches[2]));
+  $message = preg_replace_callback('/(^&gt;&gt;)([0-9]+)/m', function ($matches) use ($board_id) {
+    $post = select_post($board_id, intval($matches[2]));
 
     if ($post) {
       if ($post['parent_id'] === 0) {
@@ -33,7 +79,7 @@ function funcs_post_create(string $ip, array $board_cfg, ?int $parent_id, ?array
   }, $message);
 
   // preprocess message reference links (any board)
-  $message = preg_replace_callback('/(^&gt;&gt;&gt;)\/([a-z]+)\/([0-9]+)/m', function ($matches) use ($board_cfg) {
+  $message = preg_replace_callback('/(^&gt;&gt;&gt;)\/([a-z]+)\/([0-9]+)/m', function ($matches) {
     $post = select_post($matches[2], intval($matches[3]));
 
     if ($post) {
@@ -67,46 +113,10 @@ function funcs_post_create(string $ip, array $board_cfg, ?int $parent_id, ?array
 
   // get truncated message
   $message_truncated = $message;
-  $message_truncated_flag = funcs_common_truncate_string_linebreak($message_truncated, $board_cfg['truncate'], true);
-
-  // parse name, additionally handle trip and secure trip
-  $name_trip = [$board_cfg['anonymous'], null];
-  if (strlen($input['name']) > 0) {
-    $name_trip = funcs_common_generate_tripcode($input['name'], MB_GLOBAL['tripsalt']);
-    $name_trip[0] = funcs_common_clean_field($name_trip[0]);
-    if ($name_trip[1] != null) {
-      $name_trip[1] = funcs_common_clean_field($name_trip[1]);
-    }
-  }
+  $message_truncated_flag = funcs_common_truncate_string_linebreak($message_truncated, $truncate, true);
 
   return [
-    'board_id'            => $board_cfg['id'],
-    'parent_id'           => $parent_id != null ? $parent_id : 0,
-    'name'                => $name_trip[0],
-    'tripcode'            => $name_trip[1],
-    'email'               => funcs_common_clean_field($input['email']),
-    'subject'             => funcs_common_clean_field($input['subject']),
-    'message'             => $input['message'],
-    'message_rendered'    => $message,
-    'message_truncated'   => $message_truncated_flag ? $message_truncated : null,
-    'password'            => (isset($input['password']) && strlen($input['password']) > 0) ? funcs_common_hash_password($input['password']) : null,
-    'file'                => $file['file'],
-    'file_hex'            => $file['file_hex'],
-    'file_original'       => funcs_common_clean_field($file['file_original']),
-    'file_size'           => $file['file_size'],
-    'file_size_formatted' => $file['file_size_formatted'],
-    'image_width'         => $file['image_width'],
-    'image_height'        => $file['image_height'],
-    'thumb'               => $file['thumb'],
-    'thumb_width'         => $file['thumb_width'],
-    'thumb_height'        => $file['thumb_height'],
-    'spoiler'             => $spoiler_flag,
-    'timestamp'           => time(),
-    'bumped'              => time(),
-    'ip'                  => $ip,
-    'stickied'            => 0,
-    'moderated'           => 1,
-    'deleted'             => 0,
-    'country_code'        => null
+    'rendered'  => $message,
+    'truncated' => $message_truncated_flag ? $message_truncated : null
   ];
 }
