@@ -69,7 +69,7 @@ function funcs_manage_rebuild(array $params): string {
     // process message + do extra cleanup for imported data because of raw HTML
     $name = $post['name'] !== '' ? funcs_common_clean_field($post['name']) : $board_cfg['anonymous'];
     if ($post['imported']) {
-      $message = htmlspecialchars_decode(strip_tags($post['message']), ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML401);
+      $message = strip_tags(htmlspecialchars_decode($post['message'], ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML401));
     }
 
     // render message
