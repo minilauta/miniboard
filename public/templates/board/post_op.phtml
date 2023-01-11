@@ -1,4 +1,4 @@
-<div class="post" id="<?=$post['board_id']?>-<?=$post['id']?>">
+<div class="post" id="<?=$post['board_id']?>-<?=$post['post_id']?>">
   <?php
     if ($post['file'] !== '') {
       $thumb_src = "/src/{$post['thumb']}";
@@ -18,7 +18,7 @@
         </div>
         <div class='file-thumb'>
           <a href='/src/{$post['file']}' target='_blank'>
-            <img id='thumb-{$post['board_id']}-{$post['id']}' src='{$thumb_src}' width='{$thumb_width}' height='{$thumb_height}' loading='lazy'>
+            <img id='thumb-{$post['board_id']}-{$post['post_id']}' src='{$thumb_src}' width='{$thumb_width}' height='{$thumb_height}' loading='lazy'>
           </a>
         </div>
       ";
@@ -26,7 +26,7 @@
   ?>
   <div class="post-info">
     <label>
-      <input type="checkbox" name="delete[]" value="<?=$post['board_id']?>/<?=$post['id']?>">
+      <input type="checkbox" name="delete[]" value="<?=$post['board_id']?>/<?=$post['post_id']?>">
       <?php
         if ($board['type'] === 'main') {
           echo "<span class='post-board'>/{$post['board_id']}/</span>";
@@ -47,10 +47,10 @@
       <span class="post-datetime"><?=@strftime(MB_GLOBAL['datefmt'], $post['timestamp'])?></span>
     </label>
     <span class="post-id">
-      <a href="/<?=$post['board_id']?>/<?=$post['id']?>/#<?=$post['board_id']?>-<?=$post['id']?>">No.</a><a href="/<?=$post['board_id']?>/<?=$post['id']?>/#q<?=$post['id']?>"><?=$post['id']?></a>
+      <a href="/<?=$post['board_id']?>/<?=$post['post_id']?>/#<?=$post['board_id']?>-<?=$post['post_id']?>">No.</a><a href="/<?=$post['board_id']?>/<?=$post['post_id']?>/#q<?=$post['post_id']?>"><?=$post['post_id']?></a>
     </span>
-    [<a href="/<?=$post['board_id']?>/<?=$post['id']?>/">Reply</a>]
-    <a href="#" class="dd-menu-btn" data-board_id="<?=$post['board_id']?>" data-id="<?=$post['id']?>" data-cmd="post-menu">▶</a>
+    [<a href="/<?=$post['board_id']?>/<?=$post['post_id']?>/">Reply</a>]
+    <a href="#" class="dd-menu-btn" data-board_id="<?=$post['board_id']?>" data-id="<?=$post['post_id']?>" data-cmd="post-menu">▶</a>
   </div>
   <div class="post-message-wrapper">
     <div class="post-message">

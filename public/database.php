@@ -22,15 +22,15 @@ function get_db_handle() : PDO {
 // POST related functions below
 // ----------------------------
 
-function select_post(string $board_id, int $id, bool $deleted = false) : array|bool {
+function select_post(string $board_id, int $post_id, bool $deleted = false) : array|bool {
   $dbh = get_db_handle();
   $sth = $dbh->prepare('
     SELECT * FROM posts
-    WHERE board_id = :board_id AND id = :id AND deleted = :deleted
+    WHERE board_id = :board_id AND post_id = :post_id AND deleted = :deleted
   ');
   $sth->execute([
     'board_id' => $board_id,
-    'id' => $id,
+    'post_id' => $post_id,
     'deleted' => $deleted ? 1 : 0
   ]);
   return $sth->fetch();
@@ -42,16 +42,15 @@ function select_posts(string $session_id, ?string $board_id, int $parent_id = 0,
   if ($board_id != null) {
     $sth = $dbh->prepare('
       SELECT * FROM posts
-      WHERE board_id = :board_id_outer AND parent_id = :parent_id AND id ' . ($hidden === true ? '' : 'NOT') . ' IN (
-        SELECT post_id FROM hides WHERE session_id = :session_id AND board_id = :board_id_inner
+      WHERE board_id = :board_id AND parent_id = :parent_id AND post_id ' . ($hidden === true ? '' : 'NOT') . ' IN (
+        SELECT post_id FROM hides WHERE session_id = :session_id AND board_id = posts.board_id
       ) AND deleted = :deleted
       ORDER BY bumped ' . ($desc === true ? 'DESC' : 'ASC') . '
       LIMIT :limit OFFSET :offset
     ');
     $sth->execute([
       'session_id' => $session_id,
-      'board_id_outer' => $board_id,
-      'board_id_inner' => $board_id,
+      'board_id' => $board_id,
       'parent_id' => $parent_id,
       'deleted' => $deleted ? 1 : 0,
       'limit' => $limit,
@@ -60,8 +59,8 @@ function select_posts(string $session_id, ?string $board_id, int $parent_id = 0,
   } else {
     $sth = $dbh->prepare('
       SELECT * FROM posts
-      WHERE parent_id = :parent_id AND id ' . ($hidden === true ? '' : 'NOT') . ' IN (
-        SELECT post_id FROM hides WHERE session_id = :session_id
+      WHERE parent_id = :parent_id AND post_id ' . ($hidden === true ? '' : 'NOT') . ' IN (
+        SELECT post_id FROM hides WHERE session_id = :session_id AND board_id = posts.board_id
       ) AND deleted = :deleted
       ORDER BY bumped ' . ($desc === true ? 'DESC' : 'ASC') . '
       LIMIT :limit OFFSET :offset
@@ -82,8 +81,8 @@ function select_posts_preview(string $session_id, string $board_id, int $parent_
   $sth = $dbh->prepare('
     SELECT t.* FROM (
       SELECT * FROM posts
-      WHERE board_id = :board_id_outer AND parent_id = :parent_id AND id NOT IN (
-        SELECT post_id FROM hides WHERE session_id = :session_id AND board_id = :board_id_inner
+      WHERE board_id = :board_id AND parent_id = :parent_id AND post_id NOT IN (
+        SELECT post_id FROM hides WHERE session_id = :session_id AND board_id = posts.board_id
       ) AND deleted = :deleted
       ORDER BY bumped DESC
       LIMIT :limit OFFSET :offset
@@ -92,8 +91,7 @@ function select_posts_preview(string $session_id, string $board_id, int $parent_
   ');
   $sth->execute([
     'session_id' => $session_id,
-    'board_id_outer' => $board_id,
-    'board_id_inner' => $board_id,
+    'board_id' => $board_id,
     'parent_id' => $parent_id,
     'deleted' => $deleted ? 1 : 0,
     'limit' => $limit,
@@ -108,22 +106,21 @@ function count_posts(string $session_id, ?string $board_id, int $parent_id, bool
   if ($board_id != null) {
     $sth = $dbh->prepare('
       SELECT COUNT(*) FROM posts
-      WHERE board_id = :board_id_outer AND parent_id = :parent_id AND id ' . ($hidden === true ? '' : 'NOT') . ' IN (
-        SELECT post_id FROM hides WHERE session_id = :session_id AND board_id = :board_id_inner
+      WHERE board_id = :board_id AND parent_id = :parent_id AND post_id ' . ($hidden === true ? '' : 'NOT') . ' IN (
+        SELECT post_id FROM hides WHERE session_id = :session_id AND board_id = posts.board_id
       ) AND deleted = :deleted
     ');
     $sth->execute([
       'session_id' => $session_id,
-      'board_id_outer' => $board_id,
-      'board_id_inner' => $board_id,
+      'board_id' => $board_id,
       'parent_id' => $parent_id,
       'deleted' => $deleted ? 1 : 0
     ]);
   } else {
     $sth = $dbh->prepare('
       SELECT COUNT(*) FROM posts
-      WHERE parent_id = :parent_id AND id ' . ($hidden === true ? '' : 'NOT') . ' IN (
-        SELECT post_id FROM hides WHERE session_id = :session_id
+      WHERE parent_id = :parent_id AND post_id ' . ($hidden === true ? '' : 'NOT') . ' IN (
+        SELECT post_id FROM hides WHERE session_id = :session_id AND board_id = posts.board_id
       ) AND deleted = :deleted
     ');
     $sth->execute([
@@ -196,40 +193,48 @@ function insert_post($post) : int|bool {
     )
   ');
   $sth->execute($post);
-  return $dbh->lastInsertId();
+
+  // get post_id by internal PRIMARY KEY id and return it as last_insert_id
+  $id = $dbh->lastInsertId();
+  $sth = $dbh->prepare('
+    SELECT post_id FROM posts WHERE id = :id
+  ');
+  $sth->execute(['id' => $dbh->lastInsertId()]);
+  
+  return $sth->fetchColumn();
 }
 
-function delete_post(string $board_id, int $id, bool $delete = false) : bool {
+function delete_post(string $board_id, int $post_id, bool $delete = false) : bool {
   $dbh = get_db_handle();
   $sth = null;
   if ($delete) {
     $sth = $dbh->prepare('
       DELETE FROM posts
-      WHERE board_id = :board_id AND id = :id
+      WHERE board_id = :board_id AND post_id = :post_id
     ');
   } else {
     $sth = $dbh->prepare('
       UPDATE posts
       SET deleted = 1
-      WHERE board_id = :board_id AND id = :id
+      WHERE board_id = :board_id AND post_id = :post_id
     ');
   }
   return $sth->execute([
     'board_id' => $board_id,
-    'id' => $id
+    'post_id' => $post_id
   ]);
 }
 
-function bump_thread(string $board_id, int $id) : bool {
+function bump_thread(string $board_id, int $post_id) : bool {
   $dbh = get_db_handle();
   $sth = $dbh->prepare('
     UPDATE posts
     SET bumped = ' . time() . '
-    WHERE board_id = :board_id AND id = :id
+    WHERE board_id = :board_id AND post_id = :post_id
   ');
   return $sth->execute([
     'board_id' => $board_id,
-    'id' => $id
+    'post_id' => $post_id
   ]);
 }
 
@@ -237,7 +242,7 @@ function select_files_by_md5(string $file_md5) : array|bool {
   $dbh = get_db_handle();
   $sth = $dbh->prepare('
     SELECT 
-      id,
+      post_id,
       file,
       file_hex,
       file_original,
@@ -254,7 +259,7 @@ function select_files_by_md5(string $file_md5) : array|bool {
   ');
   $sth->execute([
     'file_md5' => $file_md5
-  ]); 
+  ]);
   return $sth->fetchAll();
 }
 
@@ -408,7 +413,7 @@ function insert_import_posts_tinyib(array $db_creds, string $table_name, string 
   $dbh = get_db_handle_import($db_creds);
   $sth = $dbh->prepare('
     INSERT INTO ' . MB_DB_NAME . '.posts (
-      id,
+      post_id,
       board_id,
       parent_id,
       ip,
@@ -488,7 +493,7 @@ function insert_import_posts_tinyib(array $db_creds, string $table_name, string 
 function select_rebuild_posts(string $board_id) : array|bool {
   $dbh = get_db_handle();
   $sth = $dbh->prepare('
-    SELECT id, board_id, message, name, imported FROM posts
+    SELECT post_id, board_id, message, name, imported FROM posts
     WHERE board_id = :board_id
   ');
   $sth->execute([
@@ -506,7 +511,7 @@ function update_rebuild_post(array $rebuild_post) : bool {
       message_truncated = :message_truncated,
       name = :name
     WHERE
-      id = :id AND board_id = :board_id
+      board_id = :board_id AND post_id = :post_id
   ');
   return $sth->execute($rebuild_post);
 }

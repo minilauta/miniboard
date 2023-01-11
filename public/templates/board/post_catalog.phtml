@@ -1,4 +1,4 @@
-<div class="post-catalog" id="<?=$post['board_id']?>-<?=$post['id']?>">
+<div class="post-catalog" id="<?=$post['board_id']?>-<?=$post['post_id']?>">
   <?php
     if ($post['file'] !== '') {
       $thumb_src = "/src/{$post['thumb']}";
@@ -11,8 +11,8 @@
       }
 
       echo "
-        <a href='/{$post['board_id']}/{$post['id']}'>
-          <img id='thumb-{$post['board_id']}-{$post['id']}' src='{$thumb_src}' width='{$thumb_width}' height='{$thumb_height}' loading='lazy'>
+        <a href='/{$post['board_id']}/{$post['post_id']}'>
+          <img id='thumb-{$post['board_id']}-{$post['post_id']}' src='{$thumb_src}' width='{$thumb_width}' height='{$thumb_height}' loading='lazy'>
         </a>
       ";
     }

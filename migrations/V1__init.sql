@@ -45,6 +45,7 @@ CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
 
 CREATE TABLE IF NOT EXISTS posts (
   `id` int unsigned NOT NULL auto_increment,
+  `post_id` int unsigned NULL,
   `parent_id` int unsigned NOT NULL,
   `board_id` varchar(8) NOT NULL,
   `ip` varbinary(16) NOT NULL,
@@ -77,7 +78,7 @@ CREATE TABLE IF NOT EXISTS posts (
   `deleted` tinyint NOT NULL default 0,
   `imported` tinyint NOT NULL default 0,
   PRIMARY KEY	(`id`),
-  UNIQUE KEY (`board_id`, `id`),
+  UNIQUE KEY (`board_id`, `post_id`),
   KEY `parent_id` (`parent_id`),
   KEY `ip` (`ip`),
   KEY `bumped` (`bumped`),
@@ -90,6 +91,23 @@ CREATE TABLE IF NOT EXISTS posts (
   KEY `imported` (`imported`)
 ) ENGINE=InnoDB
 CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
+
+DELIMITER $$
+CREATE TRIGGER ukey_composite_auto_increment BEFORE INSERT ON posts
+FOR EACH ROW
+BEGIN
+  DECLARE last_post_id int unsigned;
+
+  IF NEW.post_id IS NULL THEN
+    SELECT MAX(post_id) INTO last_post_id FROM posts WHERE board_id = NEW.board_id;
+    IF last_post_id IS NULL THEN
+      SET NEW.post_id = 1;
+    ELSE
+      SET NEW.post_id = last_post_id + 1;
+    END IF;
+  END IF;
+END$$
+DELIMITER ;
 
 CREATE TABLE IF NOT EXISTS hides (
   `session_id` varchar(64) NOT NULL,

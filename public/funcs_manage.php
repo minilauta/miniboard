@@ -43,6 +43,7 @@ function funcs_manage_import(array $params): string {
 
       // execute import
       $inserted = insert_import_posts_tinyib($params, $params['tablename'], $params['boardid']);
+      break;
     default:
       return "Unsupported table_type '{$params['tabletype']}'";
   }
@@ -77,14 +78,14 @@ function funcs_manage_rebuild(array $params): string {
 
     // update post
     $rebuild_post = [
-      'id' => $post['id'],
+      'post_id' => $post['post_id'],
       'board_id' => $post['board_id'],
       'message_rendered' => $message['rendered'],
       'message_truncated' => $message['truncated'],
       'name' => $name
     ];
     if (!update_rebuild_post($rebuild_post)) {
-      return "Failed to rebuild post /{$post['board_id']}/{$post['id']}/, processed {$processed}/{$total}";
+      return "Failed to rebuild post /{$post['board_id']}/{$post['post_id']}/, processed {$processed}/{$total}";
     }
 
     $processed++;

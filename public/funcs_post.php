@@ -65,11 +65,11 @@ function funcs_post_render_message(string $board_id, string $input, int $truncat
 
     if ($post) {
       if ($post['parent_id'] === 0) {
-        $data_fields = "data-board_id='{$post['board_id']}' data-parent_id='{$post['id']}' data-id='{$post['id']}'";
-        return "<a class='reference' {$data_fields} href='/{$post['board_id']}/{$post['id']}/#{$post['board_id']}-{$post['id']}'>{$matches[0]}</a>";
+        $data_fields = "data-board_id='{$post['board_id']}' data-parent_id='{$post['post_id']}' data-id='{$post['post_id']}'";
+        return "<a class='reference' {$data_fields} href='/{$post['board_id']}/{$post['post_id']}/#{$post['board_id']}-{$post['post_id']}'>{$matches[0]}</a>";
       } else {
-        $data_fields = "data-board_id='{$post['board_id']}' data-parent_id='{$post['parent_id']}' data-id='{$post['id']}'";
-        return "<a class='reference' {$data_fields} href='/{$post['board_id']}/{$post['parent_id']}/#{$post['board_id']}-{$post['id']}'>{$matches[0]}</a>";
+        $data_fields = "data-board_id='{$post['board_id']}' data-parent_id='{$post['parent_id']}' data-id='{$post['post_id']}'";
+        return "<a class='reference' {$data_fields} href='/{$post['board_id']}/{$post['parent_id']}/#{$post['board_id']}-{$post['post_id']}'>{$matches[0]}</a>";
       }
     }
     
@@ -82,11 +82,11 @@ function funcs_post_render_message(string $board_id, string $input, int $truncat
 
     if ($post) {
       if ($post['parent_id'] === 0) {
-        $data_fields = "data-board_id='{$post['board_id']}' data-parent_id='{$post['id']}' data-id='{$post['id']}'";
-        return "<a class='reference' {$data_fields} href='/{$post['board_id']}/{$post['id']}/#{$post['board_id']}-{$post['id']}'>{$matches[0]}</a>";
+        $data_fields = "data-board_id='{$post['board_id']}' data-parent_id='{$post['post_id']}' data-id='{$post['post_id']}'";
+        return "<a class='reference' {$data_fields} href='/{$post['board_id']}/{$post['post_id']}/#{$post['board_id']}-{$post['post_id']}'>{$matches[0]}</a>";
       } else {
-        $data_fields = "data-board_id='{$post['board_id']}' data-parent_id='{$post['parent_id']}' data-id='{$post['id']}'";
-        return "<a class='reference' {$data_fields} href='/{$post['board_id']}/{$post['parent_id']}/#{$post['board_id']}-{$post['id']}'>{$matches[0]}</a>";
+        $data_fields = "data-board_id='{$post['board_id']}' data-parent_id='{$post['parent_id']}' data-id='{$post['post_id']}'";
+        return "<a class='reference' {$data_fields} href='/{$post['board_id']}/{$post['parent_id']}/#{$post['board_id']}-{$post['post_id']}'>{$matches[0]}</a>";
       }
     }
     

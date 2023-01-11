@@ -232,7 +232,7 @@ function handle_reportform(Request $request, Response $response, array $args): R
 
   // create report
   $ip = funcs_common_get_client_remote_address(MB_GLOBAL['cloudflare'], $_SERVER);
-  $report = funcs_report_create($ip, $board_cfg['id'], $post['id'], $params['type'], MB_GLOBAL['report_types']);
+  $report = funcs_report_create($ip, $board_cfg['id'], $post['post_id'], $params['type'], MB_GLOBAL['report_types']);
 
   // insert report
   $inserted_report_id = insert_report($report);
@@ -258,8 +258,8 @@ $app->get('/{board_id}/', function (Request $request, Response $response, array 
 
   // get replies
   foreach ($threads as $key => $thread) {
-    $threads[$key]['replies'] = select_posts_preview(session_id(), $thread['board_id'], $thread['id'], 0, $board_posts_per_preview);
-    $threads[$key]['replies_n'] = count_posts(session_id(), $thread['board_id'], $thread['id'], false, false);
+    $threads[$key]['replies'] = select_posts_preview(session_id(), $thread['board_id'], $thread['post_id'], 0, $board_posts_per_preview);
+    $threads[$key]['replies_n'] = count_posts(session_id(), $thread['board_id'], $thread['post_id'], false, false);
   }
 
   // get thread count
@@ -291,7 +291,7 @@ $app->get('/{board_id}/hidden/', function (Request $request, Response $response,
   // do not show replies for hidden threads
   foreach ($threads as $key => $thread) {
     $threads[$key]['replies'] = [];
-    $threads[$key]['replies_n'] = count_posts(session_id(), $thread['board_id'], $thread['id'], false, false);
+    $threads[$key]['replies_n'] = count_posts(session_id(), $thread['board_id'], $thread['post_id'], false, false);
   }
 
   // get thread count
@@ -321,7 +321,7 @@ $app->get('/{board_id}/catalog/', function (Request $request, Response $response
 
   // get thread reply counts
   foreach ($threads as $key => $thread) {
-    $reply_count = count_posts(session_id(), $thread['board_id'], $thread['id'], false);
+    $reply_count = count_posts(session_id(), $thread['board_id'], $thread['post_id'], false);
     if (is_int($reply_count)) {
       $threads[$key]['reply_count'] = $reply_count;
     }
@@ -352,7 +352,7 @@ $app->get('/{board_id}/{thread_id}/', function (Request $request, Response $resp
   }
 
   // get replies
-  $thread['replies'] = select_posts(session_id(), $thread['board_id'], $thread['id'], false, 0, 1000, false);
+  $thread['replies'] = select_posts(session_id(), $thread['board_id'], $thread['post_id'], false, 0, 1000, false);
 
   $renderer = new PhpRenderer('templates/', [
     'board' => $board_cfg,
@@ -470,7 +470,7 @@ function handle_postform(Request $request, Response $response, array $args, stri
     if ($parent != null && $parent['parent_id'] > 0) {
       throw new ApiException("thread with ID /{$board_cfg['id']}/{$args['thread_id']} not found", SC_NOT_FOUND);
     } else if ($parent != null) {
-      $thread_id = $parent['id'];
+      $thread_id = $parent['post_id'];
     }
   }
 
