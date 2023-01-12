@@ -30,38 +30,33 @@ function funcs_manage_import(array $params): string {
   $inserted = 0;
 
   // handle each table type separately
-  switch ($params['tabletype']) {
+  switch ($params['table_type']) {
     case TINYIB_ACCOUNTS:
       // execute import
-      $inserted = insert_import_accounts_tinyib($params, $params['tablename']);
+      $inserted = insert_import_accounts_tinyib($params, $params['table_name']);
       break;
     case TINYIB_POSTS:
       // validate params
-      if (!array_key_exists($params['boardid'], MB_BOARDS)) {
-        return "Target BOARD id '{$params['boardid']}' not found";
+      if (!array_key_exists($params['board_id'], MB_BOARDS)) {
+        return "Target BOARD id '{$params['board_id']}' not found";
       }
 
       // execute import
-      $inserted = insert_import_posts_tinyib($params, $params['tablename'], $params['boardid']);
+      $inserted = insert_import_posts_tinyib($params, $params['table_name'], $params['board_id']);
       break;
     default:
-      return "Unsupported table_type '{$params['tabletype']}'";
+      return "Unsupported table_type '{$params['table_type']}'";
   }
 
-  return "Inserted {$inserted} rows from target database '{$params['dbname']}' table '{$params['tablename']}' successfully";
+  return "Inserted {$inserted} rows from target database '{$params['db_name']}' table '{$params['table_name']}' successfully";
 }
 
 function funcs_manage_rebuild(array $params): string {
-  // validate params
-  if (!array_key_exists($params['boardid'], MB_BOARDS)) {
-    return "Target BOARD id '{$params['boardid']}' not found";
-  }
-
   // get board config
-  $board_cfg = MB_BOARDS[$params['boardid']];
+  $board_cfg = funcs_common_get_board_cfg($params['board_id']);
 
   // select posts
-  $posts = select_rebuild_posts($params['boardid']);
+  $posts = select_rebuild_posts($params['board_id']);
 
   // rebuild each post
   $processed = 0;
@@ -69,12 +64,14 @@ function funcs_manage_rebuild(array $params): string {
   foreach ($posts as &$post) {
     // process message + do extra cleanup for imported data because of raw HTML
     $name = $post['name'] !== '' ? funcs_common_clean_field($post['name']) : $board_cfg['anonymous'];
+    $message = $post['message'];
     if ($post['imported']) {
-      $message = strip_tags(htmlspecialchars_decode($post['message'], ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML401));
+      $message = strip_tags($message);
+      $message = htmlspecialchars_decode($message, ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML401);
     }
 
     // render message
-    $message = funcs_post_render_message($params['boardid'], $message, $board_cfg['truncate']);
+    $message = funcs_post_render_message($params['board_id'], $message, $board_cfg['truncate']);
 
     // update post
     $rebuild_post = [

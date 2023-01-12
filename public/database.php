@@ -380,7 +380,7 @@ function update_account(array $account): bool {
 function get_db_handle_import(array $db_creds) : PDO {
   $mb_db_host = MB_DB_HOST;
 
-  $dbh = new PDO("mysql:host={$mb_db_host};dbname={$db_creds['dbname']}", $db_creds['dbuser'], $db_creds['dbpass'], [
+  $dbh = new PDO("mysql:host={$mb_db_host};dbname={$db_creds['db_name']}", $db_creds['db_user'], $db_creds['db_pass'], [
     PDO::ATTR_PERSISTENT => true,
     PDO::ATTR_EMULATE_PREPARES => false
   ]);

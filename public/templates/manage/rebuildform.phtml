@@ -2,9 +2,9 @@
   <fieldset id="targetboard" class="manageform-fieldset">
     <legend>Target board</legend>
     <div class="manageform-group">
-      <label for="boardid">BOARD id</label>
+      <label for="board_id">BOARD id</label>
       <?php
-        $select_input = '<select id="boardid" name="boardid">';
+        $select_input = '<select id="board_id" name="board_id">';
         $select_options = '<option value=""></option>';
         foreach (MB_BOARDS as $key => $val) {
           if ($val['type'] === 'main') {

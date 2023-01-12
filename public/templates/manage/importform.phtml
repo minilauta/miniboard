@@ -2,28 +2,28 @@
   <fieldset id="sourcedb" class="manageform-fieldset">
     <legend>Source database</legend>
     <div class="manageform-group">
-      <label for="dbname">DB name</label>
-      <input type="text" name="dbname">
+      <label for="db_name">DB name</label>
+      <input type="text" name="db_name">
     </div>
     <div class="manageform-group">
-      <label for="dbuser">DB user</label>
-      <input type="text" name="dbuser">
+      <label for="db_user">DB user</label>
+      <input type="text" name="db_user">
     </div>
     <div class="manageform-group">
-      <label for="dbpass">DB pass</label>
-      <input type="password" name="dbpass">
+      <label for="db_pass">DB pass</label>
+      <input type="password" name="db_pass">
     </div>
   </fieldset>
   <fieldset id="sourcetable" class="manageform-fieldset">
     <legend>Source table</legend>
     <div class="manageform-group">
-      <label for="tablename">TABLE name</label>
-      <input type="text" name="tablename">
+      <label for="table_name">TABLE name</label>
+      <input type="text" name="table_name">
     </div>
     <div class="manageform-group">
-      <label for="tabletype">TABLE type</label>
+      <label for="table_type">TABLE type</label>
       <?php
-        $select_input = '<select id="tabletype" name="tabletype">';
+        $select_input = '<select id="table_type" name="table_type">';
         $select_options = '<option value=""></option>';
         foreach (MB_GLOBAL['import_table_types'] as $key => $val) {
           $select_options .= "<option value='{$key}'>{$val}</option>";
@@ -35,9 +35,9 @@
   <fieldset id="targetboard" class="manageform-fieldset">
     <legend>Target board</legend>
     <div class="manageform-group">
-      <label for="boardid">BOARD id</label>
+      <label for="board_id">BOARD id</label>
       <?php
-        $select_input = '<select id="boardid" name="boardid">';
+        $select_input = '<select id="board_id" name="board_id">';
         $select_options = '<option value=""></option>';
         foreach (MB_BOARDS as $key => $val) {
           if ($val['type'] === 'main') {

@@ -121,12 +121,12 @@ function handle_importform(Request $request, Response $response, array $args): R
 
   // validate request fields
   funcs_common_validate_fields($params, [
-    'dbname'    => ['required' => true, 'type' => 'string'],
-    'dbuser'    => ['required' => true, 'type' => 'string'],
-    'dbpass'    => ['required' => true, 'type' => 'string'],
-    'tablename' => ['required' => true, 'type' => 'string'],
-    'tabletype' => ['required' => true, 'type' => 'string'],
-    'boardid'   => ['required' => true, 'type' => 'string']
+    'db_name'    => ['required' => true, 'type' => 'string'],
+    'db_user'    => ['required' => true, 'type' => 'string'],
+    'db_pass'    => ['required' => true, 'type' => 'string'],
+    'table_name' => ['required' => true, 'type' => 'string'],
+    'table_type' => ['required' => true, 'type' => 'string'],
+    'board_id'   => ['required' => true, 'type' => 'string']
   ]);
 
   // execute import
@@ -156,7 +156,7 @@ function handle_rebuildform(Request $request, Response $response, array $args): 
 
   // validate request fields
   funcs_common_validate_fields($params, [
-    'boardid'   => ['required' => true, 'type' => 'string']
+    'board_id'   => ['required' => true, 'type' => 'string']
   ]);
 
   // execute import

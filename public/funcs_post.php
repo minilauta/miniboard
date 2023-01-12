@@ -94,7 +94,7 @@ function funcs_post_render_message(string $board_id, string $input, int $truncat
   }, $message);
   
   // preprocess message quotes
-  $message = preg_replace('/(^&gt;)(?!&gt;)([^\r\n]*)/m', '<span class="quote">$0</span>', $message);
+  $message = preg_replace('/(^&gt;)(?!&gt;)([^\r\n]+)/m', '<span class="quote">$0</span>', $message);
 
   // preprocess message bbcode
   $message = preg_replace('/\[(b|i|u|s)\](.*?)\[\/\1\]/ms', '<$1>$2</$1>', $message);
