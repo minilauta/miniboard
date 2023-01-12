@@ -324,3 +324,11 @@ function funcs_common_validate_captcha($input) {
     throw new FuncException('funcs_common', 'validate_captcha', 'h-captcha validation failed', SC_BAD_REQUEST);
   }
 }
+
+function funcs_common_get_role(): int|null {
+  if (isset($_SESSION['mb_role'])) {
+    return $_SESSION['mb_role'];
+  }
+
+  return null;
+}

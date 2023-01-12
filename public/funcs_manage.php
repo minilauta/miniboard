@@ -62,15 +62,21 @@ function funcs_manage_rebuild(array $params): string {
   $processed = 0;
   $total = count($posts);
   foreach ($posts as &$post) {
-    // process message + do extra cleanup for imported data because of raw HTML
-    $name = $post['name'] !== '' ? funcs_common_clean_field($post['name']) : $board_cfg['anonymous'];
+    // process fields
+    $name = $post['name'] !== '' ? $post['name'] : $board_cfg['anonymous'];
+    $email = $post['email'];
     $message = $post['message'];
+    
+    // do extra cleanup for imported data because of raw HTML
     if ($post['imported']) {
+      $name = funcs_common_clean_field($name);
+      $email = funcs_common_clean_field($email);
       $message = strip_tags($message);
       $message = htmlspecialchars_decode($message, ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML401);
     }
 
-    // render message
+    // render nameblock and message
+    $nameblock = funcs_post_render_nameblock($name, $post['tripcode'], $email, null, $post['timestamp']);
     $message = funcs_post_render_message($params['board_id'], $message, $board_cfg['truncate']);
 
     // update post
@@ -79,7 +85,7 @@ function funcs_manage_rebuild(array $params): string {
       'board_id' => $post['board_id'],
       'message_rendered' => $message['rendered'],
       'message_truncated' => $message['truncated'],
-      'name' => $name
+      'nameblock' => $nameblock
     ];
     if (!update_rebuild_post($rebuild_post)) {
       return "Failed to rebuild post /{$post['board_id']}/{$post['post_id']}/, processed {$processed}/{$total}";

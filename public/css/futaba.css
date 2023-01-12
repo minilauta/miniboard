@@ -69,6 +69,14 @@ span.post-catalog-subject {
   color: #CC1105;
 }
 
+span.cap-admin {
+  color: #FF0000;
+}
+
+span.cap-mod {
+  color: #0000EE;
+}
+
 /* postform */
 div.postform-group label {
   background: #EEAA88;

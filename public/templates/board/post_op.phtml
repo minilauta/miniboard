@@ -33,18 +33,7 @@
         }
       ?>
       <span class="post-subject"><?=$post['subject']?></span>
-      <?php
-        if (isset($post['email']) && strlen($post['email']) > 0) {
-          echo "<a href='mailto:{$post['email']}'><span class='post-name'>{$post['name']}</span></a>";
-        } else {
-          echo "<span class='post-name'>{$post['name']}</span>";
-        }
-
-        if (isset($post['tripcode']) && strlen($post['tripcode']) > 0) {
-          echo "<span class='post-trip'>!{$post['tripcode']}</span>";
-        }
-      ?>
-      <span class="post-datetime"><?=@strftime(MB_GLOBAL['datefmt'], $post['timestamp'])?></span>
+      <?=$post['nameblock']?>
     </label>
     <span class="post-id">
       <a href="/<?=$post['board_id']?>/<?=$post['post_id']?>/#<?=$post['board_id']?>-<?=$post['post_id']?>">No.</a><a href="/<?=$post['board_id']?>/<?=$post['post_id']?>/#q<?=$post['post_id']?>"><?=$post['post_id']?></a>

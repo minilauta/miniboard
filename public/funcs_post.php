@@ -25,12 +25,18 @@ function funcs_post_create(string $ip, array $board_cfg, ?int $parent_id, ?array
     }
   }
 
+  $email = funcs_common_clean_field($input['email']);
+  $timestamp = time();
+
+  // render nameblock
+  $nameblock = funcs_post_render_nameblock($name_trip[0], $name_trip[1], $email, funcs_common_get_role(), $timestamp);
+
   return [
     'board_id'            => $board_cfg['id'],
     'parent_id'           => $parent_id != null ? $parent_id : 0,
     'name'                => $name_trip[0],
     'tripcode'            => $name_trip[1],
-    'nameblock'           => '', // TODO
+    'nameblock'           => $nameblock,
     'email'               => funcs_common_clean_field($input['email']),
     'subject'             => funcs_common_clean_field($input['subject']),
     'message'             => $input['message'],
@@ -48,11 +54,42 @@ function funcs_post_create(string $ip, array $board_cfg, ?int $parent_id, ?array
     'thumb_width'         => $file['thumb_width'],
     'thumb_height'        => $file['thumb_height'],
     'spoiler'             => $spoiler_flag,
-    'timestamp'           => time(),
-    'bumped'              => time(),
+    'timestamp'           => $timestamp,
+    'bumped'              => $timestamp,
     'ip'                  => $ip,
     'country_code'        => null
   ];
+}
+
+function funcs_post_render_nameblock(string $name, ?string $tripcode, ?string $email, ?int $role, int $timestamp): string {
+  $nameblock = '';
+
+  if (isset($email) && strlen($email) > 0) {
+    $nameblock .= "<a href='mailto:{$email}'><span class='post-name'>{$name}</span></a>";
+  } else {
+    $nameblock .= "<span class='post-name'>{$name}</span>";
+  }
+
+  if (isset($tripcode) && strlen($tripcode) > 0) {
+    $nameblock .= "<span class='post-trip'>!{$tripcode}</span>";
+  }
+
+  $nameblock .= "\n";
+
+  switch ($role) {
+    case MB_ROLE_SUPERADMIN:
+    case MB_ROLE_ADMIN:
+      $nameblock .= '<span class="post-cap cap-admin">## Admin</span>';
+      break;
+    case MB_ROLE_MODERATOR:
+      $nameblock .= '<span class="post-cap cap-mod">## Mod</span>';
+      break;
+    default: break;
+  }
+
+  $nameblock .= "\n<span class='post-datetime'>" . strftime(MB_GLOBAL['datefmt'], $timestamp) . "</span>\n";
+
+  return $nameblock;
 }
 
 function funcs_post_render_message(string $board_id, string $input, int $truncate): array {

@@ -493,7 +493,7 @@ function insert_import_posts_tinyib(array $db_creds, string $table_name, string 
 function select_rebuild_posts(string $board_id) : array|bool {
   $dbh = get_db_handle();
   $sth = $dbh->prepare('
-    SELECT post_id, board_id, message, name, imported FROM posts
+    SELECT post_id, board_id, timestamp, name, email, tripcode, message, imported FROM posts
     WHERE board_id = :board_id
   ');
   $sth->execute([
@@ -509,7 +509,7 @@ function update_rebuild_post(array $rebuild_post) : bool {
     SET
       message_rendered = :message_rendered,
       message_truncated = :message_truncated,
-      name = :name
+      nameblock = :nameblock
     WHERE
       board_id = :board_id AND post_id = :post_id
   ');
