@@ -37,10 +37,10 @@ define('MB_GLOBAL', [
   'captcha_report'   => true,
   'captcha_login'    => true,
   'report_types'     => [
-    1                   => 'Content that contains violence.',
-    2                   => 'Content that sexualizes minors.',
-    3                   => 'Spamming and/or flooding.',
-    4                   => 'Not work safe content on work safe board.'
+    1 => 'Content that contains violence.',
+    2 => 'Content that sexualizes minors.',
+    3 => 'Spamming and/or flooding.',
+    4 => 'Not work safe content on work safe board.'
   ],
   'cloudflare'       => false,
   'tripsalt'         => '#!12345_MAKE_THIS_SECURE_67890!#',

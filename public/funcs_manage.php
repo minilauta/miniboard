@@ -4,6 +4,9 @@ require_once __DIR__ . '/config.php';
 require_once __DIR__ . '/exception.php';
 require_once __DIR__ . '/funcs_common.php';
 
+/**
+ * Executes user login credential verification and on success assigns session variables.
+ */
 function funcs_manage_login(array $account, string $password): bool {
   // reject if passwords do not match
   if (funcs_common_verify_password($password, $account['password']) !== TRUE) {
@@ -17,15 +20,24 @@ function funcs_manage_login(array $account, string $password): bool {
   return true;
 }
 
+/**
+ * Verifies user session variables and returns true if user is logged in.
+ */
 function funcs_manage_is_logged_in(): bool {
   return isset($_SESSION['mb_username']) && isset($_SESSION['mb_role']);
 }
 
+/**
+ * Destroys user session variables.
+ */
 function funcs_manage_logout(): bool {
   // destroy session variables and return success code
   return session_unset();
 }
 
+/**
+ * Imports data from another MySQL/MariaDB database.
+ */
 function funcs_manage_import(array $params): string {
   $inserted = 0;
 
@@ -51,6 +63,9 @@ function funcs_manage_import(array $params): string {
   return "Inserted {$inserted} rows from target database '{$params['db_name']}' table '{$params['table_name']}' successfully";
 }
 
+/**
+ * Rebuilds all data in the database.
+ */
 function funcs_manage_rebuild(array $params): string {
   // get board config
   $board_cfg = funcs_common_get_board_cfg($params['board_id']);

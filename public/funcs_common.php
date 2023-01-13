@@ -3,6 +3,20 @@
 require_once __DIR__ . '/config.php';
 require_once __DIR__ . '/exception.php';
 
+/**
+ * Get user role from session if set. Normal users do not have a role set.
+ */
+function funcs_common_get_role(): int|null {
+  if (isset($_SESSION['mb_role'])) {
+    return $_SESSION['mb_role'];
+  }
+
+  return null;
+}
+
+/**
+ * Get board config array by board ID.
+ */
 function funcs_common_get_board_cfg(string $board_id): array {
   if (!isset(MB_BOARDS[$board_id])) {
     throw new FuncException('funcs_common', 'get_board_cfg', "board with id /{$board_id}/ cannot be found", SC_BAD_REQUEST);
@@ -11,6 +25,9 @@ function funcs_common_get_board_cfg(string $board_id): array {
   return MB_BOARDS[$board_id];
 }
 
+/**
+ * Validates form fields based on a set of simple validation rules, throws on errors.
+ */
 function funcs_common_validate_fields(array $input, array $fields) {
   foreach ($fields as $key => $val) {
     // check for required field
@@ -37,14 +54,14 @@ function funcs_common_validate_fields(array $input, array $fields) {
         if (isset($val['max_len'])) {
           $max_len = $val['max_len'];
           if ($input_len > $max_len) {
-            throw new FuncException('funcs_common', 'validate_fields', "field {$key} length {$input_len} is longer than {$max_len}", SC_BAD_REQUEST);
+            throw new FuncException('funcs_common', 'validate_fields', "field {$key} length {$input_len} is longer than max length {$max_len}", SC_BAD_REQUEST);
           }
         }
 
         if (isset($val['min_len']) && !empty($ival)) {
           $min_len = $val['min_len'];
           if ($input_len < $min_len) {
-            throw new FuncException('funcs_common', 'validate_fields', "field {$key} length {$input_len} is shorter than {$min_len}", SC_BAD_REQUEST);
+            throw new FuncException('funcs_common', 'validate_fields', "field {$key} length {$input_len} is shorter than min length {$min_len}", SC_BAD_REQUEST);
           }
         }
         break;
@@ -59,13 +76,6 @@ function funcs_common_validate_fields(array $input, array $fields) {
 
 /**
  * Parses an input string as a string, throws on errors.
- * 
- * @param array $input
- * @param string $key
- * @param string $default
- * @param int $min
- * @param int $max
- * @return string
  */
 function funcs_common_parse_input_str(array $input, string $key, string $default = null, int $min = null, int $max = null): string {
   if (!isset($input[$key])) {
@@ -91,13 +101,6 @@ function funcs_common_parse_input_str(array $input, string $key, string $default
 
 /**
  * Parses an input string as an integer, throws on errors.
- * 
- * @param array $input
- * @param string $key
- * @param int $default
- * @param int $min
- * @param int $max
- * @return string
  */
 function funcs_common_parse_input_int(array $input, string $key, int $default = null, int $min = null, int $max = null): int {
   if (!isset($input[$key])) {
@@ -123,9 +126,6 @@ function funcs_common_parse_input_int(array $input, string $key, int $default = 
 
 /**
  * Escapes an user submitted text field before it's stored in database.
- * 
- * @param string $field
- * @return string
  */
 function funcs_common_clean_field(string $field) : string {
   return htmlspecialchars($field, ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML401, 'UTF-8');
@@ -133,10 +133,6 @@ function funcs_common_clean_field(string $field) : string {
 
 /**
  * Turns a size in bytes to a human readable string representation.
- * 
- * @param int $bytes
- * @param int $dec
- * @return string
  */
 function funcs_common_human_filesize(int $bytes, int $dec = 2) : string {
   $size = array('B', 'KB', 'MB', 'GB', 'TB', 'PB', 'EB', 'ZB', 'YB');
@@ -147,9 +143,6 @@ function funcs_common_human_filesize(int $bytes, int $dec = 2) : string {
 
 /**
  * Returns client remote IPv4 or IPv6 address.
- * 
- * @param array $server
- * @return string
  */
 function funcs_common_get_client_remote_address(bool $cloudflare, array $server): string {
   if ($cloudflare && isset($server['HTTP_CF_CONNECTING_IP'])) {
@@ -160,27 +153,7 @@ function funcs_common_get_client_remote_address(bool $cloudflare, array $server)
 }
 
 /**
- * Truncates a string if it is too long for eg. catalog page.
- *
- * @param string $input String to truncate.
- * @param int $length Length the string should be truncated to.
- * @return string
- */
-function funcs_common_truncate_string(string $input, int $length): string {
-  if (strlen($input) > $length) {
-    return trim(substr(string: $input, offset: 0, length: $length)) . '...';
-  }
-
-  return $input;
-}
-
-/**
- * Truncates a string to N line breaks (\n or <br>).
- * 
- * @param string &$input String to truncate.
- * @param int $br_count Line break count the string should be truncated to.
- * @param bool $handle_html Terminate HTML elements if they were cut on truncate?
- * @return bool
+ * Truncates a string to N line breaks (\n or <br>). Terminates leftover HTML-elements.
  */
 function funcs_common_truncate_string_linebreak(string &$input, int $br_count = 15, bool $handle_html = true): bool {
   // exit early if nothing to truncate
@@ -230,6 +203,9 @@ function funcs_common_truncate_string_linebreak(string &$input, int $br_count = 
   return true;
 }
 
+/**
+ * Encrypts a password for database storage.
+ */
 function funcs_common_hash_password(string $input): string {
   $hashed = password_hash($input, PASSWORD_BCRYPT, ['cost' => 10]);
   if ($hashed == null || $hashed === FALSE) {
@@ -239,10 +215,16 @@ function funcs_common_hash_password(string $input): string {
   return $hashed;
 }
 
+/**
+ * Verifies a password against an ecrypted password.
+ */
 function funcs_common_verify_password(string $input, string $hash): bool {
   return password_verify($input, $hash);
 }
 
+/**
+ * Generates a tripcode and a secure tripcode based on username input.
+ */
 function funcs_common_generate_tripcode(string $input, string $secure_salt): array {
   // find name(!|#)tripcode separator(s)
   $separators = ['!', '#'];
@@ -304,6 +286,9 @@ function funcs_common_generate_tripcode(string $input, string $secure_salt): arr
   return [$name, $tripcode];
 }
 
+/**
+ * Validates form input h-captcha.
+ */
 function funcs_common_validate_captcha($input) {
   if (!isset($input['h-captcha-response'])) {
     throw new FuncException('funcs_common', 'validate_captcha', 'h-captcha-response not found in input form data', SC_BAD_REQUEST);
@@ -323,12 +308,4 @@ function funcs_common_validate_captcha($input) {
   if (!isset($response->success) || !$response->success) {
     throw new FuncException('funcs_common', 'validate_captcha', 'h-captcha validation failed', SC_BAD_REQUEST);
   }
-}
-
-function funcs_common_get_role(): int|null {
-  if (isset($_SESSION['mb_role'])) {
-    return $_SESSION['mb_role'];
-  }
-
-  return null;
 }

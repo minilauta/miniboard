@@ -5,6 +5,9 @@ use Psr\Http\Message\UploadedFileInterface;
 require_once __DIR__ . '/config.php';
 require_once __DIR__ . '/exception.php';
 
+/**
+ * Validates an uploaded file for errors/abuse.
+ */
 function funcs_file_validate_upload(UploadedFileInterface $input, bool $no_file_ok, array $mime_types, int $max_bytes): ?array {
   // check errors
   $error = $input->getError();
@@ -55,6 +58,9 @@ function funcs_file_validate_upload(UploadedFileInterface $input, bool $no_file_
   ];
 }
 
+/**
+ * Processes an uploaded file, stores the file in a persistent path and returns an array of the results.
+ */
 function funcs_file_execute_upload(UploadedFileInterface $file, ?array $file_info, array $file_collisions, int $max_w = 250, int $max_h = 250): array {
   // return if no file was uploaded
   if ($file_info == null) {
@@ -180,6 +186,9 @@ function funcs_file_execute_upload(UploadedFileInterface $file, ?array $file_inf
   ];
 }
 
+/**
+ * Strips any metadata from input file using exiftool.
+ */
 function funcs_file_strip_metadata(string $file_path): int {
   // check if exiftool is available
   $exiftool_output = '';
@@ -200,6 +209,9 @@ function funcs_file_strip_metadata(string $file_path): int {
   return $exiftool_status;
 }
 
+/**
+ * Generates a thumbnail from input file.
+ */
 function funcs_file_generate_thumbnail(string $file_path, string $file_mime, string $thumb_path, int $thumb_width, int $thumb_height): array {
   $image = new \claviska\SimpleImage();
   $image->fromFile($file_path);
@@ -225,6 +237,9 @@ function funcs_file_generate_thumbnail(string $file_path, string $file_mime, str
   ];
 }
 
+/**
+ * Extracts album art (jpg or png) from input MP3 file metadata.
+ */
 function funcs_file_get_mp3_album_art(string $file_path, string $output_path): ?string {
   // get file info
   $get_id3 = new getID3;

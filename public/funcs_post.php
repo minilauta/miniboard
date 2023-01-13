@@ -3,6 +3,9 @@
 require_once __DIR__ . '/config.php';
 require_once __DIR__ . '/exception.php';
 
+/**
+ * Creates a new post object.
+ */
 function funcs_post_create(string $ip, array $board_cfg, ?int $parent_id, ?array $file_info, array $file, array $input): array {
   // handle anonfile flag
   if ($file_info != null && isset($input['anonfile']) && $input['anonfile'] == true) {
@@ -61,6 +64,9 @@ function funcs_post_create(string $ip, array $board_cfg, ?int $parent_id, ?array
   ];
 }
 
+/**
+ * Renders the nameblock-attribute of a post object.
+ */
 function funcs_post_render_nameblock(string $name, ?string $tripcode, ?string $email, ?int $role, int $timestamp): string {
   $nameblock = '';
 
@@ -92,6 +98,9 @@ function funcs_post_render_nameblock(string $name, ?string $tripcode, ?string $e
   return $nameblock;
 }
 
+/**
+ * Renders the message_rendered and message_truncated -attributes of a post object.
+ */
 function funcs_post_render_message(string $board_id, string $input, int $truncate): array {
   // escape message HTML entities
   $message = funcs_common_clean_field($input);

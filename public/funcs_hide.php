@@ -3,6 +3,9 @@
 require_once __DIR__ . '/config.php';
 require_once __DIR__ . '/exception.php';
 
+/**
+ * Creates a new hide object.
+ */
 function funcs_hide_create(string $session_id, string $board_id, int $post_id): array {
   return [
     'session_id' => $session_id,

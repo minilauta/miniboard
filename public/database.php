@@ -1,6 +1,9 @@
 <?php
 require_once __DIR__ . '/config.php';
 
+/**
+ * Returns a handle to the database connection context.
+ */
 function get_db_handle() : PDO {
   global $dbh;
 
