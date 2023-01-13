@@ -106,7 +106,7 @@ function funcs_post_render_message(string $board_id, string $input, int $truncat
   $message = funcs_common_clean_field($input);
 
   // preprocess message reference links (same board)
-  $message = preg_replace_callback('/(^&gt;&gt;)([0-9]+)/m', function ($matches) use ($board_id) {
+  $message = preg_replace_callback('/(&gt;&gt;)([0-9]+)/m', function ($matches) use ($board_id) {
     $post = select_post($board_id, intval($matches[2]));
 
     if ($post) {
@@ -123,7 +123,7 @@ function funcs_post_render_message(string $board_id, string $input, int $truncat
   }, $message);
 
   // preprocess message reference links (any board)
-  $message = preg_replace_callback('/(^&gt;&gt;&gt;)\/([a-z]+)\/([0-9]+)/m', function ($matches) {
+  $message = preg_replace_callback('/(&gt;&gt;&gt;)\/([a-z]+)\/([0-9]+)/m', function ($matches) {
     $post = select_post($matches[2], intval($matches[3]));
 
     if ($post) {
