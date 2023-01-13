@@ -144,6 +144,7 @@ function insert_post($post) : int|bool {
       ip,
       timestamp,
       bumped,
+      role,
       name,
       tripcode,
       email,
@@ -163,7 +164,7 @@ function insert_post($post) : int|bool {
       thumb,
       thumb_width,
       thumb_height,
-      country_code,
+      country,
       spoiler
     )
     VALUES (
@@ -172,6 +173,7 @@ function insert_post($post) : int|bool {
       INET6_ATON(:ip),
       :timestamp,
       :bumped,
+      :role,
       :name,
       :tripcode,
       :email,
@@ -191,7 +193,7 @@ function insert_post($post) : int|bool {
       :thumb,
       :thumb_width,
       :thumb_height,
-      :country_code,
+      :country,
       :spoiler
     )
   ');
@@ -441,7 +443,7 @@ function insert_import_posts_tinyib(array $db_creds, string $table_name, string 
       thumb,
       thumb_width,
       thumb_height,
-      country_code,
+      country,
       spoiler,
       stickied,
       moderated,
@@ -475,7 +477,7 @@ function insert_import_posts_tinyib(array $db_creds, string $table_name, string 
       thumb,
       thumb_width,
       thumb_height,
-      country_code,
+      country_code AS country,
       0 AS spoiler,
       stickied,
       moderated,
@@ -496,7 +498,7 @@ function insert_import_posts_tinyib(array $db_creds, string $table_name, string 
 function select_rebuild_posts(string $board_id) : array|bool {
   $dbh = get_db_handle();
   $sth = $dbh->prepare('
-    SELECT post_id, board_id, timestamp, name, email, tripcode, message, imported FROM posts
+    SELECT post_id, board_id, timestamp, role, name, email, tripcode, message, imported FROM posts
     WHERE board_id = :board_id
   ');
   $sth->execute([

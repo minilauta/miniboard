@@ -91,7 +91,7 @@ function funcs_manage_rebuild(array $params): string {
     }
 
     // render nameblock and message
-    $nameblock = funcs_post_render_nameblock($name, $post['tripcode'], $email, null, $post['timestamp']);
+    $nameblock = funcs_post_render_nameblock($name, $post['tripcode'], $email, $post['role'], $post['timestamp']);
     $message = funcs_post_render_message($params['board_id'], $message, $board_cfg['truncate']);
 
     // update post

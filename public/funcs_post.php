@@ -37,6 +37,7 @@ function funcs_post_create(string $ip, array $board_cfg, ?int $parent_id, ?array
   return [
     'board_id'            => $board_cfg['id'],
     'parent_id'           => $parent_id != null ? $parent_id : 0,
+    'role'                => funcs_common_get_role(),
     'name'                => $name_trip[0],
     'tripcode'            => $name_trip[1],
     'nameblock'           => $nameblock,
@@ -60,7 +61,7 @@ function funcs_post_create(string $ip, array $board_cfg, ?int $parent_id, ?array
     'timestamp'           => $timestamp,
     'bumped'              => $timestamp,
     'ip'                  => $ip,
-    'country_code'        => null
+    'country'             => null
   ];
 }
 

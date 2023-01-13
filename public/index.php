@@ -75,8 +75,8 @@ function handle_loginform(Request $request, Response $response, array $args): Re
 
   // validate request fields
   funcs_common_validate_fields($params, [
-    'username'  => ['required' => true, 'type' => 'string', 'min_len' => 4, 'max_len' => 75],
-    'password'  => ['required' => true, 'type' => 'string', 'min_len' => 4, 'max_len' => 256]
+    'username'  => ['required' => true, 'type' => 'string', 'min_len' => 2, 'max_len' => 75],
+    'password'  => ['required' => true, 'type' => 'string', 'min_len' => 2, 'max_len' => 256]
   ]);
 
   // get account
