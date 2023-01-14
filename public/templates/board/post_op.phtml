@@ -1,29 +1,5 @@
 <div class="post" id="<?=$post['board_id']?>-<?=$post['post_id']?>">
-  <?php
-    if ($post['file'] !== '') {
-      $thumb_src = "/src/{$post['thumb']}";
-      $thumb_width = $post['thumb_width'];
-      $thumb_height = $post['thumb_height'];
-      if (isset($post['spoiler']) && $post['spoiler'] == true) {
-        $thumb_src = '/static/spoiler.png';
-        $thumb_width = 250;
-        $thumb_height = 250;
-      }
-
-      echo "
-        <div class='file-info'>
-          File: <a href='/src/{$post['file']}'>{$post['file']}</a>
-          -
-          ({$post['file_size_formatted']}, {$post['image_width']}x{$post['image_height']}, {$post['file_original']})
-        </div>
-        <div class='file-thumb'>
-          <a href='/src/{$post['file']}' target='_blank'>
-            <img id='thumb-{$post['board_id']}-{$post['post_id']}' src='{$thumb_src}' width='{$thumb_width}' height='{$thumb_height}' loading='lazy'>
-          </a>
-        </div>
-      ";
-    }
-  ?>
+  <?=$this->fetch('board/post_file.phtml', ['context' => 'normal', 'post' => $post])?>
   <div class="post-info">
     <label>
       <input type="checkbox" name="delete[]" value="<?=$post['board_id']?>/<?=$post['post_id']?>">
