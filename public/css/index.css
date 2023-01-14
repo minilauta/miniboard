@@ -169,6 +169,16 @@ div.postform-group div.h-captcha {
   min-height: 78px;
 }
 
+ul.postform-infolist {
+  font-family: sans-serif;
+  font-size: 10px;
+  text-align: left;
+  padding: 0px;
+  margin: 0px;
+  margin-top: 2px;
+  list-style-position: inside;
+}
+
 /* deleteform */
 div.deleteform-group {
   float: right;

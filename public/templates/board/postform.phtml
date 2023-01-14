@@ -45,10 +45,14 @@
   <div class="postform-group">
     <label for="file">File</label>
     <input type="file" name="file" autocomplete="off" size="35">
-    <input type="checkbox" name="spoiler" value="1">
-    Spoiler
-    <input type="checkbox" name="anonfile" value="1">
-    No filename
+    <label>
+      <input type="checkbox" name="spoiler" value="1">
+      Spoiler
+    </label>
+    <label>
+      <input type="checkbox" name="anonfile" value="1">
+      No filename
+    </label>
   </div>
   <div class="postform-group">
     <label for="embed">Embed</label>
@@ -60,4 +64,17 @@
     <input id="postform-password" type="password" name="password">
     (for post and file deletion)
   </div>
+  <ul class="postform-infolist">
+    <?php
+      $info_exts = strtoupper(implode(', ', array_unique(array_column($board['mime_ext_types'], 0))));
+      $info_fsize = funcs_common_human_filesize($board['maxkb'] * 1000);
+      $info_msize = $board['max_width'] . 'x' . $board['max_height'];
+
+      echo "
+        <li>Supported file types are {$info_exts}.</li>
+        <li>Maximum file size allowed is {$info_fsize}.</li>
+        <li>Images greater than {$info_msize} will be thumbnailed.</li>
+      ";
+    ?>
+  </ul>
 </form>
