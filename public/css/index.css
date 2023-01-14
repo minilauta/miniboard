@@ -56,6 +56,8 @@ span.post-name {
 
 div.file-info {
   display: block;
+  overflow-wrap: break-word;
+  word-wrap: break-word;
 }
 
 div.file-thumb {
