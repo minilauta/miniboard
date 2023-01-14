@@ -107,7 +107,7 @@ function funcs_post_render_message(string $board_id, string $input, int $truncat
   $message = funcs_common_clean_field($input);
 
   // break long words
-  $message = wordwrap($message, 80, PHP_EOL, true);
+  $message = funcs_common_break_long_words($message, 79);
 
   // preprocess message reference links (same board)
   $message = preg_replace_callback('/(&gt;&gt;)([0-9]+)/m', function ($matches) use ($board_id) {

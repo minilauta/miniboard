@@ -204,6 +204,13 @@ function funcs_common_truncate_string_linebreak(string &$input, int $br_count = 
 }
 
 /**
+ * Breaks individual long words with line-breaks. Does not break sentences.
+ */
+function funcs_common_break_long_words(string $input, int $max_len): string {
+  return implode(' ', array_map(fn($val): string => wordwrap($val, $max_len, PHP_EOL, true), explode(' ', $input)));
+}
+
+/**
  * Encrypts a password for database storage.
  */
 function funcs_common_hash_password(string $input): string {
