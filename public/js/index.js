@@ -47,6 +47,107 @@ function get_cookie(key) {
 }
 
 /**
+ * Event listener: click on post thumbnail anchor.
+ * Expands/shrinks the content.
+ * @param {*} event 
+ */
+function listener_post_thumb_link_click(event) {
+  event.preventDefault();
+  event.stopPropagation();
+
+  let target = event.target;
+  let current = event.currentTarget;
+
+  const shrink = function(target, current, file_info, file_ext) {
+    current.firstElementChild.style.display = null;
+
+    switch (file_ext) {
+      case 'mp3':
+        current.lastElementChild.remove();
+        break;
+      default:
+        target.remove();
+        break;
+    }
+
+    const file_shrink = file_info.getElementsByClassName('file-shrink-href');
+    if (file_shrink.length > 0) {
+      file_shrink[0].remove();
+    }
+
+    current.setAttribute('expanded', 'false');
+  };
+
+  const expand = function(target, current, file_info, file_href, file_ext) {
+    switch (file_ext) {
+      case 'mp4':
+      case 'webm':
+        target.style.display = 'none';
+        
+        let source = document.createElement('source');
+        source.src = file_href;
+        let video = document.createElement('video');
+        video.onloadstart = 'this.volume=0.25';
+        video.autoplay = 'true';
+        video.controls = 'true';
+        video.style.maxWidth = '85vw';
+        video.style.height = 'auto';
+        video.style.cursor = 'default';
+        video.appendChild(source);
+
+        current.appendChild(video);
+        break;
+      case 'mp3':
+        let audio = document.createElement('audio');
+        audio.src = file_href;
+        audio.onloadstart = 'this.volume=0.25';
+        audio.autoplay = 'true';
+        audio.controls = 'true';
+        audio.style.width = target.width + 'px';
+        audio.style.cursor = 'default';
+
+        current.appendChild(audio);
+        break;
+      default:
+        target.style.display = 'none';
+
+        let img = document.createElement('img');
+        img.src = file_href;
+        img.style.maxWidth = '85vw';
+        img.style.height = 'auto';
+        img.loading = 'lazy';
+
+        current.appendChild(img);
+        break;
+    }
+
+    let anchor = document.createElement('a');
+    anchor.href = '';
+    anchor.innerHTML = '[-]';
+    anchor.classList.add('file-shrink-href')
+    anchor.onclick = function(event) {
+      event.preventDefault();
+      event.stopPropagation();
+
+      shrink(current.lastElementChild, current, file_info, file_ext);
+    }
+    file_info.prepend(anchor);
+
+    current.setAttribute('expanded', 'true');
+  };
+
+  const file_info = current.parentElement.parentElement.getElementsByClassName('file-info');
+  const file_href = current.href;
+  const file_ext = file_href.split('.').pop().toLowerCase();
+  
+  if (current.getAttribute('expanded') !== 'true') {
+    expand(target, current, file_info[0], file_href, file_ext);
+  } else {
+    shrink(target, current, file_info[0], file_ext);
+  }
+}
+
+/**
  * Event listener: click on dropdown menu button.
  * Opens/closes the menu.
  * @param {*} event 
@@ -453,67 +554,7 @@ function init_post_thumb_links(target) {
 
   let post_thumb_links = document.getElementsByClassName('file-thumb-href');
   Array.from(post_thumb_links).forEach(element => {
-    element.addEventListener('click', function(event) {
-      event.preventDefault();
-      event.stopPropagation();
-
-      // either expand or shrink
-      if (event.currentTarget.getAttribute('expanded') !== 'true') {
-        const file_href = event.currentTarget.href;
-        const file_ext = file_href.split('.').pop().toLowerCase();
-
-        switch (file_ext) {
-          case 'mp4':
-          case 'webm':
-            event.target.style.display = 'none';
-            
-            let source = document.createElement('source');
-            source.src = file_href;
-            let video = document.createElement('video');
-            video.onloadstart = 'this.volume=0.25';
-            video.autoplay = 'true';
-            video.controls = 'true';
-            video.style.maxWidth = '85vw';
-            video.style.height = 'auto';
-            video.appendChild(source);
-
-            event.currentTarget.appendChild(video);
-            break;
-          case 'mp3':
-          case 'wav':
-            let audio = document.createElement('audio');
-            audio.src = file_href;
-            audio.onloadstart = 'this.volume=0.25';
-            audio.autoplay = 'true';
-            audio.controls = 'true';
-            audio.style.width = event.target.width + 'px';
-
-            event.currentTarget.appendChild(audio);
-            break;
-          default:
-            event.target.style.display = 'none';
-
-            let img = document.createElement('img');
-            img.src = file_href;
-            img.style.maxWidth = '85vw';
-            img.style.height = 'auto';
-            img.loading = 'lazy';
-
-            event.currentTarget.appendChild(img);
-            break;
-        }
-
-        event.currentTarget.setAttribute('expanded', 'true');
-      } else {
-        event.currentTarget.firstElementChild.style.display = null;
-        
-        if (event.target.id == null || !event.target.id.includes('thumb')) {
-          event.target.remove();
-        }
-
-        event.currentTarget.setAttribute('expanded', 'false');
-      }
-    });
+    element.addEventListener('click', listener_post_thumb_link_click);
   });
 }
 
