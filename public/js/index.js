@@ -1,3 +1,5 @@
+import './polyfill';
+
 // app state
 var state = {
   mouse_over_post_ref_link: false
