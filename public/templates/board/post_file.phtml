@@ -17,7 +17,7 @@
         ({$post['file_size_formatted']}, {$post['image_width']}x{$post['image_height']}, {$post['file_original']})
       </div>
       <div class='file-thumb'>
-        <a href='/src/{$post['file']}' target='_blank'>
+        <a class='file-thumb-href' href='/src/{$post['file']}' target='_blank'>
           <img {$img_id} src='{$thumb_src}' width='{$thumb_width}' height='{$thumb_height}' loading='lazy'>
         </a>
       </div>

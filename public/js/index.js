@@ -444,11 +444,88 @@ function insert_ref_to_message(id) {
 }
 
 /**
+ * Initializes all post file thumbnail hrefs.
+ */
+function init_post_thumb_links(target) {
+  if (target == null) {
+    target = document;
+  }
+
+  let post_thumb_links = document.getElementsByClassName('file-thumb-href');
+  Array.from(post_thumb_links).forEach(element => {
+    element.addEventListener('click', function(event) {
+      event.preventDefault();
+      event.stopPropagation();
+
+      // either expand or shrink
+      if (event.currentTarget.getAttribute('expanded') !== 'true') {
+        const file_href = event.currentTarget.href;
+        const file_ext = file_href.split('.').pop().toLowerCase();
+
+        switch (file_ext) {
+          case 'mp4':
+          case 'webm':
+            event.target.style.display = 'none';
+            
+            let source = document.createElement('source');
+            source.src = file_href;
+            let video = document.createElement('video');
+            video.onloadstart = 'this.volume=0.25';
+            video.autoplay = 'true';
+            video.controls = 'true';
+            video.style.maxWidth = '85vw';
+            video.style.height = 'auto';
+            video.appendChild(source);
+
+            event.currentTarget.appendChild(video);
+            break;
+          case 'mp3':
+          case 'wav':
+            let audio = document.createElement('audio');
+            audio.src = file_href;
+            audio.onloadstart = 'this.volume=0.25';
+            audio.autoplay = 'true';
+            audio.controls = 'true';
+            audio.style.width = event.target.width + 'px';
+
+            event.currentTarget.appendChild(audio);
+            break;
+          default:
+            event.target.style.display = 'none';
+
+            let img = document.createElement('img');
+            img.src = file_href;
+            img.style.maxWidth = '85vw';
+            img.style.height = 'auto';
+            img.loading = 'lazy';
+
+            event.currentTarget.appendChild(img);
+            break;
+        }
+
+        event.currentTarget.setAttribute('expanded', 'true');
+      } else {
+        event.currentTarget.firstElementChild.style.display = null;
+        
+        if (event.target.id == null || !event.target.id.includes('thumb')) {
+          event.target.remove();
+        }
+
+        event.currentTarget.setAttribute('expanded', 'false');
+      }
+    });
+  });
+}
+
+/**
  * Initializes all dropdown menu buttons.
  */
-function init_dropdown_menu_buttons() {
-  let dd_menu_btns = document.getElementsByClassName('dd-menu-btn');
+function init_dropdown_menu_buttons(target) {
+  if (target == null) {
+    target = document;
+  }
 
+  let dd_menu_btns = document.getElementsByClassName('dd-menu-btn');
   Array.from(dd_menu_btns).forEach(element => {
     element.addEventListener('click', listener_dropdown_menu_button_click);
     element.addEventListener('blur', listener_dropdown_menu_button_blur);
@@ -595,6 +672,10 @@ function init_postform_features() {
 
 document.addEventListener('DOMContentLoaded', function(event) {
   if (!location.pathname.includes('/catalog/')) {
+    console.time('init_post_thumb_links');
+    init_post_thumb_links();
+    console.timeEnd('init_post_thumb_links');
+
     console.time('init_dropdown_menu_buttons');
     init_dropdown_menu_buttons();
     console.timeEnd('init_dropdown_menu_buttons');
