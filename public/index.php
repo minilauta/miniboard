@@ -38,11 +38,13 @@ $app->get('/manage/', function (Request $request, Response $response, array $arg
     $query_params = $request->getQueryParams();
     $query_route = funcs_common_parse_input_str($query_params, 'route', '');
     $query_status = funcs_common_parse_input_str($query_params, 'status', '');
+    $account_details = funcs_manage_list_account_details();
 
     // render page
     $renderer = new PhpRenderer('templates/', [
       'route' => $query_route,
-      'status' => $query_status
+      'status' => $query_status,
+      'account_details' => $account_details
     ]);
     return $renderer->render($response, 'manage.phtml');
   }

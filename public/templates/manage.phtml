@@ -11,6 +11,9 @@
     <hr>
     <?php
       switch ($route) {
+        case 'accounts':
+          echo $this->fetch('manage/accounts.phtml', ['account_details' => $account_details]);
+          break;
         case 'import':
           echo $this->fetch('manage/importform.phtml');
           break;
