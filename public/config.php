@@ -24,28 +24,23 @@ define('MB_IMPORT_TABLE_TYPES', [
   MB_IMPORT_TINYIB_POSTS    => 'TINYIB_POSTS',
   MB_IMPORT_TINYIB_REPORTS  => 'TINYIB_REPORTS',
 ]);
-
-// global settings
-define('MB_GLOBAL', [
-  'name'             => 'Miniboard',
-  'desc'             => 'Minimalistic oldschool imageboard software',
-  'timezone'         => 'UTC',
-  'datefmt'          => '%d/%m/%g(%a)%H:%M:%S',
-  'hcaptcha_site'    => '10000000-ffff-ffff-ffff-000000000001',
-  'hcaptcha_secret'  => '0x0000000000000000000000000000000000000000',
-  'captcha_thread'   => true,
-  'captcha_reply'    => true,
-  'captcha_report'   => true,
-  'captcha_login'    => true,
-  'report_types'     => [
-    1 => 'Content that contains violence.',
-    2 => 'Content that sexualizes minors.',
-    3 => 'Spamming and/or flooding.',
-    4 => 'Not work safe content on work safe board.'
-  ],
-  'cloudflare'       => false,
-  'tripsalt'         => '#!12345_MAKE_THIS_SECURE_67890!#'
+define('MB_SITE_NAME', 'Miniboard');
+define('MB_SITE_DESC', 'Minimalistic oldschool imageboard software');
+define('MB_DATEFORMAT', '%d/%m/%g(%a)%H:%M:%S');
+define('MB_CAPTCHA_HCAPTCHA_SITE', '10000000-ffff-ffff-ffff-000000000001');
+define('MB_CAPTCHA_HCAPTCHA_SECRET', '0x0000000000000000000000000000000000000000');
+define('MB_CAPTCHA_THREAD', true);
+define('MB_CAPTCHA_REPLY', true);
+define('MB_CAPTCHA_REPORT', true);
+define('MB_CAPTCHA_LOGIN', true);
+define('MB_REPORT_TYPES', [
+  1 => 'Content that contains violence.',
+  2 => 'Content that sexualizes minors.',
+  3 => 'Spamming and/or flooding.',
+  4 => 'Not work safe content on work safe board.'
 ]);
+define('MB_CLOUDFLARE', false);
+define('MB_TRIPCODE_SALT', '#!12345_MAKE_THIS_SECURE_67890!#');
 
 // board settings
 define('MB_BOARDS', [

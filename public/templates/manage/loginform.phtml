@@ -11,9 +11,9 @@
     </div>
     <div class="loginform-group">
       <?php
-        if (MB_GLOBAL['captcha_login']) {
+        if (MB_CAPTCHA_LOGIN) {
           $label = "<label class='loginform-captcha-label' for='captcha'>Captcha</label>\n";
-          $captcha = '<div class="h-captcha" data-sitekey="' . MB_GLOBAL['hcaptcha_site'] . '"></div>';
+          $captcha = '<div class="h-captcha" data-sitekey="' . MB_CAPTCHA_HCAPTCHA_SITE . '"></div>';
           echo $label . $captcha;
         }
       ?>

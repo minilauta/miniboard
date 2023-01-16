@@ -18,9 +18,9 @@
   </div>
   <div class="postform-group">
     <?php
-      if ($context === 'board' && MB_GLOBAL['captcha_thread'] || $context === 'thread' && MB_GLOBAL['captcha_reply']) {
+      if ($context === 'board' && MB_CAPTCHA_THREAD || $context === 'thread' && MB_CAPTCHA_REPLY) {
         $label = "<label class='postform-captcha-label' for='captcha'>Captcha</label>\n";
-        $captcha = '<div class="h-captcha" data-sitekey="' . MB_GLOBAL['hcaptcha_site'] . '"></div>';
+        $captcha = '<div class="h-captcha" data-sitekey="' . MB_CAPTCHA_HCAPTCHA_SITE . '"></div>';
         echo $label . $captcha;
       }
     ?>

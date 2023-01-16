@@ -5,7 +5,7 @@
     <?php
       $select_input = '<select id="type" name="type">';
       $select_options = '<option value=""></option>';
-      foreach (MB_GLOBAL['report_types'] as $key => $val) {
+      foreach (MB_REPORT_TYPES as $key => $val) {
         $select_options .= "<option value='{$key}'>{$val}</option>";
       }
       echo $select_input . $select_options . '</select>';
@@ -13,8 +13,8 @@
   </fieldset>
   <p>Submitting <strong>false</strong> or <strong>misclassified</strong> reports will result in a ban.</p>
   <?php
-    if (MB_GLOBAL['captcha_report']) {
-      echo '<div class="h-captcha" data-sitekey="' . MB_GLOBAL['hcaptcha_site'] . '"></div>';
+    if (MB_CAPTCHA_REPORT) {
+      echo '<div class="h-captcha" data-sitekey="' . MB_CAPTCHA_HCAPTCHA_SITE . '"></div>';
     }
   ?>
   <button type="submit">Submit</button>

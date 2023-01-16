@@ -21,7 +21,7 @@ function funcs_post_create(string $ip, array $board_cfg, ?int $parent_id, ?array
   // parse name, additionally handle trip and secure trip
   $name_trip = [$board_cfg['anonymous'], null];
   if (strlen($input['name']) > 0) {
-    $name_trip = funcs_common_generate_tripcode($input['name'], MB_GLOBAL['tripsalt']);
+    $name_trip = funcs_common_generate_tripcode($input['name'], MB_TRIPCODE_SALT);
     $name_trip[0] = funcs_common_clean_field($name_trip[0]);
     if ($name_trip[1] != null) {
       $name_trip[1] = funcs_common_clean_field($name_trip[1]);
@@ -94,7 +94,7 @@ function funcs_post_render_nameblock(string $name, ?string $tripcode, ?string $e
     default: break;
   }
 
-  $nameblock .= "\n<span class='post-datetime'>" . strftime(MB_GLOBAL['datefmt'], $timestamp) . "</span>\n";
+  $nameblock .= "\n<span class='post-datetime'>" . strftime(MB_DATEFORMAT, $timestamp) . "</span>\n";
 
   return $nameblock;
 }

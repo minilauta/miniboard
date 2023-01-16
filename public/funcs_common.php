@@ -305,7 +305,7 @@ function funcs_common_validate_captcha($input) {
   curl_setopt($curl, CURLOPT_URL, "https://hcaptcha.com/siteverify");
   curl_setopt($curl, CURLOPT_POST, true);
   curl_setopt($curl, CURLOPT_POSTFIELDS, http_build_query([
-    'secret' => MB_GLOBAL['hcaptcha_secret'],
+    'secret' => MB_CAPTCHA_HCAPTCHA_SECRET,
     'response' => $input['h-captcha-response']
   ]));
   curl_setopt($curl, CURLOPT_RETURNTRANSFER, true);

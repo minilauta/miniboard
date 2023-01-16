@@ -69,7 +69,7 @@ function handle_loginform(Request $request, Response $response, array $args): Re
   $params = (array) $request->getParsedBody();
 
   // validate captcha
-  if (MB_GLOBAL['captcha_login']) {
+  if (MB_CAPTCHA_LOGIN) {
     funcs_common_validate_captcha($params);
   }
 
@@ -217,12 +217,12 @@ function handle_reportform(Request $request, Response $response, array $args): R
   $board_cfg = funcs_common_get_board_cfg($args['board_id']);
 
   // validate captcha
-  if (MB_GLOBAL['captcha_report']) {
+  if (MB_CAPTCHA_REPORT) {
     funcs_common_validate_captcha($params);
   }
 
   // validate request fields
-  funcs_report_validate_fields($params, MB_GLOBAL['report_types']);
+  funcs_report_validate_fields($params, MB_REPORT_TYPES);
 
   // get post
   $post = select_post($board_cfg['id'], $args['post_id']);
@@ -231,8 +231,8 @@ function handle_reportform(Request $request, Response $response, array $args): R
   }
 
   // create report
-  $ip = funcs_common_get_client_remote_address(MB_GLOBAL['cloudflare'], $_SERVER);
-  $report = funcs_report_create($ip, $board_cfg['id'], $post['post_id'], $params['type'], MB_GLOBAL['report_types']);
+  $ip = funcs_common_get_client_remote_address(MB_CLOUDFLARE, $_SERVER);
+  $report = funcs_report_create($ip, $board_cfg['id'], $post['post_id'], $params['type'], MB_REPORT_TYPES);
 
   // insert report
   $inserted_report_id = insert_report($report);
@@ -442,7 +442,7 @@ function handle_postform(Request $request, Response $response, array $args, stri
   $board_cfg = funcs_common_get_board_cfg($args['board_id']);
 
   // validate captcha
-  if (MB_GLOBAL['captcha_thread'] && $context === 'board' || MB_GLOBAL['captcha_reply'] && $context === 'thread') {
+  if (MB_CAPTCHA_THREAD && $context === 'board' || MB_CAPTCHA_REPLY && $context === 'thread') {
     funcs_common_validate_captcha($params);
   }
 
@@ -493,7 +493,7 @@ function handle_postform(Request $request, Response $response, array $args, stri
   $file = funcs_file_execute_upload($file, $file_info, $file_collisions, $board_cfg['max_width'], $board_cfg['max_height']);
 
   // create post
-  $ip = funcs_common_get_client_remote_address(MB_GLOBAL['cloudflare'], $_SERVER);
+  $ip = funcs_common_get_client_remote_address(MB_CLOUDFLARE, $_SERVER);
   $post = funcs_post_create($ip, $board_cfg, $thread_id, $file_info, $file, $params);
 
   // insert post
