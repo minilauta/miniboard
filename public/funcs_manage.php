@@ -43,11 +43,11 @@ function funcs_manage_import(array $params): string {
 
   // handle each table type separately
   switch ($params['table_type']) {
-    case TINYIB_ACCOUNTS:
+    case MB_IMPORT_TINYIB_ACCOUNTS:
       // execute import
       $inserted = insert_import_accounts_tinyib($params, $params['table_name']);
       break;
-    case TINYIB_POSTS:
+    case MB_IMPORT_TINYIB_POSTS:
       // validate params
       if (!array_key_exists($params['board_id'], MB_BOARDS)) {
         return "Target BOARD id '{$params['board_id']}' not found";
@@ -109,5 +109,5 @@ function funcs_manage_rebuild(array $params): string {
     $processed++;
   }
 
-  return "Rebuilt all posts on board /{$post['board_id']}/, processed {$processed}/{$total}";
+  return "Rebuilt all posts on board /{$board_cfg['id']}/, processed {$processed}/{$total}";
 }

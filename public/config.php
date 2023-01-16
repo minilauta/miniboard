@@ -1,28 +1,29 @@
 <?php
 
-// defines
-define('MB_ROLE_SUPERADMIN', 1);
-define('MB_ROLE_ADMIN', 2);
-define('MB_ROLE_MODERATOR', 3);
-define('MB_ROLE_DISABLED', 99);
-
-define('TINYIB_ACCOUNTS', 1);
-define('TINYIB_BANS', 2);
-define('TINYIB_LOGS', 3);
-define('TINYIB_POSTS', 4);
-define('TINYIB_REPORTS', 5);
-
-// timezone settings
 date_default_timezone_set(getenv('MB_TIMEZONE'));
 
-// environment settings
+// defines
 define('MB_ENV', getenv('MB_ENV'));
-
-// database settings
 define('MB_DB_HOST', getenv('MB_DB_HOST'));
 define('MB_DB_NAME', getenv('MB_DB_NAME'));
 define('MB_DB_USER', getenv('MB_DB_USER'));
 define('MB_DB_PASS', getenv('MB_DB_PASS'));
+define('MB_ROLE_SUPERADMIN', 1);
+define('MB_ROLE_ADMIN', 2);
+define('MB_ROLE_MODERATOR', 3);
+define('MB_ROLE_DISABLED', 99);
+define('MB_IMPORT_TINYIB_ACCOUNTS', 1);
+define('MB_IMPORT_TINYIB_BANS', 2);
+define('MB_IMPORT_TINYIB_LOGS', 3);
+define('MB_IMPORT_TINYIB_POSTS', 4);
+define('MB_IMPORT_TINYIB_REPORTS', 5);
+define('MB_IMPORT_TABLE_TYPES', [
+  MB_IMPORT_TINYIB_ACCOUNTS => 'TINYIB_ACCOUNTS',
+  MB_IMPORT_TINYIB_BANS     => 'TINYIB_BANS',
+  MB_IMPORT_TINYIB_LOGS     => 'TINYIB_LOGS',
+  MB_IMPORT_TINYIB_POSTS    => 'TINYIB_POSTS',
+  MB_IMPORT_TINYIB_REPORTS  => 'TINYIB_REPORTS',
+]);
 
 // global settings
 define('MB_GLOBAL', [
@@ -43,14 +44,7 @@ define('MB_GLOBAL', [
     4 => 'Not work safe content on work safe board.'
   ],
   'cloudflare'       => false,
-  'tripsalt'         => '#!12345_MAKE_THIS_SECURE_67890!#',
-  'import_table_types' => [
-    TINYIB_ACCOUNTS   => 'TINYIB_ACCOUNTS',
-    TINYIB_BANS       => 'TINYIB_BANS',
-    TINYIB_LOGS       => 'TINYIB_LOGS',
-    TINYIB_POSTS      => 'TINYIB_POSTS',
-    TINYIB_REPORTS    => 'TINYIB_REPORTS'
-  ]
+  'tripsalt'         => '#!12345_MAKE_THIS_SECURE_67890!#'
 ]);
 
 // board settings

@@ -25,7 +25,7 @@
       <?php
         $select_input = '<select id="table_type" name="table_type">';
         $select_options = '<option value=""></option>';
-        foreach (MB_GLOBAL['import_table_types'] as $key => $val) {
+        foreach (MB_IMPORT_TABLE_TYPES as $key => $val) {
           $select_options .= "<option value='{$key}'>{$val}</option>";
         }
         echo $select_input . $select_options . '</select>';
