@@ -32,12 +32,12 @@ function funcs_post_create(string $ip, array $board_cfg, ?int $parent_id, ?array
   $timestamp = time();
 
   // render nameblock
-  $nameblock = funcs_post_render_nameblock($name_trip[0], $name_trip[1], $email, funcs_common_get_role(), $timestamp);
+  $nameblock = funcs_post_render_nameblock($name_trip[0], $name_trip[1], $email, funcs_manage_get_role(), $timestamp);
 
   return [
     'board_id'            => $board_cfg['id'],
     'parent_id'           => $parent_id != null ? $parent_id : 0,
-    'role'                => funcs_common_get_role(),
+    'role'                => funcs_manage_get_role(),
     'name'                => $name_trip[0],
     'tripcode'            => $name_trip[1],
     'nameblock'           => $nameblock,

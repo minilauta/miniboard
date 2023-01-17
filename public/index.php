@@ -441,9 +441,11 @@ function handle_postform(Request $request, Response $response, array $args, stri
   // get board config
   $board_cfg = funcs_common_get_board_cfg($args['board_id']);
 
-  // validate captcha
-  if (MB_CAPTCHA_THREAD && $context === 'board' || MB_CAPTCHA_REPLY && $context === 'thread') {
-    funcs_common_validate_captcha($params);
+  // validate captcha (skip for logged in users)
+  if (!funcs_manage_is_logged_in()) {
+    if (MB_CAPTCHA_THREAD && $context === 'board' || MB_CAPTCHA_REPLY && $context === 'thread') {
+      funcs_common_validate_captcha($params);
+    }
   }
 
   // validate request fields

@@ -4,17 +4,6 @@ require_once __DIR__ . '/config.php';
 require_once __DIR__ . '/exception.php';
 
 /**
- * Get user role from session if set. Normal users do not have a role set.
- */
-function funcs_common_get_role(): int|null {
-  if (isset($_SESSION['mb_role'])) {
-    return $_SESSION['mb_role'];
-  }
-
-  return null;
-}
-
-/**
  * Get board config array by board ID.
  */
 function funcs_common_get_board_cfg(string $board_id): array {

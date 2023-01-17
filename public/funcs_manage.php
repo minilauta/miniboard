@@ -36,6 +36,17 @@ function funcs_manage_logout(): bool {
 }
 
 /**
+ * Gets user role from session if set.
+ */
+function funcs_manage_get_role(): int|null {
+  if (isset($_SESSION['mb_role'])) {
+    return $_SESSION['mb_role'];
+  }
+
+  return null;
+}
+
+/**
  * Imports data from another MySQL/MariaDB database.
  */
 function funcs_manage_import(array $params): string {
