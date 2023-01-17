@@ -14,7 +14,7 @@ function funcs_file_validate_upload(UploadedFileInterface $input, bool $no_file_
   if ($error === UPLOAD_ERR_NO_FILE && $no_file_ok) {
     return null;
   } else if ($error !== UPLOAD_ERR_OK) {
-    throw new FuncException('funcs_file', 'validate_upload', "file upload error: {$error}", SC_BAD_REQUEST);
+    throw new AppException('funcs_file', 'validate_upload', "file upload error: {$error}", SC_BAD_REQUEST);
   }
 
   // get temp file handle
@@ -36,14 +36,14 @@ function funcs_file_validate_upload(UploadedFileInterface $input, bool $no_file_
   }
   
   if (!isset($mime_types[$file_mime])) {
-    throw new FuncException('funcs_file', 'validate_upload', "file mime type invalid: {$file_mime}", SC_BAD_REQUEST);
+    throw new AppException('funcs_file', 'validate_upload', "file mime type invalid: {$file_mime}", SC_BAD_REQUEST);
   }
   $file_ext = $mime_types[$file_mime];
 
   // validate file size
   $file_size = filesize($tmp_file);
   if ($file_size > $max_bytes) {
-    throw new FuncException('funcs_file', 'validate_upload', "file size exceeds limit: {$file_size} bytes > {$max_bytes} bytes", SC_BAD_REQUEST);
+    throw new AppException('funcs_file', 'validate_upload', "file size exceeds limit: {$file_size} bytes > {$max_bytes} bytes", SC_BAD_REQUEST);
   }
 
   // calculate md5 hash
@@ -104,7 +104,7 @@ function funcs_file_execute_upload(UploadedFileInterface $file, ?array $file_inf
         // make exiftool success mandatory for images
         if ($exiftool_status !== 0) {
           unlink($file_path);
-          throw new FuncException('funcs_file', 'funcs_file_execute_upload', "exiftool returned an error status: {$exiftool_status}", SC_INTERNAL_ERROR);
+          throw new AppException('funcs_file', 'funcs_file_execute_upload', "exiftool returned an error status: {$exiftool_status}", SC_INTERNAL_ERROR);
         }
 
         $generated_thumb = funcs_file_generate_thumbnail($file_path, 'image/png', $thumb_file_path, $max_w, $max_h);
@@ -118,7 +118,7 @@ function funcs_file_execute_upload(UploadedFileInterface $file, ?array $file_inf
         // make exiftool success mandatory for videos
         if ($exiftool_status !== 0) {
           unlink($file_path);
-          throw new FuncException('funcs_file', 'funcs_file_execute_upload', "exiftool returned an error status: {$exiftool_status}", SC_INTERNAL_ERROR);
+          throw new AppException('funcs_file', 'funcs_file_execute_upload', "exiftool returned an error status: {$exiftool_status}", SC_INTERNAL_ERROR);
         }
 
         $ffprobe = FFMpeg\FFProbe::create();
@@ -158,7 +158,7 @@ function funcs_file_execute_upload(UploadedFileInterface $file, ?array $file_inf
         break;
       default:
         unlink($file_path);
-        throw new FuncException('funcs_file', 'funcs_file_execute_upload', "file ext type unsupported: {$file_info['mime']}", SC_INTERNAL_ERROR);
+        throw new AppException('funcs_file', 'funcs_file_execute_upload', "file ext type unsupported: {$file_info['mime']}", SC_INTERNAL_ERROR);
     }
   } else {
     $file_name = $file_collisions[0]['file'];

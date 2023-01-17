@@ -111,14 +111,3 @@ function funcs_manage_rebuild(array $params): string {
 
   return "Rebuilt all posts on board /{$board_cfg['id']}/, processed {$processed}/{$total}";
 }
-
-/**
- * Returns user details which user is allowed to view.
- */
-function funcs_manage_list_account_details(): array {
-  $account_details = [];
-  if (funcs_common_get_role() == MB_ROLE_SUPERADMIN) {
-    $account_details = list_account_details();
-  }
-  return $account_details;
-}

@@ -360,13 +360,10 @@ function select_account(string $username): array|bool {
   return $sth->fetch();
 }
 
-function list_account_details(): array|bool {
+function select_account_details(): array|bool {
   $dbh = get_db_handle();
-  $sth = $dbh->prepare('
-    SELECT username, role, lastactive FROM accounts
-  ');
-  $sth->execute([
-  ]);
+  $sth = $dbh->prepare('SELECT username, role, lastactive FROM accounts');
+  $sth->execute();
   return $sth->fetchAll();
 }
 

@@ -19,7 +19,7 @@ function funcs_common_get_role(): int|null {
  */
 function funcs_common_get_board_cfg(string $board_id): array {
   if (!isset(MB_BOARDS[$board_id])) {
-    throw new FuncException('funcs_common', 'get_board_cfg', "board with id /{$board_id}/ cannot be found", SC_BAD_REQUEST);
+    throw new AppException('funcs_common', 'get_board_cfg', "board with id /{$board_id}/ cannot be found", SC_BAD_REQUEST);
   }
 
   return MB_BOARDS[$board_id];
@@ -33,7 +33,7 @@ function funcs_common_validate_fields(array $input, array $fields) {
     // check for required field
     $input_set = isset($input[$key]);
     if (!$input_set && $val['required'] === true) {
-      throw new FuncException('funcs_common', 'validate_fields', "required field {$key} is NULL", SC_BAD_REQUEST);
+      throw new AppException('funcs_common', 'validate_fields', "required field {$key} is NULL", SC_BAD_REQUEST);
     } else if (!$input_set) {
       continue;
     }
@@ -43,7 +43,7 @@ function funcs_common_validate_fields(array $input, array $fields) {
     // check if actual type matches required type
     $input_type = gettype($ival);
     if ($input_type != $val['type']) {
-      throw new FuncException('funcs_common', 'validate_fields', "field {$key} data type {$input_type} is invalid", SC_BAD_REQUEST);
+      throw new AppException('funcs_common', 'validate_fields', "field {$key} data type {$input_type} is invalid", SC_BAD_REQUEST);
     }
 
     // check for requirements based on type
@@ -54,20 +54,20 @@ function funcs_common_validate_fields(array $input, array $fields) {
         if (isset($val['max_len'])) {
           $max_len = $val['max_len'];
           if ($input_len > $max_len) {
-            throw new FuncException('funcs_common', 'validate_fields', "field {$key} length {$input_len} is longer than max length {$max_len}", SC_BAD_REQUEST);
+            throw new AppException('funcs_common', 'validate_fields', "field {$key} length {$input_len} is longer than max length {$max_len}", SC_BAD_REQUEST);
           }
         }
 
         if (isset($val['min_len']) && !empty($ival)) {
           $min_len = $val['min_len'];
           if ($input_len < $min_len) {
-            throw new FuncException('funcs_common', 'validate_fields', "field {$key} length {$input_len} is shorter than min length {$min_len}", SC_BAD_REQUEST);
+            throw new AppException('funcs_common', 'validate_fields', "field {$key} length {$input_len} is shorter than min length {$min_len}", SC_BAD_REQUEST);
           }
         }
         break;
       case 'array':
         if (!$ival) {
-          throw new FuncException('funcs_common', 'validate_fields', "field {$key} of type 'array' length is 0", SC_BAD_REQUEST);
+          throw new AppException('funcs_common', 'validate_fields', "field {$key} of type 'array' length is 0", SC_BAD_REQUEST);
         }
         break;
     }
@@ -83,17 +83,17 @@ function funcs_common_parse_input_str(array $input, string $key, string $default
       return $default;
     }
 
-    throw new FuncException('funcs_common', 'parse_input_str', 'null error', SC_BAD_REQUEST);
+    throw new AppException('funcs_common', 'parse_input_str', 'null error', SC_BAD_REQUEST);
   }
 
   $result = $input[$key];
 
   if ($min !== null && strlen($result) < $min) {
-    throw new FuncException('funcs_common', 'parse_input_str', 'min len error', SC_BAD_REQUEST);
+    throw new AppException('funcs_common', 'parse_input_str', 'min len error', SC_BAD_REQUEST);
   }
 
   if ($max !== null && strlen($result) > $max) {
-    throw new FuncException('funcs_common', 'parse_input_str', 'max len error', SC_BAD_REQUEST);
+    throw new AppException('funcs_common', 'parse_input_str', 'max len error', SC_BAD_REQUEST);
   }
 
   return $result;
@@ -108,7 +108,7 @@ function funcs_common_parse_input_int(array $input, string $key, int $default = 
       return $default;
     }
 
-    throw new FuncException('funcs_common', 'parse_input_int', 'null error', SC_BAD_REQUEST);
+    throw new AppException('funcs_common', 'parse_input_int', 'null error', SC_BAD_REQUEST);
   }
 
   $result = intval($input[$key]);
@@ -216,7 +216,7 @@ function funcs_common_break_long_words(string $input, int $max_len): string {
 function funcs_common_hash_password(string $input): string {
   $hashed = password_hash($input, PASSWORD_BCRYPT, ['cost' => 10]);
   if ($hashed == null || $hashed === FALSE) {
-    throw new FuncException('funcs_common', 'hash_password', 'password_hash returned NULL or FALSE', SC_INTERNAL_ERROR);
+    throw new AppException('funcs_common', 'hash_password', 'password_hash returned NULL or FALSE', SC_INTERNAL_ERROR);
   }
 
   return $hashed;
@@ -298,7 +298,7 @@ function funcs_common_generate_tripcode(string $input, string $secure_salt): arr
  */
 function funcs_common_validate_captcha($input) {
   if (!isset($input['h-captcha-response'])) {
-    throw new FuncException('funcs_common', 'validate_captcha', 'h-captcha-response not found in input form data', SC_BAD_REQUEST);
+    throw new AppException('funcs_common', 'validate_captcha', 'h-captcha-response not found in input form data', SC_BAD_REQUEST);
   }
 
   $curl = curl_init();
@@ -313,6 +313,6 @@ function funcs_common_validate_captcha($input) {
   $response = json_decode($response);
 
   if (!isset($response->success) || !$response->success) {
-    throw new FuncException('funcs_common', 'validate_captcha', 'h-captcha validation failed', SC_BAD_REQUEST);
+    throw new AppException('funcs_common', 'validate_captcha', 'h-captcha validation failed', SC_BAD_REQUEST);
   }
 }

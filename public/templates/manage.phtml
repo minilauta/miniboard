@@ -12,12 +12,24 @@
     <?php
       switch ($route) {
         case 'accounts':
-          echo $this->fetch('manage/accounts.phtml', ['account_details' => $account_details]);
+          if (funcs_common_get_role() !== MB_ROLE_SUPERADMIN) {
+            throw new AppException('manage.phtml', 'inline', 'insufficient permissions', SC_FORBIDDEN);
+          }
+
+          echo $this->fetch('manage/accounts.phtml', ['account_details' => select_account_details()]);
           break;
         case 'import':
+          if (funcs_common_get_role() !== MB_ROLE_SUPERADMIN) {
+            throw new AppException('manage.phtml', 'inline', 'insufficient permissions', SC_FORBIDDEN);
+          }
+
           echo $this->fetch('manage/importform.phtml');
           break;
         case 'rebuild':
+          if (funcs_common_get_role() !== MB_ROLE_SUPERADMIN) {
+            throw new AppException('manage.phtml', 'inline', 'insufficient permissions', SC_FORBIDDEN);
+          }
+
           echo $this->fetch('manage/rebuildform.phtml');
           break;
         default: echo 'Default route'; break;

@@ -38,13 +38,11 @@ $app->get('/manage/', function (Request $request, Response $response, array $arg
     $query_params = $request->getQueryParams();
     $query_route = funcs_common_parse_input_str($query_params, 'route', '');
     $query_status = funcs_common_parse_input_str($query_params, 'status', '');
-    $account_details = funcs_manage_list_account_details();
 
     // render page
     $renderer = new PhpRenderer('templates/', [
       'route' => $query_route,
-      'status' => $query_status,
-      'account_details' => $account_details
+      'status' => $query_status
     ]);
     return $renderer->render($response, 'manage.phtml');
   }
@@ -53,7 +51,7 @@ $app->get('/manage/', function (Request $request, Response $response, array $arg
 $app->get('/manage/logout/', function (Request $request, Response $response, array $args) {
   $success = funcs_manage_logout();
   if (!$success) {
-    throw new ApiException("logout failed to clear PHP session", SC_INTERNAL_ERROR);
+    throw new AppException('index', 'route', "logout failed to clear PHP session", SC_INTERNAL_ERROR);
   }
 
   $response = $response
@@ -84,19 +82,19 @@ function handle_loginform(Request $request, Response $response, array $args): Re
   // get account
   $account = select_account($params['username']);
   if ($account == null) {
-    throw new ApiException("invalid username or password for user '{$params['username']}'", SC_NOT_FOUND);
+    throw new AppException('index', 'route', "invalid username or password for user '{$params['username']}'", SC_UNAUTHORIZED);
   }
 
   // attempt to login
   $login = funcs_manage_login($account, $params['password']);
   if ($login !== true) {
-    throw new ApiException("invalid username or password for user '{$params['username']}'", SC_NOT_FOUND);
+    throw new AppException('index', 'route', "invalid username or password for user '{$params['username']}'", SC_UNAUTHORIZED);
   }
 
   // update lastactive
   $account['lastactive'] = time();
   if (update_account($account) !== TRUE) {
-    throw new ApiException("failed to update account info for user {$params['username']}", SC_INTERNAL_ERROR);
+    throw new AppException('index', 'route', "failed to update account info for user {$params['username']}", SC_INTERNAL_ERROR);
   }
 
   $response = $response
@@ -107,11 +105,11 @@ function handle_loginform(Request $request, Response $response, array $args): Re
 
 $app->post('/manage/import/', function (Request $request, Response $response, array $args) {
   if (!funcs_manage_is_logged_in()) {
-    throw new ApiException('access denied', SC_BAD_REQUEST);
+    throw new AppException('index', 'route', 'access denied', SC_UNAUTHORIZED);
   }
 
   if ($_SESSION['mb_role'] !== MB_ROLE_SUPERADMIN) {
-    throw new ApiException('insufficient permissions', SC_BAD_REQUEST);
+    throw new AppException('index', 'route', 'insufficient permissions', SC_FORBIDDEN);
   }
 
   return handle_importform($request, $response, $args);
@@ -142,11 +140,11 @@ function handle_importform(Request $request, Response $response, array $args): R
 
 $app->post('/manage/rebuild/', function (Request $request, Response $response, array $args) {
   if (!funcs_manage_is_logged_in()) {
-    throw new ApiException('access denied', SC_BAD_REQUEST);
+    throw new AppException('index', 'route', 'access denied', SC_UNAUTHORIZED);
   }
 
   if ($_SESSION['mb_role'] !== MB_ROLE_SUPERADMIN) {
-    throw new ApiException('insufficient permissions', SC_BAD_REQUEST);
+    throw new AppException('index', 'route', 'insufficient permissions', SC_FORBIDDEN);
   }
 
   return handle_rebuildform($request, $response, $args);
@@ -177,7 +175,7 @@ $app->get('/{board_id}/{post_id}/report/', function (Request $request, Response 
   // get post
   $post = select_post($board_cfg['id'], $args['post_id']);
   if ($post == null) {
-    throw new ApiException("post with ID /{$board_cfg['id']}/{$args['post_id']} not found", SC_NOT_FOUND);
+    throw new AppException('index', 'route', "post with ID /{$board_cfg['id']}/{$args['post_id']} not found", SC_NOT_FOUND);
   }
 
   $renderer = new PhpRenderer('templates/', [
@@ -229,7 +227,7 @@ function handle_reportform(Request $request, Response $response, array $args): R
   // get post
   $post = select_post($board_cfg['id'], $args['post_id']);
   if ($post == null) {
-    throw new ApiException("post with ID /{$board_cfg['id']}/{$args['post_id']} not found", SC_NOT_FOUND);
+    throw new AppException('index', 'route', "post with ID /{$board_cfg['id']}/{$args['post_id']} not found", SC_NOT_FOUND);
   }
 
   // create report
@@ -348,9 +346,9 @@ $app->get('/{board_id}/{thread_id}/', function (Request $request, Response $resp
   // get thread
   $thread = select_post($board_cfg['id'], $args['thread_id']);
   if ($thread == null) {
-    throw new ApiException("thread with ID /{$board_cfg['id']}/{$args['thread_id']} not found", SC_NOT_FOUND);
+    throw new AppException('index', 'route', "thread with ID /{$board_cfg['id']}/{$args['thread_id']} not found", SC_NOT_FOUND);
   } else if ($thread['parent_id'] !== 0) {
-    throw new ApiException('not a valid thread', SC_BAD_REQUEST);
+    throw new AppException('index', 'route', 'not a valid thread', SC_BAD_REQUEST);
   }
 
   // get replies
@@ -370,7 +368,7 @@ $app->get('/{board_id}/{thread_id}/{post_id}/', function (Request $request, Resp
   // get post
   $post = select_post($board_cfg['id'], $args['post_id']);
   if ($post == null || ($post['parent_id'] !== 0 && $post['parent_id'] != $args['thread_id'])) {
-    throw new ApiException("post with ID /{$board_cfg['id']}/{$args['thread_id']}/{$args['post_id']} not found", SC_NOT_FOUND);
+    throw new AppException('index', 'route', "post with ID /{$board_cfg['id']}/{$args['thread_id']}/{$args['post_id']} not found", SC_NOT_FOUND);
   }
   $post['replies'] = [];
 
@@ -421,7 +419,7 @@ function handle_deleteform(Request $request, Response $response, array $args): R
 
     // delete post
     if (!delete_post($delete_board_id, $delete_post_id, false)) {
-      throw new ApiException("failed to delete post with ID /{$delete_board_id}/{$delete_post_id}", SC_INTERNAL_ERROR);
+      throw new AppException('index', 'route', "failed to delete post with ID /{$delete_board_id}/{$delete_post_id}", SC_INTERNAL_ERROR);
     }
   }
 
@@ -458,7 +456,7 @@ function handle_postform(Request $request, Response $response, array $args, stri
 
     // do not allow posting directly on boards of type 'main'
     if ($board_cfg['type'] === 'main') {
-      throw new ApiException("posting on /{$board_cfg['id']}/ board is disabled", SC_BAD_REQUEST);
+      throw new AppException('index', 'route', "posting on /{$board_cfg['id']}/ board is disabled", SC_BAD_REQUEST);
     }
 
     // validate request fields
@@ -470,7 +468,7 @@ function handle_postform(Request $request, Response $response, array $args, stri
   if (isset($args['thread_id'])) {
     $parent = select_post($board_cfg['id'], $args['thread_id']);
     if ($parent != null && $parent['parent_id'] > 0) {
-      throw new ApiException("thread with ID /{$board_cfg['id']}/{$args['thread_id']} not found", SC_NOT_FOUND);
+      throw new AppException('index', 'route', "thread with ID /{$board_cfg['id']}/{$args['thread_id']} not found", SC_NOT_FOUND);
     } else if ($parent != null) {
       $thread_id = $parent['post_id'];
     }
@@ -482,7 +480,7 @@ function handle_postform(Request $request, Response $response, array $args, stri
 
   // validate request message + file
   if (strlen(trim($params['message'])) === 0 && $file_info == null) {
-    throw new ApiException('message and file cannot both be null', SC_BAD_REQUEST);
+    throw new AppException('index', 'route', 'message and file cannot both be null', SC_BAD_REQUEST);
   }
 
   // check md5 file collisions
@@ -546,7 +544,7 @@ $error_handler = function(
   }
 
   // Handle custom exceptions
-  if ($exception instanceof ApiException || $exception instanceof FuncException || $exception instanceof DbException) {
+  if ($exception instanceof AppException || $exception instanceof DbException) {
     $response = $app->getResponseFactory()->createResponse($exception->getCode());
     $renderer = new PhpRenderer('templates/', [
       'board' => MB_BOARDS[array_key_first(MB_BOARDS)],

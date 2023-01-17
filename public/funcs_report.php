@@ -8,11 +8,11 @@ require_once __DIR__ . '/exception.php';
  */
 function funcs_report_validate_fields(array $input, array $types) {
   if (!isset($input['type'])) {
-    throw new FuncException('funcs_report', 'validate_fields', 'required field type is NULL', SC_BAD_REQUEST);
+    throw new AppException('funcs_report', 'validate_fields', 'required field type is NULL', SC_BAD_REQUEST);
   }
 
   if (!array_key_exists($input['type'], $types)) {
-    throw new FuncException('funcs_report', 'validate_fields', "field type value {$input['type']} is invalid", SC_BAD_REQUEST);
+    throw new AppException('funcs_report', 'validate_fields', "field type value {$input['type']} is invalid", SC_BAD_REQUEST);
   }
 }
 
