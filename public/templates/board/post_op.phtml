@@ -14,6 +14,14 @@
     <span class="post-id">
       <a href="/<?=$post['board_id']?>/<?=$post['post_id']?>/#<?=$post['board_id']?>-<?=$post['post_id']?>">No.</a><a href="/<?=$post['board_id']?>/<?=$post['post_id']?>/#q<?=$post['post_id']?>"><?=$post['post_id']?></a>
     </span>
+    <?php
+      if ($post['stickied'] === 1) {
+        echo "<img src='/static/sticky.png' alt='Stickied' title='Stickied' width='16' height='16'>";
+      }
+      if ($post['locked'] === 1) {
+        echo "<img src='/static/lock.png' alt='Locked' title='Locked' width='16' height='16'>";
+      }
+    ?>
     [<a href="/<?=$post['board_id']?>/<?=$post['post_id']?>/">Reply</a>]
     <a href="#" class="dd-menu-btn" data-board_id="<?=$post['board_id']?>" data-id="<?=$post['post_id']?>" data-cmd="post-menu">▶</a>
   </div>

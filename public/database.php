@@ -48,7 +48,7 @@ function select_posts(string $session_id, ?string $board_id, int $parent_id = 0,
       WHERE board_id = :board_id AND parent_id = :parent_id AND post_id ' . ($hidden === true ? '' : 'NOT') . ' IN (
         SELECT post_id FROM hides WHERE session_id = :session_id AND board_id = posts.board_id
       ) AND deleted = :deleted
-      ORDER BY bumped ' . ($desc === true ? 'DESC' : 'ASC') . '
+      ORDER BY stickied DESC, bumped ' . ($desc === true ? 'DESC' : 'ASC') . '
       LIMIT :limit OFFSET :offset
     ');
     $sth->execute([
@@ -65,7 +65,7 @@ function select_posts(string $session_id, ?string $board_id, int $parent_id = 0,
       WHERE parent_id = :parent_id AND post_id ' . ($hidden === true ? '' : 'NOT') . ' IN (
         SELECT post_id FROM hides WHERE session_id = :session_id AND board_id = posts.board_id
       ) AND deleted = :deleted
-      ORDER BY bumped ' . ($desc === true ? 'DESC' : 'ASC') . '
+      ORDER BY stickied DESC, bumped ' . ($desc === true ? 'DESC' : 'ASC') . '
       LIMIT :limit OFFSET :offset
     ');
     $sth->execute([
