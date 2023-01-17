@@ -534,11 +534,17 @@ $error_handler = function(
     $logger->error($exception->getMessage());
   }
 
+  // Determine context
+  $context = 'board';
+  if (str_starts_with($request->getUri()->getPath(), '/manage/') && funcs_manage_is_logged_in()) {
+    $context = 'manage';
+  }
+
   // Handle 404 error page
   if ($exception instanceof Slim\Exception\HttpNotFoundException) {
     $response = $app->getResponseFactory()->createResponse(SC_NOT_FOUND);
     $renderer = new PhpRenderer('templates/', [
-      'board' => MB_BOARDS[array_key_first(MB_BOARDS)],
+      'context' => $context,
       'error_type' => '404',
       'error_message' => 'Not Found'
     ]);
@@ -549,7 +555,7 @@ $error_handler = function(
   if ($exception instanceof AppException || $exception instanceof DbException) {
     $response = $app->getResponseFactory()->createResponse($exception->getCode());
     $renderer = new PhpRenderer('templates/', [
-      'board' => MB_BOARDS[array_key_first(MB_BOARDS)],
+      'context' => $context,
       'error_type' => $exception->getCode() === SC_NOT_FOUND ? '404' : 'Error',
       'error_message' => $exception->getMessage()
     ]);
@@ -559,7 +565,7 @@ $error_handler = function(
   // Handle all other exceptions
   $response = $app->getResponseFactory()->createResponse(SC_INTERNAL_ERROR);
   $renderer = new PhpRenderer('templates/', [
-    'board' => MB_BOARDS[array_key_first(MB_BOARDS)],
+    'context' => $context,
     'error_type' => 'Critical Error',
     'error_message' => $exception->getMessage()
   ]);
