@@ -80,6 +80,17 @@ services:
     depends_on:
       - mariadb
 
+  redis:
+    image: redis:7.0-alpine
+    restart: always
+    command: --save 60 1 --loglevel verbose
+    networks:
+      - app
+    volumes:
+      - redis:/data
+    ports:
+      - '127.0.0.1:6379:6379'
+
 networks:
   app:
     driver: bridge
@@ -89,3 +100,4 @@ networks:
 volumes:
   app:
   mariadb:
+  redis:

@@ -61,6 +61,23 @@ services:
     depends_on:
       - mariadb
 
+  redis:
+    image: redis:7.0-alpine
+    restart: on-failure
+    command: --save 60 1 --loglevel warning
+    healthcheck:
+      test: ['CMD', 'redis-cli', 'ping']
+      interval: 5s
+      timeout: 1s
+      retries: 2
+      start_period: 10s
+    networks:
+      - app
+    volumes:
+      - redis:/data
+    expose:
+      - 6379
+
   nginx:
     image: ghcr.io/anonyymi/miniboard/nginx:latest
     pull_policy: build
@@ -91,3 +108,4 @@ networks:
 volumes:
   app:
   mariadb:
+  redis:

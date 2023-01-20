@@ -51,6 +51,34 @@ spec: # spec for deployment
 apiVersion: apps/v1
 kind: Deployment
 metadata:
+  name: miniboard-redis
+spec: # spec for deployment
+  selector:
+    matchLabels:
+      run: miniboard-redis
+  replicas: 1
+  template: # blueprint for pods
+    metadata:
+      labels:
+        run: miniboard-redis # service looks for this label
+    spec: # spec for pods
+      containers:
+      - name: miniboard-redis
+        image: redis:7.0-alpine
+        ports:
+        - containerPort: 6379
+        volumeMounts:
+        - name: miniboard-redis-pv
+          mountPath: /data
+      volumes:
+      - name: miniboard-redis-pv
+        persistentVolumeClaim:
+          claimName: miniboard-redis-pv-claim
+
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
   name: miniboard-app
 spec: # spec for deployment
   selector:

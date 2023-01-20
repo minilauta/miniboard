@@ -15,6 +15,20 @@ spec:
 apiVersion: v1
 kind: PersistentVolumeClaim
 metadata:
+  name: miniboard-redis-pv-claim
+  labels:
+    run: miniboard-redis
+spec:
+  accessModes:
+    - ReadWriteOnce
+  resources:
+    requests:
+      storage: 256M
+
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
   name: miniboard-app-pv-claim
   labels:
     run: miniboard-app

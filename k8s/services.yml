@@ -18,6 +18,23 @@ spec:
 apiVersion: v1
 kind: Service
 metadata:
+  name: miniboard-redis
+  labels:
+    run: miniboard-redis
+spec:
+  type: ClusterIP
+  ports:
+  - port: 6379
+    targetPort: 6379
+    protocol: TCP
+    name: redis
+  selector:
+    run: miniboard-redis
+
+---
+apiVersion: v1
+kind: Service
+metadata:
   name: miniboard-app
   labels:
     run: miniboard-app
