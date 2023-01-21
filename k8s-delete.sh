@@ -1,4 +1,8 @@
-#!/bin/sh
+#!/bin/bash
+
+# for microk8s kubectl alias
+shopt -s expand_aliases
+source ~/.bash_aliases
 
 kubectl delete -f k8s/ingress.yml
 kubectl delete -f k8s/pods.yml
