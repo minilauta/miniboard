@@ -13,19 +13,13 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
+      - uses: docker/setup-qemu-action@v2
       - uses: docker/setup-buildx-action@v2
       - uses: docker/login-action@v2
         with:
           registry: ghcr.io
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
-      # - id: meta
-      #   uses: docker/metadata-action@4
-      #   with:
-      #     images: |
-      #       ghcr.io/anonyymi/miniboard/app
-      #       ghcr.io/anonyymi/miniboard/flyway
-      #       ghcr.io/anonyymi/miniboard/nginx
       - uses: docker/bake-action@master
         with:
           push: false
@@ -33,11 +27,24 @@ jobs:
           set: |
             app.cache-from=type=gha
             app.cache-to=type=gha
-      - name: Build
-        run: docker compose -f docker-compose.prod.yml build
-      - name: Push
+      - name: Build & push (app)
         run: |
-          docker image ls
-          docker push ghcr.io/anonyymi/miniboard/app:latest
-          docker push ghcr.io/anonyymi/miniboard/flyway:latest
-          docker push ghcr.io/anonyymi/miniboard/nginx:latest
+          docker buildx build \
+            -t ghcr.io/anonyymi/miniboard/app:latest \
+            -f docker/miniboard/Dockerfile.prod \
+            --platform=linux/arm64,linux/amd64 \
+            --push .
+      - name: Build & push (nginx)
+        run: |
+          docker buildx build \
+            -t ghcr.io/anonyymi/miniboard/nginx:latest \
+            -f docker/nginx/Dockerfile \
+            --platform=linux/arm64,linux/amd64 \
+            --push .
+      - name: Build & push (flyway)
+        run: |
+          docker buildx build \
+            -t ghcr.io/anonyymi/miniboard/flyway:latest \
+            -f docker/flyway/Dockerfile \
+            --platform=linux/arm64,linux/amd64 \
+            --push .
