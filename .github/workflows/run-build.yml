@@ -24,31 +24,45 @@ jobs:
           registry: ghcr.io
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
-      - uses: docker/bake-action@master
-        with:
-          push: false
-          load: true
-          set: |
-            app.cache-from=type=gha
-            app.cache-to=type=gha
+
       - name: Build & push (app)
-        run: |
-          docker buildx build \
-            -t ghcr.io/anonyymi/miniboard/app:latest \
-            -f docker/miniboard/Dockerfile.prod \
-            --platform=linux/arm64,linux/amd64 \
-            --push .
+        uses: docker/build-push-action@v3
+        with:
+          file: docker/miniboard/Dockerfile.prod
+          context: .
+          tags: |
+            ghcr.io/anonyymi/miniboard/app:latest
+          platforms: |
+            linux/amd64
+            linux/arm64
+          push: true
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
+
       - name: Build & push (nginx)
-        run: |
-          docker buildx build \
-            -t ghcr.io/anonyymi/miniboard/nginx:latest \
-            -f docker/nginx/Dockerfile \
-            --platform=linux/arm64,linux/amd64 \
-            --push .
+        uses: docker/build-push-action@v3
+        with:
+          file: docker/nginx/Dockerfile
+          context: .
+          tags: |
+            ghcr.io/anonyymi/miniboard/nginx:latest
+          platforms: |
+            linux/amd64
+            linux/arm64
+          push: true
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
+
       - name: Build & push (flyway)
-        run: |
-          docker buildx build \
-            -t ghcr.io/anonyymi/miniboard/flyway:latest \
-            -f docker/flyway/Dockerfile \
-            --platform=linux/arm64,linux/amd64 \
-            --push .
+        uses: docker/build-push-action@v3
+        with:
+          file: docker/flyway/Dockerfile.prod
+          context: .
+          tags: |
+            ghcr.io/anonyymi/miniboard/flyway:latest
+          platforms: |
+            linux/amd64
+            linux/arm64
+          push: true
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
