@@ -22,11 +22,15 @@ services:
     ports:
       - "127.0.0.1:80:80"
     environment:
+      PHP_POST_MAX_SIZE: ${PHP_POST_MAX_SIZE}
+      PHP_UPLOAD_MAX_FILESIZE: ${PHP_UPLOAD_MAX_FILESIZE}
       MB_TIMEZONE: Europe/Helsinki
       MB_DB_HOST: mariadb
       MB_DB_NAME: ${DB_NAME}
       MB_DB_USER: ${DB_USER}
       MB_DB_PASS: ${DB_PASS}
+      REDIS_HOST: redis
+      REDIS_PASS: ${REDIS_PASS}
     depends_on:
       - mariadb
 
@@ -83,7 +87,7 @@ services:
   redis:
     image: redis:7.0-alpine
     restart: always
-    command: --save 60 1 --loglevel verbose
+    command: '--save 60 1 --loglevel verbose --requirepass ${REDIS_PASS}'
     networks:
       - app
     volumes:

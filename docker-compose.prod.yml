@@ -3,10 +3,6 @@ version: '3.8'
 services:
   app:
     image: ghcr.io/anonyymi/miniboard/app:latest
-    pull_policy: build
-    build:
-      context: .
-      dockerfile: docker/miniboard/Dockerfile.prod
     deploy:
       replicas: 3
     restart: on-failure
@@ -17,11 +13,15 @@ services:
     expose:
       - 9000
     environment:
+      PHP_POST_MAX_SIZE: ${PHP_POST_MAX_SIZE}
+      PHP_UPLOAD_MAX_FILESIZE: ${PHP_UPLOAD_MAX_FILESIZE}
       MB_TIMEZONE: Europe/Helsinki
       MB_DB_HOST: mariadb
       MB_DB_NAME: ${DB_NAME}
       MB_DB_USER: ${DB_USER}
       MB_DB_PASS: ${DB_PASS}
+      REDIS_HOST: redis
+      REDIS_PASS: ${REDIS_PASS}
     depends_on:
       - mariadb
 
@@ -50,10 +50,6 @@ services:
 
   flyway:
     image: ghcr.io/anonyymi/miniboard/flyway:latest
-    pull_policy: build
-    build:
-      context: .
-      dockerfile: docker/flyway/Dockerfile
     restart: on-failure
     networks:
       - app
@@ -64,7 +60,7 @@ services:
   redis:
     image: redis:7.0-alpine
     restart: on-failure
-    command: --save 60 1 --loglevel warning
+    command: '--save 60 1 --loglevel warning --requirepass ${REDIS_PASS}'
     healthcheck:
       test: ['CMD', 'redis-cli', 'ping']
       interval: 5s
@@ -80,10 +76,6 @@ services:
 
   nginx:
     image: ghcr.io/anonyymi/miniboard/nginx:latest
-    pull_policy: build
-    build:
-      context: .
-      dockerfile: docker/nginx/Dockerfile
     restart: on-failure
     networks:
       - app
