@@ -1,8 +1,10 @@
 #!/bin/bash
 
 # for microk8s kubectl alias
-shopt -s expand_aliases
-source ~/.bash_aliases
+if [[ -f "~/.bash_aliases" ]]; then
+    shopt -s expand_aliases
+    source ~/.bash_aliases
+fi
 
 kubectl delete -f k8s/ingress.yml       --namespace=miniboard
 kubectl delete -f k8s/pods.yml          --namespace=miniboard

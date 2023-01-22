@@ -65,7 +65,7 @@ spec: # spec for deployment
       containers:
       - name: miniboard-redis
         image: redis:7.0-alpine
-        args: ["--save 60 1", "--loglevel verbose", "--requirepass ${REDIS_PASS}"]
+        args: ["--save 60 1", "--loglevel verbose", "--requirepass $(REDIS_PASS)"]
         ports:
         - containerPort: 6379
         env:
