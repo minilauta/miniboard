@@ -100,6 +100,7 @@ spec: # spec for deployment
       containers:
       - name: miniboard-app
         image: ghcr.io/anonyymi/miniboard/app:latest
+        imagePullPolicy: Always
         ports:
         - containerPort: 9000
         env:
@@ -156,6 +157,7 @@ spec:
       containers:
       - name: miniboard-nginx
         image: ghcr.io/anonyymi/miniboard/nginx:latest
+        imagePullPolicy: Always
         ports:
         - containerPort: 80
         - containerPort: 443
