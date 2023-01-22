@@ -83,13 +83,15 @@ function funcs_file_execute_upload(UploadedFileInterface $file, ?array $file_inf
   // either use the uploaded file or an already existing file
   if (empty($file_collisions)) {
     $file_name = time() . substr(microtime(), 2, 3) . '.' . $file_info['ext'];
-    $file_path = __DIR__ . '/src/' . $file_name;
+    $file_dir = '/src/';
+    $file_path = __DIR__ . $file_dir . $file_name;
     $file->moveTo($file_path);
     $file_hex = $file_info['md5'];
     $file_size = $file_info['size'];
     $file_size_formatted = funcs_common_human_filesize($file_size);
     $thumb_file_name = 'thumb_' . $file_name . '.png';
-    $thumb_file_path = __DIR__ . '/src/' . $thumb_file_name;
+    $thumb_dir = '/src/';
+    $thumb_file_path = __DIR__ . $thumb_dir . $thumb_file_name;
     
     // strip metadata from all files
     $exiftool_status = funcs_file_strip_metadata($file_path);
@@ -156,31 +158,41 @@ function funcs_file_execute_upload(UploadedFileInterface $file, ?array $file_inf
           $thumb_height = 0;
         }
         break;
+      case 'application/x-shockwave-flash':
+        $thumb_file_name = 'swf.png';
+        $thumb_dir = '/static/';
+        $image_width = 0;
+        $image_height = 0;
+        $thumb_width = 250;
+        $thumb_height = 250;
+        break;
       default:
         unlink($file_path);
         throw new AppException('funcs_file', 'funcs_file_execute_upload', "file ext type unsupported: {$file_info['mime']}", SC_INTERNAL_ERROR);
     }
   } else {
     $file_name = $file_collisions[0]['file'];
+    $file_dir = '';
     $file_hex = $file_collisions[0]['file_hex'];
     $file_size = $file_collisions[0]['file_size'];
     $file_size_formatted = $file_collisions[0]['file_size_formatted'];
     $image_width = $file_collisions[0]['image_width'];
     $image_height = $file_collisions[0]['image_height'];
     $thumb_file_name = $file_collisions[0]['thumb'];
+    $thumb_dir = '';
     $thumb_width = $file_collisions[0]['thumb_width'];
     $thumb_height = $file_collisions[0]['thumb_height'];
   }
 
   return [
-    'file'                => $file_name,
+    'file'                => $file_dir . $file_name,
     'file_hex'            => $file_hex,
     'file_original'       => $file_name_client,
     'file_size'           => $file_size,
     'file_size_formatted' => $file_size_formatted,
     'image_width'         => $image_width,
     'image_height'        => $image_height,
-    'thumb'               => $thumb_file_name,
+    'thumb'               => $thumb_dir . $thumb_file_name,
     'thumb_width'         => $thumb_width,
     'thumb_height'        => $thumb_height
   ];

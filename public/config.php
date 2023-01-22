@@ -54,7 +54,7 @@ define('MB_BOARDS', [
     'threads_per_catalog_page' => 50,
     'posts_per_preview' => 4,
     'truncate'          => 15,
-    'anonymous'         => 'Anonymous',
+    'anonymous'         => null,
     'max_threads'       => 100,
     'max_replies'       => 100,
     'fields_post'       => [
@@ -65,23 +65,12 @@ define('MB_BOARDS', [
       'message'   => ['required' => true,   'type' => 'string', 'max_len' => 8192 ],
       'password'  => ['required' => false,  'type' => 'string', 'max_len' => 64,  'min_len' => 8],
     ],
-    'mime_ext_types'    => [
-      'image/jpeg'          => ['jpg'],
-      'image/pjpeg'         => ['jpg'],
-      'image/png'           => ['png'],
-      'image/gif'           => ['gif'],
-      'image/bmp'           => ['bmp'],
-      'image/webp'          => ['webp'],
-      'video/mp4'           => ['mp4'],
-      'video/webm'          => ['webm']
-    ],
-    'embed_types'       => [
-      'YouTube'             => 'https://www.youtube.com/oembed?url=TINYIBEMBED&format=json'
-    ],
-    'maxkb'             => 24000,
+    'mime_ext_types'    => [],
+    'embed_types'       => [],
+    'maxkb'             => 0,
     'nofileok'          => false,
-    'max_width'         => 250,
-    'max_height'        => 250
+    'max_width'         => 0,
+    'max_height'        => 0
   ],
   'b' => [
     'id'                => 'b',
@@ -112,7 +101,8 @@ define('MB_BOARDS', [
       'image/webp'          => ['webp'],
       'video/mp4'           => ['mp4'],
       'video/webm'          => ['webm'],
-      'audio/mpeg'          => ['mp3']
+      'audio/mpeg'          => ['mp3'],
+      'application/x-shockwave-flash' => ['swf']
     ],
     'embed_types'       => [
       'YouTube'             => 'https://www.youtube.com/oembed?url=TINYIBEMBED&format=json'

@@ -1,5 +1,6 @@
 const env = process.env.NODE_ENV
 const path = require('path');
+const copy = require("copy-webpack-plugin");
 
 module.exports = {
   mode: env || 'development',
@@ -47,5 +48,15 @@ module.exports = {
     open: true,
     compress: true,
     port: 9000
-  }
+  },
+  plugins: [
+    new copy({
+      patterns: [
+        {
+          from: path.resolve(__dirname, 'node_modules', '@ruffle-rs', 'ruffle'),
+          to: path.resolve(__dirname, 'public', 'dist')
+        }
+      ]
+    })
+  ]
 }

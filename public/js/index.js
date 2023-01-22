@@ -110,6 +110,19 @@ function listener_post_thumb_link_click(event) {
 
         current.appendChild(audio);
         break;
+      case 'swf':
+        target.style.display = 'none';
+
+        const ruffle = window.RufflePlayer.newest();
+        const player = ruffle.createPlayer();
+
+        current.appendChild(player);
+        player.load({
+          url: file_href,
+          autoplay: 'on',
+          allowScriptAccess: false,
+        });
+        break;
       default:
         target.style.display = 'none';
 
@@ -145,7 +158,9 @@ function listener_post_thumb_link_click(event) {
   if (current.getAttribute('expanded') !== 'true') {
     expand(target, current, file_info[0], file_href, file_ext);
   } else {
-    shrink(target, current, file_info[0], file_ext);
+    if (file_ext !== 'swf') {
+      shrink(target, current, file_info[0], file_ext);
+    }
   }
 }
 
