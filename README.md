@@ -2,27 +2,31 @@
 
 Minimalistic imageboard software, written in PHP 8 with the help of Slim 4 micro framework.
 
-## How to install dependencies
-`$ yarn`
+# Dev commands
+
+## Install deps
+`$ yarn`  
 `$ composer install`
 
-## How to run and develop locally
+## Develop locally
 `$ docker compose up --build -d && yarn start`
 
-## How to build assets
-`$ yarn run build`
-
-## How to run tests
+## Run tests
 `$ docker compose build && docker compose run test`
 
-## How to deploy on k8s
-`$ ./k8s-deploy.sh`
+# K8s scripts
 
-## List of cool k8s tools
-- minikube
-- k9s
+## Deploy
+`$ ./scripts/k8s/apply.sh`
 
-## Screenshots
+## Update
+`$ ./scripts/k8s/rollout.sh`  
+`$ ./scripts/k8s/migrate.sh`
+
+## Destroy
+`$ ./scripts/k8s/delete.sh`
+
+# Screenshots
 
 ![Example screenshot](/.docs/screenshot.png "Example screenshot")
 *As you can see, quite a few features are yet to be implemented...*
