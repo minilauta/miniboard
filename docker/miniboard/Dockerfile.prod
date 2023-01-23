@@ -9,8 +9,8 @@ COPY docker/miniboard/php/conf.d/opcache.ini $PHP_INI_DIR/conf.d/
 ADD https://github.com/mlocati/docker-php-extension-installer/releases/latest/download/install-php-extensions /usr/local/bin/
 RUN chmod +x /usr/local/bin/install-php-extensions && \
     sync && \
-    install-php-extensions @composer opcache gd pdo pdo_mysql redis && \
-    docker-php-ext-enable opcache pdo_mysql redis
+    install-php-extensions @composer imagick opcache pdo pdo_mysql redis && \
+    docker-php-ext-enable imagick opcache pdo_mysql redis
 COPY . /app
 
 WORKDIR /app

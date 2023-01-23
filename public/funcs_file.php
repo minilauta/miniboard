@@ -109,7 +109,7 @@ function funcs_file_execute_upload(UploadedFileInterface $file, ?array $file_inf
           throw new AppException('funcs_file', 'funcs_file_execute_upload', "exiftool returned an error status: {$exiftool_status}", SC_INTERNAL_ERROR);
         }
 
-        $generated_thumb = funcs_file_generate_thumbnail($file_path, 'image/png', $thumb_file_path, $max_w, $max_h);
+        $generated_thumb = funcs_file_generate_thumbnail($file_path, 'png', $thumb_file_path, $max_w, $max_h);
         $image_width = $generated_thumb['image_width'];
         $image_height = $generated_thumb['image_height'];
         $thumb_width = $generated_thumb['thumb_width'];
@@ -134,7 +134,7 @@ function funcs_file_execute_upload(UploadedFileInterface $file, ?array $file_inf
           ->frame(FFMpeg\Coordinate\TimeCode::fromSeconds($video_duration / 4))
           ->save($thumb_file_path);
 
-        $generated_thumb = funcs_file_generate_thumbnail($thumb_file_path, 'image/png', $thumb_file_path, $max_w, $max_h);
+        $generated_thumb = funcs_file_generate_thumbnail($thumb_file_path, 'png', $thumb_file_path, $max_w, $max_h);
         $image_width = $generated_thumb['image_width'];
         $image_height = $generated_thumb['image_height'];
         $thumb_width = $generated_thumb['thumb_width'];
@@ -145,7 +145,7 @@ function funcs_file_execute_upload(UploadedFileInterface $file, ?array $file_inf
         $album_file_path = funcs_file_get_mp3_album_art($file_path, $album_file_path);
         
         if ($album_file_path != null) {
-          $generated_thumb = funcs_file_generate_thumbnail($album_file_path, 'image/png', $thumb_file_path, $max_w, $max_h);
+          $generated_thumb = funcs_file_generate_thumbnail($album_file_path, 'png', $thumb_file_path, $max_w, $max_h);
           $image_width = $generated_thumb['image_width'];
           $image_height = $generated_thumb['image_height'];
           $thumb_width = $generated_thumb['thumb_width'];
@@ -224,11 +224,10 @@ function funcs_file_strip_metadata(string $file_path): int {
 /**
  * Generates a thumbnail from input file.
  */
-function funcs_file_generate_thumbnail(string $file_path, string $file_mime, string $thumb_path, int $thumb_width, int $thumb_height): array {
-  $image = new \claviska\SimpleImage();
-  $image->fromFile($file_path);
-  $image_width = $image->getWidth();
-  $image_height = $image->getHeight();
+function funcs_file_generate_thumbnail(string $file_path, string $thumb_ext, string $thumb_path, int $thumb_width, int $thumb_height): array {
+  $image = new Imagick($file_path);
+  $image_width = $image->getImageWidth();
+  $image_height = $image->getImageHeight();
 
   // re-calculate thumb dims
   $width_ratio = $thumb_width / $image_width;
@@ -237,9 +236,9 @@ function funcs_file_generate_thumbnail(string $file_path, string $file_mime, str
   $thumb_width = floor($image_width * $scale_factor);
   $thumb_height = floor($image_height * $scale_factor);
 
-  $image
-    ->thumbnail($thumb_width, $thumb_height, 'center')
-    ->toFile($thumb_path, $file_mime, 100);
+  $image->thumbnailImage($thumb_width, $thumb_height);
+  $image->setImageFormat($thumb_ext);
+  $image->writeImage($thumb_path);
   
   return [
     'image_width'   => $image_width,

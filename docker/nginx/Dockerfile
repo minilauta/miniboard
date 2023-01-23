@@ -1,6 +1,6 @@
 FROM node:18-alpine AS build
 
-RUN apk update && apk add --no-cache openssl
+RUN apk add --no-cache openssl
 RUN openssl req -x509 -nodes -days 365 \
     -subj "/C=CA/ST=QC/O=Miniboard, Inc./CN=nginx" \
     -addext "subjectAltName=DNS:nginx" \

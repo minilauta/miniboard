@@ -9,8 +9,8 @@ COPY docker/miniboard/php/conf.d/xdebug.ini $PHP_INI_DIR/conf.d/
 ADD https://github.com/mlocati/docker-php-extension-installer/releases/latest/download/install-php-extensions /usr/local/bin/
 RUN chmod +x /usr/local/bin/install-php-extensions && \
     sync && \
-    install-php-extensions @composer gd pdo pdo_mysql xdebug redis && \
-    docker-php-ext-enable pdo_mysql xdebug redis
+    install-php-extensions @composer imagick pdo pdo_mysql xdebug redis && \
+    docker-php-ext-enable imagick pdo_mysql xdebug redis
 COPY . /app
 
 WORKDIR /app
