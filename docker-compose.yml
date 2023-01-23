@@ -22,6 +22,7 @@ services:
     ports:
       - "127.0.0.1:80:80"
     environment:
+      XDEBUG_MODE: profile
       PHP_POST_MAX_SIZE: ${PHP_POST_MAX_SIZE}
       PHP_UPLOAD_MAX_FILESIZE: ${PHP_UPLOAD_MAX_FILESIZE}
       MB_TIMEZONE: Europe/Helsinki

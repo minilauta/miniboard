@@ -5,6 +5,7 @@ WORKDIR /
 RUN apk add --no-cache bash ffmpeg exiftool
 RUN mv $PHP_INI_DIR/php.ini-development $PHP_INI_DIR/php.ini
 COPY docker/miniboard/php/conf.d/miniboard.ini $PHP_INI_DIR/conf.d/
+COPY docker/miniboard/php/conf.d/xdebug.ini $PHP_INI_DIR/conf.d/
 ADD https://github.com/mlocati/docker-php-extension-installer/releases/latest/download/install-php-extensions /usr/local/bin/
 RUN chmod +x /usr/local/bin/install-php-extensions && \
     sync && \
