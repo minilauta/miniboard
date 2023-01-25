@@ -165,9 +165,9 @@ spec:
         - name: NGINX_CLIENT_MAX_BODY_SIZE
           value: 32M
         - name: NGINX_REAL_IP_HEADER
-          value: X-Real-IP
+          value: X-Forwarded-For
         - name: NGINX_REAL_IP_VAR
-          value: $binary_remote_addr
+          value: $http_x_forwarded_for
         - name: APP_HOST
           value: miniboard-app
         - name: APP_PORT

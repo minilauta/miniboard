@@ -39,7 +39,7 @@ http {
   # NOTE: use X-Forwarded-For and "$http_x_forwarded_for" if behind proxy 
   ##
 
-  #real_ip_header ${NGINX_REAL_IP_HEADER};
+  real_ip_header ${NGINX_REAL_IP_HEADER};
   #limit_conn_zone ${NGINX_REAL_IP_VAR} zone=lc_ip:10m;
   #limit_req_zone ${NGINX_REAL_IP_VAR} zone=lr_ip:10m rate=5r/s;
 
