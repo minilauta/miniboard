@@ -108,7 +108,8 @@ define('MB_BOARDS', [
     ],
     'embed_types'       => [
       'youtube.com'     => 'https://youtube.com/oembed?format=json&url=',
-      'www.youtube.com' => 'https://youtube.com/oembed?format=json&url='
+      'www.youtube.com' => 'https://youtube.com/oembed?format=json&url=',
+      'soundcloud.com'  => 'https://soundcloud.com/oembed?format=json&url='
     ],
     'maxkb'             => 24000,
     'nofileok'          => false,

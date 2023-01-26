@@ -80,7 +80,7 @@ function listener_post_thumb_link_click(event) {
     current.setAttribute('expanded', 'false');
   };
 
-  const expand = function(target, current, file_info, file_href, file_ext) {
+  const expand = function(target, current, file_info, file_href, file_ext, file_data) {
     switch (file_ext) {
       case 'mp4':
       case 'webm':
@@ -123,6 +123,20 @@ function listener_post_thumb_link_click(event) {
           allowScriptAccess: false,
         });
         break;
+      case 'embed':
+        target.style.display = 'none';
+
+        let embed = document.createElement('div');
+        embed.innerHTML = decodeURIComponent(file_data.innerHTML);
+        embed.style.width = '33vw';
+        embed.style.maxWidth = '33vw';
+        embed.style.height = '33vh';
+        embed.style.maxHeight = '33vh';
+        embed.firstElementChild.width = '100%';
+        embed.firstElementChild.height = '100%';
+
+        current.appendChild(embed);
+        break;
       default:
         target.style.display = 'none';
 
@@ -151,15 +165,18 @@ function listener_post_thumb_link_click(event) {
     current.setAttribute('expanded', 'true');
   };
 
-  const file_info = current.parentElement.parentElement.getElementsByClassName('file-info');
+  let file_info = current.parentElement.parentElement.getElementsByClassName('file-info');
+  file_info = file_info.length > 0 ? file_info[0] : null;
+  let file_data = current.parentElement.parentElement.getElementsByClassName('file-data');
+  file_data = file_data.length > 0 ? file_data[0] : null;
   const file_href = current.href;
-  const file_ext = file_href.split('.').pop().toLowerCase();
+  let file_ext = file_data == null ? file_href.split('.').pop().toLowerCase() : 'embed';
   
   if (current.getAttribute('expanded') !== 'true') {
-    expand(target, current, file_info[0], file_href, file_ext);
+    expand(target, current, file_info, file_href, file_ext, file_data);
   } else {
     if (file_ext !== 'swf') {
-      shrink(target, current, file_info[0], file_ext);
+      shrink(target, current, file_info, file_ext);
     }
   }
 }

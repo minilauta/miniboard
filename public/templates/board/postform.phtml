@@ -67,11 +67,13 @@
   <ul class="postform-infolist">
     <?php
       $info_exts = strtoupper(implode(', ', array_unique(array_column($board['mime_ext_types'], 0))));
+      $info_embs = strtoupper(implode(', ', array_keys($board['embed_types'])));
       $info_fsize = funcs_common_human_filesize($board['maxkb'] * 1000);
       $info_msize = $board['max_width'] . 'x' . $board['max_height'];
 
       echo "
         <li>Supported file types are {$info_exts}.</li>
+        <li>Supported embed types are {$info_embs}.</li>
         <li>Maximum file size allowed is {$info_fsize}.</li>
         <li>Images greater than {$info_msize} will be thumbnailed.</li>
       ";

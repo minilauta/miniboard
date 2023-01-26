@@ -324,7 +324,7 @@ function funcs_file_execute_embed(string $url, array $embed_types, int $max_w = 
   $thumb_height = $generated_thumb['thumb_height'];
 
   return [
-    'file'                => $response['html'],
+    'file'                => rawurlencode($response['html']),
     'file_hex'            => funcs_common_clean_field($url),
     'file_original'       => funcs_common_clean_field($response['title']),
     'file_size'           => null,
