@@ -64,6 +64,7 @@ define('MB_BOARDS', [
       'subject'   => ['required' => false,  'type' => 'string', 'max_len' => 75   ],
       'message'   => ['required' => true,   'type' => 'string', 'max_len' => 8192 ],
       'password'  => ['required' => false,  'type' => 'string', 'max_len' => 64,  'min_len' => 8],
+      'embed'     => ['required' => false,  'type' => 'string', 'max_len' => 1024 ],
     ],
     'mime_ext_types'    => [],
     'embed_types'       => [],
@@ -91,6 +92,7 @@ define('MB_BOARDS', [
       'subject'   => ['required' => false,  'type' => 'string', 'max_len' => 75   ],
       'message'   => ['required' => true,   'type' => 'string', 'max_len' => 8192 ],
       'password'  => ['required' => false,  'type' => 'string', 'max_len' => 64,  'min_len' => 8],
+      'embed'     => ['required' => false,  'type' => 'string', 'max_len' => 1024 ],
     ],
     'mime_ext_types'    => [
       'image/jpeg'          => ['jpg'],
@@ -105,7 +107,8 @@ define('MB_BOARDS', [
       'application/x-shockwave-flash' => ['swf']
     ],
     'embed_types'       => [
-      'YouTube'             => 'https://www.youtube.com/oembed?url=TINYIBEMBED&format=json'
+      'youtube.com'     => 'https://youtube.com/oembed?format=json&url=',
+      'www.youtube.com' => 'https://youtube.com/oembed?format=json&url='
     ],
     'maxkb'             => 24000,
     'nofileok'          => false,
@@ -131,6 +134,7 @@ define('MB_BOARDS', [
       'subject'   => ['required' => false,  'type' => 'string', 'max_len' => 75   ],
       'message'   => ['required' => true,   'type' => 'string', 'max_len' => 8192 ],
       'password'  => ['required' => false,  'type' => 'string', 'max_len' => 64,  'min_len' => 8],
+      'embed'     => ['required' => false,  'type' => 'string', 'max_len' => 1024 ],
     ],
     'mime_ext_types'    => [
       'image/jpeg'          => ['jpg'],
@@ -143,7 +147,8 @@ define('MB_BOARDS', [
       'audio/mpeg'          => ['mp3']
     ],
     'embed_types'       => [
-      'YouTube'             => 'https://www.youtube.com/oembed?url=TINYIBEMBED&format=json'
+      'youtube.com'     => 'https://youtube.com/oembed?format=json&url=',
+      'www.youtube.com' => 'https://youtube.com/oembed?format=json&url='
     ],
     'maxkb'             => 24000,
     'nofileok'          => false,

@@ -299,9 +299,29 @@ function funcs_common_validate_captcha($input) {
   ]));
   curl_setopt($curl, CURLOPT_RETURNTRANSFER, true);
   $response = curl_exec($curl);
+  curl_close($curl);
   $response = json_decode($response);
 
   if (!isset($response->success) || !$response->success) {
     throw new AppException('funcs_common', 'validate_captcha', 'h-captcha validation failed', SC_BAD_REQUEST);
   }
+}
+
+/**
+ * Fetches file contents from target URL.
+ */
+function funcs_common_url_get_contents($url): ?string {
+	if (!function_exists('curl_init')) {
+		return file_get_contents($url);
+	}
+
+	$curl = curl_init();
+	curl_setopt($curl, CURLOPT_URL, $url);
+	curl_setopt($curl, CURLOPT_FOLLOWLOCATION, true);
+	curl_setopt($curl, CURLOPT_RETURNTRANSFER, true);
+	$result = curl_exec($curl);
+	$code = curl_getinfo($curl, CURLINFO_HTTP_CODE);
+	curl_close($curl);
+
+	return intval($code) === 200 ? $result : null;
 }

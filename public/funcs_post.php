@@ -57,6 +57,7 @@ function funcs_post_create(string $ip, array $board_cfg, ?int $parent_id, ?array
     'thumb'               => $file['thumb'],
     'thumb_width'         => $file['thumb_width'],
     'thumb_height'        => $file['thumb_height'],
+    'embed'               => $file['embed'],
     'spoiler'             => $spoiler_flag,
     'timestamp'           => $timestamp,
     'bumped'              => $timestamp,

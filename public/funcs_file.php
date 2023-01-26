@@ -74,7 +74,8 @@ function funcs_file_execute_upload(UploadedFileInterface $file, ?array $file_inf
       'image_height'        => 0,
       'thumb'               => '',
       'thumb_width'         => 0,
-      'thumb_height'        => 0
+      'thumb_height'        => 0,
+      'embed'               => 0
     ];
   }
 
@@ -194,7 +195,8 @@ function funcs_file_execute_upload(UploadedFileInterface $file, ?array $file_inf
     'image_height'        => $image_height,
     'thumb'               => $thumb_dir . $thumb_file_name,
     'thumb_width'         => $thumb_width,
-    'thumb_height'        => $thumb_height
+    'thumb_height'        => $thumb_height,
+    'embed'               => 0
   ];
 }
 
@@ -284,4 +286,54 @@ function funcs_file_get_mp3_album_art(string $file_path, string $output_path): ?
   }
 
   return $album_path;
+}
+
+function funcs_file_execute_embed(string $url, array $embed_types, int $max_w = 250, int $max_h = 250): ?array {
+  // parse embed URL
+  $url_parsed = parse_url($url);
+
+  // validate host
+  if (!array_key_exists($url_parsed['host'], $embed_types)) {
+    throw new AppException('funcs_file', 'execute_embed', "embed url host unsupported: {$url_parsed['host']}", SC_INTERNAL_ERROR);
+  }
+
+  $embed_type = $embed_types[$url_parsed['host']];
+
+  // fetch data
+  $curl = curl_init();
+  curl_setopt($curl, CURLOPT_URL, $embed_type . $url);
+  curl_setopt($curl, CURLOPT_RETURNTRANSFER, true);
+  $response = curl_exec($curl);
+  curl_close($curl);
+  $response = json_decode($response, true);
+
+  // save thumbnail
+  $thumb_file_name_tmp = time() . substr(microtime(), 2, 3);
+  $thumb_dir_tmp = sys_get_temp_dir() . '/';
+  $thumb_file_path_tmp = $thumb_dir_tmp . $thumb_file_name_tmp;
+  file_put_contents($thumb_file_path_tmp, funcs_common_url_get_contents($response['thumbnail_url']));
+
+  // process thumbnail
+  $thumb_file_name = 'thumb_' . $thumb_file_name_tmp . '.png';
+  $thumb_dir = '/src/';
+  $thumb_file_path = __DIR__ . $thumb_dir . $thumb_file_name;
+  $generated_thumb = funcs_file_generate_thumbnail($thumb_file_path_tmp, 'png', $thumb_file_path, $max_w, $max_h);
+  $image_width = $generated_thumb['image_width'];
+  $image_height = $generated_thumb['image_height'];
+  $thumb_width = $generated_thumb['thumb_width'];
+  $thumb_height = $generated_thumb['thumb_height'];
+
+  return [
+    'file'                => $response['html'],
+    'file_hex'            => funcs_common_clean_field($url),
+    'file_original'       => funcs_common_clean_field($response['title']),
+    'file_size'           => null,
+    'file_size_formatted' => null,
+    'image_width'         => $image_width,
+    'image_height'        => $image_height,
+    'thumb'               => $thumb_dir . $thumb_file_name,
+    'thumb_width'         => $thumb_width,
+    'thumb_height'        => $thumb_height,
+    'embed'               => 1
+  ];
 }

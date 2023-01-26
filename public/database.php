@@ -164,6 +164,7 @@ function insert_post($post) : int|bool {
       thumb,
       thumb_width,
       thumb_height,
+      embed,
       country,
       spoiler
     )
@@ -193,6 +194,7 @@ function insert_post($post) : int|bool {
       :thumb,
       :thumb_width,
       :thumb_height,
+      :embed,
       :country,
       :spoiler
     )
@@ -484,6 +486,7 @@ function insert_import_posts_tinyib(array $db_creds, string $table_name, string 
       CONCAT(\'/src/\', thumb) AS thumb,
       thumb_width,
       thumb_height,
+      0 AS embed,
       country_code AS country,
       0 AS spoiler,
       stickied,

@@ -1,5 +1,5 @@
 <?php
-  if (isset($post['file']) && strlen($post['file']) > 0) {
+  if (isset($post['file']) && !empty($post['file'])) {
     $thumb_src = "{$post['thumb']}";
     $thumb_width = $post['thumb_width'];
     $thumb_height = $post['thumb_height'];
@@ -10,12 +10,26 @@
     }
     $img_id = $context !== 'preview' ? "id='thumb-{$post['board_id']}-{$post['post_id']}'" : '';
 
+
+    if ($post['embed'] === 0) {
+      echo "
+        <div class='file-info'>
+          File: <a href='{$post['file']}' target='_blank'>{$post['file']}</a>
+          -
+          ({$post['file_size_formatted']}, {$post['image_width']}x{$post['image_height']}, {$post['file_original']})
+        </div>
+      ";
+    } else {
+      echo "
+        <div class='file-info'>
+          Embed: <a href='{$post['file_hex']}' target='_blank'>{$post['file_original']}</a>
+          -
+          ({$post['image_width']}x{$post['image_height']}, Embedded URL)
+        </div>
+      ";
+    }
+
     echo "
-      <div class='file-info'>
-        File: <a href='{$post['file']}'>{$post['file']}</a>
-        -
-        ({$post['file_size_formatted']}, {$post['image_width']}x{$post['image_height']}, {$post['file_original']})
-      </div>
       <div class='file-thumb'>
         <a class='file-thumb-href' href='{$post['file']}' target='_blank'>
           <img {$img_id} src='{$thumb_src}' width='{$thumb_width}' height='{$thumb_height}' loading='lazy'>

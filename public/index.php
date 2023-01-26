@@ -477,12 +477,14 @@ function handle_postform(Request $request, Response $response, array $args, stri
   }
 
   // validate request file
-  $no_file_ok = $thread_id != null ? true : $board_cfg['nofileok'];
+  $is_embed = strlen(trim($params['embed'])) > 0;
+  $no_file_ok = ($thread_id != null || $is_embed) ? true : $board_cfg['nofileok'];
   $file_info = funcs_file_validate_upload($file, $no_file_ok, $board_cfg['mime_ext_types'], $board_cfg['maxkb'] * 1000);
+  $is_file_or_embed = $is_embed || $file_info != null;
 
-  // validate request message + file
-  if (strlen(trim($params['message'])) === 0 && $file_info == null) {
-    throw new AppException('index', 'route', 'message and file cannot both be null', SC_BAD_REQUEST);
+  // validate request message + file or embed
+  if (strlen(trim($params['message'])) === 0 && !$is_file_or_embed) {
+    throw new AppException('index', 'route', 'message and file or embed cannot both be null', SC_BAD_REQUEST);
   }
 
   // check md5 file collisions
@@ -491,12 +493,18 @@ function handle_postform(Request $request, Response $response, array $args, stri
     $file_collisions = select_files_by_md5($file_info['md5']);
   }
 
-  // upload file
-  $file = funcs_file_execute_upload($file, $file_info, $file_collisions, $board_cfg['max_width'], $board_cfg['max_height']);
+  // upload file or embed url
+  $embed = null;
+  if (!$is_embed) {
+    $file = funcs_file_execute_upload($file, $file_info, $file_collisions, $board_cfg['max_width'], $board_cfg['max_height']);
+  } else {
+    $embed = funcs_file_execute_embed($params['embed'], $board_cfg['embed_types'], $board_cfg['max_width'], $board_cfg['max_height']);
+    $file_info = null;
+  }
 
   // create post
   $ip = funcs_common_get_client_remote_address(MB_CLOUDFLARE, $_SERVER);
-  $post = funcs_post_create($ip, $board_cfg, $thread_id, $file_info, $file, $params);
+  $post = funcs_post_create($ip, $board_cfg, $thread_id, $file_info, $embed ?? $file, $params);
 
   // insert post
   $inserted_post_id = insert_post($post);
