@@ -8,6 +8,12 @@ spec: # spec for pod
     image: ghcr.io/anonyymi/miniboard/flyway:latest
     imagePullPolicy: Always
     args: ["-url=jdbc:mysql://miniboard-mariadb", "-schemas=$(DB_NAME)", "-user=root", "-password=$(DB_ROOT_PASS)", "-connectRetries=60", "migrate"]
+    resources:
+      requests:
+        cpu: 250m
+        memory: 128Mi
+      limits:
+        memory: 256Mi
     env:
     - name: DB_NAME
       value: miniboard_db

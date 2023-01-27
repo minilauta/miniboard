@@ -17,6 +17,12 @@ spec: # spec for deployment
         image: mariadb:10.6
         ports:
         - containerPort: 3306
+        resources:
+          requests:
+            cpu: 250m
+            memory: 128Mi
+          limits:
+            memory: 1024Mi
         env:
         - name: MYSQL_CHARSET
           value: utf8
@@ -68,6 +74,12 @@ spec: # spec for deployment
         args: ["--save 60 1", "--loglevel verbose", "--requirepass $(REDIS_PASS)"]
         ports:
         - containerPort: 6379
+        resources:
+          requests:
+            cpu: 250m
+            memory: 128Mi
+          limits:
+            memory: 1024Mi
         env:
         - name: REDIS_PASS
           valueFrom:
@@ -91,7 +103,7 @@ spec: # spec for deployment
   selector:
     matchLabels:
       run: miniboard-app
-  replicas: 4
+  replicas: 3
   template: # blueprint for pods
     metadata:
       labels:
@@ -103,6 +115,12 @@ spec: # spec for deployment
         imagePullPolicy: Always
         ports:
         - containerPort: 9000
+        resources:
+          requests:
+            cpu: 250m
+            memory: 128Mi
+          limits:
+            memory: 1024Mi
         env:
         - name: PHP_POST_MAX_SIZE
           value: 100M
@@ -161,6 +179,12 @@ spec:
         ports:
         - containerPort: 80
         - containerPort: 443
+        resources:
+          requests:
+            cpu: 250m
+            memory: 128Mi
+          limits:
+            memory: 256Mi
         env:
         - name: NGINX_CLIENT_MAX_BODY_SIZE
           value: 32M
