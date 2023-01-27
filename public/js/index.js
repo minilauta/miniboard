@@ -1,5 +1,32 @@
 import './polyfill';
 
+// ruffle player
+window.RufflePlayer = window.RufflePlayer || {};
+window.RufflePlayer.config = {
+  // Options affecting the whole page
+  'publicPath': undefined,
+  'polyfills': false,
+
+  // Options affecting files only
+  'autoplay': 'on',
+  'unmuteOverlay': 'visible',
+  'backgroundColor': null,
+  'wmode': 'window',
+  'letterbox': 'fullscreen',
+  'warnOnUnsupportedContent': false,
+  'contextMenu': true,
+  'showSwfDownload': false,
+  'upgradeToHttps': false,
+  'maxExecutionDuration': {'secs': 15, 'nanos': 0},
+  'logLevel': 'error',
+  'base': null,
+  'menu': true,
+  'salign': '',
+  'scale': 'showAll',
+  'quality': 'high',
+  'preloader': true,
+};
+
 // app state
 var state = {
   mouse_over_post_ref_link: false
