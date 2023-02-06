@@ -1,56 +1,55 @@
 /* general */
 body {
-  background: #FFFFEE;
-  color: #800000;
+  font-family: 'Arial';
+  font-size: 13px;
+  background: #272822;
+  color: #F8F8F2;
 }
 
 hr {
-  border: 0;
-  height: 1px;
-  color: #800000;
-  background-color: #800000;
-	background-image: linear-gradient(to left, rgba(255,255,238,1), rgba(128,0,0,0.75), rgba(255,255,238,1));
+  color: #36372f;
+  background-color: #36372f;
 }
 
 a {
-  color: #0000EE;
+  color: #66D9EF;
 }
 
 a:hover {
-  color: #DD0000;
+  color: #F92672;
 }
 
 /* footer */
 
 /* board */
 div.mode {
-  background: #E04000;
+  background: #36372f;
   color: #FFFFFF;
 }
 
 /* post */
 div.post.reply div.reply {
-  background: #F0E0D6;
+  background: #36372f;
 }
 
 span.post-board {
-  color: #0000EE;
+  color: #66D9EF;
 }
 
 span.post-subject {
-  color: #CC1105;
+  color: #F92672;
 }
 
 span.post-name {
-  color: #117743;
+  color: #AE81FF;
 }
 
 span.post-trip {
-  color: #117743;
+  color: #AE81FF;
 }
 
 div.post-message span.quote {
-  color: #789922;
+  color: #A6E22E;
 }
 
 div.post-message .spoiler {
@@ -66,7 +65,7 @@ div.post-message-wrapper span.omitted {
 }
 
 span.post-catalog-subject {
-  color: #CC1105;
+  color: #F92672;
 }
 
 span.cap-admin {
@@ -74,22 +73,22 @@ span.cap-admin {
 }
 
 span.cap-mod {
-  color: #0000EE;
+  color: #66D9EF;
 }
 
 /* menubar */
 
 /* dropdown menu */
 a.dd-menu-btn {
-  color: #800000;
+  color: #F8F8F2;
 }
 
 a.dd-menu-btn:hover {
-  color: #DD0000;
+  color: #F92672;
 }
 
 div.dd-menu ul {
-  background: #F0E0D6;
+  background: #36372f;
   border: 1px solid;
   border-right-width: 2px;
 }
@@ -99,7 +98,7 @@ div.dd-menu li {
 }
 
 div.dd-menu li:hover {
-  background: #FFFFEE;
+  background: #272822;
 }
 
 /* post preview */
@@ -108,11 +107,11 @@ div.post-preview {
 }
 
 div.post-preview > div.post {
-  background: #FFFFEE;
+  background: #272822;
 }
 
 a > div.post-preview {
-  color: #800000;
+  color: #F8F8F2;
 }
 
 /* highlights (posts, etc) */
@@ -121,7 +120,12 @@ a > div.post-preview {
 }
 
 /* forms */
+.form input[type="text"], input[type="password"], textarea {
+  color: #F8F8F2;
+  background: #36372f;
+  border: 1px solid #75715E;
+}
+
 .form-label {
-  background: #EEAA88;
-  font-weight: bold;
+  background: #75715E;
 }

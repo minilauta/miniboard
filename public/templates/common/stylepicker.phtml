@@ -1,0 +1,10 @@
+<?php
+  $options = '<option value="">Style</option>';
+  foreach (MB_STYLES as $key => $val) {
+    $options .= "<option value='{$val}'>{$val}</option>";
+  }
+  
+  echo "
+    <select id='stylepicker'>{$options}</select>
+  ";
+?>

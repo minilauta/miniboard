@@ -4,11 +4,16 @@ body {
   padding: 8px;
 }
 
-div.container-centered {
+.container-centered {
   text-align: center;
 }
 
 hr {
+  clear: both;
+}
+
+/* header */
+div.header {
   clear: both;
 }
 
@@ -142,45 +147,6 @@ span.post-catalog-subject {
   font-weight: bold;
 }
 
-/* postform */
-form.postform {
-  display: inline-block;
-  text-align: left;
-}
-
-div.postform-group {
-  margin-top: 2px;
-}
-
-div.postform-group label {
-  display: inline-block;
-  width: 128px;
-  height: 23px;
-}
-
-div.postform-group label.postform-message-label {
-  vertical-align: top;
-}
-
-div.postform-group label.postform-captcha-label {
-  vertical-align: top;
-}
-
-div.postform-group div.h-captcha {
-  display: inline-block;
-  min-height: 78px;
-}
-
-ul.postform-infolist {
-  font-family: sans-serif;
-  font-size: 10px;
-  text-align: left;
-  padding: 0px;
-  margin: 0px;
-  margin-top: 2px;
-  list-style-position: inside;
-}
-
 /* deleteform */
 div.deleteform-group {
   float: right;
@@ -240,57 +206,52 @@ div.post-preview > div.post.reply > div.reply  {
   margin-bottom: 0px;
 }
 
-/* reportform */
-form.reportform select {
-  width: 100%;
-}
-
-form.reportform div.h-captcha {
-  min-height: 82px;
-}
-
-/* loginform */
-form.loginform {
-  display: inline-block;
+/* forms */
+.form {
   text-align: left;
 }
 
-div.loginform-group {
-  margin-top: 2px;
-}
-
-div.loginform-group label {
-  display: inline-block;
-  width: 128px;
-  height: 23px;
-}
-
-div.loginform-group label.loginform-captcha-label {
+.form td {
   vertical-align: top;
 }
 
-div.loginform-group div.h-captcha {
-  display: inline-block;
-  min-height: 78px;
+.form-post table {
+  margin: 0 auto;
 }
 
-/* manageform */
-fieldset.manageform-fieldset {
+.form-report table {
+  margin: 0 auto;
+}
+
+.form-login table {
+  margin: 0 auto;
+}
+
+.form-import fieldset {
   display: inline-block;
   vertical-align: top;
 }
 
-form.manageform {
+.form-rebuild fieldset {
   display: inline-block;
-  text-align: left;
+  vertical-align: top;
 }
 
-div.manageform-group {
-  margin-top: 2px;
+.form-list {
+  font-family: sans-serif;
+  font-size: x-small;
 }
 
-div.manageform-group label {
-  display: inline-block;
-  width: 128px;
-  height: 23px;
+.form-list ul {
+  margin: 0;
+  padding: 0;
+}
+
+.form-list ul li {
+  margin-left: 1em;
+}
+
+div.h-captcha {
+  min-width: 303px;
+  min-height: 81px;
 }
