@@ -120,12 +120,6 @@ a > div.post-preview {
   border: 2px dashed;
 }
 
-/* manageform */
-div.manageform-group label {
-  background: #EEAA88;
-  font-weight: bolder;
-}
-
 /* forms */
 .form-label {
   background: #EEAA88;

@@ -119,12 +119,6 @@ a > div.post-preview {
   border: 2px dashed;
 }
 
-/* manageform */
-div.manageform-group label {
-  background: #EEAA88;
-  font-weight: bolder;
-}
-
 /* forms */
 .form input[type="text"], input[type="password"], textarea {
   color: #F8F8F2;

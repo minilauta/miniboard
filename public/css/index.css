@@ -12,6 +12,11 @@ hr {
   clear: both;
 }
 
+/* header */
+div.header {
+  clear: both;
+}
+
 /* footer */
 div.footer {
   font-size: small;
@@ -201,27 +206,6 @@ div.post-preview > div.post.reply > div.reply  {
   margin-bottom: 0px;
 }
 
-/* manageform */
-fieldset.manageform-fieldset {
-  display: inline-block;
-  vertical-align: top;
-}
-
-form.manageform {
-  display: inline-block;
-  text-align: left;
-}
-
-div.manageform-group {
-  margin-top: 2px;
-}
-
-div.manageform-group label {
-  display: inline-block;
-  width: 128px;
-  height: 23px;
-}
-
 /* forms */
 .form {
   text-align: left;
@@ -231,8 +215,26 @@ div.manageform-group label {
   vertical-align: top;
 }
 
-.form table {
+.form-post table {
   margin: 0 auto;
+}
+
+.form-report table {
+  margin: 0 auto;
+}
+
+.form-login table {
+  margin: 0 auto;
+}
+
+.form-import fieldset {
+  display: inline-block;
+  vertical-align: top;
+}
+
+.form-rebuild fieldset {
+  display: inline-block;
+  vertical-align: top;
 }
 
 .form-list {
