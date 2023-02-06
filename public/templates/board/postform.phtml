@@ -31,7 +31,7 @@
           <label for="message">Message</label>
         </td>
         <td>
-          <textarea name="message" autocomplete="off" cols="48" rows="4" maxlength="8192"></textarea>
+          <textarea id="form-post-message" name="message" autocomplete="off" cols="48" rows="4" maxlength="8192"></textarea>
         </td>
       </tr>
       <?php
@@ -42,7 +42,7 @@
           echo "
             <tr>
               <td class='form-label'>
-                <label for='captcha'>Captcha</label>
+                <label for='captcha'>CAPTCHA</label>
               </td>
               <td>
                 <div class='h-captcha' data-sitekey='{$captcha}'></div>
@@ -110,7 +110,7 @@
           <label for="password">Password</label>
         </td>
         <td>
-          <input id="postform-password" type="password" name="password">
+          <input id="form-post-password" type="password" name="password">
         </td>
       </tr>
       <?php

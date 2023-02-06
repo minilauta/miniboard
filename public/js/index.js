@@ -591,7 +591,7 @@ function create_post_highlight(id) {
  * Insert a post ref to the message.
  */
 function insert_ref_to_message(id) {
-  let postform_message = document.getElementById('postform-message');
+  let postform_message = document.getElementById('form-post-message');
 
   if (postform_message == null) {
     return;
@@ -748,7 +748,7 @@ function init_location_hash_features() {
 function init_postform_features() {
   // update password fields appropriately
   let cookie_pass = get_cookie('password');
-  let postform_pass = document.getElementById('postform-password');
+  let postform_pass = document.getElementById('form-post-password');
   let deleteform_pass = document.getElementById('deleteform-password');
 
   if (postform_pass != null) {
@@ -771,6 +771,19 @@ function init_postform_features() {
   }
 }
 
+function init_stylepicker_features() {
+  const stylepicker_element = document.getElementById('stylepicker');
+  if (stylepicker_element == null) {
+    return;
+  }
+
+  let style_expires = new Date();
+  style_expires.setFullYear(style_expires.getFullYear() + 1);
+  stylepicker_element.addEventListener('change', (event) => {
+    set_cookie('style', event.target.value, 'Strict', style_expires);
+    location.reload();
+  });
+}
 
 document.addEventListener('DOMContentLoaded', function(event) {
   if (!location.pathname.includes('/catalog/')) {
@@ -793,6 +806,10 @@ document.addEventListener('DOMContentLoaded', function(event) {
     console.time('init_location_hash_features');
     init_location_hash_features();
     console.timeEnd('init_location_hash_features');
+
+    console.time('init_stylepicker_features');
+    init_stylepicker_features();
+    console.timeEnd('init_stylepicker_features');
   }
   
   console.time('init_postform_features');

@@ -41,6 +41,10 @@ define('MB_REPORT_TYPES', [
 ]);
 define('MB_CLOUDFLARE', false);
 define('MB_TRIPCODE_SALT', '#!12345_MAKE_THIS_SECURE_67890!#');
+define('MB_STYLES', [
+  'miniboard',
+  'futaba'
+]);
 
 // board settings
 define('MB_BOARDS', [
