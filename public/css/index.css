@@ -52,7 +52,6 @@ span.post-board {
 
 span.post-subject {
   font-weight: bolder;
-  font-size: large;
 }
 
 span.post-name {
@@ -84,12 +83,7 @@ div.post-info .backreference {
 }
 
 span.post-id a {
-  color: inherit;
   text-decoration: none;
-}
-
-span.post-id a:hover {
-  font-weight: bold;
 }
 
 div.post div.post-message-wrapper {
@@ -212,7 +206,7 @@ div.post-preview > div.post.reply > div.reply  {
 }
 
 .form td {
-  vertical-align: top;
+  vertical-align: middle;
 }
 
 .form-post table {

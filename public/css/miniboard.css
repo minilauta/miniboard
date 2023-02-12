@@ -69,11 +69,23 @@ span.post-catalog-subject {
 }
 
 span.cap-admin {
-  color: #FF0000;
+  color: #66D9EF;
 }
 
 span.cap-mod {
-  color: #66D9EF;
+  color: #F8F8F2;
+}
+
+span.post-id a {
+  color: inherit;
+}
+
+span.post-id a:hover {
+  color: #F92672;
+}
+
+div.post-info .backreference {
+  font-size: x-small;
 }
 
 /* menubar */
@@ -128,4 +140,6 @@ a > div.post-preview {
 
 .form-label {
   background: #75715E;
+  font-weight: 700;
+  padding: 0 5px;
 }
