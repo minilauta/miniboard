@@ -77,6 +77,14 @@ span.cap-mod {
   color: #0000EE;
 }
 
+span.post-id a {
+  color: inherit;
+}
+
+span.post-id a:hover {
+  font-weight: bold;
+}
+
 /* menubar */
 
 /* dropdown menu */
