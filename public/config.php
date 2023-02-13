@@ -44,7 +44,8 @@ define('MB_TRIPCODE_SALT', '#!12345_MAKE_THIS_SECURE_67890!#');
 define('MB_STYLES', [
   'miniboard',
   'futaba',
-  'yotsuba'
+  'yotsuba',
+  'yotsuba_blue'
 ]);
 
 // board settings

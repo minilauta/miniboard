@@ -6,7 +6,8 @@ $mb_style = 'miniboard.css';
 $mb_styles = [
   'miniboard',
   'futaba',
-  'yotsuba'
+  'yotsuba',
+  'yotsuba_blue'
 ];
 if (isset($_COOKIE["miniboard/style"])) {
   $mb_style_cookie = $_COOKIE["miniboard/style"];

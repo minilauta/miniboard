@@ -806,13 +806,13 @@ document.addEventListener('DOMContentLoaded', function(event) {
     console.time('init_location_hash_features');
     init_location_hash_features();
     console.timeEnd('init_location_hash_features');
-
-    console.time('init_stylepicker_features');
-    init_stylepicker_features();
-    console.timeEnd('init_stylepicker_features');
   }
   
   console.time('init_postform_features');
   init_postform_features();
   console.timeEnd('init_postform_features');
+
+  console.time('init_stylepicker_features');
+  init_stylepicker_features();
+  console.timeEnd('init_stylepicker_features');
 });

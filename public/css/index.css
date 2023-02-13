@@ -17,6 +17,14 @@ div.header {
   clear: both;
 }
 
+div.header h1 {
+  margin: 0;
+}
+
+div.header p {
+  margin: 0;
+}
+
 /* footer */
 div.footer {
   font-size: small;
