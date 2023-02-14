@@ -64,6 +64,8 @@ function funcs_manage_import(array $params): string {
         return "Target BOARD id '{$params['board_id']}' not found";
       }
 
+      init_post_auto_increment($params['board_id']);
+
       // execute import
       $inserted = insert_import_posts_tinyib($params, $params['table_name'], $params['board_id']);
       break;

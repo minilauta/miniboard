@@ -507,6 +507,10 @@ function handle_postform(Request $request, Response $response, array $args, stri
   $ip = funcs_common_get_client_remote_address(MB_CLOUDFLARE, $_SERVER);
   $post = funcs_post_create($ip, $board_cfg, $thread_id, $file_info, $embed ?? $file, $params);
 
+  // generate unique post_id on current board
+  init_post_auto_increment($post['board_id']);
+  $post['post_id'] = generate_post_auto_increment($post['board_id']);
+
   // insert post
   $inserted_post_id = insert_post($post);
 

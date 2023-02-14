@@ -25,6 +25,37 @@ function get_db_handle() : PDO {
 // POST related functions below
 // ----------------------------
 
+function init_post_auto_increment(string $board_id) {
+  $dbh = get_db_handle();
+  $tbl = 'posts_' . $board_id . '_serial';
+  $sth = $dbh->prepare('
+    CREATE TABLE IF NOT EXISTS ' . $tbl . ' (
+      `id` int unsigned NOT NULL auto_increment,
+      `timestamp` int unsigned NOT NULL,
+      PRIMARY KEY(`id`)
+    ) ENGINE=InnoDB
+    CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
+  ');
+  if ($sth->execute() !== TRUE) {
+    throw new DbException('init_post_auto_increment failed to create table `' . $tbl . '`');
+  }
+}
+
+function generate_post_auto_increment(string $board_id) : int|bool {
+  $dbh = get_db_handle();
+  $tbl = 'posts_' . $board_id . '_serial';
+  $sth = $dbh->prepare('
+    INSERT INTO ' . $tbl . ' (
+      timestamp
+    )
+    VALUES (
+      :timestamp
+    )
+  ');
+  $sth->execute(['timestamp' => time()]);
+  return $dbh->lastInsertId();
+}
+
 function select_post(string $board_id, int $post_id, bool $deleted = false) : array|bool {
   $dbh = get_db_handle();
   $sth = $dbh->prepare('
@@ -139,6 +170,7 @@ function insert_post($post) : int|bool {
   $dbh = get_db_handle();
   $sth = $dbh->prepare('
     INSERT INTO posts (
+      post_id,
       board_id,
       parent_id,
       ip,
@@ -168,6 +200,7 @@ function insert_post($post) : int|bool {
       country
     )
     VALUES (
+      :post_id,
       :board_id,
       :parent_id,
       INET6_ATON(:ip),

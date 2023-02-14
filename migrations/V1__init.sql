@@ -95,23 +95,6 @@ CREATE TABLE IF NOT EXISTS posts (
 ) ENGINE=InnoDB
 CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
 
-DELIMITER $$
-CREATE TRIGGER ukey_composite_auto_increment BEFORE INSERT ON posts
-FOR EACH ROW
-BEGIN
-  DECLARE last_post_id int unsigned;
-
-  IF NEW.post_id IS NULL THEN
-    SELECT MAX(post_id) INTO last_post_id FROM posts WHERE board_id = NEW.board_id;
-    IF last_post_id IS NULL THEN
-      SET NEW.post_id = 1;
-    ELSE
-      SET NEW.post_id = last_post_id + 1;
-    END IF;
-  END IF;
-END$$
-DELIMITER ;
-
 CREATE TABLE IF NOT EXISTS hides (
   `session_id` varchar(64) NOT NULL,
   `board_id` varchar(8) NOT NULL,
