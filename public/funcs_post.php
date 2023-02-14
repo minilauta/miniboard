@@ -12,9 +12,6 @@ function funcs_post_create(string $ip, array $board_cfg, ?int $parent_id, ?array
     $file['file_original'] = substr(str_shuffle('0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ'), 1, 8) . '.' . $file_info['ext'];
   }
 
-  // handle spoiler flag
-  $spoiler_flag = isset($input['spoiler']) && $input['spoiler'] == true ? 1 : 0;
-
   // render message
   $message = funcs_post_render_message($board_cfg['id'], $input['message'], $board_cfg['truncate']);
 
@@ -58,7 +55,6 @@ function funcs_post_create(string $ip, array $board_cfg, ?int $parent_id, ?array
     'thumb_width'         => $file['thumb_width'],
     'thumb_height'        => $file['thumb_height'],
     'embed'               => $file['embed'],
-    'spoiler'             => $spoiler_flag,
     'timestamp'           => $timestamp,
     'bumped'              => $timestamp,
     'ip'                  => $ip,

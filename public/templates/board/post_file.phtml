@@ -3,13 +3,7 @@
     $thumb_src = "{$post['thumb']}";
     $thumb_width = $post['thumb_width'];
     $thumb_height = $post['thumb_height'];
-    if (isset($post['spoiler']) && $post['spoiler'] == true) {
-      $thumb_src = '/static/spoiler.png';
-      $thumb_width = 250;
-      $thumb_height = 250;
-    }
     $img_id = $context !== 'preview' ? "id='thumb-{$post['board_id']}-{$post['post_id']}'" : '';
-
 
     if ($post['embed'] === 0) {
       echo "
@@ -32,7 +26,7 @@
           ({$post['image_width']}x{$post['image_height']}, Embedded URL)
         </div>
         <div class='file-thumb'>
-          <a class='file-thumb-href' href='{$post['file']}' target='_blank'>
+          <a class='file-thumb-href' href='{$post['file_hex']}' target='_blank'>
             <img {$img_id} src='{$thumb_src}' width='{$thumb_width}' height='{$thumb_height}' loading='lazy'>
           </a>
         </div>

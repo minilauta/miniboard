@@ -73,7 +73,6 @@ CREATE TABLE IF NOT EXISTS posts (
   `thumb_height` smallint(5) unsigned NULL,
   `embed` tinyint NOT NULL,
   `country` varchar(3) NULL,
-  `spoiler` tinyint NOT NULL default 0,
   `stickied` tinyint NOT NULL default 0,
   `moderated` tinyint NOT NULL default 1,
   `locked` tinyint NOT NULL default 0,

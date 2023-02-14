@@ -165,8 +165,7 @@ function insert_post($post) : int|bool {
       thumb_width,
       thumb_height,
       embed,
-      country,
-      spoiler
+      country
     )
     VALUES (
       :board_id,
@@ -195,8 +194,7 @@ function insert_post($post) : int|bool {
       :thumb_width,
       :thumb_height,
       :embed,
-      :country,
-      :spoiler
+      :country
     )
   ');
   $sth->execute($post);
@@ -245,7 +243,7 @@ function bump_thread(string $board_id, int $post_id) : bool {
   ]);
 }
 
-function select_files_by_md5(string $file_md5) : array|bool {
+function select_files_by_md5(string $file_md5, bool $spoiler) : array|bool {
   $dbh = get_db_handle();
   $sth = $dbh->prepare('
     SELECT 
@@ -259,10 +257,9 @@ function select_files_by_md5(string $file_md5) : array|bool {
       image_height,
       thumb,
       thumb_width,
-      thumb_height,
-      spoiler
+      thumb_height
     FROM posts
-    WHERE file_hex = :file_md5
+    WHERE file_hex = :file_md5 AND thumb ' . ($spoiler === true ? '' : 'NOT') . ' LIKE \'%/spoiler%.%\'
   ');
   $sth->execute([
     'file_md5' => $file_md5
@@ -453,7 +450,6 @@ function insert_import_posts_tinyib(array $db_creds, string $table_name, string 
       thumb_width,
       thumb_height,
       country,
-      spoiler,
       stickied,
       moderated,
       locked,
@@ -488,7 +484,6 @@ function insert_import_posts_tinyib(array $db_creds, string $table_name, string 
       thumb_height,
       0 AS embed,
       country_code AS country,
-      0 AS spoiler,
       stickied,
       moderated,
       locked,

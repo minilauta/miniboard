@@ -61,7 +61,7 @@ function funcs_file_validate_upload(UploadedFileInterface $input, bool $no_file_
 /**
  * Processes an uploaded file, stores the file in a persistent path and returns an array of the results.
  */
-function funcs_file_execute_upload(UploadedFileInterface $file, ?array $file_info, array $file_collisions, int $max_w = 250, int $max_h = 250): array {
+function funcs_file_execute_upload(UploadedFileInterface $file, ?array $file_info, array $file_collisions, bool $spoiler, int $max_w = 250, int $max_h = 250): array {
   // return if no file was uploaded
   if ($file_info == null) {
     return [
@@ -97,79 +97,88 @@ function funcs_file_execute_upload(UploadedFileInterface $file, ?array $file_inf
     // strip metadata from all files
     $exiftool_status = funcs_file_strip_metadata($file_path);
 
-    switch ($file_info['mime']) {
-      case 'image/jpeg':
-      case 'image/pjpeg':
-      case 'image/png':
-      case 'image/gif':
-      case 'image/bmp':
-      case 'image/webp':
-        // make exiftool success mandatory for images
-        if ($exiftool_status !== 0) {
-          unlink($file_path);
-          throw new AppException('funcs_file', 'funcs_file_execute_upload', "exiftool returned an error status: {$exiftool_status}", SC_INTERNAL_ERROR);
-        }
+    if (!$spoiler) {
+      switch ($file_info['mime']) {
+        case 'image/jpeg':
+        case 'image/pjpeg':
+        case 'image/png':
+        case 'image/gif':
+        case 'image/bmp':
+        case 'image/webp':
+          // make exiftool success mandatory for images
+          if ($exiftool_status !== 0) {
+            unlink($file_path);
+            throw new AppException('funcs_file', 'funcs_file_execute_upload', "exiftool returned an error status: {$exiftool_status}", SC_INTERNAL_ERROR);
+          }
 
-        $generated_thumb = funcs_file_generate_thumbnail($file_path, 'png', $thumb_file_path, $max_w, $max_h);
-        $image_width = $generated_thumb['image_width'];
-        $image_height = $generated_thumb['image_height'];
-        $thumb_width = $generated_thumb['thumb_width'];
-        $thumb_height = $generated_thumb['thumb_height'];
-        break;
-      case 'video/mp4':
-      case 'video/webm':
-        // make exiftool success mandatory for videos
-        if ($exiftool_status !== 0) {
-          unlink($file_path);
-          throw new AppException('funcs_file', 'funcs_file_execute_upload', "exiftool returned an error status: {$exiftool_status}", SC_INTERNAL_ERROR);
-        }
-
-        $ffprobe = FFMpeg\FFProbe::create();
-        $video_duration = $ffprobe
-          ->format($file_path)
-          ->get('duration');
-
-        $ffmpeg = FFMpeg\FFMpeg::create();
-        $video = $ffmpeg->open($file_path);
-        $video
-          ->frame(FFMpeg\Coordinate\TimeCode::fromSeconds($video_duration / 4))
-          ->save($thumb_file_path);
-
-        $generated_thumb = funcs_file_generate_thumbnail($thumb_file_path, 'png', $thumb_file_path, $max_w, $max_h);
-        $image_width = $generated_thumb['image_width'];
-        $image_height = $generated_thumb['image_height'];
-        $thumb_width = $generated_thumb['thumb_width'];
-        $thumb_height = $generated_thumb['thumb_height'];
-        break;
-      case 'audio/mpeg':
-        $album_file_path = __DIR__ . '/src/' . 'album_' . $file_name;
-        $album_file_path = funcs_file_get_mp3_album_art($file_path, $album_file_path);
-        
-        if ($album_file_path != null) {
-          $generated_thumb = funcs_file_generate_thumbnail($album_file_path, 'png', $thumb_file_path, $max_w, $max_h);
+          $generated_thumb = funcs_file_generate_thumbnail($file_path, 'png', $thumb_file_path, $max_w, $max_h);
           $image_width = $generated_thumb['image_width'];
           $image_height = $generated_thumb['image_height'];
           $thumb_width = $generated_thumb['thumb_width'];
           $thumb_height = $generated_thumb['thumb_height'];
-        } else {
-          $thumb_file_name = '';
+          break;
+        case 'video/mp4':
+          // make exiftool success mandatory for mp4
+          if ($exiftool_status !== 0) {
+            unlink($file_path);
+            throw new AppException('funcs_file', 'funcs_file_execute_upload', "exiftool returned an error status: {$exiftool_status}", SC_INTERNAL_ERROR);
+          }
+        case 'video/webm':
+          $ffprobe = FFMpeg\FFProbe::create();
+          $video_duration = $ffprobe
+            ->format($file_path)
+            ->get('duration');
+
+          $ffmpeg = FFMpeg\FFMpeg::create();
+          $video = $ffmpeg->open($file_path);
+          $video
+            ->frame(FFMpeg\Coordinate\TimeCode::fromSeconds($video_duration / 4))
+            ->save($thumb_file_path);
+
+          $generated_thumb = funcs_file_generate_thumbnail($thumb_file_path, 'png', $thumb_file_path, $max_w, $max_h);
+          $image_width = $generated_thumb['image_width'];
+          $image_height = $generated_thumb['image_height'];
+          $thumb_width = $generated_thumb['thumb_width'];
+          $thumb_height = $generated_thumb['thumb_height'];
+          break;
+        case 'audio/mpeg':
+          $album_file_path = __DIR__ . '/src/' . 'album_' . $file_name;
+          $album_file_path = funcs_file_get_mp3_album_art($file_path, $album_file_path);
+          
+          if ($album_file_path != null) {
+            $generated_thumb = funcs_file_generate_thumbnail($album_file_path, 'png', $thumb_file_path, $max_w, $max_h);
+            $image_width = $generated_thumb['image_width'];
+            $image_height = $generated_thumb['image_height'];
+            $thumb_width = $generated_thumb['thumb_width'];
+            $thumb_height = $generated_thumb['thumb_height'];
+          } else {
+            $thumb_file_name = '';
+            $image_width = 0;
+            $image_height = 0;
+            $thumb_width = 0;
+            $thumb_height = 0;
+          }
+          break;
+        case 'application/x-shockwave-flash':
+          $thumb_file_name = 'swf.png';
+          $thumb_dir = '/static/';
           $image_width = 0;
           $image_height = 0;
-          $thumb_width = 0;
-          $thumb_height = 0;
-        }
-        break;
-      case 'application/x-shockwave-flash':
-        $thumb_file_name = 'swf.png';
-        $thumb_dir = '/static/';
-        $image_width = 0;
-        $image_height = 0;
-        $thumb_width = 250;
-        $thumb_height = 250;
-        break;
-      default:
-        unlink($file_path);
-        throw new AppException('funcs_file', 'funcs_file_execute_upload', "file ext type unsupported: {$file_info['mime']}", SC_INTERNAL_ERROR);
+          $thumb_width = 250;
+          $thumb_height = 250;
+          break;
+        default:
+          unlink($file_path);
+          throw new AppException('funcs_file', 'funcs_file_execute_upload', "file ext type unsupported: {$file_info['mime']}", SC_INTERNAL_ERROR);
+      }
+    } else {
+      $image = new Imagick($file_path);
+      $image_width = $image->getImageWidth();
+      $image_height = $image->getImageHeight();
+      $thumb_file_name = 'spoiler.png';
+      $thumb_dir = '/static/';
+      $thumb_width = 250;
+      $thumb_height = 250;
     }
   } else {
     $file_name = $file_collisions[0]['file'];

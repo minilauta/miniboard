@@ -4,11 +4,6 @@
       $thumb_src = "{$post['thumb']}";
       $thumb_width = $post['thumb_width'] * 0.6;
       $thumb_height = $post['thumb_height'] * 0.6;
-      if (isset($post['spoiler']) && $post['spoiler'] == true) {
-        $thumb_src = '/static/spoiler.png';
-        $thumb_width = 150;
-        $thumb_height = 150;
-      }
 
       echo "
         <a href='/{$post['board_id']}/{$post['post_id']}'>
