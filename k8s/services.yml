@@ -5,12 +5,12 @@ metadata:
   labels:
     run: miniboard-mariadb
 spec:
-  type: ClusterIP
   ports:
   - port: 3306
     targetPort: 3306
     protocol: TCP
     name: mysql
+  clusterIP: None
   selector:
     run: miniboard-mariadb
 
@@ -22,12 +22,12 @@ metadata:
   labels:
     run: miniboard-redis
 spec:
-  type: ClusterIP
   ports:
   - port: 6379
     targetPort: 6379
     protocol: TCP
     name: redis
+  clusterIP: None
   selector:
     run: miniboard-redis
 
