@@ -24,11 +24,14 @@ jobs:
           registry: ghcr.io
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
+      - name: Get short SHA
+        run: echo "SHORT_SHA=`git rev-parse --short HEAD`" >> $GITHUB_ENV
 
       - name: Build & push (app)
         run: |
           docker buildx build \
             -t ghcr.io/anonyymi/miniboard/app:latest \
+            -t ghcr.io/anonyymi/miniboard/app:${SHORT_SHA} \
             -f docker/miniboard/Dockerfile.prod \
             --platform=linux/arm64,linux/amd64 \
             --cache-from type=gha \
@@ -39,6 +42,7 @@ jobs:
         run: |
           docker buildx build \
             -t ghcr.io/anonyymi/miniboard/nginx:latest \
+            -t ghcr.io/anonyymi/miniboard/nginx:${SHORT_SHA} \
             -f docker/nginx/Dockerfile \
             --platform=linux/arm64,linux/amd64 \
             --cache-from type=gha \
@@ -49,6 +53,7 @@ jobs:
         run: |
           docker buildx build \
             -t ghcr.io/anonyymi/miniboard/flyway:latest \
+            -t ghcr.io/anonyymi/miniboard/nginx:${SHORT_SHA} \
             -f docker/flyway/Dockerfile \
             --platform=linux/arm64,linux/amd64 \
             --cache-from type=gha \
