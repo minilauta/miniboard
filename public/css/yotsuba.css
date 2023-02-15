@@ -57,7 +57,7 @@ div.post-message span.quote {
 }
 
 div.post-message .spoiler {
-  text-shadow: 0 0 8px #000000;
+  text-shadow: 0 0 10px #000000;
 }
 
 div.post-message-wrapper span.truncated {

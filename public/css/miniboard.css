@@ -2,13 +2,14 @@
 body {
   font-family: arial,helvetica,sans-serif;
   font-size: 13px;
-  background: #272822;
+  background: #272822 linear-gradient(to bottom, #1a1a1a 0, #272822 128px) no-repeat 0 0 local;
   color: #F8F8F2;
 }
 
 hr {
-  color: #36372f;
-  background-color: #36372f;
+  border: none;
+  border-top: 1px solid #36372f;
+  height: 0;
 }
 
 a {
@@ -30,6 +31,9 @@ div.mode {
 /* post */
 div.post.reply div.reply {
   background: #36372f;
+  border: 1px solid #1a1a1a;
+  border-left: none;
+  border-top: none;
 }
 
 span.post-board {
@@ -53,7 +57,7 @@ div.post-message span.quote {
 }
 
 div.post-message .spoiler {
-  text-shadow: 0 0 8px #000000;
+  text-shadow: 0 0 10px #F8F8F2;
 }
 
 div.post-message-wrapper span.truncated {
@@ -101,25 +105,25 @@ a.dd-menu-btn:hover {
 
 div.dd-menu ul {
   background: #36372f;
-  border: 1px solid;
+  border: 1px solid #1a1a1a;
   border-right-width: 2px;
 }
 
 div.dd-menu li {
-  border-bottom: 1px solid;
+  border-bottom: 1px solid #1a1a1a;
 }
 
 div.dd-menu li:hover {
-  background: #272822;
+  background: #1a1a1a;
 }
 
 /* post preview */
-div.post-preview {
-  border: 1px solid;
-}
-
 div.post-preview > div.post {
   background: #272822;
+  border-top: 1px solid #1a1a1a !important;
+  border-left: 1px solid #1a1a1a !important;
+  border-bottom: 2px solid #1a1a1a;
+  border-right: 2px solid #1a1a1a;
 }
 
 a > div.post-preview {
@@ -128,7 +132,7 @@ a > div.post-preview {
 
 /* highlights (posts, etc) */
 .highlight {
-  border: 2px dashed;
+  border: 2px dashed #1a1a1a !important;
 }
 
 /* forms */
@@ -140,6 +144,6 @@ a > div.post-preview {
 
 .form-label {
   background: #75715E;
-  font-weight: 700;
+  border: 1px solid #1a1a1a;
   padding: 0 5px;
 }
