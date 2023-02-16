@@ -59,6 +59,15 @@ metadata:
 `$ kubectl -n ingress get pods`  
 `$ kubectl -n ingress logs nginx-ingress-microk8s-controller-mftjp | grep reload`  
 
+# K8s volumes
+
+By default, the persistent volumes created by the claims have retain policy set to `Delete`. To change this, manually patch the volumes using kubectl.
+
+### Commands
+
+`$ kubectl get pv`  
+`$ kubectl patch pv <your-pv-name> -p '{"spec":{"persistentVolumeReclaimPolicy":"Retain"}}'`  
+
 # Screenshots
 
 ![Example screenshot](/.docs/screenshot.png "Example screenshot")
