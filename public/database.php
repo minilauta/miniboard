@@ -458,8 +458,8 @@ function insert_import_posts_tinyib(array $db_creds, string $table_name, string 
   $sth = $dbh->prepare('
     INSERT INTO ' . MB_DB_NAME . '.posts (
       post_id,
-      board_id,
       parent_id,
+      board_id,
       ip,
       timestamp,
       bumped,
@@ -482,6 +482,7 @@ function insert_import_posts_tinyib(array $db_creds, string $table_name, string 
       thumb,
       thumb_width,
       thumb_height,
+      embed,
       country,
       stickied,
       moderated,
@@ -491,8 +492,8 @@ function insert_import_posts_tinyib(array $db_creds, string $table_name, string 
     )
     SELECT
       id,
-      :board_id AS board_id,
       parent AS parent_id,
+      :board_id AS board_id,
       INET6_ATON(\'127.0.0.1\'),
       timestamp,
       bumped,
@@ -505,7 +506,11 @@ function insert_import_posts_tinyib(array $db_creds, string $table_name, string 
       message AS message_rendered,
       NULL AS message_truncated,
       password,
-      CONCAT(\'/src/\', CAST(file AS varchar(1024))) AS file,
+      (CASE
+        WHEN file LIKE \'%iframe%\' THEN file
+        WHEN file != \'\' THEN CONCAT(\'/src/\', file)
+        ELSE \'\'
+      END) AS file,
       file_hex,
       file_original,
       file_size,
@@ -515,7 +520,10 @@ function insert_import_posts_tinyib(array $db_creds, string $table_name, string 
       CONCAT(\'/src/\', thumb) AS thumb,
       thumb_width,
       thumb_height,
-      0 AS embed,
+      (CASE
+        WHEN file LIKE \'%iframe%\' THEN 1
+        ELSE 0
+      END) AS embed,
       country_code AS country,
       stickied,
       moderated,

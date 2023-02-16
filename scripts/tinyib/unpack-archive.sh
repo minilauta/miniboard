@@ -8,6 +8,6 @@
 
 for i in ${2//,/ }
 do
-    tar -xvzf "tinyib_${i}_thumb.tar.gz" -C "$1"
-    tar -xvzf "tinyib_${i}_src.tar.gz" -C "$1"
+    tar -xvzf "tinyib_${i}_thumb.tar.gz" --transform="s/.*\///" -C "$1"
+    tar -xvzf "tinyib_${i}_src.tar.gz" --transform="s/.*\///" -C "$1"
 done
