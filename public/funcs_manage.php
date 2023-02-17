@@ -64,10 +64,14 @@ function funcs_manage_import(array $params): string {
         return "Target BOARD id '{$params['board_id']}' not found";
       }
 
+      // init auto increment table
       init_post_auto_increment($params['board_id']);
 
       // execute import
       $inserted = insert_import_posts_tinyib($params, $params['table_name'], $params['board_id']);
+
+      // refresh auto increment table
+      refresh_post_auto_increment($params['board_id']);
       break;
     default:
       return "Unsupported table_type '{$params['table_type']}'";
@@ -107,13 +111,20 @@ function funcs_manage_rebuild(array $params): string {
     $nameblock = funcs_post_render_nameblock($name, $post['tripcode'], $email, $post['role'], $post['timestamp']);
     $message = funcs_post_render_message($params['board_id'], $message, $board_cfg['truncate']);
 
+    // render file
+    $file = $post['file'];
+    if ($post['embed'] === 1) {
+      $file = rawurlencode($file);
+    }
+
     // update post
     $rebuild_post = [
       'post_id' => $post['post_id'],
       'board_id' => $post['board_id'],
       'message_rendered' => $message['rendered'],
       'message_truncated' => $message['truncated'],
-      'nameblock' => $nameblock
+      'nameblock' => $nameblock,
+      'file_rendered' => $file
     ];
     if (!update_rebuild_post($rebuild_post)) {
       return "Failed to rebuild post /{$post['board_id']}/{$post['post_id']}/, processed {$processed}/{$total}";

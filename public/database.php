@@ -56,6 +56,27 @@ function generate_post_auto_increment(string $board_id) : int|bool {
   return $dbh->lastInsertId();
 }
 
+function refresh_post_auto_increment(string $board_id) {
+  $dbh = get_db_handle();
+
+  // get next auto_increment id
+  $sth = $dbh->prepare('SELECT MAX(post_id) FROM posts WHERE board_id = :board_id');
+  $sth->execute(['board_id' => $board_id]);
+  $auto_increment_id = $sth->fetchColumn();
+  if ($auto_increment_id == NULL) {
+    $auto_increment_id = 1;
+  } else {
+    $auto_increment_id++;
+  }
+
+  // set next auto_increment id
+  $tbl = 'posts_' . $board_id . '_serial';
+  $sth = $dbh->prepare('ALTER TABLE ' . $tbl . ' AUTO_INCREMENT = ' . $auto_increment_id);
+  if ($sth->execute() !== TRUE) {
+    throw new DbException('refresh_post_auto_increment failed to alter table `' . $tbl . '`');
+  }
+}
+
 function select_post(string $board_id, int $post_id, bool $deleted = false) : array|bool {
   $dbh = get_db_handle();
   $sth = $dbh->prepare('
@@ -187,6 +208,7 @@ function insert_post($post) : int|bool {
       message_truncated,
       password,
       file,
+      file_rendered,
       file_hex,
       file_original,
       file_size,
@@ -217,6 +239,7 @@ function insert_post($post) : int|bool {
       :message_truncated,
       :password,
       :file,
+      :file_rendered,
       :file_hex,
       :file_original,
       :file_size,
@@ -282,6 +305,7 @@ function select_files_by_md5(string $file_md5, bool $spoiler) : array|bool {
     SELECT 
       post_id,
       file,
+      file_rendered,
       file_hex,
       file_original,
       file_size,
@@ -473,6 +497,7 @@ function insert_import_posts_tinyib(array $db_creds, string $table_name, string 
       message_truncated,
       password,
       file,
+      file_rendered,
       file_hex,
       file_original,
       file_size,
@@ -511,6 +536,7 @@ function insert_import_posts_tinyib(array $db_creds, string $table_name, string 
         WHEN file != \'\' THEN CONCAT(\'/src/\', file)
         ELSE \'\'
       END) AS file,
+      \'\' AS file_rendered,
       file_hex,
       file_original,
       file_size,
@@ -544,7 +570,7 @@ function insert_import_posts_tinyib(array $db_creds, string $table_name, string 
 function select_rebuild_posts(string $board_id) : array|bool {
   $dbh = get_db_handle();
   $sth = $dbh->prepare('
-    SELECT post_id, board_id, timestamp, role, name, email, tripcode, message, imported FROM posts
+    SELECT post_id, board_id, timestamp, role, name, email, tripcode, message, file, embed, imported FROM posts
     WHERE board_id = :board_id
   ');
   $sth->execute([
@@ -560,7 +586,8 @@ function update_rebuild_post(array $rebuild_post) : bool {
     SET
       message_rendered = :message_rendered,
       message_truncated = :message_truncated,
-      nameblock = :nameblock
+      nameblock = :nameblock,
+      file_rendered = :file_rendered
     WHERE
       board_id = :board_id AND post_id = :post_id
   ');

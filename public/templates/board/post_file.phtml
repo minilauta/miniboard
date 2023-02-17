@@ -1,5 +1,5 @@
 <?php
-  if (isset($post['file']) && !empty($post['file'])) {
+  if (isset($post['file_rendered']) && !empty($post['file_rendered'])) {
     $thumb_src = "{$post['thumb']}";
     $thumb_width = $post['thumb_width'];
     $thumb_height = $post['thumb_height'];
@@ -8,12 +8,12 @@
     if ($post['embed'] === 0) {
       echo "
         <div class='file-info'>
-          File: <a href='{$post['file']}' target='_blank'>{$post['file']}</a>
+          File: <a href='{$post['file_rendered']}' target='_blank'>{$post['file_rendered']}</a>
           -
           ({$post['file_size_formatted']}, {$post['image_width']}x{$post['image_height']}, {$post['file_original']})
         </div>
         <div class='file-thumb'>
-          <a class='file-thumb-href' href='{$post['file']}' target='_blank'>
+          <a class='file-thumb-href' href='{$post['file_rendered']}' target='_blank'>
             <img {$img_id} src='{$thumb_src}' width='{$thumb_width}' height='{$thumb_height}' loading='lazy'>
           </a>
         </div>
@@ -30,7 +30,7 @@
             <img {$img_id} src='{$thumb_src}' width='{$thumb_width}' height='{$thumb_height}' loading='lazy'>
           </a>
         </div>
-        <div class='file-data' style='display:none;'>{$post['file']}</div>
+        <div class='file-data' style='display:none;'>{$post['file_rendered']}</div>
       ";
     }
   }

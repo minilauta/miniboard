@@ -66,6 +66,7 @@ function funcs_file_execute_upload(UploadedFileInterface $file, ?array $file_inf
   if ($file_info == null) {
     return [
       'file'                => '',
+      'file_rendered'       => '',
       'file_hex'            => '',
       'file_original'       => '',
       'file_size'           => 0,
@@ -196,6 +197,7 @@ function funcs_file_execute_upload(UploadedFileInterface $file, ?array $file_inf
 
   return [
     'file'                => $file_dir . $file_name,
+    'file_rendered'       => $file_dir . $file_name,
     'file_hex'            => $file_hex,
     'file_original'       => $file_name_client,
     'file_size'           => $file_size,
@@ -333,7 +335,8 @@ function funcs_file_execute_embed(string $url, array $embed_types, int $max_w = 
   $thumb_height = $generated_thumb['thumb_height'];
 
   return [
-    'file'                => rawurlencode($response['html']),
+    'file'                => $response['html'],
+    'file_rendered'       => rawurlencode($response['html']),
     'file_hex'            => funcs_common_clean_field($url),
     'file_original'       => funcs_common_clean_field($response['title']),
     'file_size'           => null,

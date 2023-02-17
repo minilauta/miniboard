@@ -412,9 +412,11 @@ function handle_deleteform(Request $request, Response $response, array $args): R
       continue;
     }
 
-    // verify password
-    if (funcs_common_verify_password($params['password'], $post['password']) !== true) {
-      continue;
+    // verify password but skip for mods
+    if (!funcs_manage_is_logged_in()) {
+      if (funcs_common_verify_password($params['password'], $post['password']) !== true) {
+        continue;
+      }
     }
 
     // delete post

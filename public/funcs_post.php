@@ -45,6 +45,7 @@ function funcs_post_create(string $ip, array $board_cfg, ?int $parent_id, ?array
     'message_truncated'   => $message['truncated'],
     'password'            => (isset($input['password']) && strlen($input['password']) > 0) ? funcs_common_hash_password($input['password']) : null,
     'file'                => $file['file'],
+    'file_rendered'       => $file['file_rendered'],
     'file_hex'            => $file['file_hex'],
     'file_original'       => funcs_common_clean_field($file['file_original']),
     'file_size'           => $file['file_size'],

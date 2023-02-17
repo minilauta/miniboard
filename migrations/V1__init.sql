@@ -62,6 +62,7 @@ CREATE TABLE IF NOT EXISTS posts (
   `message_truncated` text NULL,
   `password` text NULL,
   `file` text NULL,
+  `file_rendered` text NULL,
   `file_hex` varchar(75) NULL,
   `file_original` varchar(256) NULL,
   `file_size` int unsigned NULL,
