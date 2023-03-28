@@ -32,6 +32,36 @@
 
           echo $this->fetch('manage/rebuildform.phtml');
           break;
+        case 'posts':
+          // set constants
+          $posts_per_page = 50;
+
+          // get posts
+          $posts = select_all_posts(true, $posts_per_page * $page, $posts_per_page);
+
+          // get reply counts
+          foreach ($posts as $key => &$post) {
+            if ($post['parent_id'] !== 0) {
+              continue;
+            }
+
+            $post['replies_n'] = count_posts(session_id(), $post['board_id'], $post['post_id'], false, false);
+          }
+
+          // get post count
+          $posts_n = count_all_posts();
+
+          // calculate page count
+          $page_n = ceil($posts_n / $posts_per_page);
+
+          echo $this->fetch('manage/modform.phtml', [
+            'posts' => $posts,
+            'page' => $page,
+            'page_n' => $page_n
+          ]);
+          echo $this->fetch('common/pagetable.phtml', ['page' => $page, 'page_n' => $page_n]);
+          break;
+        case 'status':
         default: echo 'Default route'; break;
       }
     ?>

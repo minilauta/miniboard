@@ -38,11 +38,13 @@ $app->get('/manage/', function (Request $request, Response $response, array $arg
     $query_params = $request->getQueryParams();
     $query_route = funcs_common_parse_input_str($query_params, 'route', '');
     $query_status = funcs_common_parse_input_str($query_params, 'status', '');
+    $query_page = funcs_common_parse_input_int($query_params, 'page', 0, 0, 1000);
 
     // render page
     $renderer = new PhpRenderer('templates/', [
       'route' => $query_route,
-      'status' => $query_status
+      'status' => $query_status,
+      'page' => $query_page,
     ]);
     return $renderer->render($response, 'manage.phtml');
   }
@@ -408,7 +410,7 @@ function handle_deleteform(Request $request, Response $response, array $args): R
 
     // get post
     $post = select_post($delete_board_id, $delete_post_id);
-    if ($post == null || $post['password'] == null) {
+    if ($post == null) {
       continue;
     }
 

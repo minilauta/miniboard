@@ -441,6 +441,29 @@ function update_account(array $account): bool {
   ]);
 }
 
+function select_all_posts(bool $desc = true, int $offset = 0, int $limit = 10) : array|bool {
+  $dbh = get_db_handle();
+  $sth = $dbh->prepare('
+    SELECT * FROM posts
+    ORDER BY stickied DESC, bumped ' . ($desc === true ? 'DESC' : 'ASC') . '
+    LIMIT :limit OFFSET :offset
+  ');
+  $sth->execute([
+    'limit' => $limit,
+    'offset' => $offset
+  ]);
+  return $sth->fetchAll();
+}
+
+function count_all_posts() : int|bool {
+  $dbh = get_db_handle();
+  $sth = $dbh->prepare('
+    SELECT COUNT(*) FROM posts
+  ');
+  $sth->execute();
+  return $sth->fetchColumn();
+}
+
 
 // MANAGE/IMPORT related functions below
 // -------------------------------------

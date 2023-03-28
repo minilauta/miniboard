@@ -1,0 +1,11 @@
+<form id="modform" class="modform" method="post" action="/<?=$board['id']?>/delete">
+  <?php
+    foreach ($posts as $post) {
+      if ($post['parent_id'] === 0) {
+        echo $this->fetch('manage/post_op.phtml', ['post' => $post]) . '<hr>';
+      } else {
+        echo $this->fetch('manage/post_reply.phtml', ['post' => $post]) . '<hr>';
+      }
+    }
+  ?>
+</form>

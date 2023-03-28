@@ -1,0 +1,28 @@
+<div class="post reply">
+  <div class="reply <?php echo $post['deleted'] ? 'deleted' : '' ?>" id="<?=$post['board_id']?>-<?=$post['post_id']?>" data-parent_id="<?=$post['parent_id']?>">
+    <div class="post-info">
+      <label>
+        <input type="checkbox" name="delete[]" value="<?=$post['board_id']?>/<?=$post['post_id']?>">
+        <span class="post-subject"><?=$post['subject']?></span>
+        <?=$post['nameblock']?>
+      </label>
+      <span class="post-id">
+        <a href="/<?=$post['board_id']?>/<?=$post['parent_id']?>/#<?=$post['board_id']?>-<?=$post['post_id']?>">No.</a><a href="/<?=$post['board_id']?>/<?=$post['parent_id']?>/#q<?=$post['post_id']?>"><?=$post['post_id']?></a>
+      </span>
+      <a href="#" class="dd-menu-btn" data-board_id="<?=$post['board_id']?>" data-parent_id="<?=$post['parent_id']?>" data-id="<?=$post['post_id']?>" data-cmd="post-menu">▶</a>
+    </div>
+    <?=$this->fetch('board/post_file.phtml', ['context' => 'normal', 'post' => $post])?>
+    <div class="post-message-wrapper">
+      <div class="post-message">
+        <?php
+          if (!isset($post['message_truncated'])) {
+            echo $post['message_rendered'];
+          } else {
+            echo $post['message_truncated'];
+            echo '<br><span class="truncated">Post truncated. Click reply to view.</span><br>';
+          }
+        ?>
+      </div>
+    </div>
+  </div>
+</div>

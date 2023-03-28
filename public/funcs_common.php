@@ -214,7 +214,7 @@ function funcs_common_hash_password(string $input): string {
 /**
  * Verifies a password against an ecrypted password.
  */
-function funcs_common_verify_password(string $input, string $hash): bool {
+function funcs_common_verify_password(string $input, ?string $hash): bool {
   return password_verify($input, $hash);
 }
 

@@ -257,3 +257,8 @@ div.h-captcha {
   min-width: 303px;
   min-height: 81px;
 }
+
+/* manage */
+.deleted {
+  filter: grayscale();
+}
