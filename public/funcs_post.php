@@ -28,13 +28,19 @@ function funcs_post_create(string $ip, array $board_cfg, ?int $parent_id, ?array
   $email = funcs_common_clean_field($input['email']);
   $timestamp = time();
 
+  // handle capcode flag
+  $role = null;
+  if (funcs_manage_is_logged_in() && isset($input['capcode']) && $input['capcode'] == true) {
+    $role = funcs_manage_get_role();
+  }
+
   // render nameblock
-  $nameblock = funcs_post_render_nameblock($name_trip[0], $name_trip[1], $email, funcs_manage_get_role(), $timestamp);
+  $nameblock = funcs_post_render_nameblock($name_trip[0], $name_trip[1], $email, $role, $timestamp);
 
   return [
     'board_id'            => $board_cfg['id'],
     'parent_id'           => $parent_id != null ? $parent_id : 0,
-    'role'                => funcs_manage_get_role(),
+    'role'                => $role,
     'name'                => $name_trip[0],
     'tripcode'            => $name_trip[1],
     'nameblock'           => $nameblock,
