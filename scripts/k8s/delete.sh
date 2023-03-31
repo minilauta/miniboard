@@ -18,6 +18,7 @@ if [[ "$CONTINUE" = "y" ]]; then
     kubectl delete -f k8s/statefulsets.yml  --namespace=miniboard
     kubectl delete -f k8s/services.yml      --namespace=miniboard
     kubectl delete -f k8s/volumes.yml       --namespace=miniboard
+    kubectl delete -f k8s/configmaps.yml    --namespace=miniboard
     kubectl delete -f k8s/secrets.yml       --namespace=miniboard
 else
     echo "Cancelled..."

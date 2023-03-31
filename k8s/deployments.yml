@@ -55,10 +55,19 @@ spec: # spec for deployment
         volumeMounts:
         - name: miniboard-app-pv
           mountPath: /app/public/src
+        - name: miniboard-app-config
+          mountPath: /app/public/config.php
+          subPath: config.php
       volumes:
       - name: miniboard-app-pv
         persistentVolumeClaim:
           claimName: miniboard-app-pv-claim
+      - name: miniboard-app-config
+        configMap:
+          name: miniboard-app-config
+          items:
+          - key: config.php
+            path: config.php
 
 ---
 apiVersion: apps/v1
