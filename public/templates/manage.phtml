@@ -34,17 +34,20 @@
           break;
         case 'posts':
           // set constants
-          $posts_per_page = 50;
+          $posts_per_page = 25;
 
           // get posts
           $posts = select_all_posts(true, $posts_per_page * $page, $posts_per_page);
 
-          // get reply counts
+          // process posts
           foreach ($posts as $key => &$post) {
+            $post['ip_rendered'] = funcs_manage_get_role() === MB_ROLE_SUPERADMIN ? $post['ip_str'] : '<s>REDACTED</s>';
+
             if ($post['parent_id'] !== 0) {
               continue;
             }
 
+            $post['replies'] = [];
             $post['replies_n'] = count_posts(session_id(), $post['board_id'], $post['post_id'], false, false);
           }
 
@@ -61,8 +64,40 @@
           ]);
           echo $this->fetch('common/pagetable.phtml', ['page' => $page, 'page_n' => $page_n]);
           break;
-        case 'status':
-        default: echo 'Default route'; break;
+        case 'reports':
+        default:
+          // set constants
+          $reports_per_page = 25;
+
+          // get reports
+          $reports = select_all_reports(true, $reports_per_page * $page, $reports_per_page);
+
+          // process reports
+          foreach ($reports as $key => &$report) {
+            $report['r_ip_rendered'] = funcs_manage_get_role() === MB_ROLE_SUPERADMIN ? $report['r_ip_str'] : '<s>REDACTED</s>';
+            $report['ip_rendered'] = funcs_manage_get_role() === MB_ROLE_SUPERADMIN ? $report['ip_str'] : '<s>REDACTED</s>';
+
+            if ($report['parent_id'] !== 0) {
+              continue;
+            }
+
+            $report['replies'] = [];
+            $report['replies_n'] = count_posts(session_id(), $report['board_id'], $report['post_id'], false, false);
+          }
+
+          // get report count
+          $reports_n = count_all_reports();
+
+          // calculate page count
+          $page_n = ceil($reports_n / $reports_per_page);
+
+          echo $this->fetch('manage/reportform.phtml', [
+            'reports' => $reports,
+            'page' => $page,
+            'page_n' => $page_n
+          ]);
+          echo $this->fetch('common/pagetable.phtml', ['page' => $page, 'page_n' => $page_n]);
+          break;
       }
     ?>
     <hr>

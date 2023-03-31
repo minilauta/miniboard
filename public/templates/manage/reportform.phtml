@@ -1,0 +1,52 @@
+<form id="reportform" class="reportform" method="post">
+  <table>
+    <thead>
+      <tr>
+        <th>id</th>
+        <th>ip</th>
+        <th>timestamp</th>
+        <th>board_id</th>
+        <th>post_id</th>
+        <th>type</th>
+        <th>imported</th>
+        <th>post_ip</th>
+        <th>post_deleted</th>
+        <th>post_imported</th>
+        <th>preview</th>
+      </tr>
+    </thead>
+    <tbody>
+      <?php
+        foreach ($reports as $report) {
+          $preview = '';
+          if ($report['parent_id'] === 0) {
+            $preview = $this->fetch('board/post_preview_op.phtml', ['post' => $report]);
+          } else {
+            $preview = $this->fetch('board/post_preview_reply.phtml', ['post' => $report]);
+          }
+
+          $timestamp = strftime(MB_DATEFORMAT, $report['r_timestamp']);
+          $imported = $report['r_imported'] === 1 ? '<b>TRUE</b>' : 'FALSE';
+          $post_deleted = $report['deleted'] === 1 ? '<b>TRUE</b>' : 'FALSE';
+          $post_imported = $report['imported'] === 1 ? '<b>TRUE</b>' : 'FALSE';
+
+          echo "
+            <tr>
+              <td>{$report['r_id']}</td>
+              <td>{$report['r_ip_rendered']}</td>
+              <td>{$timestamp}</td>
+              <td>/{$report['r_board_id']}/</td>
+              <td>{$report['r_post_id']}</td>
+              <td>{$report['r_type']}</td>
+              <td>{$imported}</td>
+              <td>{$report['ip_rendered']}</td>
+              <td>{$post_deleted}</td>
+              <td>{$post_imported}</td>
+              <td>{$preview}</td>
+            </tr>
+          ";
+        }
+      ?>
+    </tbody>
+  </table>
+</form>

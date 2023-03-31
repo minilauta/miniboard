@@ -259,6 +259,20 @@ div.h-captcha {
 }
 
 /* manage */
-.deleted {
-  filter: grayscale();
+.modform th {
+  text-align: left;
+}
+
+.modform td {
+  text-align: left;
+  vertical-align: top;
+}
+
+.reportform th {
+  text-align: left;
+}
+
+.reportform td {
+  text-align: left;
+  vertical-align: top;
 }

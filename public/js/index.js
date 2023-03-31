@@ -786,7 +786,7 @@ function init_stylepicker_features() {
 }
 
 document.addEventListener('DOMContentLoaded', function(event) {
-  if (!location.pathname.includes('/catalog/')) {
+  if (!location.pathname.includes('/catalog/') && !location.pathname.includes('/manage/')) {
     console.time('init_post_thumb_links');
     init_post_thumb_links();
     console.timeEnd('init_post_thumb_links');

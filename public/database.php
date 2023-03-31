@@ -444,8 +444,11 @@ function update_account(array $account): bool {
 function select_all_posts(bool $desc = true, int $offset = 0, int $limit = 10) : array|bool {
   $dbh = get_db_handle();
   $sth = $dbh->prepare('
-    SELECT * FROM posts
-    ORDER BY stickied DESC, bumped ' . ($desc === true ? 'DESC' : 'ASC') . '
+    SELECT
+      *,
+      INET6_NTOA(ip) AS ip_str
+    FROM posts
+    ORDER BY bumped ' . ($desc === true ? 'DESC' : 'ASC') . '
     LIMIT :limit OFFSET :offset
   ');
   $sth->execute([
@@ -459,6 +462,41 @@ function count_all_posts() : int|bool {
   $dbh = get_db_handle();
   $sth = $dbh->prepare('
     SELECT COUNT(*) FROM posts
+  ');
+  $sth->execute();
+  return $sth->fetchColumn();
+}
+
+function select_all_reports(bool $desc = true, int $offset = 0, int $limit = 10) : array|bool {
+  $dbh = get_db_handle();
+  $sth = $dbh->prepare('
+    SELECT
+      r.id AS r_id,
+      r.ip AS r_ip,
+      r.timestamp AS r_timestamp,
+      r.board_id AS r_board_id,
+      r.post_id AS r_post_id,
+      r.type AS r_type,
+      r.imported AS r_imported,
+      INET6_NTOA(r.ip) AS r_ip_str,
+      p.*,
+      INET6_NTOA(p.ip) AS ip_str
+    FROM reports AS r
+    INNER JOIN posts AS p ON r.board_id = p.board_id AND r.post_id = p.post_id
+    ORDER BY r.timestamp ' . ($desc === true ? 'DESC' : 'ASC') . ', id
+    LIMIT :limit OFFSET :offset
+  ');
+  $sth->execute([
+    'limit' => $limit,
+    'offset' => $offset
+  ]);
+  return $sth->fetchAll();
+}
+
+function count_all_reports() : int|bool {
+  $dbh = get_db_handle();
+  $sth = $dbh->prepare('
+    SELECT COUNT(*) FROM reports
   ');
   $sth->execute();
   return $sth->fetchColumn();
