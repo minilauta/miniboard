@@ -760,7 +760,7 @@ function init_postform_features() {
     }
 
     let cookie_pass_expires = new Date();
-    cookie_pass_expires.setFullYear(cookie_pass_expires.getFullYear() + 1);
+    cookie_pass_expires.setFullYear(cookie_pass_expires.getFullYear() + 10);
     postform_pass.addEventListener('input', function(event) {
       set_cookie('password', event.target.value, 'Strict', cookie_pass_expires);
       
@@ -778,7 +778,7 @@ function init_stylepicker_features() {
   }
 
   let style_expires = new Date();
-  style_expires.setFullYear(style_expires.getFullYear() + 1);
+  style_expires.setFullYear(style_expires.getFullYear() + 10);
   stylepicker_element.addEventListener('change', (event) => {
     set_cookie('style', event.target.value, 'Strict', style_expires);
     location.reload();

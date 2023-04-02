@@ -6,12 +6,12 @@ use Psr\Http\Server\RequestHandlerInterface as RequestHandler;
 
 $session_middleware = function(Request $request, RequestHandler $handler) : Response {
   session_set_cookie_params([
-    'lifetime' => 31536000,
+    'lifetime' => 315360000,
     'path' => '/',
     'domain' => '',
     'secure' => false,
     'httponly' => false,
-    'samesite' => 'Lax'
+    'samesite' => 'Strict'
   ]);
   session_start();
 
