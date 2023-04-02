@@ -91,6 +91,18 @@ function select_post(string $board_id, int $post_id, bool $deleted = false) : ar
   return $sth->fetch();
 }
 
+function select_last_post_by_ip(string $ip) : array|bool {
+  $dbh = get_db_handle();
+  $sth = $dbh->prepare('
+    SELECT * FROM posts
+    WHERE ip = INET6_ATON(:ip)
+    ORDER BY timestamp DESC
+    LIMIT 1
+  ');
+  $sth->execute(['ip' => $ip]);
+  return $sth->fetch();
+}
+
 function select_posts(string $session_id, ?string $board_id, int $parent_id = 0, bool $desc = true, int $offset = 0, int $limit = 10, bool $hidden = false, bool $deleted = false) : array|bool {
   $dbh = get_db_handle();
   $sth = null;

@@ -47,6 +47,7 @@ define('MB_STYLES', [
   'yotsuba',
   'yotsuba_blue'
 ]);
+define('MB_DELAY', 15);
 
 // board settings
 define('MB_BOARDS', [

@@ -445,12 +445,10 @@ function handle_postform(Request $request, Response $response, array $args, stri
   // get board config
   $board_cfg = funcs_common_get_board_cfg($args['board_id']);
 
-  // validate captcha (skip for logged in users)
-  if (!funcs_manage_is_logged_in()) {
-    if (MB_CAPTCHA_THREAD && $context === 'board' || MB_CAPTCHA_REPLY && $context === 'thread') {
-      funcs_common_validate_captcha($params);
-    }
-  }
+  // get user info
+  $user_ip = funcs_common_get_client_remote_address(MB_CLOUDFLARE, $_SERVER);
+  $user_last_post_by_ip = select_last_post_by_ip($user_ip);
+  $user_is_logged_in = funcs_manage_is_logged_in();
 
   // validate request fields
   funcs_common_validate_fields($params, $board_cfg['fields_post']);
@@ -467,6 +465,22 @@ function handle_postform(Request $request, Response $response, array $args, stri
 
     // validate request fields
     funcs_common_validate_fields($params, $board_cfg['fields_post']);
+  }
+
+  // validate captcha (skip for logged in users)
+  if (!$user_is_logged_in) {
+    if (MB_CAPTCHA_THREAD && $context === 'board' || MB_CAPTCHA_REPLY && $context === 'thread') {
+      funcs_common_validate_captcha($params);
+    }
+  }
+
+  // validate delay (skip for logged in users)
+  if (!$user_is_logged_in && MB_DELAY > 0 && $user_last_post_by_ip != null) {
+    $delay_in_seconds = time() - $user_last_post_by_ip['timestamp'];
+    $cooldown_in_seconds = MB_DELAY - $delay_in_seconds;
+    if ($delay_in_seconds < MB_DELAY) {
+      throw new AppException('index', 'route', "please wait a moment before posting again, you will be able to post in {$cooldown_in_seconds}s", SC_FORBIDDEN);
+    }
   }
 
   // get thread if replying
@@ -508,8 +522,7 @@ function handle_postform(Request $request, Response $response, array $args, stri
   }
 
   // create post
-  $ip = funcs_common_get_client_remote_address(MB_CLOUDFLARE, $_SERVER);
-  $post = funcs_post_create($ip, $board_cfg, $thread_id, $file_info, $embed ?? $file, $params);
+  $post = funcs_post_create($user_ip, $board_cfg, $thread_id, $file_info, $embed ?? $file, $params);
 
   // generate unique post_id on current board
   init_post_auto_increment($post['board_id']);
