@@ -1,2 +1,13 @@
 <link rel="stylesheet" type="text/css" href="/css/index.css">
-<link rel="stylesheet" type="text/css" href="/style.php">
+<?php
+  $mb_style = MB_STYLES[0];
+  if (isset($_COOKIE["miniboard/style"])) {
+    $mb_style_cookie = $_COOKIE["miniboard/style"];
+  
+    if (in_array($mb_style_cookie, MB_STYLES)) {
+      $mb_style = $mb_style_cookie;
+    }
+  }
+
+  echo "<link rel=\"stylesheet\" type=\"text/css\" href=\"/css/{$mb_style}.css\">";
+?>
