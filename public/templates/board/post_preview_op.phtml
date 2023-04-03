@@ -2,7 +2,7 @@
   <?=$this->fetch('board/post_file.phtml', ['context' => 'preview', 'post' => $post])?>
   <div class="post-info">
     <label>
-      <input type="checkbox">
+      <input type="checkbox" disabled>
       <span class="post-subject"><?=$post['subject']?></span>
       <?=$post['nameblock']?>
     </label>
