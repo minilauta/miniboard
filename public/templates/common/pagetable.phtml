@@ -5,7 +5,9 @@
         <?php
           if ($page > 0) {
             $page_prev = $page - 1;
-            echo "<a href='?page={$page_prev}'>Previous</a>";
+            $query = funcs_common_mutate_query($_GET, 'page', $page_prev);
+
+            echo "<a href='?{$query}'>Previous</a>";
           } else {
             echo "Previous";
           }
@@ -15,7 +17,9 @@
         <?php
           for ($i = 0; $i < $page_n; $i++) {
             if ($i !== $page) {
-              echo "[<a href='?page={$i}'>{$i}</a>]";
+              $query = funcs_common_mutate_query($_GET, 'page', $i);
+
+              echo "[<a href='?{$query}'>{$i}</a>]";
             } else {
               echo "[{$i}]";
             }
@@ -26,7 +30,9 @@
         <?php
           if ($page < $page_n - 1) {
             $page_next = $page + 1;
-            echo "<a href='?page={$page_next}'>Next</a>";
+            $query = funcs_common_mutate_query($_GET, 'page', $page_next);
+
+            echo "<a href='?{$query}'>Next</a>";
           } else {
             echo "Next";
           }

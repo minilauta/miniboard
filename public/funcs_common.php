@@ -325,3 +325,11 @@ function funcs_common_url_get_contents($url): ?string {
 
 	return intval($code) === 200 ? $result : null;
 }
+
+/**
+ * Mutates target query array and returns it as string.
+ */
+function funcs_common_mutate_query(array $query, string $key, string $val): string {
+  $query[$key] = $val;
+  return http_build_query($query);
+}

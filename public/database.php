@@ -460,7 +460,7 @@ function select_all_posts(bool $desc = true, int $offset = 0, int $limit = 10) :
       *,
       INET6_NTOA(ip) AS ip_str
     FROM posts
-    ORDER BY bumped ' . ($desc === true ? 'DESC' : 'ASC') . '
+    ORDER BY timestamp ' . ($desc === true ? 'DESC' : 'ASC') . '
     LIMIT :limit OFFSET :offset
   ');
   $sth->execute([
