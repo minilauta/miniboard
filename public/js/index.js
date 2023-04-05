@@ -154,7 +154,7 @@ function listener_post_thumb_link_click(event) {
         target.style.display = 'none';
 
         let embed = document.createElement('div');
-        embed.innerHTML = decodeURIComponent(file_data.innerHTML);
+        embed.innerHTML = decodeURIComponent(file_data);
         embed.style.width = '33vw';
         embed.style.maxWidth = '33vw';
         embed.style.height = '33vh';
@@ -195,7 +195,8 @@ function listener_post_thumb_link_click(event) {
   let file_info = current.parentElement.parentElement.getElementsByClassName('file-info');
   file_info = file_info.length > 0 ? file_info[0] : null;
   let file_data = current.parentElement.parentElement.getElementsByClassName('file-data');
-  file_data = file_data.length > 0 ? file_data[0] : null;
+  file_data = file_data.length > 0 ? file_data[0].innerHTML : null;
+  file_data = file_data.length > 0 ? file_data : null;
   const file_href = current.href;
   let file_ext = file_data == null ? file_href.split('.').pop().toLowerCase() : 'embed';
   
