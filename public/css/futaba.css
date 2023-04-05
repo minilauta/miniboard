@@ -85,6 +85,14 @@ span.post-id a:hover {
   font-weight: bold;
 }
 
+div.post-info .backreference {
+  font-size: small;
+}
+
+div.post-info .backreference * {
+  font-size: initial;
+}
+
 /* menubar */
 
 /* dropdown menu */

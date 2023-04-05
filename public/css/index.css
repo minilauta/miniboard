@@ -86,10 +86,6 @@ div.post-info {
   display: inline-block;
 }
 
-div.post-info .backreference {
-  font-size: small;
-}
-
 span.post-id a {
   text-decoration: none;
 }

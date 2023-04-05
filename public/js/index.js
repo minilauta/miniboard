@@ -705,10 +705,18 @@ function init_post_backreference_links(target) {
       backreference.classList.add('backreference');
       if (post_ref_obj.parent_id == null) {
         backreference.href = '/' + post_ref_obj.board_id + '/' + post_ref_obj.post_id + '/';
+        backreference.dataset.board_id = post_ref_obj.board_id;
+        backreference.dataset.parent_id = post_ref_obj.post_id;
+        backreference.dataset.id = post_ref_obj.post_id;
       } else {
         backreference.href = '/' + post_ref_obj.board_id + '/' + post_ref_obj.parent_id + '/#' + post_ref_obj.board_id + '-' + post_ref_obj.post_id;
+        backreference.dataset.board_id = post_ref_obj.board_id;
+        backreference.dataset.parent_id = post_ref_obj.parent_id;
+        backreference.dataset.id = post_ref_obj.post_id;
       }
       backreference.innerHTML = '>>' + post_ref_obj.post_id;
+      backreference.addEventListener('mouseenter', listener_post_reference_link_mouseenter);
+      backreference.addEventListener('mouseleave', listener_post_reference_link_mouseleave);
 
       // append to post-info section
       let backref_post_info = backref_post.getElementsByClassName('post-info')[0];

@@ -92,6 +92,10 @@ div.post-info .backreference {
   font-size: x-small;
 }
 
+div.post-info .backreference * {
+  font-size: 13px;
+}
+
 /* menubar */
 
 /* dropdown menu */
