@@ -173,3 +173,12 @@ a > div.post-preview {
   border: 1px solid #000;
   padding: 0 5px;
 }
+
+/* manage */
+.modform table, .modform th, .modform td {
+  border: 1px solid #b7c5d9;
+}
+
+.reportform table, .reportform th, .reportform td {
+  border: 1px solid #b7c5d9;
+}

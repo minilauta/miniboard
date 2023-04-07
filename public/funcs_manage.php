@@ -135,3 +135,59 @@ function funcs_manage_rebuild(array $params): string {
 
   return "Rebuilt all posts on board /{$board_cfg['id']}/, processed {$processed}/{$total}";
 }
+
+/**
+ * Deletes all selected posts from filesystem and database.
+ */
+function funcs_manage_delete(array $params): string {
+  // delete each post and replies
+  $processed = 0;
+  $total = 0;
+  $warnings = '';
+  foreach ($params['select'] as $val) {
+    // parse board id and post id
+    $selected_parsed = explode('/', $val);
+    $selected_board_id = $selected_parsed[0];
+    $selected_post_id = intval($selected_parsed[1]);
+
+    // select post with replies
+    $selected_posts = select_post_with_replies($selected_board_id, $selected_post_id);
+    $total += count($selected_posts);
+
+    foreach ($selected_posts as &$post) {
+      // is the file thumbnail static?
+      $static = str_contains($post['thumb'], '/static/');
+
+      // is the file thumbnail spoilered?
+      $spoiler = str_contains($post['thumb'], 'spoiler.png');
+
+      // count identical files, only unlink if this is the last one
+      $file_collisions = select_files_by_md5($post['file_hex'], $spoiler);
+      $file_collisions_n = count($file_collisions);
+
+      // unlink file and thumb from filesystem
+      if ($file_collisions_n === 1) {
+        if ($post['embed'] === 0 && strlen($post['file']) > 0) {
+          if (!unlink(__DIR__ . $post['file'])) {
+            $warnings .= "Failed to delete file for post /{$post['board_id']}/{$post['post_id']}/ (maybe it didn't exist?)!<br>";
+          }
+        }
+        
+        if (!$static && !$spoiler && strlen($post['thumb']) > 0) {
+          if (!unlink(__DIR__ . $post['thumb'])) {
+            $warnings .= "Failed to delete thumbnail for post /{$post['board_id']}/{$post['post_id']}/ (maybe it didn't exist?)!<br>";
+          }
+        }
+      }
+
+      // delete post from db
+      if (!delete_post($post['board_id'], $post['post_id'], true)) {
+        $warnings .= "Failed to delete post /{$post['board_id']}/{$post['post_id']}/ from db!<br>";
+      }
+
+      $processed++;
+    }
+  }
+
+  return "Successfully deleted {$processed} posts out of all selected (+replies) {$total} posts<br>Warnings:<br>{$warnings}";
+}

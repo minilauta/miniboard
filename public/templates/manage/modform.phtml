@@ -1,7 +1,29 @@
 <form id="modform" class="modform" method="post">
   <table>
+    <tbody>
+      <tr>
+        <td class="form-label">
+          <label>STATUS</label>
+        </td>
+        <td>
+          <b><?=$status?></b>
+        </td>
+      </tr>
+      <tr>
+        <td class="form-label">
+          <label>Selected</label>
+        </td>
+        <td>
+	        <input type="submit" value="Delete (post)" formaction="delete?<?=http_build_query($_GET)?>">
+	        <input type="submit" value="Ban (ip)" formaction="ban" disabled>
+        </td>
+      </tr>
+    </tbody>
+  </table>
+  <table>
     <thead>
       <tr>
+        <th></th>
         <th>id</th>
         <th>post_id</th>
         <th>parent_id</th>
@@ -10,7 +32,6 @@
         <th>deleted</th>
         <th>imported</th>
         <th>preview</th>
-        <th>actions</th>
       </tr>
     </thead>
     <tbody>
@@ -27,6 +48,7 @@
           $imported = $post['imported'] === 1 ? '<b>TRUE</b>' : 'FALSE';
           echo "
             <tr>
+              <td><input type=\"checkbox\" name=\"select[]\" value=\"{$post['board_id']}/{$post['post_id']}\"></td>
               <td>{$post['id']}</td>
               <td>{$post['post_id']}</td>
               <td>{$post['parent_id']}</td>
@@ -35,9 +57,6 @@
               <td>{$deleted}</td>
               <td>{$imported}</td>
               <td>{$preview}</td>
-              <td>
-                delete, ban
-              </td>
             </tr>
           ";
         }

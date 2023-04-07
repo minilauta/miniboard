@@ -170,6 +170,39 @@ function handle_rebuildform(Request $request, Response $response, array $args): 
   return $response;
 }
 
+$app->post('/manage/delete/', function (Request $request, Response $response, array $args) {
+  if (!funcs_manage_is_logged_in()) {
+    throw new AppException('index', 'route', 'access denied', SC_UNAUTHORIZED);
+  }
+
+  if ($_SESSION['mb_role'] !== MB_ROLE_SUPERADMIN) {
+    throw new AppException('index', 'route', 'insufficient permissions', SC_FORBIDDEN);
+  }
+
+  return handle_manage_deleteform($request, $response, $args);
+});
+
+function handle_manage_deleteform(Request $request, Response $response, array $args): Response {
+  // parse request body
+  $params = (array) $request->getParsedBody();
+
+  // validate request fields
+  funcs_common_validate_fields($params, [
+    'select'   => ['required' => true, 'type' => 'array']
+  ]);
+
+  // execute delete
+  $status = funcs_manage_delete($params);
+
+  // set query to return properly
+  $query = funcs_common_mutate_query($_GET, 'status', $status);
+
+  $response = $response
+    ->withHeader('Location', "/manage/?{$query}")
+    ->withStatus(303);
+  return $response;
+}
+
 $app->get('/{board_id}/{post_id}/report/', function (Request $request, Response $response, array $args) {
   // get board config
   $board_cfg = funcs_common_get_board_cfg($args['board_id']);
@@ -603,8 +636,7 @@ $error_handler = function(
 };
 
 if (MB_ENV === 'dev') {
-  $app->addErrorMiddleware(true, true, true)
-    ->setDefaultErrorHandler($error_handler);
+  $app->addErrorMiddleware(true, true, true);
 } else {
   $app->addErrorMiddleware(false, false, false)
     ->setDefaultErrorHandler($error_handler);

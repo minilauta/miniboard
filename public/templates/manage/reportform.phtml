@@ -1,7 +1,30 @@
 <form id="reportform" class="reportform" method="post">
   <table>
+    <tbody>
+      <tr>
+        <td class="form-label">
+          <label>STATUS</label>
+        </td>
+        <td>
+          <b><?=$status?></b>
+        </td>
+      </tr>
+      <tr>
+        <td class="form-label">
+          <label>Selected</label>
+        </td>
+        <td>
+	        <input type="submit" value="Delete (post)" formaction="delete?<?=http_build_query($_GET)?>">
+	        <input type="submit" value="Ban (ip)" formaction="ban" disabled>
+	        <input type="submit" value="Approve (report)" formaction="approve" disabled>
+        </td>
+      </tr>
+    </tbody>
+  </table>
+  <table>
     <thead>
       <tr>
+        <th></th>
         <th>id</th>
         <th>ip</th>
         <th>timestamp</th>
@@ -13,7 +36,6 @@
         <th>post_deleted</th>
         <th>post_imported</th>
         <th>preview</th>
-        <th>actions</th>
       </tr>
     </thead>
     <tbody>
@@ -33,6 +55,7 @@
 
           echo "
             <tr>
+              <td><input type=\"checkbox\" name=\"select[]\" value=\"{$report['board_id']}/{$report['post_id']}\"></td>
               <td>{$report['r_id']}</td>
               <td>{$report['r_ip_rendered']}</td>
               <td>{$timestamp}</td>
@@ -44,9 +67,6 @@
               <td>{$post_deleted}</td>
               <td>{$post_imported}</td>
               <td>{$preview}</td>
-              <td>
-                approve, delete, ban
-              </td>
             </tr>
           ";
         }

@@ -460,7 +460,6 @@ function select_all_posts(bool $desc = true, int $offset = 0, int $limit = 10) :
       *,
       INET6_NTOA(ip) AS ip_str
     FROM posts
-    WHERE deleted != 1
     ORDER BY timestamp ' . ($desc === true ? 'DESC' : 'ASC') . '
     LIMIT :limit OFFSET :offset
   ');
@@ -475,7 +474,6 @@ function count_all_posts() : int|bool {
   $dbh = get_db_handle();
   $sth = $dbh->prepare('
     SELECT COUNT(*) FROM posts
-    WHERE deleted != 1
   ');
   $sth->execute();
   return $sth->fetchColumn();
@@ -496,7 +494,7 @@ function select_all_reports(bool $desc = true, int $offset = 0, int $limit = 10)
       p.*,
       INET6_NTOA(p.ip) AS ip_str
     FROM reports AS r
-    INNER JOIN posts AS p ON r.board_id = p.board_id AND r.post_id = p.post_id AND p.deleted != 1
+    INNER JOIN posts AS p ON r.board_id = p.board_id AND r.post_id = p.post_id
     ORDER BY r.timestamp ' . ($desc === true ? 'DESC' : 'ASC') . ', id
     LIMIT :limit OFFSET :offset
   ');
@@ -514,6 +512,26 @@ function count_all_reports() : int|bool {
   ');
   $sth->execute();
   return $sth->fetchColumn();
+}
+
+function select_post_with_replies(string $board_id, int $post_id): array|bool {
+  $dbh = get_db_handle();
+  $sth = $dbh->prepare('
+    SELECT
+      p.*
+    FROM posts p
+    WHERE
+      p.board_id = :board_id_1 AND p.post_id = :post_id_1
+      OR
+      p.board_id = :board_id_2 AND p.parent_id = :post_id_2
+  ');
+  $sth->execute([
+    'board_id_1' => $board_id,
+    'post_id_1' => $post_id,
+    'board_id_2' => $board_id,
+    'post_id_2' => $post_id
+  ]);
+  return $sth->fetchAll();
 }
 
 

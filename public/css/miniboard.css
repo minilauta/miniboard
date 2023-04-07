@@ -151,3 +151,12 @@ a > div.post-preview {
   border: 1px solid #1a1a1a;
   padding: 0 5px;
 }
+
+/* manage */
+.modform table, .modform th, .modform td {
+  border: 1px solid #1a1a1a;
+}
+
+.reportform table, .reportform th, .reportform td {
+  border: 1px solid #1a1a1a;
+}

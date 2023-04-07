@@ -255,6 +255,10 @@ div.h-captcha {
 }
 
 /* manage */
+.modform table, .modform th, .modform td {
+  border-collapse: collapse;
+}
+
 .modform th {
   text-align: left;
 }
@@ -264,6 +268,14 @@ div.h-captcha {
   vertical-align: top;
 }
 
+.modform td * {
+  padding: 0px;
+}
+
+.reportform table, .reportform th, .reportform td {
+  border-collapse: collapse;
+}
+
 .reportform th {
   text-align: left;
 }
@@ -271,4 +283,8 @@ div.h-captcha {
 .reportform td {
   text-align: left;
   vertical-align: top;
+}
+
+.reportform td * {
+  padding: 0px;
 }

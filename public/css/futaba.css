@@ -141,3 +141,12 @@ a > div.post-preview {
   background: #EEAA88;
   font-weight: bold;
 }
+
+/* manage */
+.modform table, .modform th, .modform td {
+  border: 1px solid;
+}
+
+.reportform table, .reportform th, .reportform td {
+  border: 1px solid;
+}
