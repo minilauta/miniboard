@@ -11,7 +11,7 @@ $session_middleware = function(Request $request, RequestHandler $handler) : Resp
     'domain' => '',
     'secure' => false,
     'httponly' => false,
-    'samesite' => 'Strict'
+    'samesite' => 'Lax'
   ]);
   session_start();
 
