@@ -191,3 +191,19 @@ function funcs_manage_delete(array $params): string {
 
   return "Successfully deleted {$processed} posts out of all selected (+replies) {$total} posts<br>Warnings:<br>{$warnings}";
 }
+
+function funcs_manage_approve(array $params): string {
+  // delete each report
+  $processed = 0;
+  foreach ($params['select'] as $val) {
+    // parse board id and post id
+    $selected_parsed = explode('/', $val);
+    $selected_board_id = $selected_parsed[0];
+    $selected_post_id = intval($selected_parsed[1]);
+
+    // delete all reports by board id and post id
+    $processed += delete_reports_by_post_id($selected_board_id, $selected_post_id);
+  }
+
+  return "Successfully approved {$processed} reports";
+}

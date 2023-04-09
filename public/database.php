@@ -534,6 +534,19 @@ function select_post_with_replies(string $board_id, int $post_id): array|bool {
   return $sth->fetchAll();
 }
 
+function delete_reports_by_post_id(string $board_id, int $post_id): int {
+  $dbh = get_db_handle();
+  $sth = $dbh->prepare('
+    DELETE FROM reports
+    WHERE board_id = :board_id AND post_id = :post_id
+  ');
+  $sth->execute([
+    'board_id' => $board_id,
+    'post_id' => $post_id
+  ]);
+  return $sth->rowCount();
+}
+
 
 // MANAGE/IMPORT related functions below
 // -------------------------------------

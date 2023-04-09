@@ -16,7 +16,7 @@
         <td>
 	        <input type="submit" value="Delete (post)" formaction="delete?<?=http_build_query($_GET)?>">
 	        <input type="submit" value="Ban (ip)" formaction="ban" disabled>
-	        <input type="submit" value="Approve (report)" formaction="approve" disabled>
+	        <input type="submit" value="Approve (report)" formaction="approve?<?=http_build_query($_GET)?>">
         </td>
       </tr>
     </tbody>
