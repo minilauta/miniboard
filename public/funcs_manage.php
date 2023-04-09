@@ -4,6 +4,14 @@ require_once __DIR__ . '/config.php';
 require_once __DIR__ . '/exception.php';
 require_once __DIR__ . '/funcs_common.php';
 
+function funcs_manage_log(string $message) {
+  $ip = funcs_common_get_client_remote_address(MB_CLOUDFLARE, $_SERVER);
+  $timestamp = time();
+  $username = $_SESSION['mb_username'];
+
+  insert_log($ip, $timestamp, $username, $message);
+}
+
 /**
  * Executes user login credential verification and on success assigns session variables.
  */
@@ -16,6 +24,8 @@ function funcs_manage_login(array $account, string $password): bool {
   // set session variables
   $_SESSION['mb_username'] = $account['username'];
   $_SESSION['mb_role'] = $account['role'];
+
+  funcs_manage_log('Logged in');
 
   return true;
 }
@@ -50,9 +60,10 @@ function funcs_manage_get_role(): int|null {
  * Imports data from another MySQL/MariaDB database.
  */
 function funcs_manage_import(array $params): string {
-  $inserted = 0;
+  funcs_manage_log("Executed import, source db: {$params['db_name']}, source table: {$params['table_name']}, target board: {$params['board_id']}");
 
   // handle each table type separately
+  $inserted = 0;
   switch ($params['table_type']) {
     case MB_IMPORT_TINYIB_ACCOUNTS:
       // execute import
@@ -84,6 +95,8 @@ function funcs_manage_import(array $params): string {
  * Rebuilds all data in the database.
  */
 function funcs_manage_rebuild(array $params): string {
+  funcs_manage_log("Executed rebuild, target board: {$params['board_id']}");
+
   // get board config
   $board_cfg = funcs_common_get_board_cfg($params['board_id']);
 
@@ -140,6 +153,8 @@ function funcs_manage_rebuild(array $params): string {
  * Deletes all selected posts from filesystem and database.
  */
 function funcs_manage_delete(array $params): string {
+  funcs_manage_log('Deleted posts: ' . implode(', ', $params['select']));
+
   // delete each post and replies
   $processed = 0;
   $total = 0;
@@ -193,6 +208,8 @@ function funcs_manage_delete(array $params): string {
 }
 
 function funcs_manage_approve(array $params): string {
+  funcs_manage_log('Approved posts: ' . implode(', ', $params['select']));
+
   // delete each report
   $processed = 0;
   foreach ($params['select'] as $val) {

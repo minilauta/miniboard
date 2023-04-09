@@ -177,3 +177,7 @@ a > div.post-preview {
 .reportform table, .reportform th, .reportform td {
   border: 1px solid #d9bfb7;
 }
+
+.logs table, .logs th, .logs td {
+  border: 1px solid #d9bfb7;
+}

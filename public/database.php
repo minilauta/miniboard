@@ -547,6 +547,57 @@ function delete_reports_by_post_id(string $board_id, int $post_id): int {
   return $sth->rowCount();
 }
 
+function select_all_logs(bool $desc = true, int $offset = 0, int $limit = 10) : array|bool {
+  $dbh = get_db_handle();
+  $sth = $dbh->prepare('
+    SELECT
+      *,
+      INET6_NTOA(ip) AS ip_str
+    FROM logs
+    ORDER BY timestamp ' . ($desc === true ? 'DESC' : 'ASC') . '
+    LIMIT :limit OFFSET :offset
+  ');
+  $sth->execute([
+    'limit' => $limit,
+    'offset' => $offset
+  ]);
+  return $sth->fetchAll();
+}
+
+function count_all_logs() : int|bool {
+  $dbh = get_db_handle();
+  $sth = $dbh->prepare('
+    SELECT COUNT(*) FROM logs
+  ');
+  $sth->execute();
+  return $sth->fetchColumn();
+}
+
+function insert_log(string $ip, int $timestamp, string $username, string $message): int|bool {
+  $dbh = get_db_handle();
+  $sth = $dbh->prepare('
+    INSERT INTO logs (
+      ip,
+      timestamp,
+      username,
+      message
+    )
+    VALUES (
+      INET6_ATON(:ip),
+      :timestamp,
+      :username,
+      :message
+    )
+  ');
+  $sth->execute([
+    'ip' => $ip,
+    'timestamp' => $timestamp,
+    'username' => $username,
+    'message' => $message
+  ]);
+  return $dbh->lastInsertId();
+}
+
 
 // MANAGE/IMPORT related functions below
 // -------------------------------------

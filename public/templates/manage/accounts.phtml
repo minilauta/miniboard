@@ -7,10 +7,12 @@
   <tr>
     <?php
       foreach ($account_details as $account) {
+        $lastactive = strftime(MB_DATEFORMAT, $account['lastactive']);
+
         echo "<tr>";
         echo "<td> $account[username] </td>";
         echo "<td> $account[role] </td>";
-        echo "<td> $account[lastactive] </td>";
+        echo "<td> $lastactive </td>";
         echo "</tr>";
       }
       ?>

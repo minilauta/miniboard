@@ -32,6 +32,32 @@
 
           echo $this->fetch('manage/rebuildform.phtml');
           break;
+        case 'logs':
+          // set constants
+          $logs_per_page = 50;
+
+          // get logs
+          $logs = select_all_logs(true, $logs_per_page * $page, $logs_per_page);
+
+          // process logs
+          foreach ($logs as $key => &$log) {
+            $log['ip_rendered'] = funcs_manage_get_role() === MB_ROLE_SUPERADMIN ? $log['ip_str'] : '<s>REDACTED</s>';
+            $log['username_rendered'] = funcs_manage_get_role() === MB_ROLE_SUPERADMIN ? $log['username'] : '<s>REDACTED</s>';
+          }
+
+          // get log count
+          $logs_n = count_all_logs();
+
+          // calculate page count
+          $page_n = ceil($logs_n / $logs_per_page);
+
+          echo $this->fetch('manage/logs.phtml', [
+            'logs' => $logs,
+            'page' => $page,
+            'page_n' => $page_n
+          ]);
+          echo $this->fetch('common/pagetable.phtml', ['page' => $page, 'page_n' => $page_n]);
+          break;
         case 'posts':
           // set constants
           $posts_per_page = 25;

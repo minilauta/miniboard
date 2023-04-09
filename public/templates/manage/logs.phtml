@@ -1,0 +1,30 @@
+<form id="logs" class="logs" method="post">
+  <table>
+    <thead>
+      <tr>
+        <th>id</th>
+        <th>ip</th>
+        <th>timestamp</th>
+        <th>username</th>
+        <th>message</th>
+      </tr>
+    </thead>
+    <tbody>
+      <?php
+        foreach ($logs as $log) {
+          $timestamp = strftime(MB_DATEFORMAT, $log['timestamp']);
+
+          echo "
+            <tr>
+              <td>{$log['id']}</td>
+              <td>{$log['ip_rendered']}</td>
+              <td>{$timestamp}</td>
+              <td>{$log['username_rendered']}</td>
+              <td>{$log['message']}</td>
+            </tr>
+          ";
+        }
+      ?>
+    </tbody>
+  </table>
+</form>

@@ -175,10 +175,6 @@ $app->post('/manage/delete/', function (Request $request, Response $response, ar
     throw new AppException('index', 'route', 'access denied', SC_UNAUTHORIZED);
   }
 
-  if ($_SESSION['mb_role'] !== MB_ROLE_SUPERADMIN) {
-    throw new AppException('index', 'route', 'insufficient permissions', SC_FORBIDDEN);
-  }
-
   return handle_manage_deleteform($request, $response, $args);
 });
 
