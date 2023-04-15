@@ -11,10 +11,7 @@ require_once __DIR__ . '/middleware.php';
 require_once __DIR__ . '/database.php';
 require_once __DIR__ . '/config.php';
 require_once __DIR__ . '/funcs_common.php';
-require_once __DIR__ . '/funcs_file.php';
-require_once __DIR__ . '/funcs_post.php';
-require_once __DIR__ . '/funcs_report.php';
-require_once __DIR__ . '/funcs_hide.php';
+require_once __DIR__ . '/funcs_board.php';
 require_once __DIR__ . '/funcs_manage.php';
 
 $app = AppFactory::create();
@@ -188,7 +185,7 @@ function handle_manage_deleteform(Request $request, Response $response, array $a
   ]);
 
   // execute delete
-  $status = funcs_manage_delete($params);
+  $status = funcs_manage_delete($params['select']);
 
   // set query to return properly
   $query = funcs_common_mutate_query($_GET, 'status', $status);
@@ -217,7 +214,7 @@ function handle_manage_approveform(Request $request, Response $response, array $
   ]);
 
   // execute approve
-  $status = funcs_manage_approve($params);
+  $status = funcs_manage_approve($params['select']);
 
   // set query to return properly
   $query = funcs_common_mutate_query($_GET, 'status', $status);
@@ -255,7 +252,7 @@ $app->post('/{board_id}/{post_id}/hide/', function (Request $request, Response $
   // toggle hide
   $hide = select_hide(session_id(), $board_cfg['id'], $args['post_id']);
   if ($hide == null) {
-    $hide = funcs_hide_create(session_id(), $board_cfg['id'], $args['post_id']);
+    $hide = funcs_board_create_hide(session_id(), $board_cfg['id'], $args['post_id']);
     insert_hide($hide);
   } else {
     delete_hide($hide);
@@ -282,7 +279,7 @@ function handle_reportform(Request $request, Response $response, array $args): R
   }
 
   // validate request fields
-  funcs_report_validate_fields($params, MB_REPORT_TYPES);
+  funcs_board_validate_report($params, MB_REPORT_TYPES);
 
   // get post
   $post = select_post($board_cfg['id'], $args['post_id']);
@@ -292,7 +289,7 @@ function handle_reportform(Request $request, Response $response, array $args): R
 
   // create report
   $ip = funcs_common_get_client_remote_address(MB_CLOUDFLARE, $_SERVER);
-  $report = funcs_report_create($ip, $board_cfg['id'], $post['post_id'], $params['type'], MB_REPORT_TYPES);
+  $report = funcs_board_create_report($ip, $board_cfg['id'], $post['post_id'], $params['type'], MB_REPORT_TYPES);
 
   // insert report
   $inserted_report_id = insert_report($report);
@@ -555,7 +552,7 @@ function handle_postform(Request $request, Response $response, array $args, stri
   // validate request file
   $is_embed = strlen(trim($params['embed'])) > 0;
   $no_file_ok = ($thread_id != null || $is_embed) ? true : $board_cfg['nofileok'];
-  $file_info = funcs_file_validate_upload($file, $no_file_ok, $board_cfg['mime_ext_types'], $board_cfg['maxkb'] * 1000);
+  $file_info = funcs_board_validate_upload($file, $no_file_ok, $board_cfg['mime_ext_types'], $board_cfg['maxkb'] * 1000);
   $is_file_or_embed = $is_embed || $file_info != null;
   $spoiler_flag = isset($params['spoiler']) && $params['spoiler'] == true ? 1 : 0;
 
@@ -573,14 +570,14 @@ function handle_postform(Request $request, Response $response, array $args, stri
   // upload file or embed url
   $embed = null;
   if (!$is_embed) {
-    $file = funcs_file_execute_upload($file, $file_info, $file_collisions, $spoiler_flag, $board_cfg['max_width'], $board_cfg['max_height']);
+    $file = funcs_board_execute_upload($file, $file_info, $file_collisions, $spoiler_flag, $board_cfg['max_width'], $board_cfg['max_height']);
   } else {
-    $embed = funcs_file_execute_embed($params['embed'], $board_cfg['embed_types'], $board_cfg['max_width'], $board_cfg['max_height']);
+    $embed = funcs_board_execute_embed($params['embed'], $board_cfg['embed_types'], $board_cfg['max_width'], $board_cfg['max_height']);
     $file_info = null;
   }
 
   // create post
-  $post = funcs_post_create($user_ip, $board_cfg, $thread_id, $file_info, $embed ?? $file, $params);
+  $post = funcs_board_create_post($user_ip, $board_cfg, $thread_id, $file_info, $embed ?? $file, $params);
 
   // generate unique post_id on current board
   init_post_auto_increment($post['board_id']);

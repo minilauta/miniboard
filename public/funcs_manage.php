@@ -4,16 +4,17 @@ require_once __DIR__ . '/config.php';
 require_once __DIR__ . '/exception.php';
 require_once __DIR__ . '/funcs_common.php';
 
+/**
+ * Inserts a message to the management log.
+ */
 function funcs_manage_log(string $message) {
   $ip = funcs_common_get_client_remote_address(MB_CLOUDFLARE, $_SERVER);
-  $timestamp = time();
-  $username = $_SESSION['mb_username'];
 
-  insert_log($ip, $timestamp, $username, $message);
+  insert_log($ip, time(), $_SESSION['mb_username'], $message);
 }
 
 /**
- * Executes user login credential verification and on success assigns session variables.
+ * Checks user login credentials and on success assigns session variables.
  */
 function funcs_manage_login(array $account, string $password): bool {
   // reject if passwords do not match
@@ -31,7 +32,7 @@ function funcs_manage_login(array $account, string $password): bool {
 }
 
 /**
- * Verifies user session variables and returns true if user is logged in.
+ * Returns true if user is logged in by checking session vars.
  */
 function funcs_manage_is_logged_in(): bool {
   return isset($_SESSION['mb_username']) && isset($_SESSION['mb_role']);
@@ -121,8 +122,8 @@ function funcs_manage_rebuild(array $params): string {
     }
 
     // render nameblock and message
-    $nameblock = funcs_post_render_nameblock($name, $post['tripcode'], $email, $post['role'], $post['timestamp']);
-    $message = funcs_post_render_message($params['board_id'], $message, $board_cfg['truncate']);
+    $nameblock = funcs_board_render_nameblock($name, $post['tripcode'], $email, $post['role'], $post['timestamp']);
+    $message = funcs_board_render_message($params['board_id'], $message, $board_cfg['truncate']);
 
     // render file
     $file = $post['file'];
@@ -152,14 +153,14 @@ function funcs_manage_rebuild(array $params): string {
 /**
  * Deletes all selected posts from filesystem and database.
  */
-function funcs_manage_delete(array $params): string {
-  funcs_manage_log('Deleted posts: ' . implode(', ', $params['select']));
+function funcs_manage_delete(array $select): string {
+  funcs_manage_log('Deleted posts: ' . implode(', ', $select));
 
   // delete each post and replies
   $processed = 0;
   $total = 0;
   $warnings = '';
-  foreach ($params['select'] as $val) {
+  foreach ($select as $val) {
     // parse board id and post id
     $selected_parsed = explode('/', $val);
     $selected_board_id = $selected_parsed[0];
@@ -207,12 +208,12 @@ function funcs_manage_delete(array $params): string {
   return "Successfully deleted {$processed} posts out of all selected (+replies) {$total} posts<br>Warnings:<br>{$warnings}";
 }
 
-function funcs_manage_approve(array $params): string {
-  funcs_manage_log('Approved posts: ' . implode(', ', $params['select']));
+function funcs_manage_approve(array $select): string {
+  funcs_manage_log('Approved posts: ' . implode(', ', $select));
 
   // delete each report
   $processed = 0;
-  foreach ($params['select'] as $val) {
+  foreach ($select as $val) {
     // parse board id and post id
     $selected_parsed = explode('/', $val);
     $selected_board_id = $selected_parsed[0];
