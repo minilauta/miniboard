@@ -174,11 +174,8 @@ function funcs_manage_delete(array $select): string {
       // is the file thumbnail static?
       $static = str_contains($post['thumb'], '/static/');
 
-      // is the file thumbnail spoilered?
-      $spoiler = str_contains($post['thumb'], 'spoiler.png');
-
       // count identical files, only unlink if this is the last one
-      $file_collisions = select_files_by_md5($post['file_hex'], $spoiler);
+      $file_collisions = select_files_by_md5($post['file_hex']);
       $file_collisions_n = count($file_collisions);
 
       // unlink file and thumb from filesystem
@@ -189,7 +186,7 @@ function funcs_manage_delete(array $select): string {
           }
         }
         
-        if (!$static && !$spoiler && strlen($post['thumb']) > 0) {
+        if (!$static && strlen($post['thumb']) > 0) {
           if (!unlink(__DIR__ . $post['thumb'])) {
             $warnings .= "Failed to delete thumbnail for post /{$post['board_id']}/{$post['post_id']}/ (maybe it didn't exist?)!<br>";
           }

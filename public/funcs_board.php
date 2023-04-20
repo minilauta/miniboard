@@ -179,7 +179,7 @@ function funcs_board_render_message(string $board_id, string $input, int $trunca
 /**
  * Validates an uploaded file for errors/abuse.
  */
-function funcs_board_validate_upload(UploadedFileInterface $input, bool $no_file_ok, array $mime_types, int $max_bytes): ?array {
+function funcs_board_validate_upload(UploadedFileInterface $input, bool $no_file_ok, bool $spoiler, array $mime_types, int $max_bytes): ?array {
   // check errors
   $error = $input->getError();
   if ($error === UPLOAD_ERR_NO_FILE && $no_file_ok) {
@@ -218,7 +218,7 @@ function funcs_board_validate_upload(UploadedFileInterface $input, bool $no_file
   }
 
   // calculate md5 hash
-  $file_md5 = md5_file($tmp_file);
+  $file_md5 = ($spoiler === true ? 'spoiler/' : '') . md5_file($tmp_file);
 
   return [
     'tmp'            => $tmp_file,
@@ -283,80 +283,69 @@ function funcs_board_execute_upload(UploadedFileInterface $file, ?array $file_in
         break;
     }
 
-    // either generate thumbnail or use spoiler thumbnail
-    if (!$spoiler) {
-      // generate thumbnail based on file extension
-      switch ($file_info['mime']) {
-        case 'image/jpeg':
-        case 'image/pjpeg':
-        case 'image/png':
-        case 'image/gif':
-        case 'image/bmp':
-        case 'image/tiff':
-        case 'image/webp':
-          $generated_thumb = funcs_board_generate_thumbnail($file_path, 'png', $thumb_file_path, $max_w, $max_h);
+    // generate thumbnail based on file extension
+    switch ($file_info['mime']) {
+      case 'image/jpeg':
+      case 'image/pjpeg':
+      case 'image/png':
+      case 'image/gif':
+      case 'image/bmp':
+      case 'image/tiff':
+      case 'image/webp':
+        $generated_thumb = funcs_board_generate_thumbnail($file_path, $spoiler, false, 'png', $thumb_file_path, $max_w, $max_h);
+        $image_width = $generated_thumb['image_width'];
+        $image_height = $generated_thumb['image_height'];
+        $thumb_width = $generated_thumb['thumb_width'];
+        $thumb_height = $generated_thumb['thumb_height'];
+        break;
+      case 'video/mp4':
+      case 'video/webm':
+        $ffprobe = FFMpeg\FFProbe::create();
+        $video_duration = $ffprobe
+          ->format($file_path)
+          ->get('duration');
+
+        $ffmpeg = FFMpeg\FFMpeg::create();
+        $video = $ffmpeg->open($file_path);
+        $video
+          ->frame(FFMpeg\Coordinate\TimeCode::fromSeconds($video_duration / 4))
+          ->save($thumb_file_path);
+
+        $generated_thumb = funcs_board_generate_thumbnail($thumb_file_path, $spoiler, true, 'png', $thumb_file_path, $max_w, $max_h);
+        $image_width = $generated_thumb['image_width'];
+        $image_height = $generated_thumb['image_height'];
+        $thumb_width = $generated_thumb['thumb_width'];
+        $thumb_height = $generated_thumb['thumb_height'];
+        break;
+      case 'audio/mpeg':
+        $album_file_path = __DIR__ . '/src/' . 'album_' . $file_name;
+        $album_file_path = funcs_board_get_mp3_album_art($file_path, $album_file_path);
+        
+        if ($album_file_path != null) {
+          $generated_thumb = funcs_board_generate_thumbnail($album_file_path, $spoiler, true, 'png', $thumb_file_path, $max_w, $max_h);
           $image_width = $generated_thumb['image_width'];
           $image_height = $generated_thumb['image_height'];
           $thumb_width = $generated_thumb['thumb_width'];
           $thumb_height = $generated_thumb['thumb_height'];
-          break;
-        case 'video/mp4':
-        case 'video/webm':
-          $ffprobe = FFMpeg\FFProbe::create();
-          $video_duration = $ffprobe
-            ->format($file_path)
-            ->get('duration');
-
-          $ffmpeg = FFMpeg\FFMpeg::create();
-          $video = $ffmpeg->open($file_path);
-          $video
-            ->frame(FFMpeg\Coordinate\TimeCode::fromSeconds($video_duration / 4))
-            ->save($thumb_file_path);
-
-          $generated_thumb = funcs_board_generate_thumbnail($thumb_file_path, 'png', $thumb_file_path, $max_w, $max_h);
-          $image_width = $generated_thumb['image_width'];
-          $image_height = $generated_thumb['image_height'];
-          $thumb_width = $generated_thumb['thumb_width'];
-          $thumb_height = $generated_thumb['thumb_height'];
-          break;
-        case 'audio/mpeg':
-          $album_file_path = __DIR__ . '/src/' . 'album_' . $file_name;
-          $album_file_path = funcs_board_get_mp3_album_art($file_path, $album_file_path);
-          
-          if ($album_file_path != null) {
-            $generated_thumb = funcs_board_generate_thumbnail($album_file_path, 'png', $thumb_file_path, $max_w, $max_h);
-            $image_width = $generated_thumb['image_width'];
-            $image_height = $generated_thumb['image_height'];
-            $thumb_width = $generated_thumb['thumb_width'];
-            $thumb_height = $generated_thumb['thumb_height'];
-          } else {
-            $thumb_file_name = '';
-            $image_width = 0;
-            $image_height = 0;
-            $thumb_width = 0;
-            $thumb_height = 0;
-          }
-          break;
-        case 'application/x-shockwave-flash':
-          $thumb_file_name = 'swf.png';
-          $thumb_dir = '/static/';
+        } else {
+          $thumb_file_name = '';
           $image_width = 0;
           $image_height = 0;
-          $thumb_width = 250;
-          $thumb_height = 250;
-          break;
-        default:
-          unlink($file_path);
-          throw new AppException('funcs_board', 'funcs_board_execute_upload', "file MIME type unsupported: {$file_info['mime']}", SC_INTERNAL_ERROR);
-      }
-    } else {
-      $image = new Imagick($file_path);
-      $image_width = $image->getImageWidth();
-      $image_height = $image->getImageHeight();
-      $thumb_file_name = 'spoiler.png';
-      $thumb_dir = '/static/';
-      $thumb_width = 250;
-      $thumb_height = 250;
+          $thumb_width = 0;
+          $thumb_height = 0;
+        }
+        break;
+      case 'application/x-shockwave-flash':
+        $thumb_file_name = 'swf.png';
+        $thumb_dir = '/static/';
+        $image_width = 0;
+        $image_height = 0;
+        $thumb_width = 250;
+        $thumb_height = 250;
+        break;
+      default:
+        unlink($file_path);
+        throw new AppException('funcs_board', 'funcs_board_execute_upload', "file MIME type unsupported: {$file_info['mime']}", SC_INTERNAL_ERROR);
     }
   } else {
     $file_name = $file_collisions[0]['file'];
@@ -411,7 +400,7 @@ function funcs_board_strip_metadata(string $file_path): int {
 /**
  * Generates a thumbnail from input file.
  */
-function funcs_board_generate_thumbnail(string $file_path, string $thumb_ext, string $thumb_path, int $thumb_width, int $thumb_height): array {
+function funcs_board_generate_thumbnail(string $file_path, bool $spoiler, bool $player, string $thumb_ext, string $thumb_path, int $thumb_width, int $thumb_height): array {
   $image = new Imagick($file_path);
 
   if (str_contains(strtolower($file_path), '.gif')) {
@@ -433,6 +422,20 @@ function funcs_board_generate_thumbnail(string $file_path, string $thumb_ext, st
   $thumb_height = floor($image_height * $scale_factor);
 
   $image->thumbnailImage($thumb_width, $thumb_height);
+  if ($spoiler) {
+    $image->gaussianBlurImage(10, 10);
+    $image->modulateImage(33.0, 25.0, 100.0);
+    $image_spoiler = new Imagick(__DIR__ . '/static/spoiler.png');
+    $image_spoiler_x = 0.5 * ($thumb_width - $image_spoiler->getImageWidth());
+    $image_spoiler_y = 0.5 * ($thumb_height - $image_spoiler->getImageHeight());
+    $image->compositeImage($image_spoiler, Imagick::COMPOSITE_ATOP, $image_spoiler_x, $image_spoiler_y);
+  }
+  if ($player) {
+    $image_player = new Imagick(__DIR__ . '/static/player.png');
+    $image_player_x = 0.5 * ($thumb_width - $image_player->getImageWidth());
+    $image_player_y = 0.5 * ($thumb_height - $image_player->getImageHeight());
+    $image->compositeImage($image_player, Imagick::COMPOSITE_ATOP, $image_player_x, $image_player_y);
+  }
   $image->setImageFormat($thumb_ext);
   $image->writeImage($thumb_path);
   
@@ -511,7 +514,7 @@ function funcs_board_execute_embed(string $url, array $embed_types, int $max_w =
   $thumb_file_name = 'thumb_' . $thumb_file_name_tmp . '.png';
   $thumb_dir = '/src/';
   $thumb_file_path = __DIR__ . $thumb_dir . $thumb_file_name;
-  $generated_thumb = funcs_board_generate_thumbnail($thumb_file_path_tmp, 'png', $thumb_file_path, $max_w, $max_h);
+  $generated_thumb = funcs_board_generate_thumbnail($thumb_file_path_tmp, false, true, 'png', $thumb_file_path, $max_w, $max_h);
   $image_width = $generated_thumb['image_width'];
   $image_height = $generated_thumb['image_height'];
   $thumb_width = $generated_thumb['thumb_width'];

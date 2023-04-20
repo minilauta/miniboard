@@ -53,19 +53,21 @@
       </tr>
       <?php
         // captcha check
-        if ($context === 'board' && MB_CAPTCHA_THREAD || $context === 'thread' && MB_CAPTCHA_REPLY) {
-          $captcha = MB_CAPTCHA_HCAPTCHA_SITE;
+        if (!funcs_manage_is_logged_in()) {
+          if ($context === 'board' && MB_CAPTCHA_THREAD || $context === 'thread' && MB_CAPTCHA_REPLY) {
+            $captcha = MB_CAPTCHA_HCAPTCHA_SITE;
 
-          echo "
-            <tr>
-              <td class='form-label'>
-                <label for='captcha'>CAPTCHA</label>
-              </td>
-              <td>
-                <div class='h-captcha' data-sitekey='{$captcha}'></div>
-              </td>
-            </tr>
-          ";
+            echo "
+              <tr>
+                <td class='form-label'>
+                  <label for='captcha'>CAPTCHA</label>
+                </td>
+                <td>
+                  <div class='h-captcha' data-sitekey='{$captcha}'></div>
+                </td>
+              </tr>
+            ";
+          }
         }
 
         // board select

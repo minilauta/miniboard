@@ -311,7 +311,7 @@ function bump_thread(string $board_id, int $post_id) : bool {
   ]);
 }
 
-function select_files_by_md5(string $file_md5, bool $spoiler) : array|bool {
+function select_files_by_md5(string $file_md5) : array|bool {
   $dbh = get_db_handle();
   $sth = $dbh->prepare('
     SELECT 
@@ -328,7 +328,7 @@ function select_files_by_md5(string $file_md5, bool $spoiler) : array|bool {
       thumb_width,
       thumb_height
     FROM posts
-    WHERE file_hex = :file_md5 AND thumb ' . ($spoiler === true ? '' : 'NOT') . ' LIKE \'%/spoiler%.%\'
+    WHERE file_hex = :file_md5
   ');
   $sth->execute([
     'file_md5' => $file_md5
