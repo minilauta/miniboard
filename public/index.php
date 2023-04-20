@@ -550,11 +550,11 @@ function handle_postform(Request $request, Response $response, array $args, stri
   }
 
   // validate request file
-  $is_embed = strlen(trim($params['embed'])) > 0;
-  $no_file_ok = ($thread_id != null || $is_embed) ? true : $board_cfg['nofileok'];
-  $file_info = funcs_board_validate_upload($file, $no_file_ok, $board_cfg['mime_ext_types'], $board_cfg['maxkb'] * 1000);
-  $is_file_or_embed = $is_embed || $file_info != null;
-  $spoiler_flag = isset($params['spoiler']) && $params['spoiler'] == true ? 1 : 0;
+  $embed = strlen(trim($params['embed'])) > 0;
+  $spoiler = isset($params['spoiler']) && $params['spoiler'] == true ? true : false;
+  $no_file_ok = ($thread_id != null || $embed) ? true : $board_cfg['nofileok'];
+  $file_info = funcs_board_validate_upload($file, $no_file_ok, $spoiler, $board_cfg['mime_ext_types'], $board_cfg['maxkb'] * 1000);
+  $is_file_or_embed = $embed || $file_info != null;
 
   // validate request message + file or embed
   if (strlen(trim($params['message'])) === 0 && !$is_file_or_embed) {
@@ -564,20 +564,19 @@ function handle_postform(Request $request, Response $response, array $args, stri
   // check md5 file collisions
   $file_collisions = [];
   if ($file_info != null) {
-    $file_collisions = select_files_by_md5($file_info['md5'], $spoiler_flag);
+    $file_collisions = select_files_by_md5($file_info['md5']);
   }
 
   // upload file or embed url
-  $embed = null;
-  if (!$is_embed) {
-    $file = funcs_board_execute_upload($file, $file_info, $file_collisions, $spoiler_flag, $board_cfg['max_width'], $board_cfg['max_height']);
+  if (!$embed) {
+    $file = funcs_board_execute_upload($file, $file_info, $file_collisions, $spoiler, $board_cfg['max_width'], $board_cfg['max_height']);
   } else {
-    $embed = funcs_board_execute_embed($params['embed'], $board_cfg['embed_types'], $board_cfg['max_width'], $board_cfg['max_height']);
+    $file = funcs_board_execute_embed($params['embed'], $board_cfg['embed_types'], $board_cfg['max_width'], $board_cfg['max_height']);
     $file_info = null;
   }
 
   // create post
-  $post = funcs_board_create_post($user_ip, $board_cfg, $thread_id, $file_info, $embed ?? $file, $params);
+  $post = funcs_board_create_post($user_ip, $board_cfg, $thread_id, $file_info, $file, $params);
 
   // generate unique post_id on current board
   init_post_auto_increment($post['board_id']);
