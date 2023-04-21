@@ -48,6 +48,11 @@ define('MB_STYLES', [
   'yotsuba_blue'
 ]);
 define('MB_DELAY', 15);
+define('MB_ERROR_IMAGES', [
+  404 => [
+    'nazrin1.png'
+  ]
+]);
 
 // board settings
 define('MB_BOARDS', [

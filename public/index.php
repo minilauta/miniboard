@@ -630,18 +630,25 @@ $error_handler = function(
     $renderer = new PhpRenderer('templates/', [
       'context' => $context,
       'error_type' => '404',
-      'error_message' => 'Not Found'
+      'error_message' => 'Not Found',
+      'error_image' => '/static/err_404/' . MB_ERROR_IMAGES[404][array_rand(MB_ERROR_IMAGES[404])]
     ]);
     return $renderer->render($response, 'error.phtml');
   }
 
   // Handle custom exceptions
   if ($exception instanceof AppException || $exception instanceof DbException) {
-    $response = $app->getResponseFactory()->createResponse($exception->getCode());
+    $error_code = $exception->getCode();
+    $error_image = null;
+    if (array_key_exists($error_code, MB_ERROR_IMAGES)) {
+      $error_image = '/static/err_' . $error_code . '/' . MB_ERROR_IMAGES[$error_code][array_rand(MB_ERROR_IMAGES[$error_code])];
+    }
+    $response = $app->getResponseFactory()->createResponse($error_code);
     $renderer = new PhpRenderer('templates/', [
       'context' => $context,
-      'error_type' => $exception->getCode() === SC_NOT_FOUND ? '404' : 'Error',
-      'error_message' => $exception->getMessage()
+      'error_type' => $error_code === SC_NOT_FOUND ? '404' : 'Error',
+      'error_message' => $exception->getMessage(),
+      'error_image' => $error_image
     ]);
     return $renderer->render($response, 'error.phtml');
   }
