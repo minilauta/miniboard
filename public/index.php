@@ -336,7 +336,6 @@ $app->get('/{board_id}/hidden/', function (Request $request, Response $response,
   $board_cfg = funcs_common_get_board_cfg($args['board_id']);
   $board_query_id = $board_cfg['type'] !== 'main' ? $board_cfg['id'] : null;
   $board_threads_per_page = $board_cfg['threads_per_page'];
-  $board_posts_per_preview = $board_cfg['posts_per_preview'];
 
   // get query params
   $query_params = $request->getQueryParams();
@@ -425,8 +424,12 @@ $app->get('/{board_id}/{thread_id}/{post_id}/', function (Request $request, Resp
   // get post
   $post = select_post($board_cfg['id'], $args['post_id']);
   if ($post == null || ($post['parent_id'] !== 0 && $post['parent_id'] != $args['thread_id'])) {
-    throw new AppException('index', 'route', "post with ID /{$board_cfg['id']}/{$args['thread_id']}/{$args['post_id']} not found", SC_NOT_FOUND);
+    $renderer = new PhpRenderer('templates/', [
+      'message' => "post with ID /{$board_cfg['id']}/{$args['thread_id']}/{$args['post_id']} not found"
+    ]);
+    return $renderer->render($response, 'board/post_preview_null.phtml');
   }
+
   $post['replies'] = [];
 
   $renderer = new PhpRenderer('templates/', [
