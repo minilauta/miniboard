@@ -1,16 +1,22 @@
 <div class="post-catalog" id="<?=$post['board_id']?>-<?=$post['post_id']?>">
   <?php
+    $thumb_src = null;
+    $thumb_width = null;
+    $thumb_height = null;
     if ($post['file_rendered'] !== '') {
       $thumb_src = "{$post['thumb']}";
       $thumb_width = $post['thumb_width'] * 0.6;
       $thumb_height = $post['thumb_height'] * 0.6;
-
-      echo "
-        <a href='/{$post['board_id']}/{$post['post_id']}'>
-          <img id='thumb-{$post['board_id']}-{$post['post_id']}' src='{$thumb_src}' width='{$thumb_width}' height='{$thumb_height}' loading='lazy'>
-        </a>
-      ";
+    } else {
+      $thumb_src = '/static/nofile.png';
+      $thumb_width = 200 * 0.6;
+      $thumb_height = 200 * 0.6;
     }
+    echo "
+      <a href='/{$post['board_id']}/{$post['post_id']}'>
+        <img id='thumb-{$post['board_id']}-{$post['post_id']}' src='{$thumb_src}' width='{$thumb_width}' height='{$thumb_height}' loading='lazy'>
+      </a>
+    ";
 
     // TODO: create specific function for this
     $message_truncated = substr(trim(str_ireplace("\n", '', strip_tags($post['message_rendered']))), 0, 75);
