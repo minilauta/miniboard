@@ -33,6 +33,36 @@ var state = {
 };
 
 /**
+ * Open a new window, center if possible.
+ * @param {*} url 
+ * @param {*} target 
+ * @param {*} features 
+ * @returns 
+ */
+function open_window(url, target, features) {
+  if (features != null) {
+    let features_split = features.split(',')
+      .map(x => x.trim());
+    let width = features_split.find(x => x.startsWith('width'));
+    let height = features_split.find(x => x.startsWith('height'));
+
+    // center window
+    if (width != null && height != null) {
+      width = parseInt(width.split('=')[1]);
+      height = parseInt(height.split('=')[1]);
+
+      let top = 0.5 * (screen.height - height);
+      let left = 0.5 * (screen.width - width);
+
+      features = features.concat(',', 'top=' + top);
+      features = features.concat(',', 'left=' + left);
+    }
+  }
+
+  return window.open(url, target, features);
+}
+
+/**
  * Set cookie value.
  * @param {*} key 
  * @param {*} val 
@@ -382,7 +412,7 @@ function listener_post_reference_link_mouseleave(event) {
 
   switch (data.cmd) {
     case 'report':
-      window.open('/' + data.board_id + '/' + data.id + '/report', '_blank', 'location=true,status=true,width=480,height=640');
+      open_window('/' + data.board_id + '/' + data.id + '/report', '_blank', 'location=true,status=true,width=480,height=640');
       break;
     case 'hide':
       let xhr = new XMLHttpRequest();
@@ -405,27 +435,27 @@ function listener_post_reference_link_mouseleave(event) {
       break;
     case 'search_saucenao':
       if (thumb != null) {
-        window.open('https://saucenao.com/search.php?url=' + thumb.src, '_blank');
+        open_window('https://saucenao.com/search.php?url=' + thumb.src, '_blank');
       }
       break;
     case 'search_iqdb':
       if (thumb != null) {
-        window.open('http://iqdb.org/?url=' + thumb.src, '_blank');
+        open_window('http://iqdb.org/?url=' + thumb.src, '_blank');
       }
       break;
     case 'search_iqdb3d':
       if (thumb != null) {
-        window.open('http://3d.iqdb.org/?url=' + thumb.src, '_blank');
+        open_window('http://3d.iqdb.org/?url=' + thumb.src, '_blank');
       }
       break;
     case 'search_ascii2d':
       if (thumb != null) {
-        window.open('https://ascii2d.net/search/url/' + thumb.src, '_blank');
+        open_window('https://ascii2d.net/search/url/' + thumb.src, '_blank');
       }
       break;
     case 'search_tineye':
       if (thumb != null) {
-        window.open('https://tineye.com/search?url=' + thumb.src, '_blank');
+        open_window('https://tineye.com/search?url=' + thumb.src, '_blank');
       }
       break;
     default:
@@ -776,6 +806,37 @@ function init_postform_features() {
       if (deleteform_pass != null) {
         deleteform_pass.value = event.target.value;
       }
+    });
+  }
+
+  // setup submit handler
+  let post_form = document.getElementById('form-post');
+  if (post_form != null) {
+    post_form.addEventListener('submit', (event) => {
+      event.preventDefault();
+
+      let xhr = new XMLHttpRequest();
+      let fdata = new FormData(post_form);
+
+      xhr.onreadystatechange = function() {
+        if (xhr.readyState !== XMLHttpRequest.DONE) {
+          return;
+        }
+
+        switch (xhr.status) {
+          case 200:
+            open_window(xhr.responseURL, '_top');
+            break;
+          default:
+            let error_window = open_window('', '_blank', 'location=true,status=true,width=480,height=640');
+            error_window.document.write(xhr.responseText);
+            break;
+        }
+      }
+
+      // submit
+      xhr.open('POST', post_form.action, false);
+      xhr.send(fdata);
     });
   }
 }
