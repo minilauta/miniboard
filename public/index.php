@@ -484,6 +484,11 @@ function handle_deleteform(Request $request, Response $response, array $args): R
     if (!delete_post($delete_board_id, $delete_post_id, false)) {
       throw new AppException('index', 'route', "failed to delete post with ID /{$delete_board_id}/{$delete_post_id}", SC_INTERNAL_ERROR);
     }
+
+    // debump if deleted post was a reply
+    if ($post['parent_id'] > 0) {
+      $thread_bumped = bump_thread($delete_board_id, $post['parent_id']);
+    }
   }
 
   $response = $response

@@ -301,13 +301,30 @@ function delete_post(string $board_id, int $post_id, bool $delete = false) : boo
 function bump_thread(string $board_id, int $post_id) : bool {
   $dbh = get_db_handle();
   $sth = $dbh->prepare('
-    UPDATE posts
-    SET bumped = ' . time() . '
-    WHERE board_id = :board_id AND post_id = :post_id
+    UPDATE posts t
+    SET t.bumped = (
+      SELECT
+        p.timestamp
+      FROM posts p
+      WHERE
+        (
+          p.board_id = :board_id_1 AND p.parent_id = :post_id_1
+          OR
+          p.board_id = :board_id_2 AND p.post_id = :post_id_2 AND p.parent_id = 0
+        )
+        AND p.deleted = 0
+      ORDER BY p.timestamp DESC
+      LIMIT 1
+    )
+    WHERE t.board_id = :board_id_3 AND t.post_id = :post_id_3 AND t.parent_id = 0
   ');
   return $sth->execute([
-    'board_id' => $board_id,
-    'post_id' => $post_id
+    'board_id_1' => $board_id,
+    'post_id_1' => $post_id,
+    'board_id_2' => $board_id,
+    'post_id_2' => $post_id,
+    'board_id_3' => $board_id,
+    'post_id_3' => $post_id
   ]);
 }
 
