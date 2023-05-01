@@ -50,7 +50,10 @@ define('MB_STYLES', [
 define('MB_DELAY', 15);
 define('MB_ERROR_IMAGES', [
   404 => [
-    'nazrin1.png'
+    'nazrin1.png',
+    'mini1.jpg',
+    'mini2.png',
+    'mini3.png',
   ]
 ]);
 
