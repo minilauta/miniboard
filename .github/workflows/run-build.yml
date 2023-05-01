@@ -28,7 +28,7 @@ jobs:
         run: echo "SHORT_SHA=`git rev-parse --short HEAD`" >> $GITHUB_ENV
       - name: Set version stub
         run: |
-          sed -i 's/_MB_VERSION_STUB_/${SHORT_SHA}/g' public/version.php
+          sed -i "s/_MB_VERSION_STUB_/${SHORT_SHA}/g" public/version.php
           cat public/version.php
 
       - name: Build & push (app)
