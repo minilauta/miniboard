@@ -423,8 +423,8 @@ function funcs_board_generate_thumbnail(string $file_path, bool $spoiler, bool $
 
   $image->thumbnailImage($thumb_width, $thumb_height);
   if ($spoiler) {
-    $image->gaussianBlurImage(10, 10);
-    $image->modulateImage(33.0, 25.0, 100.0);
+    $image->gaussianBlurImage(32, 16);
+    $image->modulateImage(50.0, 50.0, 100.0);
     $image_spoiler = new Imagick(__DIR__ . '/static/spoiler.png');
     $image_spoiler_x = 0.5 * ($thumb_width - $image_spoiler->getImageWidth());
     $image_spoiler_y = 0.5 * ($thumb_height - $image_spoiler->getImageHeight());
