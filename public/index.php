@@ -398,6 +398,7 @@ $app->get('/{board_id}/catalog/', function (Request $request, Response $response
 $app->get('/{board_id}/{thread_id}/', function (Request $request, Response $response, array $args) {
   // get board config
   $board_cfg = funcs_common_get_board_cfg($args['board_id']);
+  $board_max_replies = $board_cfg['max_replies'];
 
   // get thread
   $thread = select_post($board_cfg['id'], $args['thread_id']);
@@ -408,7 +409,7 @@ $app->get('/{board_id}/{thread_id}/', function (Request $request, Response $resp
   }
 
   // get replies
-  $thread['replies'] = select_posts(session_id(), $thread['board_id'], $thread['post_id'], false, 0, 1000, false);
+  $thread['replies'] = select_posts(session_id(), $thread['board_id'], $thread['post_id'], false, 0, $board_max_replies, false);
 
   $renderer = new PhpRenderer('templates/', [
     'board' => $board_cfg,
