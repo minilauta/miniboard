@@ -1,4 +1,4 @@
-<link rel="stylesheet" type="text/css" href="/css/index.css">
+<link rel="stylesheet" type="text/css" href="/css/index.css?mb_version=<?=MB_VERSION?>">
 <?php
   $mb_style = MB_STYLES[0];
   if (isset($_COOKIE["miniboard/style"])) {
@@ -9,5 +9,5 @@
     }
   }
 
-  echo "<link rel=\"stylesheet\" type=\"text/css\" href=\"/css/{$mb_style}.css\">";
+  echo "<link rel=\"stylesheet\" type=\"text/css\" href=\"/css/{$mb_style}.css?mb_version=" . MB_VERSION . "\">";
 ?>

@@ -26,6 +26,10 @@ jobs:
           password: ${{ secrets.GITHUB_TOKEN }}
       - name: Get short SHA
         run: echo "SHORT_SHA=`git rev-parse --short HEAD`" >> $GITHUB_ENV
+      - name: Set version stub
+        run: |
+          sed -i 's/_MB_VERSION_STUB_/${SHORT_SHA}/g' public/version.php
+          cat public/version.php
 
       - name: Build & push (app)
         run: |
