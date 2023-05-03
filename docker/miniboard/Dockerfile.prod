@@ -1,23 +1,23 @@
 FROM php:8.0.3-fpm-alpine3.12
 
-WORKDIR /
-
+# install and configure php
 RUN apk add --no-cache ffmpeg exiftool fcgi
 RUN mv $PHP_INI_DIR/php.ini-production $PHP_INI_DIR/php.ini
-COPY docker/miniboard/php/conf.d/miniboard.ini $PHP_INI_DIR/conf.d/
-COPY docker/miniboard/php/conf.d/opcache.ini $PHP_INI_DIR/conf.d/
 ADD https://github.com/mlocati/docker-php-extension-installer/releases/latest/download/install-php-extensions /usr/local/bin/
 RUN chmod +x /usr/local/bin/install-php-extensions && \
     sync && \
     install-php-extensions @composer imagick opcache pdo pdo_mysql redis && \
     docker-php-ext-enable imagick opcache pdo_mysql redis
+COPY docker/miniboard/php/conf.d/miniboard.ini $PHP_INI_DIR/conf.d/
+COPY docker/miniboard/php/conf.d/opcache.ini $PHP_INI_DIR/conf.d/
+
+# install miniboard
 COPY . /app
-
 WORKDIR /app
+RUN composer install --no-interaction --no-dev && \
+    chown www-data:www-data -R public
 
-RUN composer install && chown www-data:www-data -R public
-
+# runtime setup
 WORKDIR /app/public
-
 EXPOSE 80
 ENV MB_ENV prod
