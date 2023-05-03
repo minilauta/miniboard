@@ -1,4 +1,4 @@
-import './polyfill';
+export * from './polyfill';
 
 // ruffle player
 window.RufflePlayer = window.RufflePlayer || {};

@@ -1,3 +1,5 @@
+import 'whatwg-fetch';
+
 // Source: https://github.com/jserz/js_piece/blob/master/DOM/ParentNode/append()/append().md
 (function (arr) {
   arr.forEach(function (item) {

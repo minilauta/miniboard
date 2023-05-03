@@ -16,7 +16,8 @@
   },
   "dependencies": {
     "@ruffle-rs/ruffle": "^0.1.0-nightly.2023.1.22",
-    "core-js": "3.26"
+    "core-js": "3.26",
+    "whatwg-fetch": "^3.6.2"
   },
   "scripts": {
     "build": "NODE_ENV=production webpack",
