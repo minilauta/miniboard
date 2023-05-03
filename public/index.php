@@ -441,7 +441,29 @@ $app->get('/{board_id}/{thread_id}/{post_id}/', function (Request $request, Resp
 });
 
 $app->post('/{board_id}/', function (Request $request, Response $response, array $args) {
-  return handle_postform($request, $response, $args, 'board');
+  $error_code = null;
+  $error_message = null;
+  
+  try {
+    return handle_postform($request, $response, $args, 'board');
+  } catch (AppException $ex) {
+    $error_code = $ex->getCode();
+    $error_message = $ex->getMessage();
+  } catch (DbException $ex) {
+    $error_code = $ex->getCode();
+    $error_message = $ex->getMessage();
+  } catch (Exception $ex) {
+    $error_code = $ex->getCode();
+    $error_message = $ex->getMessage();
+  }
+  
+  $response = $response
+    ->withHeader('Content-Type', 'application/json')
+    ->withStatus($error_code);
+  $response->getBody()->write(json_encode([
+    'error_message' => $error_message,
+  ]));
+  return $response;
 });
 
 $app->post('/{board_id}/delete/', function (Request $request, Response $response, array $args) {
@@ -499,7 +521,29 @@ function handle_deleteform(Request $request, Response $response, array $args): R
 }
 
 $app->post('/{board_id}/{thread_id}/', function (Request $request, Response $response, array $args) {
-  return handle_postform($request, $response, $args, 'thread');
+  $error_code = null;
+  $error_message = null;
+  
+  try {
+    return handle_postform($request, $response, $args, 'thread');
+  } catch (AppException $ex) {
+    $error_code = $ex->getCode();
+    $error_message = $ex->getMessage();
+  } catch (DbException $ex) {
+    $error_code = $ex->getCode();
+    $error_message = $ex->getMessage();
+  } catch (Exception $ex) {
+    $error_code = $ex->getCode();
+    $error_message = $ex->getMessage();
+  }
+  
+  $response = $response
+    ->withHeader('Content-Type', 'application/json')
+    ->withStatus($error_code);
+  $response->getBody()->write(json_encode([
+    'error_message' => $error_message,
+  ]));
+  return $response;
 });
 
 function handle_postform(Request $request, Response $response, array $args, string $context): Response {
@@ -602,14 +646,17 @@ function handle_postform(Request $request, Response $response, array $args, stri
   }
 
   // handle noko
-  $location_header = '/' . $board_cfg['id'] . '/';
+  $redirect_url = '/' . $board_cfg['id'] . '/';
   if (strtolower($post['email']) === 'noko' || $board_cfg['alwaysnoko']) {
-    $location_header .= ($post['parent_id'] === 0 ? $inserted_post_id : $post['parent_id']) . '/#' . $post['board_id'] . '-' . $inserted_post_id;
+    $redirect_url .= ($post['parent_id'] === 0 ? $inserted_post_id : $post['parent_id']) . '/#' . $post['board_id'] . '-' . $inserted_post_id;
   }
 
   $response = $response
-    ->withHeader('Location', $location_header)
-    ->withStatus(303);
+    ->withHeader('Content-Type', 'application/json')
+    ->withStatus(200);
+  $response->getBody()->write(json_encode([
+    'redirect_url' => $redirect_url,
+  ]));
   return $response;
 }
 

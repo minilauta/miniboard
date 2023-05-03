@@ -815,28 +815,27 @@ function init_postform_features() {
     post_form.addEventListener('submit', (event) => {
       event.preventDefault();
 
-      let xhr = new XMLHttpRequest();
-      let fdata = new FormData(post_form);
-
-      xhr.onreadystatechange = function() {
-        if (xhr.readyState !== XMLHttpRequest.DONE) {
-          return;
-        }
-
-        switch (xhr.status) {
-          case 200:
-            open_window(xhr.responseURL, '_top');
-            break;
-          default:
-            let error_window = open_window('', '_blank', 'location=true,status=true,width=480,height=640');
-            error_window.document.write(xhr.responseText);
-            break;
-        }
-      }
-
-      // submit
-      xhr.open('POST', post_form.action, false);
-      xhr.send(fdata);
+      fetch(post_form.action, {
+        method: 'POST',
+        body: new FormData(post_form)
+      }).then((data) => {
+        data.json().then((response) => {
+          // 200 OK, follow redirect
+          if (data.status === 200 && response['redirect_url'] != null) {
+            window.location.href = window.location.origin + '/' + response['redirect_url'];
+            setTimeout(() => {
+              window.location.reload(true);
+            }, 250);
+          // xxx ERROR, show error window
+          } else {
+            open_window('', '_blank', 'location=true,status=true,width=480,height=640')
+              .document.write(response['error_message']);
+          }
+        });
+      }).catch((error) => {
+        open_window('', '_blank', 'location=true,status=true,width=480,height=640')
+          .document.write(error);
+      });
     });
   }
 }
