@@ -150,6 +150,9 @@ function funcs_board_render_message(string $board_id, string $input, int $trunca
     return $matches[0];
   }, $message);
 
+  // preprocess message links
+  $message = preg_replace('/(http|https):\/\/([^\r\n\s]+)/m', '<a href="$0" target="_blank">$0</a>', $message);
+
   // preprocess message quotes
   $message = preg_replace('/(^&gt;)(?!&gt;)([^\r\n]+)/m', '<span class="quote">$0</span>', $message);
 
