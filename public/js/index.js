@@ -146,9 +146,9 @@ function listener_post_thumb_link_click(event) {
         let source = document.createElement('source');
         source.src = file_href;
         let video = document.createElement('video');
-        video.onloadstart = 'this.volume=0.25';
-        video.autoplay = 'true';
-        video.controls = 'true';
+        video.setAttribute('onloadstart', 'this.volume=0.25');
+        video.setAttribute('autoplay', 'true');
+        video.setAttribute('controls', 'true');
         video.style.maxWidth = '85vw';
         video.style.height = 'auto';
         video.style.cursor = 'default';
@@ -159,9 +159,9 @@ function listener_post_thumb_link_click(event) {
       case 'mp3':
         let audio = document.createElement('audio');
         audio.src = file_href;
-        audio.onloadstart = 'this.volume=0.25';
-        audio.autoplay = 'true';
-        audio.controls = 'true';
+        audio.setAttribute('onloadstart', 'this.volume=0.25');
+        audio.setAttribute('autoplay', 'true');
+        audio.setAttribute('controls', 'true');
         audio.style.width = target.width + 'px';
         audio.style.cursor = 'default';
 
@@ -178,6 +178,8 @@ function listener_post_thumb_link_click(event) {
           url: file_href,
           autoplay: 'on',
           allowScriptAccess: false,
+        }).then(() => {
+          player.volume = 0.25;
         });
         break;
       case 'embed':
