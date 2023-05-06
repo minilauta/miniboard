@@ -13,6 +13,19 @@ env:
   REPO: ${{ github.repository }}
 
 jobs:
+  strategy:
+    matrix:
+      image:
+        - name: app
+          folder: docker/miniboard
+          dockerfile: Dockerfile.prod
+        - name: nginx
+          folder: docker/nginx
+          dockerfile: Dockerfile
+        - name: flyway
+          folder: docker/flyway
+          dockerfile: Dockerfile
+
   build:
     runs-on: ubuntu-latest
     steps:
@@ -31,45 +44,15 @@ jobs:
           sed -i "s/_MB_VERSION_STUB_/${SHORT_SHA}/g" public/version.php
           cat public/version.php
 
-      - name: Build & push (app)
+      - name: Build & push ${{ matrix.image.name }}
         uses: docker/build-push-action@v4
         with:
           context: .
-          file: docker/miniboard/Dockerfile.prod
+          file: ${{ matrix.image.folder }}/${{ matrix.image.dockerfile }}
           push: true
           tags: |
-            ghcr.io/anonyymi/miniboard/app:latest
-            ghcr.io/anonyymi/miniboard/app:${{ env.SHORT_SHA }}
-          platforms: |
-            linux/arm64
-            linux/amd64
-          cache-from: type=gha
-          cache-to: type=gha,mode=max
-
-      - name: Build & push (nginx)
-        uses: docker/build-push-action@v4
-        with:
-          context: .
-          file: docker/nginx/Dockerfile
-          push: true
-          tags: |
-            ghcr.io/anonyymi/miniboard/nginx:latest
-            ghcr.io/anonyymi/miniboard/nginx:${{ env.SHORT_SHA }}
-          platforms: |
-            linux/arm64
-            linux/amd64
-          cache-from: type=gha
-          cache-to: type=gha,mode=max
-
-      - name: Build & push (flyway)
-        uses: docker/build-push-action@v4
-        with:
-          context: .
-          file: docker/flyway/Dockerfile
-          push: true
-          tags: |
-            ghcr.io/anonyymi/miniboard/flyway:latest
-            ghcr.io/anonyymi/miniboard/flyway:${{ env.SHORT_SHA }}
+            ghcr.io/anonyymi/miniboard/${{ matrix.image.name }}:latest
+            ghcr.io/anonyymi/miniboard/${{ matrix.image.name }}:${{ env.SHORT_SHA }}
           platforms: |
             linux/arm64
             linux/amd64
