@@ -39,7 +39,7 @@ jobs:
           push: true
           tags: |
             ghcr.io/anonyymi/miniboard/app:latest
-            ghcr.io/anonyymi/miniboard/app:${SHORT_SHA}
+            ghcr.io/anonyymi/miniboard/app:${{ env.SHORT_SHA }}
           platforms: |
             linux/arm64
             linux/amd64
@@ -54,7 +54,7 @@ jobs:
           push: true
           tags: |
             ghcr.io/anonyymi/miniboard/nginx:latest
-            ghcr.io/anonyymi/miniboard/nginx:${SHORT_SHA}
+            ghcr.io/anonyymi/miniboard/nginx:${{ env.SHORT_SHA }}
           platforms: |
             linux/arm64
             linux/amd64
@@ -69,7 +69,7 @@ jobs:
           push: true
           tags: |
             ghcr.io/anonyymi/miniboard/flyway:latest
-            ghcr.io/anonyymi/miniboard/flyway:${SHORT_SHA}
+            ghcr.io/anonyymi/miniboard/flyway:${{ env.SHORT_SHA }}
           platforms: |
             linux/arm64
             linux/amd64
