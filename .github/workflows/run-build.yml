@@ -32,34 +32,46 @@ jobs:
           cat public/version.php
 
       - name: Build & push (app)
-        run: |
-          docker buildx build \
-            -t ghcr.io/anonyymi/miniboard/app:latest \
-            -t ghcr.io/anonyymi/miniboard/app:${SHORT_SHA} \
-            -f docker/miniboard/Dockerfile.prod \
-            --platform=linux/arm64,linux/amd64 \
-            --cache-from type=gha \
-            --cache-to type=gha,mode=max \
-            --push .
+        uses: docker/build-push-action@v4
+        with:
+          context: .
+          file: docker/miniboard/Dockerfile.prod
+          push: true
+          tags: |
+            ghcr.io/anonyymi/miniboard/app:latest
+            ghcr.io/anonyymi/miniboard/app:${SHORT_SHA}
+          platforms: |
+            linux/arm64
+            linux/amd64
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
 
       - name: Build & push (nginx)
-        run: |
-          docker buildx build \
-            -t ghcr.io/anonyymi/miniboard/nginx:latest \
-            -t ghcr.io/anonyymi/miniboard/nginx:${SHORT_SHA} \
-            -f docker/nginx/Dockerfile \
-            --platform=linux/arm64,linux/amd64 \
-            --cache-from type=gha \
-            --cache-to type=gha,mode=max \
-            --push .
+        uses: docker/build-push-action@v4
+        with:
+          context: .
+          file: docker/nginx/Dockerfile
+          push: true
+          tags: |
+            ghcr.io/anonyymi/miniboard/nginx:latest
+            ghcr.io/anonyymi/miniboard/nginx:${SHORT_SHA}
+          platforms: |
+            linux/arm64
+            linux/amd64
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
 
       - name: Build & push (flyway)
-        run: |
-          docker buildx build \
-            -t ghcr.io/anonyymi/miniboard/flyway:latest \
-            -t ghcr.io/anonyymi/miniboard/nginx:${SHORT_SHA} \
-            -f docker/flyway/Dockerfile \
-            --platform=linux/arm64,linux/amd64 \
-            --cache-from type=gha \
-            --cache-to type=gha,mode=max \
-            --push .
+        uses: docker/build-push-action@v4
+        with:
+          context: .
+          file: docker/flyway/Dockerfile
+          push: true
+          tags: |
+            ghcr.io/anonyymi/miniboard/flyway:latest
+            ghcr.io/anonyymi/miniboard/flyway:${SHORT_SHA}
+          platforms: |
+            linux/arm64
+            linux/amd64
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
