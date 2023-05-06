@@ -54,5 +54,5 @@ jobs:
           platforms: |
             linux/arm64
             linux/amd64
-          cache-from: type=gha
-          cache-to: type=gha,mode=max
+          cache-from: type=gha,scope=${{ github.ref_name }}-build-${{ matrix.image.name }}
+          cache-to: type=gha,scope=${{ github.ref_name }}-build-${{ matrix.image.name }},mode=max

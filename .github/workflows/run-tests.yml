@@ -21,8 +21,8 @@ jobs:
           push: false
           load: true
           set: |
-            app.cache-from=type=gha
-            app.cache-to=type=gha
+            app.cache-from=type=gha,scope=${GITHUB_REF_NAME}-tests
+            app.cache-to=type=gha,scope=${GITHUB_REF_NAME}-tests
       - name: Test
         run: docker compose run --name 'miniboard_test_${{ github.sha }}' test
       - name: Copy
