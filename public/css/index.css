@@ -192,7 +192,7 @@ div.dd-menu li {
 
 /* post preview */
 div.post-preview {
-  position: absolute;
+  position: fixed;
 }
 
 div.post-preview > div.post {

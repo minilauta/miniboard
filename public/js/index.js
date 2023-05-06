@@ -537,13 +537,19 @@ function create_dropdown_menu(target, board_id, parent_id, id, rect, indices) {
  * @param {array} content 
  */
 function create_post_preview(target, board_id, parent_id, id, rect, content) {
+  // get target bounding client rect
+  let target_rect = target.getBoundingClientRect();
+
   // create container element
   let div = document.createElement('div');
   div.dataset.board_id = board_id;
   div.dataset.parent_id = parent_id;
   div.dataset.id = id;
   div.classList.add('post-preview');
-  div.style.left = (rect.right + window.scrollX) + 'px';
+  div.style.left = '0';
+  div.style.top = '0';
+  div.style.right = 'auto';
+  div.style.bottom = 'auto';
 
   // append post HTML content
   div.innerHTML = content;
@@ -551,11 +557,12 @@ function create_post_preview(target, board_id, parent_id, id, rect, content) {
   // append container to target element
   target.appendChild(div);
 
-  // get initial container client rect
+  // get container bounding client rect
   let div_rect = div.getBoundingClientRect();
 
-  // position container next to target
-  div.style.top = (rect.bottom + 0.5 * (div_rect.top - div_rect.bottom) + window.scrollY) + 'px';
+  // position container in viewport
+  div.style.left = target_rect.right + 'px';
+  div.style.top = (target_rect.bottom - div_rect.height * 0.5) + 'px';
 
   // overflow on y-axis: shift container up/down by overflow amount
   div_rect = div.getBoundingClientRect();
@@ -566,6 +573,9 @@ function create_post_preview(target, board_id, parent_id, id, rect, content) {
     let overflow_y = div_rect.top;
     div.style.top = (parseInt(div.style.top, 10) - overflow_y) + 'px';
   }
+
+  // recursively init container post ref links
+  init_post_reference_links(div);
 }
 
 /**
