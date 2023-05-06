@@ -7,6 +7,9 @@
   </head>
   <body>
     <?=$this->fetch("{$context}/menubar.phtml", ['board_id' => array_key_first(MB_BOARDS), 'thread_id' => null])?>
+    <hr>
+    <?=$this->fetch('common/banner.phtml')?>
+    <hr>
     <?=$this->fetch('common/header.phtml', ['header' => ['title' => $error_type, 'subtitle' => $error_message]])?>
     <hr>
     <?php

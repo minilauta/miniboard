@@ -1,0 +1,9 @@
+<div class="container-centered">
+  <div class="banner">
+    <?php
+      $banner_image = array_rand(MB_BANNER_IMAGES);
+      $banner_image_board = '/static/banners/' . MB_BANNER_IMAGES[$banner_image];
+      echo "<img src=\"/static/banners/{$banner_image}\" loading='lazy'>";
+    ?>
+  </div>
+</div>

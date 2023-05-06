@@ -56,6 +56,13 @@ define('MB_ERROR_IMAGES', [
     'mini3.png',
   ]
 ]);
+define('MB_BANNER_IMAGES', [
+  'b2.png' => 'b',
+  'b3.png' => 'b',
+  'b4.png' => 'b',
+  'b6.png' => 'b',
+  'b7.gif' => 'b',
+]);
 
 // board settings
 define('MB_BOARDS', [

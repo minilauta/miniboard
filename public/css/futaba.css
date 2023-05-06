@@ -7,9 +7,9 @@ body {
 hr {
   border: 0;
   height: 1px;
-  color: #800000;
-  background-color: #800000;
-	background-image: linear-gradient(to left, rgba(255,255,238,1), rgba(128,0,0,0.75), rgba(255,255,238,1));
+  color: #d9bfb7;
+  background-color: #d9bfb7;
+	background-image: linear-gradient(to left, rgba(255,255,238,1), rgb(200, 175, 167), rgba(255,255,238,1));
 }
 
 a {

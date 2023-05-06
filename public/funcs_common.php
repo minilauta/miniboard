@@ -8,7 +8,7 @@ require_once __DIR__ . '/exception.php';
  */
 function funcs_common_get_board_cfg(string $board_id): array {
   if (!isset(MB_BOARDS[$board_id])) {
-    throw new AppException('funcs_common', 'get_board_cfg', "board with id /{$board_id}/ cannot be found", SC_BAD_REQUEST);
+    throw new AppException('funcs_common', 'get_board_cfg', "board with id /{$board_id}/ cannot be found", SC_NOT_FOUND);
   }
 
   return MB_BOARDS[$board_id];

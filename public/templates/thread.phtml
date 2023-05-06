@@ -16,6 +16,9 @@
   </head>
   <body>
     <?=$this->fetch('board/menubar.phtml', ['board_id' => $board['id'], 'thread_id' => $thread['post_id']])?>
+    <hr>
+    <?=$this->fetch('common/banner.phtml')?>
+    <hr>
     <?=$this->fetch('common/header.phtml', ['header' => ['title' => "/{$board['id']}/ - {$board['name']}", 'subtitle' => $board['desc']]])?>
     <hr>
     [<a href="../">Return</a>]
