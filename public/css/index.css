@@ -12,6 +12,11 @@ hr {
   clear: both;
 }
 
+/* banner */
+div.banner {
+  clear: both;
+}
+
 /* header */
 div.header {
   clear: both;
