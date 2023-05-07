@@ -396,7 +396,7 @@ function listener_post_reference_link_mouseleave(event) {
   // update state
   state.mouse_over_post_ref_link = false;
 
-  delete_post_previews();
+  delete_post_previews(event.target);
 }
 
 /**
@@ -603,9 +603,12 @@ function delete_dropdown_menu(id) {
 /**
  * Deletes all existing post previews.
  */
-function delete_post_previews() {
-  let post_previews = document.getElementsByClassName('post-preview');
+function delete_post_previews(target) {
+  if (target == null) {
+    target = document;
+  }
 
+  let post_previews = target.getElementsByClassName('post-preview');
   Array.from(post_previews).forEach(element => {
     element.remove();
   });
