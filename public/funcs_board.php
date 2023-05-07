@@ -275,7 +275,6 @@ function funcs_board_execute_upload(UploadedFileInterface $file, ?array $file_in
       case 'image/pjpeg':
       case 'image/png':
       case 'image/gif':
-      case 'image/webp':
       case 'image/tiff':
       case 'video/mp4':
         $exiftool_status = funcs_board_strip_metadata($file_path);
