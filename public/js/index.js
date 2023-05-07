@@ -574,6 +574,16 @@ function create_post_preview(target, board_id, parent_id, id, rect, content) {
     div.style.top = (parseInt(div.style.top, 10) - overflow_y) + 'px';
   }
 
+  // overflow on x-axis: shift container left/right by overflow amount
+  div_rect = div.getBoundingClientRect();
+  if (div_rect.right > window.innerWidth) {
+    let overflow_x = div_rect.right - window.innerWidth;
+    div.style.left = (parseInt(div.style.left, 10) - overflow_x) + 'px';
+  } else if (div_rect.left < 0) {
+    let overflow_x = div_rect.left;
+    div.style.left = (parseInt(div.style.left, 10) - overflow_x) + 'px';
+  }
+
   // recursively init container post ref links
   init_post_reference_links(div);
 }
