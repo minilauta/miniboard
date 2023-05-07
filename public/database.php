@@ -445,11 +445,29 @@ function select_account(string $username): array|bool {
   return $sth->fetch();
 }
 
-function select_account_details(): array|bool {
+function select_all_accounts(bool $desc = true, int $offset = 0, int $limit = 10): array|bool {
   $dbh = get_db_handle();
-  $sth = $dbh->prepare('SELECT username, role, lastactive FROM accounts');
-  $sth->execute();
+  $sth = $dbh->prepare('
+    SELECT
+      *
+    FROM accounts
+    ORDER BY id ' . ($desc === true ? 'DESC' : 'ASC') . '
+    LIMIT :limit OFFSET :offset
+  ');
+  $sth->execute([
+    'limit' => $limit,
+    'offset' => $offset
+  ]);
   return $sth->fetchAll();
+}
+
+function count_all_accounts(): int|bool {
+  $dbh = get_db_handle();
+  $sth = $dbh->prepare('
+    SELECT COUNT(*) FROM accounts
+  ');
+  $sth->execute();
+  return $sth->fetchColumn();
 }
 
 function update_account(array $account): bool {

@@ -143,14 +143,6 @@ a > div.post-preview {
 }
 
 /* manage */
-.modform table, .modform th, .modform td {
-  border: 1px solid;
-}
-
-.reportform table, .reportform th, .reportform td {
-  border: 1px solid;
-}
-
-.logs table, .logs th, .logs td {
+.form-manage table, .form-manage th, .form-manage td {
   border: 1px solid;
 }

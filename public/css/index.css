@@ -260,53 +260,24 @@ div.h-captcha {
 }
 
 /* manage */
-.modform table, .modform th, .modform td {
+.form-manage table, .form-manage th, .form-manage td {
   border-collapse: collapse;
 }
 
-.modform th {
+table.form-manage-table {
+  width: 100%;
+  margin: 4px auto 4px auto;
+}
+
+.form-manage th {
   text-align: left;
 }
 
-.modform td {
+.form-manage td {
   text-align: left;
   vertical-align: top;
 }
 
-.modform td * {
-  padding: 0px;
-}
-
-.reportform table, .reportform th, .reportform td {
-  border-collapse: collapse;
-}
-
-.reportform th {
-  text-align: left;
-}
-
-.reportform td {
-  text-align: left;
-  vertical-align: top;
-}
-
-.reportform td * {
-  padding: 0px;
-}
-
-.logs table, .logs th, .logs td {
-  border-collapse: collapse;
-}
-
-.logs th {
-  text-align: left;
-}
-
-.logs td {
-  text-align: left;
-  vertical-align: top;
-}
-
-.logs td * {
+.form-manage td * {
   padding: 0px;
 }

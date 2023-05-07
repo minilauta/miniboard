@@ -11,13 +11,6 @@
     <hr>
     <?php
       switch ($route) {
-        case 'accounts':
-          if (funcs_manage_get_role() !== MB_ROLE_SUPERADMIN) {
-            throw new AppException('manage.phtml', 'inline', 'insufficient permissions', SC_FORBIDDEN);
-          }
-
-          echo $this->fetch('manage/accounts.phtml', ['account_details' => select_account_details()]);
-          break;
         case 'import':
           if (funcs_manage_get_role() !== MB_ROLE_SUPERADMIN) {
             throw new AppException('manage.phtml', 'inline', 'insufficient permissions', SC_FORBIDDEN);
@@ -31,6 +24,30 @@
           }
 
           echo $this->fetch('manage/rebuildform.phtml');
+          break;
+        case 'accounts':
+          if (funcs_manage_get_role() !== MB_ROLE_SUPERADMIN) {
+            throw new AppException('manage.phtml', 'inline', 'insufficient permissions', SC_FORBIDDEN);
+          }
+
+          // set constants
+          $accounts_per_page = 50;
+
+          // get accounts
+          $accounts = select_all_accounts(false, $accounts_per_page * $page, $accounts_per_page);
+
+          // get account count
+          $accounts_n = count_all_accounts();
+
+          // calculate page count
+          $page_n = ceil($accounts_n / $accounts_per_page);
+
+          echo $this->fetch('manage/accountform.phtml', [
+            'accounts' => $accounts,
+            'page' => $page,
+            'page_n' => $page_n
+          ]);
+          echo $this->fetch('common/pagetable.phtml', ['page' => $page, 'page_n' => $page_n]);
           break;
         case 'logs':
           // set constants
@@ -51,7 +68,7 @@
           // calculate page count
           $page_n = ceil($logs_n / $logs_per_page);
 
-          echo $this->fetch('manage/logs.phtml', [
+          echo $this->fetch('manage/logform.phtml', [
             'logs' => $logs,
             'page' => $page,
             'page_n' => $page_n
