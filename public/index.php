@@ -599,6 +599,10 @@ function handle_postform(Request $request, Response $response, array $args, stri
     if ($parent != null && $parent['parent_id'] > 0) {
       throw new AppException('index', 'route', "thread with ID /{$board_cfg['id']}/{$args['thread_id']} not found", SC_NOT_FOUND);
     } else if ($parent != null) {
+      if ($parent['locked'] !== 0 && !$user_is_logged_in) {
+        throw new AppException('index', 'route', "thread with ID /{$board_cfg['id']}/{$args['thread_id']} is locked", SC_FORBIDDEN);
+      }
+
       $thread_id = $parent['post_id'];
     }
   }
