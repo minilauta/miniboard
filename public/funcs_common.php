@@ -66,7 +66,7 @@ function funcs_common_validate_fields(array $input, array $fields) {
 /**
  * Parses an input string as a string, throws on errors.
  */
-function funcs_common_parse_input_str(array $input, string $key, string $default = null, int $min = null, int $max = null): string {
+function funcs_common_parse_input_str(array $input, string $key, string $default = null, int $min_len = null, int $max_len = null): string {
   if (!isset($input[$key])) {
     if ($default !== null) {
       return $default;
@@ -77,12 +77,12 @@ function funcs_common_parse_input_str(array $input, string $key, string $default
 
   $result = $input[$key];
 
-  if ($min !== null && strlen($result) < $min) {
-    throw new AppException('funcs_common', 'parse_input_str', 'min len error', SC_BAD_REQUEST);
+  if ($min_len !== null && strlen($result) < $min_len) {
+    throw new AppException('funcs_common', 'parse_input_str', 'min length error', SC_BAD_REQUEST);
   }
 
-  if ($max !== null && strlen($result) > $max) {
-    throw new AppException('funcs_common', 'parse_input_str', 'max len error', SC_BAD_REQUEST);
+  if ($max_len !== null && strlen($result) > $max_len) {
+    throw new AppException('funcs_common', 'parse_input_str', 'max length error', SC_BAD_REQUEST);
   }
 
   return $result;
@@ -116,14 +116,14 @@ function funcs_common_parse_input_int(array $input, string $key, int $default = 
 /**
  * Escapes an user submitted text field before it's stored in database.
  */
-function funcs_common_clean_field(string $field) : string {
+function funcs_common_clean_field(string $field): string {
   return htmlspecialchars($field, ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML401, 'UTF-8');
 }
 
 /**
  * Turns a size in bytes to a human readable string representation.
  */
-function funcs_common_human_filesize(int $bytes, int $dec = 2) : string {
+function funcs_common_human_filesize(int $bytes, int $dec = 2): string {
   $size = array('B', 'KB', 'MB', 'GB', 'TB', 'PB', 'EB', 'ZB', 'YB');
   $factor = floor((strlen($bytes) - 1) / 3);
 

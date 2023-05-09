@@ -42,6 +42,8 @@ function funcs_manage_is_logged_in(): bool {
  * Destroys user session variables.
  */
 function funcs_manage_logout(): bool {
+  funcs_manage_log('Logged out');
+
   // destroy session variables and return success code
   return session_unset();
 }
@@ -65,6 +67,7 @@ function funcs_manage_import(array $params): string {
 
   // handle each table type separately
   $inserted = 0;
+  $warnings = [];
   switch ($params['table_type']) {
     case MB_IMPORT_TINYIB_ACCOUNTS:
       // execute import
@@ -73,23 +76,32 @@ function funcs_manage_import(array $params): string {
     case MB_IMPORT_TINYIB_POSTS:
       // validate params
       if (!array_key_exists($params['board_id'], MB_BOARDS)) {
-        return "Target BOARD id '{$params['board_id']}' not found";
+        $warnings[] = "Target BOARD id '{$params['board_id']}' not found";
+      } else {
+        // init auto increment table
+        init_post_auto_increment($params['board_id']);
+  
+        // execute import
+        $inserted = insert_import_posts_tinyib($params, $params['table_name'], $params['board_id']);
+  
+        // refresh auto increment table
+        refresh_post_auto_increment($params['board_id']);
       }
-
-      // init auto increment table
-      init_post_auto_increment($params['board_id']);
-
-      // execute import
-      $inserted = insert_import_posts_tinyib($params, $params['table_name'], $params['board_id']);
-
-      // refresh auto increment table
-      refresh_post_auto_increment($params['board_id']);
       break;
     default:
-      return "Unsupported table_type '{$params['table_type']}'";
+      $warnings[] = "Unsupported table_type '{$params['table_type']}'";
+      break;
   }
 
-  return "Inserted {$inserted} rows from target database '{$params['db_name']}' table '{$params['table_name']}' successfully";
+  // collect warnings
+  $warnings = implode('<br>  - ', $warnings);
+
+  $status = "Imported {$inserted} rows";
+  if (strlen($warnings) > 0) {
+    $status .= "<br>Warnings:<br>- {$warnings}";
+  }
+  funcs_manage_log($status);
+  return $status;
 }
 
 /**
@@ -107,6 +119,7 @@ function funcs_manage_rebuild(array $params): string {
   // rebuild each post
   $processed = 0;
   $total = count($posts);
+  $warnings = [];
   foreach ($posts as &$post) {
     // process fields
     $name = $post['name'] !== '' ? $post['name'] : $board_cfg['anonymous'];
@@ -141,25 +154,33 @@ function funcs_manage_rebuild(array $params): string {
       'file_rendered' => $file
     ];
     if (!update_rebuild_post($rebuild_post)) {
-      return "Failed to rebuild post /{$post['board_id']}/{$post['post_id']}/, processed {$processed}/{$total}";
+      $warnings[] = "Failed to rebuild post /{$post['board_id']}/{$post['post_id']}/";
     }
 
     $processed++;
   }
 
-  return "Rebuilt all posts on board /{$board_cfg['id']}/, processed {$processed}/{$total}";
+  // collect warnings
+  $warnings = implode('<br>  - ', $warnings);
+
+  $status = "Rebuilt {$processed}/{$total} posts";
+  if (strlen($warnings) > 0) {
+    $status .= "<br>Warnings:<br>- {$warnings}";
+  }
+  funcs_manage_log($status);
+  return $status;
 }
 
 /**
  * Deletes all selected posts from filesystem and database.
  */
 function funcs_manage_delete(array $select): string {
-  funcs_manage_log('Deleted posts: ' . implode(', ', $select));
+  funcs_manage_log('Executed delete, target posts: ' . implode(', ', $select));
 
   // delete each post and replies
   $processed = 0;
   $total = 0;
-  $warnings = '';
+  $warnings = [];
   foreach ($select as $val) {
     // parse board id and post id
     $selected_parsed = explode('/', $val);
@@ -182,31 +203,44 @@ function funcs_manage_delete(array $select): string {
       if ($file_collisions_n === 1) {
         if ($post['embed'] === 0 && strlen($post['file']) > 0) {
           if (!unlink(__DIR__ . $post['file'])) {
-            $warnings .= "Failed to delete file for post /{$post['board_id']}/{$post['post_id']}/ (maybe it didn't exist?)!<br>";
+            $warnings[] = "Failed to delete file for post /{$post['board_id']}/{$post['post_id']}/ (maybe it didn't exist?)";
           }
         }
         
         if (!$static && strlen($post['thumb']) > 0) {
           if (!unlink(__DIR__ . $post['thumb'])) {
-            $warnings .= "Failed to delete thumbnail for post /{$post['board_id']}/{$post['post_id']}/ (maybe it didn't exist?)!<br>";
+            $warnings[] = "Failed to delete thumbnail for post /{$post['board_id']}/{$post['post_id']}/ (maybe it didn't exist?)";
           }
         }
       }
 
       // delete post from db
       if (!delete_post($post['board_id'], $post['post_id'], true)) {
-        $warnings .= "Failed to delete post /{$post['board_id']}/{$post['post_id']}/ from db!<br>";
+        $warnings[] = "Failed to delete post /{$post['board_id']}/{$post['post_id']}/ from db";
+      }
+
+      // debump if deleted post was a reply
+      if ($post['parent_id'] > 0) {
+        $thread_bumped = bump_thread($post['board_id'], $post['parent_id']);
       }
 
       $processed++;
     }
   }
 
-  return "Successfully deleted {$processed} posts out of all selected (+replies) {$total} posts<br>Warnings:<br>{$warnings}";
+  // collect warnings
+  $warnings = implode('<br>  - ', $warnings);
+
+  $status = "Deleted {$processed}/{$total} posts";
+  if (strlen($warnings) > 0) {
+    $status .= "<br>Warnings:<br>- {$warnings}";
+  }
+  funcs_manage_log($status);
+  return $status;
 }
 
 function funcs_manage_approve(array $select): string {
-  funcs_manage_log('Approved posts: ' . implode(', ', $select));
+  funcs_manage_log('Executed approve, target posts: ' . implode(', ', $select));
 
   // delete each report
   $processed = 0;
@@ -220,5 +254,7 @@ function funcs_manage_approve(array $select): string {
     $processed += delete_reports_by_post_id($selected_board_id, $selected_post_id);
   }
 
-  return "Successfully approved {$processed} reports";
+  $status = "Approved {$processed} reports";
+  funcs_manage_log($status);
+  return $status;
 }
