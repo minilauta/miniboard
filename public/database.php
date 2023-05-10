@@ -4,7 +4,7 @@ require_once __DIR__ . '/config.php';
 /**
  * Returns a handle to the database connection context.
  */
-function get_db_handle() : PDO {
+function get_db_handle(): PDO {
   global $dbh;
 
   if ($dbh != null) {
@@ -41,7 +41,7 @@ function init_post_auto_increment(string $board_id) {
   }
 }
 
-function generate_post_auto_increment(string $board_id) : int|bool {
+function generate_post_auto_increment(string $board_id): int {
   $dbh = get_db_handle();
   $tbl = 'posts_' . $board_id . '_serial';
   $sth = $dbh->prepare('
@@ -52,8 +52,10 @@ function generate_post_auto_increment(string $board_id) : int|bool {
       :timestamp
     )
   ');
-  $sth->execute(['timestamp' => time()]);
-  return $dbh->lastInsertId();
+  if ($sth->execute(['timestamp' => time()]) !== TRUE) {
+    throw new DbException('generate_post_auto_increment failed to generate post ID for table `' . $tbl . '`');
+  }
+  return intval($dbh->lastInsertId());
 }
 
 function refresh_post_auto_increment(string $board_id) {
@@ -77,12 +79,9 @@ function refresh_post_auto_increment(string $board_id) {
   }
 }
 
-function select_post(string $board_id, int $post_id, bool $deleted = false) : array|bool {
+function select_post(string $board_id, int $post_id, bool $deleted = false): array|bool {
   $dbh = get_db_handle();
-  $sth = $dbh->prepare('
-    SELECT * FROM posts
-    WHERE board_id = :board_id AND post_id = :post_id AND deleted = :deleted
-  ');
+  $sth = $dbh->prepare('SELECT * FROM posts WHERE board_id = :board_id AND post_id = :post_id AND deleted = :deleted');
   $sth->execute([
     'board_id' => $board_id,
     'post_id' => $post_id,
@@ -91,7 +90,7 @@ function select_post(string $board_id, int $post_id, bool $deleted = false) : ar
   return $sth->fetch();
 }
 
-function select_last_post_by_ip(string $ip) : array|bool {
+function select_last_post_by_ip(string $ip): array|bool {
   $dbh = get_db_handle();
   $sth = $dbh->prepare('
     SELECT * FROM posts
@@ -103,7 +102,7 @@ function select_last_post_by_ip(string $ip) : array|bool {
   return $sth->fetch();
 }
 
-function select_posts(string $session_id, ?string $board_id, int $parent_id = 0, bool $desc = true, int $offset = 0, int $limit = 10, bool $hidden = false, bool $deleted = false) : array|bool {
+function select_posts(string $session_id, ?string $board_id, int $parent_id = 0, bool $desc = true, int $offset = 0, int $limit = 10, bool $hidden = false, bool $deleted = false): array|bool {
   $dbh = get_db_handle();
   $sth = null;
   if ($board_id != null) {
@@ -143,7 +142,7 @@ function select_posts(string $session_id, ?string $board_id, int $parent_id = 0,
   return $sth->fetchAll();
 }
 
-function select_posts_preview(string $session_id, string $board_id, int $parent_id = 0, int $offset = 0, int $limit = 10, bool $deleted = false) : array|bool {
+function select_posts_preview(string $session_id, string $board_id, int $parent_id = 0, int $offset = 0, int $limit = 10, bool $deleted = false): array|bool {
   $dbh = get_db_handle();
   $sth = $dbh->prepare('
     SELECT t.* FROM (
@@ -167,7 +166,7 @@ function select_posts_preview(string $session_id, string $board_id, int $parent_
   return $sth->fetchAll();
 }
 
-function count_posts(string $session_id, ?string $board_id, int $parent_id, bool $hidden = false,  bool $deleted = false) : int|bool {
+function count_posts(string $session_id, ?string $board_id, int $parent_id, bool $hidden = false, bool $deleted = false): int|bool {
   $dbh = get_db_handle();
   $sth = null;
   if ($board_id != null) {
@@ -199,7 +198,7 @@ function count_posts(string $session_id, ?string $board_id, int $parent_id, bool
   return $sth->fetchColumn();
 }
 
-function insert_post($post) : int|bool {
+function insert_post($post): int|bool {
   $dbh = get_db_handle();
   $sth = $dbh->prepare('
     INSERT INTO posts (
@@ -265,32 +264,25 @@ function insert_post($post) : int|bool {
       :country
     )
   ');
-  $sth->execute($post);
+  if ($sth->execute($post) !== TRUE) {
+    return false;
+  }
 
   // get post_id by internal PRIMARY KEY id and return it as last_insert_id
-  $id = $dbh->lastInsertId();
-  $sth = $dbh->prepare('
-    SELECT post_id FROM posts WHERE id = :id
-  ');
-  $sth->execute(['id' => $dbh->lastInsertId()]);
+  $id = intval($dbh->lastInsertId());
+  $sth = $dbh->prepare('SELECT post_id FROM posts WHERE id = :id');
+  $sth->execute(['id' => $id]);
   
   return $sth->fetchColumn();
 }
 
-function delete_post(string $board_id, int $post_id, bool $delete = false) : bool {
+function delete_post(string $board_id, int $post_id, bool $delete = false): bool {
   $dbh = get_db_handle();
   $sth = null;
   if ($delete) {
-    $sth = $dbh->prepare('
-      DELETE FROM posts
-      WHERE board_id = :board_id AND post_id = :post_id
-    ');
+    $sth = $dbh->prepare('DELETE FROM posts WHERE board_id = :board_id AND post_id = :post_id');
   } else {
-    $sth = $dbh->prepare('
-      UPDATE posts
-      SET deleted = 1
-      WHERE board_id = :board_id AND post_id = :post_id
-    ');
+    $sth = $dbh->prepare('UPDATE posts SET deleted = 1 WHERE board_id = :board_id AND post_id = :post_id');
   }
   return $sth->execute([
     'board_id' => $board_id,
@@ -298,7 +290,7 @@ function delete_post(string $board_id, int $post_id, bool $delete = false) : boo
   ]);
 }
 
-function bump_thread(string $board_id, int $post_id) : bool {
+function bump_thread(string $board_id, int $post_id): bool {
   $dbh = get_db_handle();
   $sth = $dbh->prepare('
     UPDATE posts t
@@ -328,7 +320,7 @@ function bump_thread(string $board_id, int $post_id) : bool {
   ]);
 }
 
-function select_files_by_md5(string $file_md5) : array|bool {
+function select_files_by_md5(string $file_md5): array|bool {
   $dbh = get_db_handle();
   $sth = $dbh->prepare('
     SELECT 
@@ -353,16 +345,12 @@ function select_files_by_md5(string $file_md5) : array|bool {
   return $sth->fetchAll();
 }
 
-
 // HIDE related functions below
 // ----------------------------
 
-function select_hide(string $session_id, string $board_id, int $post_id) : array|bool {
+function select_hide(string $session_id, string $board_id, int $post_id): array|bool {
   $dbh = get_db_handle();
-  $sth = $dbh->prepare('
-    SELECT * FROM hides
-    WHERE session_id = :session_id AND board_id = :board_id AND post_id = :post_id
-  ');
+  $sth = $dbh->prepare('SELECT * FROM hides WHERE session_id = :session_id AND board_id = :board_id AND post_id = :post_id');
   $sth->execute([
     'session_id' => $session_id,
     'board_id' => $board_id,
@@ -371,7 +359,7 @@ function select_hide(string $session_id, string $board_id, int $post_id) : array
   return $sth->fetch();
 }
 
-function insert_hide($hide) : int|bool {
+function insert_hide($hide): int {
   $dbh = get_db_handle();
   $sth = $dbh->prepare('
     INSERT INTO hides (
@@ -386,15 +374,12 @@ function insert_hide($hide) : int|bool {
     )
   ');
   $sth->execute($hide);
-  return $dbh->lastInsertId();
+  return intval($dbh->lastInsertId());
 }
 
-function delete_hide($hide) : int {
+function delete_hide($hide): int {
   $dbh = get_db_handle();
-  $sth = $dbh->prepare('
-    DELETE FROM hides
-    WHERE session_id = :session_id AND board_id = :board_id AND post_id = :post_id
-  ');
+  $sth = $dbh->prepare('DELETE FROM hides WHERE session_id = :session_id AND board_id = :board_id AND post_id = :post_id');
   $sth->execute([
     'session_id' => $hide['session_id'],
     'board_id' => $hide['board_id'],
@@ -403,11 +388,10 @@ function delete_hide($hide) : int {
   return $sth->rowCount();
 }
 
-
 // REPORT related functions below
 // ------------------------------
 
-function insert_report($report) : int|bool {
+function insert_report($report): int {
   $dbh = get_db_handle();
   $sth = $dbh->prepare('
     INSERT INTO reports (
@@ -426,19 +410,15 @@ function insert_report($report) : int|bool {
     )
   ');
   $sth->execute($report);
-  return $dbh->lastInsertId();
+  return intval($dbh->lastInsertId());
 }
-
 
 // MANAGE related functions below
 // ------------------------------
 
 function select_account(string $username): array|bool {
   $dbh = get_db_handle();
-  $sth = $dbh->prepare('
-    SELECT * FROM accounts
-    WHERE username = :username
-  ');
+  $sth = $dbh->prepare('SELECT * FROM accounts WHERE username = :username');
   $sth->execute([
     'username' => $username
   ]);
@@ -463,9 +443,7 @@ function select_all_accounts(bool $desc = true, int $offset = 0, int $limit = 10
 
 function count_all_accounts(): int|bool {
   $dbh = get_db_handle();
-  $sth = $dbh->prepare('
-    SELECT COUNT(*) FROM accounts
-  ');
+  $sth = $dbh->prepare('SELECT COUNT(*) FROM accounts');
   $sth->execute();
   return $sth->fetchColumn();
 }
@@ -488,7 +466,7 @@ function update_account(array $account): bool {
   ]);
 }
 
-function select_all_posts(bool $desc = true, int $offset = 0, int $limit = 10) : array|bool {
+function select_all_posts(bool $desc = true, int $offset = 0, int $limit = 10): array|bool {
   $dbh = get_db_handle();
   $sth = $dbh->prepare('
     SELECT
@@ -507,14 +485,12 @@ function select_all_posts(bool $desc = true, int $offset = 0, int $limit = 10) :
 
 function count_all_posts() : int|bool {
   $dbh = get_db_handle();
-  $sth = $dbh->prepare('
-    SELECT COUNT(*) FROM posts
-  ');
+  $sth = $dbh->prepare('SELECT COUNT(*) FROM posts');
   $sth->execute();
   return $sth->fetchColumn();
 }
 
-function select_all_threads(bool $desc = true, int $offset = 0, int $limit = 10) : array|bool {
+function select_all_threads(bool $desc = true, int $offset = 0, int $limit = 10): array|bool {
   $dbh = get_db_handle();
   $sth = $dbh->prepare('
     SELECT
@@ -532,16 +508,14 @@ function select_all_threads(bool $desc = true, int $offset = 0, int $limit = 10)
   return $sth->fetchAll();
 }
 
-function count_all_threads() : int|bool {
+function count_all_threads(): int|bool {
   $dbh = get_db_handle();
-  $sth = $dbh->prepare('
-    SELECT COUNT(*) FROM posts WHERE parent_id = 0
-  ');
+  $sth = $dbh->prepare('SELECT COUNT(*) FROM posts WHERE parent_id = 0');
   $sth->execute();
   return $sth->fetchColumn();
 }
 
-function select_all_reports(bool $desc = true, int $offset = 0, int $limit = 10) : array|bool {
+function select_all_reports(bool $desc = true, int $offset = 0, int $limit = 10): array|bool {
   $dbh = get_db_handle();
   $sth = $dbh->prepare('
     SELECT
@@ -567,11 +541,9 @@ function select_all_reports(bool $desc = true, int $offset = 0, int $limit = 10)
   return $sth->fetchAll();
 }
 
-function count_all_reports() : int|bool {
+function count_all_reports(): int|bool {
   $dbh = get_db_handle();
-  $sth = $dbh->prepare('
-    SELECT COUNT(*) FROM reports
-  ');
+  $sth = $dbh->prepare('SELECT COUNT(*) FROM reports');
   $sth->execute();
   return $sth->fetchColumn();
 }
@@ -598,10 +570,7 @@ function select_post_with_replies(string $board_id, int $post_id): array|bool {
 
 function delete_reports_by_post_id(string $board_id, int $post_id): int {
   $dbh = get_db_handle();
-  $sth = $dbh->prepare('
-    DELETE FROM reports
-    WHERE board_id = :board_id AND post_id = :post_id
-  ');
+  $sth = $dbh->prepare('DELETE FROM reports WHERE board_id = :board_id AND post_id = :post_id');
   $sth->execute([
     'board_id' => $board_id,
     'post_id' => $post_id
@@ -639,7 +608,7 @@ function toggle_post_stickied(string $board_id, int $post_id): int {
   return $sth->rowCount();
 }
 
-function select_all_logs(bool $desc = true, int $offset = 0, int $limit = 10) : array|bool {
+function select_all_logs(bool $desc = true, int $offset = 0, int $limit = 10): array|bool {
   $dbh = get_db_handle();
   $sth = $dbh->prepare('
     SELECT
@@ -656,11 +625,9 @@ function select_all_logs(bool $desc = true, int $offset = 0, int $limit = 10) : 
   return $sth->fetchAll();
 }
 
-function count_all_logs() : int|bool {
+function count_all_logs(): int|bool {
   $dbh = get_db_handle();
-  $sth = $dbh->prepare('
-    SELECT COUNT(*) FROM logs
-  ');
+  $sth = $dbh->prepare('SELECT COUNT(*) FROM logs');
   $sth->execute();
   return $sth->fetchColumn();
 }
@@ -681,20 +648,22 @@ function insert_log(string $ip, int $timestamp, string $username, string $messag
       :message
     )
   ');
-  $sth->execute([
+  $result = $sth->execute([
     'ip' => $ip,
     'timestamp' => $timestamp,
     'username' => $username,
     'message' => $message
   ]);
-  return $dbh->lastInsertId();
+  if ($result !== TRUE) {
+    return false;
+  }
+  return intval($dbh->lastInsertId());
 }
-
 
 // MANAGE/IMPORT related functions below
 // -------------------------------------
 
-function get_db_handle_import(array $db_creds) : PDO {
+function get_db_handle_import(array $db_creds): PDO {
   $mb_db_host = MB_DB_HOST;
 
   $dbh = new PDO("mysql:host={$mb_db_host};dbname={$db_creds['db_name']}", $db_creds['db_user'], $db_creds['db_pass'], [
@@ -705,7 +674,7 @@ function get_db_handle_import(array $db_creds) : PDO {
   return $dbh;
 }
 
-function insert_import_accounts_tinyib(array $db_creds, string $table_name) {
+function insert_import_accounts_tinyib(array $db_creds, string $table_name): int {
   $dbh = get_db_handle_import($db_creds);
   $sth = $dbh->prepare('
     INSERT INTO ' . MB_DB_NAME . '.accounts (
@@ -726,7 +695,7 @@ function insert_import_accounts_tinyib(array $db_creds, string $table_name) {
   return $sth->rowCount();
 }
 
-function insert_import_posts_tinyib(array $db_creds, string $table_name, string $board_id) {
+function insert_import_posts_tinyib(array $db_creds, string $table_name, string $board_id): int {
   $dbh = get_db_handle_import($db_creds);
   $sth = $dbh->prepare('
     INSERT INTO ' . MB_DB_NAME . '.posts (
@@ -816,7 +785,7 @@ function insert_import_posts_tinyib(array $db_creds, string $table_name, string 
 // MANAGE/REBUILD related functions below
 // -------------------------------------
 
-function select_rebuild_posts(string $board_id) : array|bool {
+function select_rebuild_posts(string $board_id): array|bool {
   $dbh = get_db_handle();
   $sth = $dbh->prepare('
     SELECT post_id, board_id, timestamp, role, name, email, tripcode, message, file, embed, imported FROM posts
@@ -828,7 +797,7 @@ function select_rebuild_posts(string $board_id) : array|bool {
   return $sth->fetchAll();
 }
 
-function update_rebuild_post(array $rebuild_post) : bool {
+function update_rebuild_post(array $rebuild_post): bool {
   $dbh = get_db_handle();
   $sth = $dbh->prepare('
     UPDATE posts
