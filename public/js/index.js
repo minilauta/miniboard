@@ -847,7 +847,7 @@ function init_postform_features() {
         data.json().then((response) => {
           // 200 OK, follow redirect
           if (data.status === 200 && response['redirect_url'] != null) {
-            window.location.href = window.location.origin + '/' + response['redirect_url'];
+            window.location.href = window.location.origin + response['redirect_url'];
             setTimeout(() => {
               window.location.reload(true);
             }, 250);
