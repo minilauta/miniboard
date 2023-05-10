@@ -16,6 +16,8 @@
         <td>
 	        <input type="submit" value="Delete (post)" formaction="delete?<?=http_build_query($_GET)?>">
 	        <input type="submit" value="Ban (ip)" formaction="ban" disabled>
+	        <input type="submit" value="Lock/unlock (thread)" formaction="toggle_lock?<?=http_build_query($_GET)?>">
+	        <input type="submit" value="Sticky/unsticky (thread)" formaction="toggle_sticky?<?=http_build_query($_GET)?>">
         </td>
       </tr>
     </tbody>

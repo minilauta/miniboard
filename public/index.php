@@ -226,6 +226,64 @@ function handle_manage_approveform(Request $request, Response $response, array $
   return $response;
 }
 
+$app->post('/manage/toggle_lock/', function (Request $request, Response $response, array $args) {
+  if (!funcs_manage_is_logged_in()) {
+    throw new AppException('index', 'route', 'access denied', SC_UNAUTHORIZED);
+  }
+
+  return handle_manage_togglelockform($request, $response, $args);
+});
+
+function handle_manage_togglelockform(Request $request, Response $response, array $args): Response {
+  // parse request body
+  $params = (array) $request->getParsedBody();
+
+  // validate request fields
+  funcs_common_validate_fields($params, [
+    'select'   => ['required' => true, 'type' => 'array']
+  ]);
+
+  // execute toggle lock
+  $status = funcs_manage_toggle_lock($params['select']);
+
+  // set query to return properly
+  $query = funcs_common_mutate_query($_GET, 'status', $status);
+
+  $response = $response
+    ->withHeader('Location', "/manage/?{$query}")
+    ->withStatus(303);
+  return $response;
+}
+
+$app->post('/manage/toggle_sticky/', function (Request $request, Response $response, array $args) {
+  if (!funcs_manage_is_logged_in()) {
+    throw new AppException('index', 'route', 'access denied', SC_UNAUTHORIZED);
+  }
+
+  return handle_manage_togglestickyform($request, $response, $args);
+});
+
+function handle_manage_togglestickyform(Request $request, Response $response, array $args): Response {
+  // parse request body
+  $params = (array) $request->getParsedBody();
+
+  // validate request fields
+  funcs_common_validate_fields($params, [
+    'select'   => ['required' => true, 'type' => 'array']
+  ]);
+
+  // execute toggle sticky
+  $status = funcs_manage_toggle_sticky($params['select']);
+
+  // set query to return properly
+  $query = funcs_common_mutate_query($_GET, 'status', $status);
+
+  $response = $response
+    ->withHeader('Location', "/manage/?{$query}")
+    ->withStatus(303);
+  return $response;
+}
+
 $app->get('/{board_id}/{post_id}/report/', function (Request $request, Response $response, array $args) {
   // get board config
   $board_cfg = funcs_common_get_board_cfg($args['board_id']);

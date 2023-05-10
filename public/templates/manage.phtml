@@ -107,6 +107,33 @@
           ]);
           echo $this->fetch('common/pagetable.phtml', ['page' => $page, 'page_n' => $page_n]);
           break;
+        case 'threads':
+          // set constants
+          $posts_per_page = 25;
+
+          // get posts
+          $posts = select_all_threads(true, $posts_per_page * $page, $posts_per_page);
+
+          // process posts
+          foreach ($posts as $key => &$post) {
+            $post['ip_rendered'] = funcs_manage_get_role() === MB_ROLE_SUPERADMIN ? $post['ip_str'] : '<s>REDACTED</s>';
+            $post['replies'] = [];
+            $post['replies_n'] = count_posts(session_id(), $post['board_id'], $post['post_id'], false, false);
+          }
+
+          // get post count
+          $posts_n = count_all_threads();
+
+          // calculate page count
+          $page_n = ceil($posts_n / $posts_per_page);
+
+          echo $this->fetch('manage/modform.phtml', [
+            'posts' => $posts,
+            'page' => $page,
+            'page_n' => $page_n
+          ]);
+          echo $this->fetch('common/pagetable.phtml', ['page' => $page, 'page_n' => $page_n]);
+          break;
         case 'reports':
         default:
           // set constants

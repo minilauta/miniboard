@@ -258,3 +258,43 @@ function funcs_manage_approve(array $select): string {
   funcs_manage_log($status);
   return $status;
 }
+
+function funcs_manage_toggle_lock(array $select): string {
+  funcs_manage_log('Executed toggle_lock, target posts: ' . implode(', ', $select));
+
+  // lock/unlock each post
+  $processed = 0;
+  foreach ($select as $val) {
+    // parse board id and post id
+    $selected_parsed = explode('/', $val);
+    $selected_board_id = $selected_parsed[0];
+    $selected_post_id = intval($selected_parsed[1]);
+
+    // lock/unlock all posts by board id and post id
+    $processed += toggle_post_locked($selected_board_id, $selected_post_id);
+  }
+
+  $status = "Toggled lock state for {$processed} posts";
+  funcs_manage_log($status);
+  return $status;
+}
+
+function funcs_manage_toggle_sticky(array $select): string {
+  funcs_manage_log('Executed toggle_sticky, target posts: ' . implode(', ', $select));
+
+  // sticky/unsticky each post
+  $processed = 0;
+  foreach ($select as $val) {
+    // parse board id and post id
+    $selected_parsed = explode('/', $val);
+    $selected_board_id = $selected_parsed[0];
+    $selected_post_id = intval($selected_parsed[1]);
+
+    // sticky/unsticky all posts by board id and post id
+    $processed += toggle_post_stickied($selected_board_id, $selected_post_id);
+  }
+
+  $status = "Toggled sticky state for {$processed} posts";
+  funcs_manage_log($status);
+  return $status;
+}

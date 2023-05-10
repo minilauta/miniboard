@@ -514,6 +514,33 @@ function count_all_posts() : int|bool {
   return $sth->fetchColumn();
 }
 
+function select_all_threads(bool $desc = true, int $offset = 0, int $limit = 10) : array|bool {
+  $dbh = get_db_handle();
+  $sth = $dbh->prepare('
+    SELECT
+      *,
+      INET6_NTOA(ip) AS ip_str
+    FROM posts
+    WHERE parent_id = 0
+    ORDER BY timestamp ' . ($desc === true ? 'DESC' : 'ASC') . '
+    LIMIT :limit OFFSET :offset
+  ');
+  $sth->execute([
+    'limit' => $limit,
+    'offset' => $offset
+  ]);
+  return $sth->fetchAll();
+}
+
+function count_all_threads() : int|bool {
+  $dbh = get_db_handle();
+  $sth = $dbh->prepare('
+    SELECT COUNT(*) FROM posts WHERE parent_id = 0
+  ');
+  $sth->execute();
+  return $sth->fetchColumn();
+}
+
 function select_all_reports(bool $desc = true, int $offset = 0, int $limit = 10) : array|bool {
   $dbh = get_db_handle();
   $sth = $dbh->prepare('
@@ -574,6 +601,36 @@ function delete_reports_by_post_id(string $board_id, int $post_id): int {
   $sth = $dbh->prepare('
     DELETE FROM reports
     WHERE board_id = :board_id AND post_id = :post_id
+  ');
+  $sth->execute([
+    'board_id' => $board_id,
+    'post_id' => $post_id
+  ]);
+  return $sth->rowCount();
+}
+
+function toggle_post_locked(string $board_id, int $post_id): int {
+  $dbh = get_db_handle();
+  $sth = $dbh->prepare('
+    UPDATE posts
+    SET
+      locked = !locked
+    WHERE board_id = :board_id AND post_id = :post_id AND parent_id = 0
+  ');
+  $sth->execute([
+    'board_id' => $board_id,
+    'post_id' => $post_id
+  ]);
+  return $sth->rowCount();
+}
+
+function toggle_post_stickied(string $board_id, int $post_id): int {
+  $dbh = get_db_handle();
+  $sth = $dbh->prepare('
+    UPDATE posts
+    SET
+      stickied = !stickied
+    WHERE board_id = :board_id AND post_id = :post_id AND parent_id = 0
   ');
   $sth->execute([
     'board_id' => $board_id,
