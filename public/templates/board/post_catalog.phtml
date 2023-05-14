@@ -18,10 +18,19 @@
       </a>
     ";
 
+    $stickied = '';
+    if ($post['stickied'] === 1) {
+      $stickied = "<img src='/static/sticky.png' alt='Stickied' title='Stickied' width='16' height='16'>";
+    }
+    $locked = '';
+    if ($post['locked'] === 1) {
+      $locked = "<img src='/static/lock.png' alt='Locked' title='Locked' width='16' height='16'>";
+    }
+
     // TODO: create specific function for this
     $message_truncated = substr(trim(str_ireplace("\n", '', strip_tags($post['message_rendered']))), 0, 75);
     echo "
-      <div class='post-catalog-meta'>R: <b>{$post['reply_count']}</b></div>
+      <div class='post-catalog-meta'>{$stickied}{$locked} R: <b>{$post['reply_count']}</b></div>
       <div class='post-catalog-title'>
         <span class='post-catalog-subject'>{$post['subject']}</span>
         <span class='post-catalog-message'>{$message_truncated}</span>
