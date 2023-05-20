@@ -102,7 +102,7 @@ function select_last_post_by_ip(string $ip): array|bool {
   return $sth->fetch();
 }
 
-function select_posts(string $session_id, ?string $board_id, int $parent_id = 0, bool $desc = true, int $offset = 0, int $limit = 10, bool $hidden = false, bool $deleted = false): array|bool {
+function select_posts(string $session_id, ?int $user_role, ?string $board_id, int $parent_id = 0, bool $desc = true, int $offset = 0, int $limit = 10, bool $hidden = false, bool $deleted = false): array|bool {
   $dbh = get_db_handle();
   $sth = null;
   if ($board_id != null) {
@@ -111,6 +111,9 @@ function select_posts(string $session_id, ?string $board_id, int $parent_id = 0,
       WHERE board_id = :board_id AND parent_id = :parent_id AND post_id ' . ($hidden === true ? '' : 'NOT') . ' IN (
         SELECT post_id FROM hides WHERE session_id = :session_id AND board_id = posts.board_id
       ) AND deleted = :deleted
+      AND (
+        req_role IS NULL OR (:user_role_1 IS NOT NULL AND :user_role_2 <= req_role)
+      )
       ORDER BY stickied DESC, bumped ' . ($desc === true ? 'DESC' : 'ASC') . '
       LIMIT :limit OFFSET :offset
     ');
@@ -119,6 +122,8 @@ function select_posts(string $session_id, ?string $board_id, int $parent_id = 0,
       'board_id' => $board_id,
       'parent_id' => $parent_id,
       'deleted' => $deleted ? 1 : 0,
+      'user_role_1' => $user_role,
+      'user_role_2' => $user_role,
       'limit' => $limit,
       'offset' => $offset
     ]);
@@ -128,6 +133,9 @@ function select_posts(string $session_id, ?string $board_id, int $parent_id = 0,
       WHERE parent_id = :parent_id AND post_id ' . ($hidden === true ? '' : 'NOT') . ' IN (
         SELECT post_id FROM hides WHERE session_id = :session_id AND board_id = posts.board_id
       ) AND deleted = :deleted
+      AND (
+        req_role IS NULL OR (:user_role_1 IS NOT NULL AND :user_role_2 <= req_role)
+      )
       ORDER BY bumped ' . ($desc === true ? 'DESC' : 'ASC') . '
       LIMIT :limit OFFSET :offset
     ');
@@ -135,6 +143,8 @@ function select_posts(string $session_id, ?string $board_id, int $parent_id = 0,
       'session_id' => $session_id,
       'parent_id' => $parent_id,
       'deleted' => $deleted ? 1 : 0,
+      'user_role_1' => $user_role,
+      'user_role_2' => $user_role,
       'limit' => $limit,
       'offset' => $offset
     ]);
@@ -205,6 +215,7 @@ function insert_post($post): int|bool {
       post_id,
       board_id,
       parent_id,
+      req_role,
       ip,
       timestamp,
       bumped,
@@ -236,6 +247,7 @@ function insert_post($post): int|bool {
       :post_id,
       :board_id,
       :parent_id,
+      :req_role,
       INET6_ATON(:ip),
       :timestamp,
       :bumped,
@@ -702,6 +714,7 @@ function insert_import_posts_tinyib(array $db_creds, string $table_name, string 
       post_id,
       parent_id,
       board_id,
+      req_role,
       ip,
       timestamp,
       bumped,
@@ -737,6 +750,7 @@ function insert_import_posts_tinyib(array $db_creds, string $table_name, string 
       id,
       parent AS parent_id,
       :board_id AS board_id,
+      NULL AS req_role,
       INET6_ATON(\'127.0.0.1\'),
       timestamp,
       bumped,

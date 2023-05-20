@@ -288,6 +288,11 @@ $app->get('/{board_id}/{post_id}/report/', function (Request $request, Response 
   // get board config
   $board_cfg = funcs_common_get_board_cfg($args['board_id']);
 
+  // check board access
+  if (!funcs_board_check_access($board_cfg, funcs_manage_get_role())) {
+    throw new AppException('index', 'route', 'access denied', SC_UNAUTHORIZED);
+  }
+
   // get post
   $post = select_post($board_cfg['id'], $args['post_id']);
   if ($post == null) {
@@ -307,6 +312,11 @@ $app->post('/{board_id}/{post_id}/hide/', function (Request $request, Response $
 
   // get board config
   $board_cfg = funcs_common_get_board_cfg($args['board_id']);
+
+  // check board access
+  if (!funcs_board_check_access($board_cfg, funcs_manage_get_role())) {
+    throw new AppException('index', 'route', 'access denied', SC_UNAUTHORIZED);
+  }
 
   // toggle hide
   $hide = select_hide(session_id(), $board_cfg['id'], $args['post_id']);
@@ -331,6 +341,11 @@ function handle_reportform(Request $request, Response $response, array $args): R
 
   // get board config
   $board_cfg = funcs_common_get_board_cfg($args['board_id']);
+
+  // check board access
+  if (!funcs_board_check_access($board_cfg, funcs_manage_get_role())) {
+    throw new AppException('index', 'route', 'access denied', SC_UNAUTHORIZED);
+  }
 
   // validate captcha
   if (MB_CAPTCHA_REPORT) {
@@ -365,12 +380,18 @@ $app->get('/{board_id}/', function (Request $request, Response $response, array 
   $board_threads_per_page = $board_cfg['threads_per_page'];
   $board_posts_per_preview = $board_cfg['posts_per_preview'];
 
+  // check board access
+  if (!funcs_board_check_access($board_cfg, funcs_manage_get_role())) {
+    throw new AppException('index', 'route', 'access denied', SC_UNAUTHORIZED);
+  }
+  $user_role = funcs_manage_get_role();
+
   // get query params
   $query_params = $request->getQueryParams();
   $query_page = funcs_common_parse_input_int($query_params, 'page', 0, 0, 1000);
 
   // get threads
-  $threads = select_posts(session_id(), $board_query_id, 0, true, $board_threads_per_page * $query_page, $board_threads_per_page, false);
+  $threads = select_posts(session_id(), $user_role, $board_query_id, 0, true, $board_threads_per_page * $query_page, $board_threads_per_page, false);
 
   // get replies
   foreach ($threads as $key => $thread) {
@@ -396,12 +417,18 @@ $app->get('/{board_id}/hidden/', function (Request $request, Response $response,
   $board_query_id = $board_cfg['type'] !== 'main' ? $board_cfg['id'] : null;
   $board_threads_per_page = $board_cfg['threads_per_page'];
 
+  // check board access
+  if (!funcs_board_check_access($board_cfg, funcs_manage_get_role())) {
+    throw new AppException('index', 'route', 'access denied', SC_UNAUTHORIZED);
+  }
+  $user_role = funcs_manage_get_role();
+
   // get query params
   $query_params = $request->getQueryParams();
   $query_page = funcs_common_parse_input_int($query_params, 'page', 0, 0, 1000);
 
   // get threads
-  $threads = select_posts(session_id(), $board_query_id, 0, true, $board_threads_per_page * $query_page, $board_threads_per_page, true);
+  $threads = select_posts(session_id(), $user_role, $board_query_id, 0, true, $board_threads_per_page * $query_page, $board_threads_per_page, true);
 
   // do not show replies for hidden threads
   foreach ($threads as $key => $thread) {
@@ -427,12 +454,18 @@ $app->get('/{board_id}/catalog/', function (Request $request, Response $response
   $board_query_id = $board_cfg['type'] !== 'main' ? $board_cfg['id'] : null;
   $board_threads_per_catalog_page = $board_cfg['threads_per_catalog_page'];
 
+  // check board access
+  if (!funcs_board_check_access($board_cfg, funcs_manage_get_role())) {
+    throw new AppException('index', 'route', 'access denied', SC_UNAUTHORIZED);
+  }
+  $user_role = funcs_manage_get_role();
+
   // get query params
   $query_params = $request->getQueryParams();
   $query_page = funcs_common_parse_input_int($query_params, 'page', 0, 0, 1000);
 
   // get threads
-  $threads = select_posts(session_id(), $board_query_id, 0, true, $board_threads_per_catalog_page * $query_page, $board_threads_per_catalog_page, false);
+  $threads = select_posts(session_id(), $user_role, $board_query_id, 0, true, $board_threads_per_catalog_page * $query_page, $board_threads_per_catalog_page, false);
 
   // get thread reply counts
   foreach ($threads as $key => $thread) {
@@ -459,6 +492,12 @@ $app->get('/{board_id}/{thread_id}/', function (Request $request, Response $resp
   $board_cfg = funcs_common_get_board_cfg($args['board_id']);
   $board_max_replies = $board_cfg['max_replies'];
 
+  // check board access
+  if (!funcs_board_check_access($board_cfg, funcs_manage_get_role())) {
+    throw new AppException('index', 'route', 'access denied', SC_UNAUTHORIZED);
+  }
+  $user_role = funcs_manage_get_role();
+
   // get thread
   $thread = select_post($board_cfg['id'], $args['thread_id']);
   if ($thread == null) {
@@ -468,7 +507,7 @@ $app->get('/{board_id}/{thread_id}/', function (Request $request, Response $resp
   }
 
   // get replies
-  $thread['replies'] = select_posts(session_id(), $thread['board_id'], $thread['post_id'], false, 0, $board_max_replies, false);
+  $thread['replies'] = select_posts(session_id(), $user_role, $thread['board_id'], $thread['post_id'], false, 0, $board_max_replies, false);
 
   $renderer = new PhpRenderer('templates/', [
     'board' => $board_cfg,
@@ -481,10 +520,22 @@ $app->get('/{board_id}/{thread_id}/{post_id}/', function (Request $request, Resp
   // get board config
   $board_cfg = funcs_common_get_board_cfg($args['board_id']);
 
+  // check board access
+  if (!funcs_board_check_access($board_cfg, funcs_manage_get_role())) {
+    $renderer = new PhpRenderer('templates/', [
+      'error_code' => 401,
+      'error_title' => 'Unauthorized',
+      'message' => "post with ID /{$board_cfg['id']}/{$args['thread_id']}/{$args['post_id']} access denied"
+    ]);
+    return $renderer->render($response, 'board/post_preview_null.phtml');
+  }
+
   // get post
   $post = select_post($board_cfg['id'], $args['post_id']);
   if ($post == null || ($post['parent_id'] !== 0 && $post['parent_id'] != $args['thread_id'])) {
     $renderer = new PhpRenderer('templates/', [
+      'error_code' => 404,
+      'error_title' => 'Not Found',
       'message' => "post with ID /{$board_cfg['id']}/{$args['thread_id']}/{$args['post_id']} not found"
     ]);
     return $renderer->render($response, 'board/post_preview_null.phtml');
@@ -534,6 +585,11 @@ function handle_deleteform(Request $request, Response $response, array $args): R
 
   // get board config
   $board_cfg = funcs_common_get_board_cfg($args['board_id']);
+
+  // check board access
+  if (!funcs_board_check_access($board_cfg, funcs_manage_get_role())) {
+    throw new AppException('index', 'route', 'access denied', SC_UNAUTHORIZED);
+  }
 
   // validate request fields
   funcs_common_validate_fields($params, [
@@ -609,6 +665,11 @@ function handle_postform(Request $request, Response $response, array $args, stri
 
   // get board config
   $board_cfg = funcs_common_get_board_cfg($args['board_id']);
+
+  // check board access
+  if (!funcs_board_check_access($board_cfg, funcs_manage_get_role())) {
+    throw new AppException('index', 'route', 'access denied', SC_UNAUTHORIZED);
+  }
 
   // get user info
   $user_ip = funcs_common_get_client_remote_address(MB_CLOUDFLARE, $_SERVER);

@@ -6,6 +6,30 @@ require_once __DIR__ . '/config.php';
 require_once __DIR__ . '/exception.php';
 
 /**
+ * Validate user access to target board.
+ */
+function funcs_board_check_access(array $board_cfg, ?int $user_role): bool {
+  // board does not require role -> allow access
+  $req_role = $board_cfg['req_role'];
+  if ($req_role == null) {
+    return true;
+  }
+
+  // board requires role but user has no role -> block access
+  if ($user_role == null) {
+    return false;
+  }
+
+  // board requires role but user role is insufficient -> block access
+  if ($user_role > $req_role) {
+    return false;
+  }
+
+  // board requires role and user role is sufficient -> allow access
+  return true;
+}
+
+/**
  * Creates a new post object.
  */
 function funcs_board_create_post(string $ip, array $board_cfg, ?int $parent_id, ?array $file_info, array $file, array $input): array {
@@ -32,7 +56,7 @@ function funcs_board_create_post(string $ip, array $board_cfg, ?int $parent_id, 
 
   // handle capcode flag
   $role = null;
-  if (funcs_manage_is_logged_in() && isset($input['capcode']) && $input['capcode'] == true) {
+  if (funcs_manage_is_logged_in() && isset($input['capcode']) && $input['capcode'] == true || $board_cfg['req_role'] != null) {
     $role = funcs_manage_get_role();
   }
 
@@ -42,6 +66,7 @@ function funcs_board_create_post(string $ip, array $board_cfg, ?int $parent_id, 
   return [
     'board_id'            => $board_cfg['id'],
     'parent_id'           => $parent_id != null ? $parent_id : 0,
+    'req_role'            => $board_cfg['req_role'],
     'role'                => $role,
     'name'                => $name_trip[0],
     'tripcode'            => $name_trip[1],

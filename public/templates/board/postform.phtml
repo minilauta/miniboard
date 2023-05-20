@@ -19,19 +19,35 @@
       </tr>
       <?php
         if (funcs_manage_is_logged_in()) {
-          echo "
-          <tr>
-            <td class='form-label'>
-              <label for='mod-options'>Mod options</label>
-            </td>
-            <td>
-              <label>
-                <input type='checkbox' name='capcode' value='1'>
-                Capcode
-              </label>
-            </td>
-          </tr>
-          ";
+          if ($board['req_role'] == null) {
+            echo "
+            <tr>
+              <td class='form-label'>
+                <label for='mod-options'>Mod options</label>
+              </td>
+              <td>
+                <label>
+                  <input type='checkbox' name='capcode' value='1'>
+                  Capcode
+                </label>
+              </td>
+            </tr>
+            ";
+          } else {
+            echo "
+            <tr>
+              <td class='form-label'>
+                <label for='mod-options'>Mod options</label>
+              </td>
+              <td>
+                <label>
+                  <input type='checkbox' name='capcode' value='1' checked disabled>
+                  Capcode
+                </label>
+              </td>
+            </tr>
+            ";
+          }
         }
       ?>
       <tr>
