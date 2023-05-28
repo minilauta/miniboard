@@ -1,6 +1,6 @@
-<div class="post reply">
+<div class="post-container reply-container" id="rc_<?=$post['board_id']?>-<?=$post['post_id']?>">
   <div class="post-dash">¨</div>
-  <div class="reply" id="<?=$post['board_id']?>-<?=$post['post_id']?>" data-parent_id="<?=$post['parent_id']?>">
+  <div class="post reply" id="<?=$post['board_id']?>-<?=$post['post_id']?>" data-parent_id="<?=$post['parent_id']?>">
     <div class="post-info">
       <label>
         <input type="checkbox" name="delete[]" value="<?=$post['board_id']?>/<?=$post['post_id']?>">
@@ -20,7 +20,7 @@
             echo $post['message_rendered'];
           } else {
             echo $post['message_truncated'];
-            echo '<br><span class="truncated">Post truncated. Click reply to view.</span><br>';
+            echo '<br><br><span class="truncated">Post truncated. Click reply to view.</span>';
           }
         ?>
       </div>

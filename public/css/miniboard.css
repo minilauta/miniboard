@@ -29,7 +29,7 @@ div.mode {
 }
 
 /* post */
-div.post.reply div.reply {
+.post.reply {
   background: #36372f;
   border: 1px solid #1a1a1a;
   border-left: none;
@@ -60,11 +60,11 @@ div.post-message .spoiler {
   text-shadow: 0 0 10px #F8F8F2;
 }
 
-div.post-message-wrapper span.truncated {
+.truncated {
   color: #707070;
 }
 
-div.post-message-wrapper span.omitted {
+.omitted {
   color: #707070;
 }
 
@@ -122,7 +122,11 @@ div.dd-menu li:hover {
 }
 
 /* post preview */
-div.post-preview > div.post {
+div.post-preview > .post.op {
+  background: #272822;
+}
+
+div.post-preview > .post {
   background: #272822;
   border-top: 1px solid #1a1a1a !important;
   border-left: 1px solid #1a1a1a !important;

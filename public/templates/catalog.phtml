@@ -17,11 +17,13 @@
       <?=$this->fetch('board/postform.phtml', ['context' => 'board', 'board' => $board, 'action' => "/{$board['id']}"])?>
     </div>
     <hr>
-    <?php
-      foreach ($threads as $thread) {
-        echo $this->fetch('board/post_catalog.phtml', ['board' => $board, 'post' => $thread]);
-      }
-    ?>
+    <div id="catalog" class="catalog">
+      <?php
+        foreach ($threads as $thread) {
+          echo $this->fetch('board/post_catalog.phtml', ['board' => $board, 'post' => $thread]);
+        }
+      ?>
+    </div>
     <hr>
     <?=$this->fetch('common/pagetable.phtml', ['page' => $page, 'page_n' => $page_n])?>
     <div class="container-centered">

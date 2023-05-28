@@ -1,59 +1,58 @@
-<div class="post" id="<?=$post['board_id']?>-<?=$post['post_id']?>">
-  <?=$this->fetch('board/post_file.phtml', ['context' => 'normal', 'post' => $post])?>
-  <div class="post-info">
-    <label>
-      <input type="checkbox" name="delete[]" value="<?=$post['board_id']?>/<?=$post['post_id']?>">
-      <?php
-        if ($board['type'] === 'main') {
-          echo "<span class='post-board'>/{$post['board_id']}/</span>";
-        }
-      ?>
-      <span class="post-subject"><?=$post['subject']?></span>
-      <?=$post['nameblock']?>
-    </label>
-    <span class="post-id">
-      <a href="/<?=$post['board_id']?>/<?=$post['post_id']?>/#<?=$post['board_id']?>-<?=$post['post_id']?>">No.</a><a href="/<?=$post['board_id']?>/<?=$post['post_id']?>/#q<?=$post['post_id']?>"><?=$post['post_id']?></a>
-    </span>
-    <?php
-      if ($post['stickied'] === 1) {
-        echo "<img src='/static/sticky.png' alt='Stickied' title='Stickied' width='16' height='16'>";
-      }
-      if ($post['locked'] === 1) {
-        echo "<img src='/static/lock.png' alt='Locked' title='Locked' width='16' height='16'>";
-      }
-    ?>
-    <?php
-      if ($context === 'board') {
-        echo "[<a class='post-reply-link' href='/{$post['board_id']}/{$post['post_id']}/'>Reply</a>]";
-      }
-    ?>
-    <a href="#" class="dd-menu-btn" data-board_id="<?=$post['board_id']?>" data-id="<?=$post['post_id']?>" data-cmd="post-menu">▶</a>
-  </div>
-  <div class="post-message-wrapper">
-    <div class="post-message">
-      <?php
-        if ($context === 'thread' || !isset($post['message_truncated'])) {
-          echo $post['message_rendered'];
-        } else {
-          echo $post['message_truncated'];
-        }
-      ?>
+<div class="thread" id="thread_<?=$post['board_id']?>-<?=$post['post_id']?>">
+  <div class="post-container" id="pc_<?=$post['board_id']?>-<?=$post['post_id']?>">
+    <div class="post op" id="<?=$post['board_id']?>-<?=$post['post_id']?>">
+      <?=$this->fetch('board/post_file.phtml', ['context' => 'normal', 'post' => $post])?>
+      <div class="post-info">
+        <label>
+          <input type="checkbox" name="delete[]" value="<?=$post['board_id']?>/<?=$post['post_id']?>">
+          <?php
+            if ($board['type'] === 'main') {
+              echo "<span class='post-board'>/{$post['board_id']}/</span>";
+            }
+          ?>
+          <span class="post-subject"><?=$post['subject']?></span>
+          <?=$post['nameblock']?>
+        </label>
+        <span class="post-id">
+          <a href="/<?=$post['board_id']?>/<?=$post['post_id']?>/#<?=$post['board_id']?>-<?=$post['post_id']?>">No.</a><a href="/<?=$post['board_id']?>/<?=$post['post_id']?>/#q<?=$post['post_id']?>"><?=$post['post_id']?></a>
+        </span>
+        <?php
+          if ($post['stickied'] === 1) {
+            echo "<img src='/static/sticky.png' alt='Stickied' title='Stickied' width='16' height='16'>";
+          }
+          if ($post['locked'] === 1) {
+            echo "<img src='/static/lock.png' alt='Locked' title='Locked' width='16' height='16'>";
+          }
+        ?>
+        <?php
+          if ($context === 'board') {
+            echo "[<a class='post-reply-link' href='/{$post['board_id']}/{$post['post_id']}/'>Reply</a>]";
+          }
+        ?>
+        <a href="#" class="dd-menu-btn" data-board_id="<?=$post['board_id']?>" data-id="<?=$post['post_id']?>" data-cmd="post-menu">▶</a>
+      </div>
+      <div class="post-message-wrapper">
+        <div class="post-message">
+          <?php
+            if ($context === 'thread' || !isset($post['message_truncated'])) {
+              echo $post['message_rendered'];
+            } else {
+              echo $post['message_truncated'];
+              echo '<br><br><span class="truncated">Post truncated. Click reply to view.</span>';
+            }
+          ?>
+        </div>
+      </div>
     </div>
-    <?php
-      $truncated = false;
-      if ($context === 'board' && isset($post['message_truncated'])) {
-        $truncated = true;
-        echo '<span class="truncated">Post truncated. Click reply to view.</span>';
-      }
-
-      if ($context === 'board') {
-        $replies_omitted = $post['replies_n'] - count($post['replies']);
-        if ($replies_omitted > 0) {
-          echo ($truncated ? '<br>' : '') . "<span class='omitted'>{$replies_omitted} posts omitted. Click reply to view.</span>";
-        }
-      }
-    ?>
   </div>
+  <?php
+    if ($context === 'board') {
+      $replies_omitted = $post['replies_n'] - count($post['replies']);
+      if ($replies_omitted > 0) {
+        echo "<span class='omitted'>{$replies_omitted} replies omitted. Click reply to view.</span>";
+      }
+    }
+  ?>
   <?php
     foreach ($post['replies'] as $reply) {
       echo $this->fetch('board/post_reply.phtml', ['context' => $context, 'post' => $reply]);

@@ -1,4 +1,4 @@
-<div class="post">
+<div class="post op">
   <?=$this->fetch('board/post_file.phtml', ['context' => 'preview', 'post' => $post])?>
   <div class="post-info">
     <label>
@@ -25,17 +25,9 @@
           echo $post['message_rendered'];
         } else {
           echo $post['message_truncated'];
-          echo '<br><br><span class="truncated">Post truncated. Click reply to view.</span><br>';
+          echo '<br><br><span class="truncated">Post truncated. Click reply to view.</span>';
         }
       ?>
     </div>
   </div>
-  <?php
-    foreach ($post['replies'] as $reply) {
-      if ($context === 'thread') {
-        $reply['message_truncated'] = null;
-      }
-      echo $this->fetch('board/post_reply.phtml', ['context' => $context, 'post' => $reply]);
-    }
-  ?>
 </div>

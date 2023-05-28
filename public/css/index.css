@@ -43,11 +43,11 @@ div.mode {
 }
 
 /* post */
-div.post {
+.thread {
   display: block;
 }
 
-div.post div.reply {
+.reply-container, .post.reply {
   display: table;
   margin-bottom: 2px;
 }
