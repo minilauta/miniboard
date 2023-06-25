@@ -825,3 +825,20 @@ function update_rebuild_post(array $rebuild_post): bool {
   ');
   return $sth->execute($rebuild_post);
 }
+
+
+// BAN related functions below
+// ------------------------------
+
+function select_ban(string $ip): array|bool {
+  $dbh = get_db_handle();
+  $sth = $dbh->prepare('
+    SELECT expire, reason FROM bans
+    WHERE ip = INET6_ATON(:ip) AND :now < expire
+  ');
+  $sth->execute([
+    'ip' => $ip,
+    'now' => time()
+  ]);
+  return $sth->fetch();
+}
