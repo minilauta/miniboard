@@ -709,6 +709,13 @@ function handle_postform(Request $request, Response $response, array $args, stri
     }
   }
 
+  // check if ip address has been banned
+  $ban = select_ban($user_ip);
+  if ($ban) {
+    $ban_expires = strftime(MB_DATEFORMAT, $ban['expire']);
+    throw new AppException('index', 'route', "this ip address has been banned for reason: {$ban['reason']}. The ban will expire on {$ban_expires}", SC_FORBIDDEN);
+  }
+
   // get thread if replying
   $thread_id = null;
   if (isset($args['thread_id'])) {
