@@ -395,8 +395,8 @@ $app->get('/{board_id}/', function (Request $request, Response $response, array 
 
   // get replies
   foreach ($threads as $key => $thread) {
-    $threads[$key]['replies'] = select_posts_preview(session_id(), $thread['board_id'], $thread['post_id'], 0, $board_posts_per_preview);
-    $threads[$key]['replies_n'] = count_posts(session_id(), $thread['board_id'], $thread['post_id'], false, false);
+    $threads[$key]['replies'] = select_posts_preview('NULL', $thread['board_id'], $thread['post_id'], 0, $board_posts_per_preview);
+    $threads[$key]['replies_n'] = count_posts('NULL', $thread['board_id'], $thread['post_id'], false, false);
   }
 
   // get thread count
@@ -433,7 +433,7 @@ $app->get('/{board_id}/hidden/', function (Request $request, Response $response,
   // do not show replies for hidden threads
   foreach ($threads as $key => $thread) {
     $threads[$key]['replies'] = [];
-    $threads[$key]['replies_n'] = count_posts(session_id(), $thread['board_id'], $thread['post_id'], false, false);
+    $threads[$key]['replies_n'] = count_posts('NULL', $thread['board_id'], $thread['post_id'], false, false);
   }
 
   // get thread count
@@ -469,7 +469,7 @@ $app->get('/{board_id}/catalog/', function (Request $request, Response $response
 
   // get thread reply counts
   foreach ($threads as $key => $thread) {
-    $reply_count = count_posts(session_id(), $thread['board_id'], $thread['post_id'], false);
+    $reply_count = count_posts('NULL', $thread['board_id'], $thread['post_id'], false);
     if (is_int($reply_count)) {
       $threads[$key]['reply_count'] = $reply_count;
     }
@@ -490,7 +490,6 @@ $app->get('/{board_id}/catalog/', function (Request $request, Response $response
 $app->get('/{board_id}/{thread_id}/', function (Request $request, Response $response, array $args) {
   // get board config
   $board_cfg = funcs_common_get_board_cfg($args['board_id']);
-  $board_max_replies = $board_cfg['max_replies'];
 
   // check board access
   if (!funcs_board_check_access($board_cfg, funcs_manage_get_role())) {
@@ -507,7 +506,7 @@ $app->get('/{board_id}/{thread_id}/', function (Request $request, Response $resp
   }
 
   // get replies
-  $thread['replies'] = select_posts(session_id(), $user_role, $thread['board_id'], $thread['post_id'], false, 0, $board_max_replies, false);
+  $thread['replies'] = select_posts(session_id(), $user_role, $thread['board_id'], $thread['post_id'], false, 0, 9001, false);
 
   $renderer = new PhpRenderer('templates/', [
     'board' => $board_cfg,
@@ -604,6 +603,14 @@ function handle_deleteform(Request $request, Response $response, array $args): R
     $delete_board_id = $delete_parsed[0];
     $delete_post_id = intval($delete_parsed[1]);
 
+    // get board config
+    $board_cfg = funcs_common_get_board_cfg($delete_board_id);
+
+    // check board access
+    if (!funcs_board_check_access($board_cfg, funcs_manage_get_role())) {
+      throw new AppException('index', 'route', 'access denied', SC_UNAUTHORIZED);
+    }
+
     // get post
     $post = select_post($delete_board_id, $delete_post_id);
     if ($post == null) {
@@ -616,13 +623,17 @@ function handle_deleteform(Request $request, Response $response, array $args): R
     }
 
     // delete post
-    if (!delete_post($delete_board_id, $delete_post_id, false)) {
+    if (!delete_post($post['board_id'], $post['post_id'], false)) {
       throw new AppException('index', 'route', "failed to delete post with ID /{$delete_board_id}/{$delete_post_id}", SC_INTERNAL_ERROR);
     }
 
     // debump if deleted post was a reply
+    $thread_bumped = false;
     if ($post['parent_id'] > 0) {
-      $thread_bumped = bump_thread($delete_board_id, $post['parent_id']);
+      $thread_replies_n = count_posts('NULL', $post['board_id'], $post['parent_id'], false, false);
+      if ($thread_replies_n <= $board_cfg['max_replies']) {
+        $thread_bumped = bump_thread($post['board_id'], $post['parent_id']);
+      }
     }
   }
 
@@ -770,7 +781,21 @@ function handle_postform(Request $request, Response $response, array $args, stri
   // bump thread
   $thread_bumped = false;
   if ($post['parent_id'] !== 0 && strtolower($post['email']) !== 'sage') {
-    $thread_bumped = bump_thread($post['board_id'], $post['parent_id']);
+    $thread_replies_n = count_posts('NULL', $post['board_id'], $post['parent_id'], false, false);
+    if ($thread_replies_n <= $board_cfg['max_replies']) {
+      $thread_bumped = bump_thread($post['board_id'], $post['parent_id']);
+    }
+  }
+
+  // cleanup board (100 threads at a time)
+  if (isset($board_cfg['max_threads']) && $board_cfg['max_threads'] > 0) {
+    // select all threads that exceed 'max_threads'
+    $threads_to_be_deleted = select_threads_past_offset($post['board_id'], $board_cfg['max_threads'], 100);
+
+    // delete selected threads along with replies, files, etc...
+    foreach ($threads_to_be_deleted as &$thread) {
+      funcs_common_delete_post($thread['board_id'], $thread['post_id']);
+    }
   }
 
   // handle noko

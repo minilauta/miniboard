@@ -340,6 +340,9 @@ function funcs_common_mutate_query(array $query, string $key, string $val): stri
 function funcs_common_delete_post(string $board_id, int $post_id): array {
   $warnings = [];
 
+  // get board config
+  $board_cfg = funcs_common_get_board_cfg($board_id);
+
   // select post with replies
   $selected_posts = select_post_with_replies($board_id, $post_id);
 
@@ -372,8 +375,12 @@ function funcs_common_delete_post(string $board_id, int $post_id): array {
     }
 
     // debump if deleted post was a reply
+    $thread_bumped = false;
     if ($post['parent_id'] > 0) {
-      $thread_bumped = bump_thread($post['board_id'], $post['parent_id']);
+      $thread_replies_n = count_posts('NULL', $post['board_id'], $post['parent_id'], false, false);
+      if ($thread_replies_n <= $board_cfg['max_replies']) {
+        $thread_bumped = bump_thread($post['board_id'], $post['parent_id']);
+      }
     }
   }
 

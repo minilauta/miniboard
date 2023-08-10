@@ -91,7 +91,7 @@
             }
 
             $post['replies'] = [];
-            $post['replies_n'] = count_posts(session_id(), $post['board_id'], $post['post_id'], false, false);
+            $post['replies_n'] = count_posts('NULL', $post['board_id'], $post['post_id'], false, false);
           }
 
           // get post count
@@ -118,7 +118,7 @@
           foreach ($posts as $key => &$post) {
             $post['ip_rendered'] = funcs_manage_get_role() === MB_ROLE_SUPERADMIN ? $post['ip_str'] : '<s>REDACTED</s>';
             $post['replies'] = [];
-            $post['replies_n'] = count_posts(session_id(), $post['board_id'], $post['post_id'], false, false);
+            $post['replies_n'] = count_posts('NULL', $post['board_id'], $post['post_id'], false, false);
           }
 
           // get post count
@@ -152,7 +152,7 @@
             }
 
             $report['replies'] = [];
-            $report['replies_n'] = count_posts(session_id(), $report['board_id'], $report['post_id'], false, false);
+            $report['replies_n'] = count_posts('NULL', $report['board_id'], $report['post_id'], false, false);
           }
 
           // get report count

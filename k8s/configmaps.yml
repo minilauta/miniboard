@@ -81,8 +81,8 @@ data:
         'posts_per_preview' => 4,
         'truncate'          => 15,
         'anonymous'         => null,
-        'max_threads'       => 100,
-        'max_replies'       => 100,
+        'max_threads'       => 0,
+        'max_replies'       => 0,
         'fields_post'       => [
           'board'     => ['required' => true,   'type' => 'string', 'max_len' => 8    ],
           'name'      => ['required' => false,  'type' => 'string', 'max_len' => 75   ],
