@@ -333,3 +333,49 @@ function funcs_common_mutate_query(array $query, string $key, string $val): stri
   $query[$key] = $val;
   return http_build_query($query);
 }
+
+/**
+ * Deletes target post and its replies if any. Deletes files if 0 references remaining.
+ */
+function funcs_common_delete_post(string $board_id, int $post_id): array {
+  $warnings = [];
+
+  // select post with replies
+  $selected_posts = select_post_with_replies($board_id, $post_id);
+
+  foreach ($selected_posts as &$post) {
+    // is the file thumbnail static?
+    $static = str_contains($post['thumb'], '/static/');
+
+    // count identical files, only unlink if this is the last one
+    $file_collisions = select_files_by_md5($post['file_hex']);
+    $file_collisions_n = count($file_collisions);
+
+    // unlink file and thumb from filesystem
+    if ($file_collisions_n === 1) {
+      if ($post['embed'] === 0 && strlen($post['file']) > 0) {
+        if (!unlink(__DIR__ . $post['file'])) {
+          $warnings[] = "Failed to delete file for post /{$post['board_id']}/{$post['post_id']}/ (maybe it didn't exist?)";
+        }
+      }
+      
+      if (!$static && strlen($post['thumb']) > 0) {
+        if (!unlink(__DIR__ . $post['thumb'])) {
+          $warnings[] = "Failed to delete thumbnail for post /{$post['board_id']}/{$post['post_id']}/ (maybe it didn't exist?)";
+        }
+      }
+    }
+
+    // delete post from db
+    if (!delete_post($post['board_id'], $post['post_id'], true)) {
+      $warnings[] = "Failed to delete post /{$post['board_id']}/{$post['post_id']}/ from db";
+    }
+
+    // debump if deleted post was a reply
+    if ($post['parent_id'] > 0) {
+      $thread_bumped = bump_thread($post['board_id'], $post['parent_id']);
+    }
+  }
+
+  return $warnings;
+}

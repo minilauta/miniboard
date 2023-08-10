@@ -179,7 +179,6 @@ function funcs_manage_delete(array $select): string {
 
   // delete each post and replies
   $processed = 0;
-  $total = 0;
   $warnings = [];
   foreach ($select as $val) {
     // parse board id and post id
@@ -187,51 +186,15 @@ function funcs_manage_delete(array $select): string {
     $selected_board_id = $selected_parsed[0];
     $selected_post_id = intval($selected_parsed[1]);
 
-    // select post with replies
-    $selected_posts = select_post_with_replies($selected_board_id, $selected_post_id);
-    $total += count($selected_posts);
-
-    foreach ($selected_posts as &$post) {
-      // is the file thumbnail static?
-      $static = str_contains($post['thumb'], '/static/');
-
-      // count identical files, only unlink if this is the last one
-      $file_collisions = select_files_by_md5($post['file_hex']);
-      $file_collisions_n = count($file_collisions);
-
-      // unlink file and thumb from filesystem
-      if ($file_collisions_n === 1) {
-        if ($post['embed'] === 0 && strlen($post['file']) > 0) {
-          if (!unlink(__DIR__ . $post['file'])) {
-            $warnings[] = "Failed to delete file for post /{$post['board_id']}/{$post['post_id']}/ (maybe it didn't exist?)";
-          }
-        }
-        
-        if (!$static && strlen($post['thumb']) > 0) {
-          if (!unlink(__DIR__ . $post['thumb'])) {
-            $warnings[] = "Failed to delete thumbnail for post /{$post['board_id']}/{$post['post_id']}/ (maybe it didn't exist?)";
-          }
-        }
-      }
-
-      // delete post from db
-      if (!delete_post($post['board_id'], $post['post_id'], true)) {
-        $warnings[] = "Failed to delete post /{$post['board_id']}/{$post['post_id']}/ from db";
-      }
-
-      // debump if deleted post was a reply
-      if ($post['parent_id'] > 0) {
-        $thread_bumped = bump_thread($post['board_id'], $post['parent_id']);
-      }
-
-      $processed++;
-    }
+    // delete post and replies, files, etc...
+    $warnings = array_merge($warnings, funcs_common_delete_post($selected_board_id, $selected_post_id));
+    $processed++;
   }
 
   // collect warnings
   $warnings = implode('<br>  - ', $warnings);
 
-  $status = "Deleted {$processed}/{$total} posts";
+  $status = "Deleted {$processed} posts";
   if (strlen($warnings) > 0) {
     $status .= "<br>Warnings:<br>- {$warnings}";
   }
