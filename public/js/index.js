@@ -837,9 +837,12 @@ function init_postform_features() {
   // setup submit handler
   let post_form = document.getElementById('form-post');
   if (post_form != null) {
+    let submit_btn = post_form.querySelector('input[type=submit]');
+
     post_form.addEventListener('submit', (event) => {
       event.preventDefault();
-
+      
+      submit_btn.disabled = true;
       fetch(post_form.action, {
         method: 'POST',
         body: new FormData(post_form)
@@ -855,11 +858,13 @@ function init_postform_features() {
           } else {
             open_window('', '_blank', 'location=true,status=true,width=480,height=640')
               .document.write(response['error_message']);
+            submit_btn.disabled = false;
           }
         });
       }).catch((error) => {
         open_window('', '_blank', 'location=true,status=true,width=480,height=640')
           .document.write(error);
+        submit_btn.disabled = false;
       });
     });
   }
