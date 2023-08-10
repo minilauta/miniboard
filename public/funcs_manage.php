@@ -136,7 +136,7 @@ function funcs_manage_rebuild(array $params): string {
 
     // render nameblock and message
     $nameblock = funcs_board_render_nameblock($name, $post['tripcode'], $email, $post['role'], $post['timestamp']);
-    $message = funcs_board_render_message($params['board_id'], $message, $board_cfg['truncate']);
+    $message = funcs_board_render_message($params['board_id'], $post['parent_id'], $message, $board_cfg['truncate']);
 
     // render file
     $file = $post['file'];

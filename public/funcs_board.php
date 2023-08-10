@@ -39,7 +39,7 @@ function funcs_board_create_post(string $ip, array $board_cfg, ?int $parent_id, 
   }
 
   // render message
-  $message = funcs_board_render_message($board_cfg['id'], $input['message'], $board_cfg['truncate']);
+  $message = funcs_board_render_message($board_cfg['id'], $parent_id, $input['message'], $board_cfg['truncate']);
 
   // parse name, additionally handle trip and secure trip
   $name_trip = [$board_cfg['anonymous'], null];
@@ -134,7 +134,7 @@ function funcs_board_render_nameblock(string $name, ?string $tripcode, ?string $
 /**
  * Renders the message_rendered and message_truncated -props of a post object.
  */
-function funcs_board_render_message(string $board_id, string $input, int $truncate): array {
+function funcs_board_render_message(string $board_id, ?int $parent_id, string $input, int $truncate): array {
   // escape message HTML entities
   $message = funcs_common_clean_field($input);
 
@@ -142,17 +142,15 @@ function funcs_board_render_message(string $board_id, string $input, int $trunca
   $message = funcs_common_break_long_words($message, 79);
 
   // preprocess message reference links (same board)
-  $message = preg_replace_callback('/(&gt;&gt;)([0-9]+)/m', function ($matches) use ($board_id) {
+  $message = preg_replace_callback('/(&gt;&gt;)([0-9]+)/m', function ($matches) use ($board_id, $parent_id) {
     $post = select_post($board_id, intval($matches[2]));
 
     if ($post) {
-      if ($post['parent_id'] === 0) {
-        $data_fields = "data-board_id='{$post['board_id']}' data-parent_id='{$post['post_id']}' data-id='{$post['post_id']}'";
-        return "<a class='reference' {$data_fields} href='/{$post['board_id']}/{$post['post_id']}/#{$post['board_id']}-{$post['post_id']}'>{$matches[0]}</a>";
-      } else {
-        $data_fields = "data-board_id='{$post['board_id']}' data-parent_id='{$post['parent_id']}' data-id='{$post['post_id']}'";
-        return "<a class='reference' {$data_fields} href='/{$post['board_id']}/{$post['parent_id']}/#{$post['board_id']}-{$post['post_id']}'>{$matches[0]}</a>";
-      }
+      $post_parent_id = ($post['parent_id'] === 0) ? $post['post_id'] : $post['parent_id'];
+      $post_text_suffix = ($post_parent_id !== $parent_id) ? ' (Cross-thread)' : '';
+      
+      $data_fields = "data-board_id='{$post['board_id']}' data-parent_id='{$post_parent_id}' data-id='{$post['post_id']}'";
+      return "<a class='reference' {$data_fields} href='/{$post['board_id']}/{$post_parent_id}/#{$post['board_id']}-{$post['post_id']}'>{$matches[0]}{$post_text_suffix}</a>";
     }
 
     return $matches[0];
@@ -163,13 +161,10 @@ function funcs_board_render_message(string $board_id, string $input, int $trunca
     $post = select_post($matches[2], intval($matches[3]));
 
     if ($post) {
-      if ($post['parent_id'] === 0) {
-        $data_fields = "data-board_id='{$post['board_id']}' data-parent_id='{$post['post_id']}' data-id='{$post['post_id']}'";
-        return "<a class='reference' {$data_fields} href='/{$post['board_id']}/{$post['post_id']}/#{$post['board_id']}-{$post['post_id']}'>{$matches[0]}</a>";
-      } else {
-        $data_fields = "data-board_id='{$post['board_id']}' data-parent_id='{$post['parent_id']}' data-id='{$post['post_id']}'";
-        return "<a class='reference' {$data_fields} href='/{$post['board_id']}/{$post['parent_id']}/#{$post['board_id']}-{$post['post_id']}'>{$matches[0]}</a>";
-      }
+      $post_parent_id = ($post['parent_id'] === 0) ? $post['post_id'] : $post['parent_id'];
+
+      $data_fields = "data-board_id='{$post['board_id']}' data-parent_id='{$post_parent_id}' data-id='{$post['post_id']}'";
+      return "<a class='reference' {$data_fields} href='/{$post['board_id']}/{$post_parent_id}/#{$post['board_id']}-{$post['post_id']}'>{$matches[0]}</a>";
     }
 
     return $matches[0];
