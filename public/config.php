@@ -109,7 +109,7 @@ define('MB_BOARDS', [
     'truncate'          => 15,
     'anonymous'         => 'Anonymous',
     'max_threads'       => 100,
-    'max_replies'       => 4,
+    'max_replies'       => 100,
     'fields_post'       => [
       'name'      => ['required' => false,  'type' => 'string', 'max_len' => 75   ],
       'email'     => ['required' => false,  'type' => 'string', 'max_len' => 320  ],
