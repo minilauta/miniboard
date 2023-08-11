@@ -60,8 +60,14 @@ function funcs_board_create_post(string $ip, array $board_cfg, ?int $parent_id, 
     $role = funcs_manage_get_role();
   }
 
+  // generate hashed ID
+  $hashid = null;
+  if (isset($board_cfg['hashid_salt']) && strlen($board_cfg['hashid_salt']) >= 2) {
+    $hashid = funcs_common_generate_hashid($board_cfg['id'], $parent_id != null ? $parent_id : 0, $ip, $board_cfg['hashid_salt']);
+  }
+
   // render nameblock
-  $nameblock = funcs_board_render_nameblock($name_trip[0], $name_trip[1], $email, $role, $timestamp);
+  $nameblock = funcs_board_render_nameblock($name_trip[0], $name_trip[1], $email, $hashid, $role, $timestamp);
 
   return [
     'board_id'            => $board_cfg['id'],
@@ -99,7 +105,7 @@ function funcs_board_create_post(string $ip, array $board_cfg, ?int $parent_id, 
 /**
  * Renders the nameblock-prop of a post object.
  */
-function funcs_board_render_nameblock(string $name, ?string $tripcode, ?string $email, ?int $role, int $timestamp): string {
+function funcs_board_render_nameblock(string $name, ?string $tripcode, ?string $email, ?string $hashid, ?int $role, int $timestamp): string {
   $nameblock = '';
 
   if (isset($email) && strlen($email) > 0) {
@@ -113,6 +119,11 @@ function funcs_board_render_nameblock(string $name, ?string $tripcode, ?string $
   }
 
   $nameblock .= "\n";
+
+  if (isset($hashid) && strlen($hashid) > 0) {
+    $nameblock .= "<span class='post-hashid'>(ID: <span class='post-hashid-hash'>{$hashid}</span>)</span>";
+    $nameblock .= "\n";
+  }
 
   switch ($role) {
     case MB_ROLE_SUPERADMIN:

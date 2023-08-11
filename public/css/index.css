@@ -71,6 +71,10 @@ span.post-name {
   font-weight: bold;
 }
 
+span.post-hashid-hash {
+  font-weight: bold;
+}
+
 div.file-info {
   display: block;
   overflow-wrap: break-word;
