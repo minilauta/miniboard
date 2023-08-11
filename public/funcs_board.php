@@ -62,8 +62,8 @@ function funcs_board_create_post(string $ip, array $board_cfg, ?int $parent_id, 
 
   // generate hashed ID
   $hashid = null;
-  if (isset($board_cfg['hashid_salt']) && strlen($board_cfg['hashid_salt']) >= 2) {
-    $hashid = funcs_common_generate_hashid($board_cfg['id'], $parent_id != null ? $parent_id : 0, $ip, $board_cfg['hashid_salt']);
+  if (isset($board_cfg['hashid_salt']) && strlen($board_cfg['hashid_salt']) >= 2 && $parent_id > 0) {
+    $hashid = funcs_common_generate_hashid($board_cfg['id'], $parent_id, $ip, $board_cfg['hashid_salt']);
   }
 
   // render nameblock
@@ -120,7 +120,7 @@ function funcs_board_render_nameblock(string $name, ?string $tripcode, ?string $
 
   $nameblock .= "\n";
 
-  if (isset($hashid) && strlen($hashid) > 0) {
+  if (isset($hashid) && strlen($hashid) > 0 && $role == null) {
     $nameblock .= "<span class='post-hashid'>(ID: <span class='post-hashid-hash'>{$hashid}</span>)</span>";
     $nameblock .= "\n";
   }

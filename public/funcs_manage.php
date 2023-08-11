@@ -134,8 +134,14 @@ function funcs_manage_rebuild(array $params): string {
       $message = htmlspecialchars_decode($message, ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML401);
     }
 
+    // re-generate hashed ID
+    $hashid = null;
+    if (isset($board_cfg['hashid_salt']) && strlen($board_cfg['hashid_salt']) >= 2 && $post['parent_id'] > 0) {
+      $hashid = funcs_common_generate_hashid($board_cfg['id'], $post['parent_id'], $post['ip_str'], $board_cfg['hashid_salt']);
+    }
+
     // render nameblock and message
-    $nameblock = funcs_board_render_nameblock($name, $post['tripcode'], $email, $post['role'], $post['timestamp']);
+    $nameblock = funcs_board_render_nameblock($name, $post['tripcode'], $email, $hashid, $post['role'], $post['timestamp']);
     $message = funcs_board_render_message($params['board_id'], $post['parent_id'], $message, $board_cfg['truncate']);
 
     // render file
