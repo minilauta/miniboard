@@ -357,6 +357,27 @@ function select_files_by_md5(string $file_md5): array|bool {
   return $sth->fetchAll();
 }
 
+function select_threads_past_offset(string $board_id, int $offset = 100, int $limit = 100): array|bool {
+  $dbh = get_db_handle();
+  $sth = $dbh->prepare('
+    SELECT
+      id,
+      post_id,
+      board_id
+    FROM posts
+    WHERE
+      board_id = :board_id AND parent_id = 0
+    ORDER BY stickied DESC, bumped DESC
+    LIMIT :limit OFFSET :offset
+  ');
+  $sth->execute([
+    'board_id' => $board_id,
+    'limit' => $limit,
+    'offset' => $offset
+  ]);
+  return $sth->fetchAll();
+}
+
 // HIDE related functions below
 // ----------------------------
 
@@ -802,7 +823,21 @@ function insert_import_posts_tinyib(array $db_creds, string $table_name, string 
 function select_rebuild_posts(string $board_id): array|bool {
   $dbh = get_db_handle();
   $sth = $dbh->prepare('
-    SELECT post_id, board_id, timestamp, role, name, email, tripcode, message, file, embed, imported FROM posts
+    SELECT
+      post_id,
+      parent_id,
+      board_id,
+      INET6_NTOA(ip) AS ip_str,
+      timestamp,
+      role,
+      name,
+      email,
+      tripcode,
+      message,
+      file,
+      embed,
+      imported
+    FROM posts
     WHERE board_id = :board_id
   ');
   $sth->execute([

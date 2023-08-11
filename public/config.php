@@ -78,8 +78,9 @@ define('MB_BOARDS', [
     'posts_per_preview' => 4,
     'truncate'          => 15,
     'anonymous'         => null,
-    'max_threads'       => 100,
-    'max_replies'       => 100,
+    'hashid_salt'       => null,
+    'max_threads'       => 0,
+    'max_replies'       => 0,
     'fields_post'       => [
       'board'     => ['required' => true,   'type' => 'string', 'max_len' => 8    ],
       'name'      => ['required' => false,  'type' => 'string', 'max_len' => 75   ],
@@ -108,6 +109,7 @@ define('MB_BOARDS', [
     'posts_per_preview' => 4,
     'truncate'          => 15,
     'anonymous'         => 'Anonymous',
+    'hashid_salt'       => '_J9..salt', // CRYPT_EXT_DES, _.... = iteration count, followed by 4 char salt
     'max_threads'       => 100,
     'max_replies'       => 100,
     'fields_post'       => [
@@ -152,6 +154,7 @@ define('MB_BOARDS', [
     'posts_per_preview' => 4,
     'truncate'          => 15,
     'anonymous'         => 'Anonymous',
+    'hashid_salt'       => null,
     'max_threads'       => 100,
     'max_replies'       => 100,
     'fields_post'       => [
@@ -193,8 +196,9 @@ define('MB_BOARDS', [
     'posts_per_preview' => 4,
     'truncate'          => 15,
     'anonymous'         => 'Anonymous',
-    'max_threads'       => 100,
-    'max_replies'       => 100,
+    'hashid_salt'       => null,
+    'max_threads'       => 0,
+    'max_replies'       => 1000,
     'fields_post'       => [
       'name'      => ['required' => false,  'type' => 'string', 'max_len' => 75   ],
       'email'     => ['required' => false,  'type' => 'string', 'max_len' => 320  ],
