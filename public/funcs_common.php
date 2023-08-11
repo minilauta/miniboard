@@ -285,7 +285,11 @@ function funcs_common_generate_tripcode(string $input, string $secure_salt): arr
 /**
  * Generates a one-way hash ID to identify unique posters in a thread.
  */
-function funcs_common_generate_hashid(string $board_id, int $parent_id, string $ip, string $salt): string {
+function funcs_common_generate_hashid(string $board_id, int $parent_id, string $ip, string $salt): ?string {
+  if (strlen($ip) === 0 || $ip == '0.0.0.0' || $ip == '127.0.0.1') {
+    return null;
+  }
+
   return substr(crypt(hash('md5', "{$board_id}/{$parent_id}/{$ip}"), $salt), strlen($salt));
 }
 

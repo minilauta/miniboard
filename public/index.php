@@ -623,8 +623,9 @@ function handle_deleteform(Request $request, Response $response, array $args): R
     }
 
     // delete post
-    if (!delete_post($post['board_id'], $post['post_id'], false)) {
-      throw new AppException('index', 'route', "failed to delete post with ID /{$delete_board_id}/{$delete_post_id}", SC_INTERNAL_ERROR);
+    $warnings = funcs_common_delete_post($post['board_id'], $post['post_id']);
+    if ($warnings) {
+      throw new AppException('index', 'route', "failed to delete post with ID /{$delete_board_id}/{$delete_post_id}\n{$warnings}", SC_INTERNAL_ERROR);
     }
 
     // debump if deleted post was a reply
