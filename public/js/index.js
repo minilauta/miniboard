@@ -423,13 +423,14 @@ function listener_post_reference_link_mouseleave(event) {
           return;
         }
 
-        let post = document.getElementById(data.board_id + '-' + data.id);
-        if (post != null) {
-          if (post.parentElement.classList.contains('reply')) {
-            post.parentElement.remove();
-          } else {
-            post.remove();
+        let thread = document.getElementById('thread_' + data.board_id + '-' + data.id);
+        if (thread != null) {
+          let divider = thread.nextElementSibling;
+          if (divider != null && divider.nodeName === 'HR') {
+            divider.remove();
           }
+
+          thread.remove();
         }
       };
       xhr.open('POST', '/' + data.board_id + '/' + data.id + '/hide', true);
