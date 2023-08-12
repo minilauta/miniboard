@@ -586,8 +586,9 @@ function create_post_preview(target, board_id, parent_id, id, rect, content) {
     div.style.left = (parseInt(div.style.left, 10) - overflow_x) + 'px';
   }
 
-  // recursively init container post ref links
+  // recursively init container post ref link and hashid features
   init_post_reference_links(div);
+  init_post_hashid_features(div);
 }
 
 /**
@@ -785,10 +786,14 @@ function init_post_backreference_links(target) {
 }
 
 /**
- * Initializes all post hashid fields with unique RGB color hash.
+ * Initializes all post hashid fields with unique RGB color hash under target element.
  */
-function init_post_hashid_features() {
-  let hashid_elements = document.getElementsByClassName('post-hashid-hash');
+function init_post_hashid_features(target) {
+  if (target == null) {
+    target = document;
+  }
+
+  let hashid_elements = target.getElementsByClassName('post-hashid-hash');
   Array.from(hashid_elements).forEach(element => {
     // calculate hashid bg color by simple hash to rgb
     const hid_bg = element.innerHTML.toHex();
@@ -926,14 +931,14 @@ document.addEventListener('DOMContentLoaded', function(event) {
     init_post_backreference_links();
     console.timeEnd('init_post_backreference_links');
 
-    console.time('init_post_hashid_features');
-    init_post_hashid_features();
-    console.timeEnd('init_post_hashid_features');
-
     console.time('init_location_hash_features');
     init_location_hash_features();
     console.timeEnd('init_location_hash_features');
   }
+
+  console.time('init_post_hashid_features');
+  init_post_hashid_features();
+  console.timeEnd('init_post_hashid_features');
   
   console.time('init_postform_features');
   init_postform_features();
