@@ -1,4 +1,5 @@
 export * from './polyfill';
+export * from './utils';
 
 // ruffle player
 window.RufflePlayer = window.RufflePlayer || {};
@@ -784,6 +785,28 @@ function init_post_backreference_links(target) {
 }
 
 /**
+ * Initializes all post hashid fields with unique RGB color hash.
+ */
+function init_post_hashid_features() {
+  let hashid_elements = document.getElementsByClassName('post-hashid-hash');
+  Array.from(hashid_elements).forEach(element => {
+    // calculate hashid bg color by simple hash to rgb
+    const hid_bg = element.innerHTML.toHex();
+
+    // calculate hashid bg color luminance
+    const hid_bg_rgb = parseInt(hid_bg.substring(1), 16);
+    const hid_bg_r = (hid_bg_rgb >> 16) & 0xff;
+    const hid_bg_g = (hid_bg_rgb >> 8) & 0xff;
+    const hid_bg_b = hid_bg_rgb & 0xff;
+    const hid_bg_l = 0.2126 * hid_bg_r + 0.7152 * hid_bg_g + 0.0722 * hid_bg_b;
+
+    // set the hashid bgcolor and also set font color based on luminance
+    element.style.backgroundColor = hid_bg;
+    element.style.color = hid_bg_l < 100 ? '#ffffff' : '#000000';
+  });
+}
+
+/**
  * Initializes features related to interpreting location.hash value.
  * - Post highlights (#ID)
  * - Insert post ref link to postform message (#qID)
@@ -902,6 +925,10 @@ document.addEventListener('DOMContentLoaded', function(event) {
     console.time('init_post_backreference_links');
     init_post_backreference_links();
     console.timeEnd('init_post_backreference_links');
+
+    console.time('init_post_hashid_features');
+    init_post_hashid_features();
+    console.timeEnd('init_post_hashid_features');
 
     console.time('init_location_hash_features');
     init_location_hash_features();

@@ -72,7 +72,7 @@ span.post-name {
 }
 
 span.post-hashid-hash {
-  font-weight: bold;
+  border-radius: 2px;
 }
 
 div.file-info {
