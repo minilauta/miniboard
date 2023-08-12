@@ -17,6 +17,11 @@ div.banner {
   clear: both;
 }
 
+div.banner img {
+  max-width: 100%;
+  height: auto;
+}
+
 /* header */
 div.header {
   clear: both;
@@ -216,6 +221,7 @@ div.post-preview > div.post.reply > div.reply  {
 /* forms */
 .form {
   text-align: left;
+  overflow-x: auto;
 }
 
 .form td {
