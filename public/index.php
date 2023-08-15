@@ -31,26 +31,25 @@ $app->get('/manage/', function (Request $request, Response $response, array $arg
   if (!funcs_manage_is_logged_in()) {
     $renderer = new PhpRenderer('templates/', []);
     return $renderer->render($response, 'login.phtml');
-  } else {
-    // get query params
-    $query_params = $request->getQueryParams();
-    $query_route = funcs_common_parse_input_str($query_params, 'route', '');
-    $query_status = funcs_common_parse_input_str($query_params, 'status', '');
-    $query_page = funcs_common_parse_input_int($query_params, 'page', 0, 0, 1000);
-
-    // render page
-    $renderer = new PhpRenderer('templates/', [
-      'route' => $query_route,
-      'status' => $query_status,
-      'page' => $query_page,
-    ]);
-    return $renderer->render($response, 'manage.phtml');
   }
+  
+  // get query params
+  $query_params = $request->getQueryParams();
+  $query_route = funcs_common_parse_input_str($query_params, 'route', '');
+  $query_status = funcs_common_parse_input_str($query_params, 'status', '');
+  $query_page = funcs_common_parse_input_int($query_params, 'page', 0, 0, 1000);
+
+  // render page
+  $renderer = new PhpRenderer('templates/', [
+    'route' => $query_route,
+    'status' => $query_status,
+    'page' => $query_page,
+  ]);
+  return $renderer->render($response, 'manage.phtml');
 });
 
 $app->get('/manage/logout/', function (Request $request, Response $response, array $args) {
-  $success = funcs_manage_logout();
-  if (!$success) {
+  if (!funcs_manage_logout()) {
     throw new AppException('index', 'route', "logout failed to clear PHP session", SC_INTERNAL_ERROR);
   }
 
@@ -68,16 +67,16 @@ function handle_loginform(Request $request, Response $response, array $args): Re
   // parse request body
   $params = (array) $request->getParsedBody();
 
-  // validate captcha
-  if (MB_CAPTCHA_LOGIN) {
-    funcs_common_validate_captcha($params);
-  }
-
   // validate request fields
   funcs_common_validate_fields($params, [
     'username'  => ['required' => true, 'type' => 'string', 'min_len' => 2, 'max_len' => 75],
     'password'  => ['required' => true, 'type' => 'string', 'min_len' => 2, 'max_len' => 256]
   ]);
+
+  // validate captcha
+  if (MB_CAPTCHA_LOGIN) {
+    funcs_common_validate_captcha($params);
+  }
 
   // get account
   $account = select_account($params['username']);
@@ -159,7 +158,7 @@ function handle_rebuildform(Request $request, Response $response, array $args): 
     'board_id'   => ['required' => true, 'type' => 'string']
   ]);
 
-  // execute import
+  // execute rebuild
   $status = funcs_manage_rebuild($params);
 
   $response = $response
@@ -347,13 +346,13 @@ function handle_reportform(Request $request, Response $response, array $args): R
     throw new AppException('index', 'route', 'access denied', SC_UNAUTHORIZED);
   }
 
+  // validate request fields
+  funcs_board_validate_report($params, MB_REPORT_TYPES);
+
   // validate captcha
   if (MB_CAPTCHA_REPORT) {
     funcs_common_validate_captcha($params);
   }
-
-  // validate request fields
-  funcs_board_validate_report($params, MB_REPORT_TYPES);
 
   // get post
   $post = select_post($board_cfg['id'], $args['post_id']);
@@ -467,12 +466,10 @@ $app->get('/{board_id}/catalog/', function (Request $request, Response $response
   // get threads
   $threads = select_posts(session_id(), $user_role, $board_query_id, 0, true, $board_threads_per_catalog_page * $query_page, $board_threads_per_catalog_page, false);
 
-  // get thread reply counts
+  // get thread metadata
+  // TODO: file counts, etc...
   foreach ($threads as $key => $thread) {
-    $reply_count = count_posts('NULL', $thread['board_id'], $thread['post_id'], false);
-    if (is_int($reply_count)) {
-      $threads[$key]['reply_count'] = $reply_count;
-    }
+    $threads[$key]['replies_n'] = count_posts('NULL', $thread['board_id'], $thread['post_id'], false);
   }
 
   // get thread count
@@ -539,8 +536,6 @@ $app->get('/{board_id}/{thread_id}/{post_id}/', function (Request $request, Resp
     ]);
     return $renderer->render($response, 'board/post_preview_null.phtml');
   }
-
-  $post['replies'] = [];
 
   $renderer = new PhpRenderer('templates/', [
     'post' => $post
@@ -725,7 +720,7 @@ function handle_postform(Request $request, Response $response, array $args, stri
   $ban = select_ban($user_ip);
   if ($ban) {
     $ban_expires = strftime(MB_DATEFORMAT, $ban['expire']);
-    throw new AppException('index', 'route', "this ip address has been banned for reason: {$ban['reason']}. The ban will expire on {$ban_expires}", SC_FORBIDDEN);
+    throw new AppException('index', 'route', "this ip address has been banned for reason: {$ban['reason']}. the ban will expire on {$ban_expires}", SC_FORBIDDEN);
   }
 
   // get thread if replying
@@ -780,8 +775,9 @@ function handle_postform(Request $request, Response $response, array $args, stri
   $inserted_post_id = insert_post($post);
 
   // bump thread
+  $email_split = array_map(fn($val): string => strtolower($val), explode(' ', $post['email']));
   $thread_bumped = false;
-  if ($post['parent_id'] !== 0 && strtolower($post['email']) !== 'sage') {
+  if ($post['parent_id'] !== 0 && !in_array('sage', $email_split)) {
     $thread_replies_n = count_posts('NULL', $post['board_id'], $post['parent_id'], false, false);
     if ($thread_replies_n <= $board_cfg['max_replies']) {
       $thread_bumped = bump_thread($post['board_id'], $post['parent_id']);
@@ -789,7 +785,7 @@ function handle_postform(Request $request, Response $response, array $args, stri
   }
 
   // cleanup board (100 threads at a time)
-  if (isset($board_cfg['max_threads']) && $board_cfg['max_threads'] > 0) {
+  if ($thread_id == null && isset($board_cfg['max_threads']) && $board_cfg['max_threads'] > 0) {
     // select all threads that exceed 'max_threads'
     $threads_to_be_deleted = select_threads_past_offset($post['board_id'], $board_cfg['max_threads'], 100);
 
@@ -801,7 +797,7 @@ function handle_postform(Request $request, Response $response, array $args, stri
 
   // handle noko
   $redirect_url = '/' . $board_cfg['id'] . '/';
-  if (strtolower($post['email']) === 'noko' || $board_cfg['alwaysnoko']) {
+  if (in_array('noko', $email_split) || $board_cfg['alwaysnoko']) {
     $redirect_url .= ($post['parent_id'] === 0 ? $inserted_post_id : $post['parent_id']) . '/#' . $post['board_id'] . '-' . $inserted_post_id;
   }
 

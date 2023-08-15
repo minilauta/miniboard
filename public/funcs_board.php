@@ -576,7 +576,8 @@ function funcs_board_create_hide(string $session_id, string $board_id, int $post
   return [
     'session_id' => $session_id,
     'board_id'   => $board_id,
-    'post_id'    => $post_id
+    'post_id'    => $post_id,
+    'timestamp'  => time()
   ];
 }
 

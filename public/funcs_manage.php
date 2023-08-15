@@ -9,6 +9,11 @@ require_once __DIR__ . '/funcs_common.php';
  */
 function funcs_manage_log(string $message) {
   $ip = funcs_common_get_client_remote_address(MB_CLOUDFLARE, $_SERVER);
+  $username = isset($_SESSION['mb_username']) ? $_SESSION['mb_username'] : null;
+
+  if ($username == null) {
+    return;
+  }
 
   insert_log($ip, time(), $_SESSION['mb_username'], $message);
 }
@@ -63,8 +68,6 @@ function funcs_manage_get_role(): int|null {
  * Imports data from another MySQL/MariaDB database.
  */
 function funcs_manage_import(array $params): string {
-  funcs_manage_log("Executed import, source db: {$params['db_name']}, source table: {$params['table_name']}, target board: {$params['board_id']}");
-
   // handle each table type separately
   $inserted = 0;
   $warnings = [];
@@ -96,7 +99,7 @@ function funcs_manage_import(array $params): string {
   // collect warnings
   $warnings = implode('<br>  - ', $warnings);
 
-  $status = "Imported {$inserted} rows";
+  $status = "Imported {$inserted} rows to /{$params['board_id']}/ from source db {$params['db_name']} & table {$params['table_name']}";
   if (strlen($warnings) > 0) {
     $status .= "<br>Warnings:<br>- {$warnings}";
   }
@@ -108,8 +111,6 @@ function funcs_manage_import(array $params): string {
  * Rebuilds all data in the database.
  */
 function funcs_manage_rebuild(array $params): string {
-  funcs_manage_log("Executed rebuild, target board: {$params['board_id']}");
-
   // get board config
   $board_cfg = funcs_common_get_board_cfg($params['board_id']);
 
@@ -169,7 +170,7 @@ function funcs_manage_rebuild(array $params): string {
   // collect warnings
   $warnings = implode('<br>  - ', $warnings);
 
-  $status = "Rebuilt {$processed}/{$total} posts";
+  $status = "Rebuilt {$processed}/{$total} posts in /{$params['board_id']}/";
   if (strlen($warnings) > 0) {
     $status .= "<br>Warnings:<br>- {$warnings}";
   }
@@ -181,8 +182,6 @@ function funcs_manage_rebuild(array $params): string {
  * Deletes all selected posts from filesystem and database.
  */
 function funcs_manage_delete(array $select): string {
-  funcs_manage_log('Executed delete, target posts: ' . implode(', ', $select));
-
   // delete each post and replies
   $processed = 0;
   $warnings = [];
@@ -209,8 +208,6 @@ function funcs_manage_delete(array $select): string {
 }
 
 function funcs_manage_approve(array $select): string {
-  funcs_manage_log('Executed approve, target posts: ' . implode(', ', $select));
-
   // delete each report
   $processed = 0;
   foreach ($select as $val) {
@@ -229,8 +226,6 @@ function funcs_manage_approve(array $select): string {
 }
 
 function funcs_manage_toggle_lock(array $select): string {
-  funcs_manage_log('Executed toggle_lock, target posts: ' . implode(', ', $select));
-
   // lock/unlock each post
   $processed = 0;
   foreach ($select as $val) {
@@ -249,8 +244,6 @@ function funcs_manage_toggle_lock(array $select): string {
 }
 
 function funcs_manage_toggle_sticky(array $select): string {
-  funcs_manage_log('Executed toggle_sticky, target posts: ' . implode(', ', $select));
-
   // sticky/unsticky each post
   $processed = 0;
   foreach ($select as $val) {

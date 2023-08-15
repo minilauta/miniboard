@@ -29,7 +29,7 @@ function funcs_common_validate_fields(array $input, array $fields) {
 
     $ival = $input[$key];
 
-    // check if actual type matches required type
+    // check if input type matches required type
     $input_type = gettype($ival);
     if ($input_type != $val['type']) {
       throw new AppException('funcs_common', 'validate_fields', "field {$key} data type {$input_type} is invalid", SC_BAD_REQUEST);

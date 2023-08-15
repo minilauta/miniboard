@@ -398,12 +398,14 @@ function insert_hide($hide): int {
     INSERT INTO hides (
       session_id,
       board_id,
-      post_id
+      post_id,
+      timestamp
     )
     VALUES (
       :session_id,
       :board_id,
-      :post_id
+      :post_id,
+      :timestamp
     )
   ');
   $sth->execute($hide);
@@ -506,6 +508,7 @@ function select_all_posts(bool $desc = true, int $offset = 0, int $limit = 10): 
       *,
       INET6_NTOA(ip) AS ip_str
     FROM posts
+    WHERE parent_id != 0
     ORDER BY timestamp ' . ($desc === true ? 'DESC' : 'ASC') . '
     LIMIT :limit OFFSET :offset
   ');

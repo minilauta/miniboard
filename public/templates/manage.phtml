@@ -31,7 +31,7 @@
           }
 
           // set constants
-          $accounts_per_page = 50;
+          $accounts_per_page = 10;
 
           // get accounts
           $accounts = select_all_accounts(false, $accounts_per_page * $page, $accounts_per_page);
@@ -51,7 +51,7 @@
           break;
         case 'logs':
           // set constants
-          $logs_per_page = 50;
+          $logs_per_page = 100;
 
           // get logs
           $logs = select_all_logs(true, $logs_per_page * $page, $logs_per_page);
@@ -77,12 +77,12 @@
           break;
         case 'posts':
           // set constants
-          $posts_per_page = 25;
+          $posts_per_page = 50;
 
           // get posts
           $posts = select_all_posts(true, $posts_per_page * $page, $posts_per_page);
 
-          // process posts
+          // process posts (if thread returned, set thread related values)
           foreach ($posts as $key => &$post) {
             $post['ip_rendered'] = funcs_manage_get_role() === MB_ROLE_SUPERADMIN ? $post['ip_str'] : '<s>REDACTED</s>';
 
@@ -109,7 +109,7 @@
           break;
         case 'threads':
           // set constants
-          $posts_per_page = 25;
+          $posts_per_page = 50;
 
           // get posts
           $posts = select_all_threads(true, $posts_per_page * $page, $posts_per_page);
@@ -137,12 +137,12 @@
         case 'reports':
         default:
           // set constants
-          $reports_per_page = 25;
+          $reports_per_page = 50;
 
           // get reports
           $reports = select_all_reports(true, $reports_per_page * $page, $reports_per_page);
 
-          // process reports
+          // process reports (if thread returned, set thread related values)
           foreach ($reports as $key => &$report) {
             $report['r_ip_rendered'] = funcs_manage_get_role() === MB_ROLE_SUPERADMIN ? $report['r_ip_str'] : '<s>REDACTED</s>';
             $report['ip_rendered'] = funcs_manage_get_role() === MB_ROLE_SUPERADMIN ? $report['ip_str'] : '<s>REDACTED</s>';
