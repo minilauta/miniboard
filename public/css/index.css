@@ -23,6 +23,15 @@ hr {
   width: 100%;
 }
 
+.page-root table {
+  margin: 0 auto;
+  width: 100%;
+}
+
+.page-root table td {
+  text-align: center;
+}
+
 .box-container {
   margin-bottom: 8px;
 }
@@ -41,20 +50,6 @@ hr {
 .box-content {
   text-align: left;
   padding: 0.5em;
-}
-
-.board-table {
-  margin: 0 auto;
-  min-width: 50%;
-  max-width: 100%;
-}
-
-.board-table-header {
-  display: none;
-}
-
-.board-table td {
-  vertical-align: middle;
 }
 
 /* banner */

@@ -18,8 +18,8 @@
         <div class="box">
           <div class="box-title">Boards</div>
           <div class="box-content">
-            <table class="board-table">
-              <tr class="board-table-header">
+            <table>
+              <tr style="display: none">
                 <th>col1</th>
                 <th>col2</th>
                 <th>col3</th>
@@ -51,7 +51,24 @@
       <div class="box-container">
         <div class="box">
           <div class="box-title">Stats</div>
-          <div class="box-content">TODO</div>
+          <div class="box-content">
+            <table>
+              <tr style="display: none">
+                <th>col1</th>
+                <th>col2</th>
+                <th>col3</th>
+              </tr>
+              <tr>
+                <?php
+                  $active_content = funcs_common_human_filesize($site_stats['active_content']);
+
+                  echo "<td><strong>Current Posts: </strong>{$site_stats['current_posts']}</td>";
+                  echo "<td><strong>Current Users: </strong>{$site_stats['current_users']}</td>";
+                  echo "<td><strong>Active Content: </strong>{$active_content}</td>";
+                ?>
+              </tr>
+            </table>
+          </div>
         </div>
       </div>
     </div>

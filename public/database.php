@@ -22,6 +22,50 @@ function get_db_handle(): PDO {
   return $dbh;
 }
 
+// ROOT/general related functions below
+// ----------------------------
+
+function select_site_stats(): array|bool {
+  $dbh = get_db_handle();
+  $sth = $dbh->prepare('
+    SELECT
+      MAX(sq1.current_posts) AS current_posts,
+      MAX(sq1.current_users) AS current_users,
+      MAX(sq1.active_content) AS active_content
+    FROM (
+      SELECT
+        COUNT(*) AS current_posts,
+        NULL AS current_users,
+        NULL AS active_content
+      FROM posts
+      
+      UNION ALL
+
+      SELECT
+        NULL AS current_posts,
+        COUNT(DISTINCT(ip)) AS current_users,
+        NULL AS active_content
+      FROM posts
+
+      UNION ALL
+      
+      SELECT
+        NULL AS current_posts,
+        NULL AS current_users,
+        SUM(sq12.file_size) AS active_content
+      FROM (
+        SELECT
+          file_hex,
+          file_size
+        FROM posts
+        GROUP BY file_hex
+      ) AS sq12
+    ) AS sq1
+  ');
+  $sth->execute();
+  return $sth->fetch();
+}
+
 // POST related functions below
 // ----------------------------
 

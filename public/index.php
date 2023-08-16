@@ -23,7 +23,8 @@ $app->add($session_middleware);
 $app->get('/', function (Request $request, Response $response, array $args) {
   $renderer = new PhpRenderer('templates/', [
     'site_name' => MB_SITE_NAME,
-    'site_desc' => MB_SITE_DESC
+    'site_desc' => MB_SITE_DESC,
+    'site_stats' => select_site_stats()
   ]);
   return $renderer->render($response, 'root.phtml');
 });
