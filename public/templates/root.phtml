@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <?=$this->fetch('common/meta.phtml')?>
+    <?=$this->fetch('common/styles.phtml')?>
+    <title><?=$site_name?> - <?=$site_desc?></title>
+  </head>
+  <body>
+    <div class="menubar">
+			<div class="boardmenu">
+				<?=$this->fetch('common/stylepicker.phtml')?>
+			</div>
+    </div>
+    <?=$this->fetch('common/header.phtml', ['h_title' => "{$site_name}", 'h_subtitle' => '', 'h_logo' => 'logo.png'])?>
+
+    <div class="page-root container-centered" style="margin-top: 32px">
+      <div class="box-container">
+        <div class="box">
+          <div class="box-title">Boards</div>
+          <div class="box-content">
+            <table class="board-table">
+              <tr class="board-table-header">
+                <th>col1</th>
+                <th>col2</th>
+                <th>col3</th>
+                <th>col4</th>
+              </tr>
+              <?php
+                $board_table_n = 0;
+                foreach (MB_BOARDS as $key => $board) {
+                  if ($board_table_n % 4 === 0) {
+                    echo '<tr>';
+                  }
+
+                  echo "<td><a href='/{$board['id']}/'>{$board['name']}</a></td>";
+
+                  if ($board_table_n % 4 === 3) {
+                    echo '</tr>';
+                  }
+
+                  $board_table_n++;
+                }
+                if ($board_table_n % 4 !== 0) {
+                  echo '</tr>';
+                }
+              ?>
+            </table>
+          </div>
+        </div>
+      </div>
+      <div class="box-container">
+        <div class="box">
+          <div class="box-title">Stats</div>
+          <div class="box-content">TODO</div>
+        </div>
+      </div>
+    </div>
+
+    <hr>
+    <div class="container-centered">
+      <?=$this->fetch('common/footer.phtml')?>
+    </div>
+
+    <?=$this->fetch('common/scripts.phtml')?>
+  </body>
+</html>

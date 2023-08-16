@@ -21,10 +21,11 @@ $app->add(new Middlewares\TrailingSlash(true));
 $app->add($session_middleware);
 
 $app->get('/', function (Request $request, Response $response, array $args) {
-  $response = $response
-    ->withHeader('Location', '/' . MB_BOARDS[array_key_first(MB_BOARDS)]['id'] . '/')
-    ->withStatus(303);
-  return $response;
+  $renderer = new PhpRenderer('templates/', [
+    'site_name' => MB_SITE_NAME,
+    'site_desc' => MB_SITE_DESC
+  ]);
+  return $renderer->render($response, 'root.phtml');
 });
 
 $app->get('/manage/', function (Request $request, Response $response, array $args) {
@@ -871,7 +872,8 @@ $error_handler = function(
 };
 
 if (MB_ENV === 'dev') {
-  $app->addErrorMiddleware(true, true, true);
+  $app->addErrorMiddleware(false, false, false)
+    ->setDefaultErrorHandler($error_handler);
 } else {
   $app->addErrorMiddleware(false, false, false)
     ->setDefaultErrorHandler($error_handler);

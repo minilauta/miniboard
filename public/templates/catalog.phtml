@@ -9,7 +9,7 @@
     <?=$this->fetch('board/menubar.phtml', ['board_id' => $board['id'], 'thread_id' => null])?>
     <?=$this->fetch('common/banner.phtml')?>
     <hr>
-    <?=$this->fetch('common/header.phtml', ['header' => ['title' => "/{$board['id']}/ - {$board['name']}", 'subtitle' => $board['desc']]])?>
+    <?=$this->fetch('common/header.phtml', ['h_title' => "/{$board['id']}/ - {$board['name']}", 'h_subtitle' => $board['desc']])?>
     <hr>
     [<a href="../">Return</a>]
     <div class="mode">Catalog</div>

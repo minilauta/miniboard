@@ -7,7 +7,7 @@
   </head>
   <body>
     <?=$this->fetch('board/menubar.phtml', ['board_id' => array_key_first(MB_BOARDS), 'thread_id' => null])?>
-    <?=$this->fetch('common/header.phtml', ['header' => ['title' => 'Manage', 'subtitle' => 'Login']])?>
+    <?=$this->fetch('common/header.phtml', ['h_title' => 'Manage', 'h_subtitle' => 'Login'])?>
     <hr>
     <div class="container-centered">
       <?=$this->fetch('manage/loginform.phtml')?>

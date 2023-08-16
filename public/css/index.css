@@ -12,6 +12,51 @@ hr {
   clear: both;
 }
 
+/* root/general */
+.logo {
+  vertical-align: middle;
+}
+
+.page-root .box {
+  min-width: 256px;
+  max-width: 768px;
+  width: 100%;
+}
+
+.box-container {
+  margin-bottom: 8px;
+}
+
+.box {
+  display: inline-block;
+  border: 1px solid;
+}
+
+.box-title {
+  text-align: left;
+  font-size: large;
+  padding-left: 0.5em;
+}
+
+.box-content {
+  text-align: left;
+  padding: 0.5em;
+}
+
+.board-table {
+  margin: 0 auto;
+  min-width: 50%;
+  max-width: 100%;
+}
+
+.board-table-header {
+  display: none;
+}
+
+.board-table td {
+  vertical-align: middle;
+}
+
 /* banner */
 div.banner {
   clear: both;

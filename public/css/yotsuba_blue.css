@@ -20,6 +20,16 @@ a:hover {
   color: #ff0000;
 }
 
+/* root/general */
+.box-title {
+  background: #98e;
+  font-weight: bold;
+}
+
+.box-content {
+  background: #ffffff;
+}
+
 /* header */
 div.header {
   color: #af0a0f;
