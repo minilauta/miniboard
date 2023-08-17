@@ -1,0 +1,176 @@
+/* general */
+body {
+  font-family: arial,helvetica,sans-serif;
+  font-size: 13px;
+  background: #3f3f3f linear-gradient(to bottom, #2f2f2f 0, #3f3f3f 128px) no-repeat 0 0 local;
+  color: #dcdccc;
+}
+
+hr {
+  height: 0;
+}
+
+a {
+  color: #f0dfaf;
+  text-decoration: none;
+}
+
+a:hover {
+  text-decoration: underline !important;
+}
+
+/* root/general */
+.box {
+  border: 1px dashed #806060;
+}
+
+.box-title {
+  background: #222;
+  font-weight: bold;
+}
+
+.box-content {
+  background: #333;
+}
+
+/* footer */
+
+/* board */
+div.mode {
+  background: #705050;
+  color: #dcdccc;
+}
+
+/* post */
+.post.reply {
+  background: #333;
+  border: 1px solid #222;
+  border-left: none;
+  border-top: none;
+}
+
+span.post-board {
+  color: #8cd9d3;
+}
+
+span.post-subject {
+  color: #8cd9d3;
+}
+
+span.post-name {
+  color: #dfaf8f;
+}
+
+span.post-trip {
+  color: #dfaf8f;
+}
+
+div.post-message span.quote {
+  color: #60b48a;
+}
+
+div.post-message .spoiler {
+  text-shadow: 0 0 10px #dcdccc;
+}
+
+.truncated {
+  color: #708090;
+}
+
+.omitted {
+  color: #708090;
+}
+
+span.post-catalog-subject {
+  color: #8cd9d3;
+}
+
+span.cap-admin {
+  color: #FF4444;
+}
+
+span.cap-mod {
+  color: #8899EE;
+}
+
+a.reference {
+  color: #f0dfaf;
+}
+
+a.backreference {
+  color: #f0dfaf;
+}
+
+div.post-info .backreference {
+  font-size: x-small;
+}
+
+div.post-info .backreference * {
+  font-size: 13px;
+}
+
+div.file-info a {
+  color: #f0dfaf;
+}
+
+a.post-reply-link {
+  color: #f0dfaf;
+}
+
+/* menubar */
+
+/* dropdown menu */
+a.dd-menu-btn:hover {
+  text-decoration: none !important;
+}
+
+div.dd-menu ul {
+  background: #333;
+  border: 1px solid #222;
+  border-right-width: 2px;
+}
+
+div.dd-menu li {
+  border-bottom: 1px solid #222;
+}
+
+div.dd-menu li:hover {
+  background: #3f3f3f;
+}
+
+/* post preview */
+div.post-preview > .post.op {
+  background: #3f3f3f;
+}
+
+div.post-preview > .post {
+  border: 1px dashed #806060;
+}
+
+a > div.post-preview {
+  color: #dcdccc;
+}
+
+/* highlights (posts, etc) */
+.highlight {
+  background: #222 !important;
+  border: 1px dashed #806060 !important;
+}
+
+/* forms */
+.form input[type="text"], input[type="password"], textarea {
+  color: #222;
+  background: #6f6f6f;
+  border: 1px inset #dca3a3;
+}
+
+.form-label {
+  background: #333;
+  font-weight: 700;
+  padding: 0 5px;
+}
+
+/* manage */
+.form-manage table, .form-manage th, .form-manage td {
+  border: 1px dashed #806060;
+}

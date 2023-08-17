@@ -47,7 +47,8 @@ define('MB_STYLES', [
   'miniboard',
   'futaba',
   'yotsuba',
-  'yotsuba_blue'
+  'yotsuba_blue',
+  'zenburn'
 ]);
 define('MB_DELAY', 15);
 define('MB_ERROR_IMAGES', [
