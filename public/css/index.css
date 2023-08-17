@@ -29,7 +29,7 @@ hr {
 }
 
 .page-root table td {
-  text-align: center;
+  /* TODO: align td contents... how? */
 }
 
 .box-container {
@@ -76,9 +76,13 @@ div.header p {
 }
 
 /* footer */
-div.footer {
+.footer {
   font-size: small;
   clear: both;
+}
+
+.footer .disclaimer {
+  font-size: x-small;
 }
 
 /* board */
