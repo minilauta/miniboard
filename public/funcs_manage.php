@@ -207,6 +207,24 @@ function funcs_manage_delete(array $select): string {
   return $status;
 }
 
+function funcs_manage_ban(array $select, int $duration, string $reason): string {
+  // ban each poster
+  $processed = 0;
+  foreach ($select as $val) {
+    // parse board id and post id
+    $selected_parsed = explode('/', $val);
+    $selected_board_id = $selected_parsed[0];
+    $selected_post_id = intval($selected_parsed[1]);
+
+    // ban poster by board id and post id
+    $processed += ban_poster_by_post_id($selected_board_id, $selected_post_id, $duration, $reason);
+  }
+
+  $status = "Banned {$processed} posters";
+  funcs_manage_log($status);
+  return $status;
+}
+
 function funcs_manage_approve(array $select): string {
   // delete each report
   $processed = 0;

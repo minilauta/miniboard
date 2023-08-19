@@ -198,6 +198,40 @@ function handle_manage_deleteform(Request $request, Response $response, array $a
   return $response;
 }
 
+$app->post('/manage/ban/', function (Request $request, Response $response, array $args) {
+  if (!funcs_manage_is_logged_in()) {
+    throw new AppException('index', 'route', 'access denied', SC_UNAUTHORIZED);
+  }
+
+  return handle_manage_banform($request, $response, $args);
+});
+
+function handle_manage_banform(Request $request, Response $response, array $args): Response {
+  // parse request body
+  $params = (array) $request->getParsedBody();
+
+  // validate request fields
+  funcs_common_validate_fields($params, [
+    'select'   => ['required' => true, 'type' => 'array'],
+    'duration' => ['required' => true, 'type' => 'string'],
+    'reason'   => ['required' => true, 'type' => 'string']
+  ]);
+  
+  // parse request fields
+  $params['duration'] = funcs_common_parse_input_int($params, 'duration', 60, 5, 60 * 24 * 365);
+
+  // execute ban
+  $status = funcs_manage_ban($params['select'], $params['duration'] * 60, $params['reason']);
+
+  // set query to return properly
+  $query = funcs_common_mutate_query($_GET, 'status', $status);
+
+  $response = $response
+    ->withHeader('Location', "/manage/?{$query}")
+    ->withStatus(303);
+  return $response;
+}
+
 $app->post('/manage/approve/', function (Request $request, Response $response, array $args) {
   if (!funcs_manage_is_logged_in()) {
     throw new AppException('index', 'route', 'access denied', SC_UNAUTHORIZED);

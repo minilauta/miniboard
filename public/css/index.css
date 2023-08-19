@@ -178,6 +178,10 @@ div.post-message pre {
   overflow-x: scroll;
 }
 
+.post-message .banned {
+  font-weight: bold;
+}
+
 div.post-catalog {
   display: inline-block;
   width: 150px;

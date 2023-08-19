@@ -700,6 +700,46 @@ function select_post_with_replies(string $board_id, int $post_id): array|bool {
   return $sth->fetchAll();
 }
 
+function ban_poster_by_post_id(string $board_id, int $post_id, int $duration, string $reason): int {
+  $dbh = get_db_handle();
+  $sth = $dbh->prepare('
+    INSERT IGNORE INTO bans (
+      ip,
+      timestamp,
+      expire,
+      reason
+    )
+    VALUES (
+      (SELECT ip FROM posts WHERE board_id = :board_id AND post_id = :post_id),
+      :timestamp,
+      :expire,
+      :reason
+    )
+  ');
+  $sth->execute([
+    'board_id' => $board_id,
+    'post_id' => $post_id,
+    'timestamp' => time(),
+    'expire' => time() + $duration,
+    'reason' => $reason
+  ]);
+  $affected = $sth->rowCount();
+  if ($affected > 0) {
+    $sth = $dbh->prepare('
+      UPDATE posts
+      SET
+        message_rendered = concat(message_rendered, :reason)
+      WHERE board_id = :board_id AND post_id = :post_id
+    ');
+    $sth->execute([
+      'reason' => '<br><br><span class="banned">(USER WAS BANNED FOR THIS POST, reason: ' . $reason . ')</span>',
+      'board_id' => $board_id,
+      'post_id' => $post_id
+    ]);
+  }
+  return $affected;
+}
+
 function delete_reports_by_post_id(string $board_id, int $post_id): int {
   $dbh = get_db_handle();
   $sth = $dbh->prepare('DELETE FROM reports WHERE board_id = :board_id AND post_id = :post_id');

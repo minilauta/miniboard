@@ -70,6 +70,10 @@ div.post-message .spoiler {
   text-shadow: 0 0 10px #000000;
 }
 
+.post-message .banned {
+  color: #FF0000;
+}
+
 .truncated {
   color: #707070;
 }
