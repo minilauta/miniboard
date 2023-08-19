@@ -118,6 +118,15 @@ function select_site_stats(): array|bool {
   return $sth->fetch();
 }
 
+function cleanup_bans(): int {
+  $dbh = get_db_handle();
+  $sth = $dbh->prepare('DELETE FROM bans WHERE expire < :now');
+  $sth->execute([
+    'now' => time()
+  ]);
+  return $sth->rowCount();
+}
+
 // POST related functions below
 // ----------------------------
 
@@ -597,6 +606,48 @@ function update_account(array $account): bool {
   ]);
 }
 
+function select_all_bans(bool $desc = true, int $offset = 0, int $limit = 10): array|bool {
+  $dbh = get_db_handle();
+  $sth = $dbh->prepare('
+    SELECT
+      *,
+      INET6_NTOA(ip) AS ip_str
+    FROM bans
+    ORDER BY id ' . ($desc === true ? 'DESC' : 'ASC') . '
+    LIMIT :limit OFFSET :offset
+  ');
+  $sth->execute([
+    'limit' => $limit,
+    'offset' => $offset
+  ]);
+  return $sth->fetchAll();
+}
+
+function count_all_bans(): int|bool {
+  $dbh = get_db_handle();
+  $sth = $dbh->prepare('SELECT COUNT(*) FROM bans');
+  $sth->execute();
+  return $sth->fetchColumn();
+}
+
+function update_ban(array $ban): bool {
+  $dbh = get_db_handle();
+  $sth = $dbh->prepare('
+    UPDATE bans
+    SET
+      timestamp = :timestamp,
+      expire = :expire,
+      reason = :reason
+    WHERE id = :id
+  ');
+  return $sth->execute([
+    'timestamp' => $ban['timestamp'],
+    'expire' => $ban['expire'],
+    'reason' => $ban['reason'],
+    'id' => $ban['id']
+  ]);
+}
+
 function select_all_posts(bool $desc = true, int $offset = 0, int $limit = 10): array|bool {
   $dbh = get_db_handle();
   $sth = $dbh->prepare('
@@ -724,15 +775,24 @@ function ban_poster_by_post_id(string $board_id, int $post_id, int $duration, st
     'reason' => $reason
   ]);
   $affected = $sth->rowCount();
+
   if ($affected > 0) {
+    $banmsg = '<br><br><span class="banned">(USER WAS BANNED FOR THIS POST';
+    if (strlen($reason) > 0) {
+      $banmsg .= ': ' . $reason . ')';
+    } else {
+      $banmsg .= ')';
+    }
+    $banmsg .= '</span>';
+
     $sth = $dbh->prepare('
       UPDATE posts
       SET
-        message_rendered = concat(message_rendered, :reason)
+        message_rendered = concat(message_rendered, :banmsg)
       WHERE board_id = :board_id AND post_id = :post_id
     ');
     $sth->execute([
-      'reason' => '<br><br><span class="banned">(USER WAS BANNED FOR THIS POST, reason: ' . $reason . ')</span>',
+      'banmsg' => $banmsg,
       'board_id' => $board_id,
       'post_id' => $post_id
     ]);

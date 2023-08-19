@@ -220,6 +220,9 @@ function handle_manage_banform(Request $request, Response $response, array $args
   // parse request fields
   $params['duration'] = funcs_common_parse_input_int($params, 'duration', 60, 5, 60 * 24 * 365);
 
+  // cleanup expired bans
+  cleanup_bans();
+
   // execute ban
   $status = funcs_manage_ban($params['select'], $params['duration'] * 60, $params['reason']);
 
@@ -752,9 +755,12 @@ function handle_postform(Request $request, Response $response, array $args, stri
     }
   }
 
+  // cleanup expired bans
+  cleanup_bans();
+
   // check if ip address has been banned
   $ban = select_ban($user_ip);
-  if ($ban) {
+  if ($ban && !$user_is_logged_in) {
     $ban_expires = strftime(MB_DATEFORMAT, $ban['expire']);
     throw new AppException('index', 'route', "this ip address has been banned for reason: {$ban['reason']}. the ban will expire on {$ban_expires}", SC_FORBIDDEN);
   }
@@ -907,8 +913,7 @@ $error_handler = function(
 };
 
 if (MB_ENV === 'dev') {
-  $app->addErrorMiddleware(false, false, false)
-    ->setDefaultErrorHandler($error_handler);
+  $app->addErrorMiddleware(true, true, true);
 } else {
   $app->addErrorMiddleware(false, false, false)
     ->setDefaultErrorHandler($error_handler);

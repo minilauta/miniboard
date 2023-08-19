@@ -75,6 +75,31 @@
           ]);
           echo $this->fetch('common/pagetable.phtml', ['page' => $page, 'page_n' => $page_n]);
           break;
+        case 'bans':
+          // set constants
+          $bans_per_page = 50;
+
+          // get bans
+          $bans = select_all_bans(true, $bans_per_page * $page, $bans_per_page);
+
+          // process bans
+          foreach ($bans as $key => &$ban) {
+            $ban['ip_rendered'] = funcs_manage_get_role() === MB_ROLE_SUPERADMIN ? $ban['ip_str'] : '<s>REDACTED</s>';
+          }
+
+          // get ban count
+          $bans_n = count_all_bans();
+
+          // calculate page count
+          $page_n = ceil($bans_n / $bans_per_page);
+
+          echo $this->fetch('manage/banform.phtml', [
+            'bans' => $bans,
+            'page' => $page,
+            'page_n' => $page_n
+          ]);
+          echo $this->fetch('common/pagetable.phtml', ['page' => $page, 'page_n' => $page_n]);
+          break;
         case 'posts':
           // set constants
           $posts_per_page = 50;

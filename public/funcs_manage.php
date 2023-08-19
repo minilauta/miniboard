@@ -208,6 +208,9 @@ function funcs_manage_delete(array $select): string {
 }
 
 function funcs_manage_ban(array $select, int $duration, string $reason): string {
+  // escape reason HTML entities
+  $reason = funcs_common_clean_field($reason);
+
   // ban each poster
   $processed = 0;
   foreach ($select as $val) {
