@@ -60,9 +60,9 @@
               </tr>
               <tr>
                 <?php
-                  $total_posts = number_format($site_stats['total_posts'], 0, '.', ',');
-                  $current_posts = number_format($site_stats['current_posts'], 0, '.', ',');
-                  $unique_posters = number_format($site_stats['unique_posters'], 0, '.', ',');
+                  $total_posts = number_format($site_stats['total_posts'] ?? 0, 0, '.', ',');
+                  $current_posts = number_format($site_stats['current_posts'] ?? 0, 0, '.', ',');
+                  $unique_posters = number_format($site_stats['unique_posters'] ?? 0, 0, '.', ',');
 
                   echo "<td><strong>Total Posts: </strong>{$total_posts}</td>";
                   echo "<td><strong>Current Posts: </strong>{$current_posts}</td>";
@@ -71,9 +71,9 @@
               </tr>
               <tr>
                 <?php
-                  $imported_posts = number_format($site_stats['imported_posts'], 0, '.', ',');
-                  $current_files = number_format($site_stats['current_files'], 0, '.', ',');
-                  $active_content = funcs_common_human_filesize($site_stats['active_content']);
+                  $imported_posts = number_format($site_stats['imported_posts'] ?? 0, 0, '.', ',');
+                  $current_files = number_format($site_stats['current_files'] ?? 0, 0, '.', ',');
+                  $active_content = funcs_common_human_filesize($site_stats['active_content'] ?? 0);
 
                   echo "<td><strong>Imported Posts: </strong>{$imported_posts}</td>";
                   echo "<td><strong>Current Files: </strong>{$current_files}</td>";
