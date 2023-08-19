@@ -34,6 +34,12 @@ data:
     define('MB_SITE_DESC', 'Minimalistic oldschool imageboard software');
     define('MB_SITE_DISCLAIMER', 'All trademarks, copyrights, comments, and images on this page are owned by and are the responsibility of their respective parties.');
     define('MB_SITE_CONTACT', 'info@miniboard.dev');
+    define('MB_SITE_RULES', '
+      <ol>
+        <li>something...</li>
+        <li>something else...</li>
+      </ol>
+    ');
     define('MB_DATEFORMAT', '%d/%m/%g(%a)%H:%M:%S');
     define('MB_CAPTCHA_HCAPTCHA_SITE', '10000000-ffff-ffff-ffff-000000000001');
     define('MB_CAPTCHA_HCAPTCHA_SECRET', '0x0000000000000000000000000000000000000000');
