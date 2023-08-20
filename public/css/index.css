@@ -339,3 +339,8 @@ table.form-manage-table {
 .form-manage td * {
   padding: 0px;
 }
+
+
+a.catalog-header-num h5 {
+  margin: 0;
+}
