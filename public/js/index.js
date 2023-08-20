@@ -123,6 +123,9 @@ function listener_post_thumb_link_click(event) {
 
     switch (file_ext) {
       case 'mp3':
+      case 'ogg':
+      case 'opus':
+      case 'flac':
         current.lastElementChild.remove();
         break;
       default:
@@ -158,6 +161,9 @@ function listener_post_thumb_link_click(event) {
         current.appendChild(video);
         break;
       case 'mp3':
+      case 'ogg':
+      case 'opus':
+      case 'flac':
         let audio = document.createElement('audio');
         audio.src = file_href;
         audio.setAttribute('onloadstart', 'this.volume=0.25');
