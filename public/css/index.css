@@ -344,3 +344,12 @@ table.form-manage-table {
 .form-manage td * {
   padding: 0px;
 }
+
+#catalog-filter-container {
+  clear: both;
+  float: right;
+}
+
+.hidden {
+  display: none !important;
+}
