@@ -17,12 +17,8 @@
 
 
     echo "
-      <a class='catalog-header-num' href='/{$post['board_id']}/{$post['post_id']}'>
-        <h5>#{$post['post_id']}</h5> 
-      </a> 
-    ";
-
-    echo "
+      <a href='/{$post['board_id']}/{$post['post_id']}'>
+        <span class='post-catalog-id'>No.{$post['post_id']}</span>
         <img id='thumb-{$post['board_id']}-{$post['post_id']}' src='{$thumb_src}' width='{$thumb_width}' height='{$thumb_height}' loading='lazy'>
       </a>
     ";

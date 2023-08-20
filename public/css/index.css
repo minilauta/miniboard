@@ -193,6 +193,11 @@ div.post-catalog {
   overflow: hidden;
 }
 
+.post-catalog-id {
+  display: block;
+  font-size: small;
+}
+
 div.post-catalog-meta {
   display: block;
   font-size: small;
@@ -338,9 +343,4 @@ table.form-manage-table {
 
 .form-manage td * {
   padding: 0px;
-}
-
-
-a.catalog-header-num h5 {
-  margin: 0;
 }
