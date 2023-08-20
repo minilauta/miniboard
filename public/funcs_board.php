@@ -358,7 +358,7 @@ function funcs_board_execute_upload(UploadedFileInterface $file, ?array $file_in
       case 'audio/ogg':
         $album_file_path = __DIR__ . '/src/' . 'album_' . $file_name;
         $album_file_path = funcs_board_get_audio_album_art($file_path, $album_file_path);
-       
+
         // unlinkataanko $album_file_path jossain myöhemmin vai jääkö se kummittelemaan(turhana?)?
         if ($album_file_path != null) {
           $generated_thumb = funcs_board_generate_thumbnail($album_file_path, $spoiler, true, 'png', $thumb_file_path, $max_w, $max_h);
@@ -495,10 +495,10 @@ function funcs_board_get_audio_album_art(string $file_path, string $output_path)
     }
 
     $output_path .= ".png";
-    $cmd = "ffmpeg -i $file_path -pix_fmt rgb8 -vf 'scale=300:-1' -an  $output_path";
+    $cmd = "ffmpeg -i " . escapeshellarg($file_path) . " -pix_fmt rgb8 -vf 'scale=300:-1' -an  " . escapeshellarg($output_path);
     $stdout = $res_code = null;
     exec($cmd, $stdout, $res_code);
-    
+
     if (file_exists($output_path)) {
       return $output_path;
     }
