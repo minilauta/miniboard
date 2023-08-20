@@ -316,6 +316,7 @@ function funcs_board_execute_upload(UploadedFileInterface $file, ?array $file_in
         break;
     }
 
+
     // generate thumbnail based on file extension
     switch ($file_info['mime']) {
       case 'image/jpeg':
@@ -351,9 +352,14 @@ function funcs_board_execute_upload(UploadedFileInterface $file, ?array $file_in
         $thumb_height = $generated_thumb['thumb_height'];
         break;
       case 'audio/mpeg':
+      case 'audio/flac':
+      case 'audio/opus':
+      case 'application/ogg':
+      case 'audio/ogg':
         $album_file_path = __DIR__ . '/src/' . 'album_' . $file_name;
-        $album_file_path = funcs_board_get_mp3_album_art($file_path, $album_file_path);
-        
+        $album_file_path = funcs_board_get_audio_album_art($file_path, $album_file_path);
+       
+        // unlinkataanko $album_file_path jossain myöhemmin vai jääkö se kummittelemaan(turhana?)?
         if ($album_file_path != null) {
           $generated_thumb = funcs_board_generate_thumbnail($album_file_path, $spoiler, true, 'png', $thumb_file_path, $max_w, $max_h);
           $image_width = $generated_thumb['image_width'];
@@ -479,6 +485,26 @@ function funcs_board_generate_thumbnail(string $file_path, bool $spoiler, bool $
     'thumb_height'  => $thumb_height
   ];
 }
+
+
+function funcs_board_get_audio_album_art(string $file_path, string $output_path): ?string {
+
+    exec('ffmpeg -version', $exiftool_output, $exiftool_status);
+    if ($exiftool_status !== 0) {
+      throw new AppException('funcs_board', 'funcs_board_get_audio_album_art', 'ffmepg not installed', SC_INTERNAL_ERROR);
+    }
+
+    $output_path .= ".png";
+    $cmd = "ffmpeg -i $file_path -pix_fmt rgb8 -vf 'scale=300:-1' -an  $output_path";
+    $stdout = $res_code = null;
+    exec($cmd, $stdout, $res_code);
+    
+    if (file_exists($output_path)) {
+      return $output_path;
+    }
+
+    return NULL;
+  }
 
 /**
  * Extracts album art (jpg or png) from input MP3 file metadata.
