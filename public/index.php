@@ -428,9 +428,14 @@ $app->get('/{board_id}/', function (Request $request, Response $response, array 
   $query_params = $request->getQueryParams();
   $query_page = funcs_common_parse_input_int($query_params, 'page', 0, 0, 1000);
 
-  // get threads
-  $threads = select_posts(session_id(), $user_role, $board_query_id, 0, true, $board_threads_per_page * $query_page, $board_threads_per_page, false);
-
+  $params = [
+    "session_id" => session_id(),
+    "user_role" => $user_role,
+    "board_id" => $board_query_id,
+    "offset" => $board_threads_per_page * $query_page,
+    "limit" => $board_threads_per_page,
+  ];
+  $threads = select_posts($params);
   // get replies
   foreach ($threads as $key => $thread) {
     $threads[$key]['replies'] = select_posts_preview('NULL', $thread['board_id'], $thread['post_id'], 0, $board_posts_per_preview);
@@ -465,8 +470,17 @@ $app->get('/{board_id}/hidden/', function (Request $request, Response $response,
   $query_params = $request->getQueryParams();
   $query_page = funcs_common_parse_input_int($query_params, 'page', 0, 0, 1000);
 
+  $params = [
+    "session_id" => session_id(),
+    "user_role" => $user_role,
+    "board_id" => $board_query_id,
+    "parent_id" => 0,
+    "offset" => $board_threads_per_page * $query_page,
+    "limit" => $board_threads_per_page,
+    "hidden" => true,
+  ];
   // get threads
-  $threads = select_posts(session_id(), $user_role, $board_query_id, 0, true, $board_threads_per_page * $query_page, $board_threads_per_page, true);
+  $threads = select_posts($params);
 
   // do not show replies for hidden threads
   foreach ($threads as $key => $thread) {
@@ -501,9 +515,18 @@ $app->get('/{board_id}/catalog/', function (Request $request, Response $response
   // get query params
   $query_params = $request->getQueryParams();
   $query_page = funcs_common_parse_input_int($query_params, 'page', 0, 0, 1000);
+  $query_search = funcs_common_parse_input_str($query_params, 'q', '', 0, 32);
 
-  // get threads
-  $threads = select_posts(session_id(), $user_role, $board_query_id, 0, true, $board_threads_per_catalog_page * $query_page, $board_threads_per_catalog_page, false);
+
+  $params = [
+    "session_id" => session_id(),
+    "user_role" => $user_role,
+    "board_id" => $board_query_id,
+    "offset" => $board_threads_per_catalog_page * $query_page,
+    "limit" => $board_threads_per_catalog_page,
+    "search" => $query_search,
+  ];
+  $threads = select_posts($params);
 
   // get thread metadata
   // TODO: file counts, etc...
@@ -518,6 +541,7 @@ $app->get('/{board_id}/catalog/', function (Request $request, Response $response
     'board' => $board_cfg,
     'threads' => $threads,
     'page' => $query_page,
+    'search' => $query_search,
     'page_n' => ceil($threads_n / $board_threads_per_catalog_page)
   ]);
   return $renderer->render($response, 'catalog.phtml');
@@ -542,7 +566,14 @@ $app->get('/{board_id}/{thread_id}/', function (Request $request, Response $resp
   }
 
   // get replies
-  $thread['replies'] = select_posts(session_id(), $user_role, $thread['board_id'], $thread['post_id'], false, 0, 9001, false);
+  $params = [
+    "session_id" => session_id(),
+    "user_role" => $user_role,
+    "board_id" => $thread["board_id"],
+    "limit" => 9001,
+    "hidden" => false
+  ];
+  $thread['replies'] = select_posts($params);
 
   $renderer = new PhpRenderer('templates/', [
     'board' => $board_cfg,

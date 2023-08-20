@@ -207,7 +207,26 @@ function select_last_post_by_ip(string $ip): array|bool {
   return $sth->fetch();
 }
 
-function select_posts(string $session_id, ?int $user_role, ?string $board_id, int $parent_id = 0, bool $desc = true, int $offset = 0, int $limit = 10, bool $hidden = false, bool $deleted = false): array|bool {
+function select_posts(array $params): array|bool
+{
+
+  $getParam = function($key, $default=null, bool $is_required=true) use(&$params) {
+    if ($is_required && !array_key_exists($key, $params)) throw new Exception(("select_posts(): required arg '$key' missing!"));
+    if (array_key_exists($key, $params)) return $params[$key];
+    return $default;
+  };
+
+  $session_id     = (string) $getParam("session_id");
+  $user_role      = (int) $getParam("user_role");
+  $board_id       = (string) $getParam("board_id");
+  $parent_id      = (int) $getParam("parent_id", 0, false);
+  $desc           = (bool) $getParam("desc", true, false);
+  $offset         = (int) $getParam("offset", 0, false);
+  $limit          = (int) $getParam("limit", 10, false);
+  $hidden         = (bool) $getParam("hidden", false, false);
+  $deleted        = (bool) $getParam("deleted", false, false);
+  $search         = (string) $getParam("search", "", false);
+
   $dbh = get_db_handle();
   $sth = null;
   if ($board_id != null) {
@@ -219,6 +238,7 @@ function select_posts(string $session_id, ?int $user_role, ?string $board_id, in
       AND (
         req_role IS NULL OR (:user_role_1 IS NOT NULL AND :user_role_2 <= req_role)
       )
+      AND (subject LIKE :search_subject OR message LIKE :search_message)
       ORDER BY stickied DESC, bumped ' . ($desc === true ? 'DESC' : 'ASC') . '
       LIMIT :limit OFFSET :offset
     ');
@@ -230,7 +250,9 @@ function select_posts(string $session_id, ?int $user_role, ?string $board_id, in
       'user_role_1' => $user_role,
       'user_role_2' => $user_role,
       'limit' => $limit,
-      'offset' => $offset
+      'offset' => $offset,
+      'search_subject' => "%" . $search . "%",
+      'search_message' => "%" . $search . "%",
     ]);
   } else {
     $sth = $dbh->prepare('
@@ -241,6 +263,7 @@ function select_posts(string $session_id, ?int $user_role, ?string $board_id, in
       AND (
         req_role IS NULL OR (:user_role_1 IS NOT NULL AND :user_role_2 <= req_role)
       )
+      AND (subject LIKE :search_subject OR message LIKE :search_message)
       ORDER BY bumped ' . ($desc === true ? 'DESC' : 'ASC') . '
       LIMIT :limit OFFSET :offset
     ');
@@ -251,7 +274,9 @@ function select_posts(string $session_id, ?int $user_role, ?string $board_id, in
       'user_role_1' => $user_role,
       'user_role_2' => $user_role,
       'limit' => $limit,
-      'offset' => $offset
+      'offset' => $offset,
+      'search_subject' => "%" . $search . "%",
+      'search_message' => "%" . $search . "%",
     ]);
   }
   return $sth->fetchAll();

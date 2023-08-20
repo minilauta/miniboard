@@ -17,9 +17,9 @@
       <?=$this->fetch('board/postform.phtml', ['context' => 'board', 'board' => $board, 'action' => "/{$board['id']}"])?>
     </div>
 
-    <div id="catalog-filter-container"> 
-     <input id="catalog-filter" type="text" placeholder="Filter"> 
-    </div>
+    <form id="catalog-filter-container"> 
+     <input name="q" id="catalog-filter" value='<?=$search?>' type="text" placeholder="Filter"> 
+    </form>
     <br>
 
     <hr>
@@ -37,33 +37,6 @@
     </div>
 
     <?=$this->fetch('common/scripts.phtml')?>
-
-    <script>
-      // Parempi omana catalog.js tjsp. tiedostona?
-      const catalogThreads  = document.querySelectorAll("#catalog .post-catalog");
-      const filterInput     = document.querySelector("#catalog-filter");
-
-      filterInput.addEventListener("keyup", (e) => {
-          const fitlerStr = e.target.value;
-          for (let i = 0; i < catalogThreads.length; i++)
-          {
-            const t = catalogThreads[i];
-
-            if (t.message == null) t.message = t.querySelector(".post-catalog-message");
-            if (t.subject == null) t.subject = t.querySelector(".post-catalog-subject");
-
-            const filterMatch = 
-                  t.message?.innerText.includes(fitlerStr) 
-              ||  t.subject?.innerText.includes(fitlerStr);
-
-            if (filterMatch) 
-              t.classList.remove("hidden");
-            else 
-              t.classList.add("hidden");
-            
-          }
-        });
-    </script>
     
   </body>
 </html>
