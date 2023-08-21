@@ -73,44 +73,6 @@ define('MB_BANNER_IMAGES', [
   'b7.gif' => 'b',
 ]);
 
-
-define("FILE_TYPES_IMG", [
-  'image/jpeg'          => ['jpg'],
-  'image/pjpeg'         => ['jpg'],
-  'image/png'           => ['png'],
-  'image/gif'           => ['gif'],
-  'image/bmp'           => ['bmp'],
-  'image/webp'          => ['webp'],
-  'image/tiff'          => ['tiff'],
-]);
-
-define("FILE_TYPES_AUDIO", [
-  'audio/mpeg'          => ['mp3'],
-  'audio/ogg'           => ['ogg'],
-  'application/ogg'     => ['ogg'],
-  'audio/opus'          => ['opus'],
-  'audio/flac'          => ['flac'],
-]);
-
-define("FILE_TYPES_VIDEO", [
-  'image/webp'          => ['webm'],
-  'video/mp4'           => ['mp4'],
-  'video/webm'          => ['webm'],
-]);
-
-define("FILE_TYPES_MISC", [
-      'application/x-shockwave-flash' => ['swf']
-]);
-
-define('FILE_TYPES_ALL', 
-  array_merge(
-    FILE_TYPES_IMG,
-    FILE_TYPES_VIDEO, 
-    FILE_TYPES_AUDIO,
-    FILE_TYPES_MISC
-  )
-);
-
 // board settings
 define('MB_BOARDS', [
   'main' => [
@@ -167,7 +129,18 @@ define('MB_BOARDS', [
       'password'  => ['required' => false,  'type' => 'string', 'max_len' => 64,  'min_len' => 8],
       'embed'     => ['required' => false,  'type' => 'string', 'max_len' => 1024 ],
     ],
-    'mime_ext_types'    => FILE_TYPES_ALL,
+    'mime_ext_types'    => [
+      'image/jpeg'          => ['jpg'],
+      'image/pjpeg'         => ['jpg'],
+      'image/png'           => ['png'],
+      'image/gif'           => ['gif'],
+      'image/bmp'           => ['bmp'],
+      'image/webp'          => ['webp'],
+      'video/mp4'           => ['mp4'],
+      'video/webm'          => ['webm'],
+      'audio/mpeg'          => ['mp3'],
+      'application/x-shockwave-flash' => ['swf']
+    ],
     'embed_types'       => [
       'youtube.com'     => 'https://youtube.com/oembed?format=json&url=',
       'www.youtube.com' => 'https://youtube.com/oembed?format=json&url=',
