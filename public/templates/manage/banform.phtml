@@ -13,8 +13,8 @@
     <tbody>
       <?php
         foreach ($bans as $ban) {
-          $timestamp = strftime(MB_DATEFORMAT, $ban['timestamp']);
-          $expire = strftime(MB_DATEFORMAT, $ban['expire']);
+          $timestamp = date(MB_DATEFORMAT, $ban['timestamp']);
+          $expire = date(MB_DATEFORMAT, $ban['expire']);
 
           echo "
             <tr>

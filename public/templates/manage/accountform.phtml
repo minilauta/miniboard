@@ -12,7 +12,7 @@
     <tbody>
       <?php
         foreach ($accounts as $account) {
-          $lastactive = strftime(MB_DATEFORMAT, $account['lastactive']);
+          $lastactive = date(MB_DATEFORMAT, $account['lastactive']);
           $imported = $account['imported'] === 1 ? '<b>TRUE</b>' : 'FALSE';
 
           echo "

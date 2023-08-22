@@ -34,7 +34,7 @@ define('MB_SITE_RULES', '
     <li>something else...</li>
   </ol>
 ');
-define('MB_DATEFORMAT', '%d/%m/%g(%a)%H:%M:%S');
+define('MB_DATEFORMAT', 'd/m/y(D)H:i:s');
 define('MB_CAPTCHA_HCAPTCHA_SITE', '10000000-ffff-ffff-ffff-000000000001');
 define('MB_CAPTCHA_HCAPTCHA_SECRET', '0x0000000000000000000000000000000000000000');
 define('MB_CAPTCHA_THREAD', true);

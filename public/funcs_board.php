@@ -137,7 +137,7 @@ function funcs_board_render_nameblock(string $name, ?string $tripcode, ?string $
       break;
   }
 
-  $nameblock .= "\n<span class='post-datetime'>" . strftime(MB_DATEFORMAT, $timestamp) . "</span>\n";
+  $nameblock .= "\n<span class='post-datetime'>" . date(MB_DATEFORMAT, $timestamp) . "</span>\n";
 
   return $nameblock;
 }
@@ -470,13 +470,13 @@ function funcs_board_generate_thumbnail(string $file_path, bool $spoiler, bool $
     $image_spoiler = new Imagick(__DIR__ . '/static/spoiler.png');
     $image_spoiler_x = 0.5 * ($thumb_width - $image_spoiler->getImageWidth());
     $image_spoiler_y = 0.5 * ($thumb_height - $image_spoiler->getImageHeight());
-    $image->compositeImage($image_spoiler, Imagick::COMPOSITE_ATOP, $image_spoiler_x, $image_spoiler_y);
+    $image->compositeImage($image_spoiler, Imagick::COMPOSITE_ATOP, (int) $image_spoiler_x, (int) $image_spoiler_y);
   }
   if ($player) {
     $image_player = new Imagick(__DIR__ . '/static/player.png');
     $image_player_x = 0.5 * ($thumb_width - $image_player->getImageWidth());
     $image_player_y = 0.5 * ($thumb_height - $image_player->getImageHeight());
-    $image->compositeImage($image_player, Imagick::COMPOSITE_ATOP, $image_player_x, $image_player_y);
+    $image->compositeImage($image_player, Imagick::COMPOSITE_ATOP, (int) $image_player_x, (int) $image_player_y);
   }
   $image->setImageFormat($thumb_ext);
   $image->writeImage($thumb_path);

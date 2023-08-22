@@ -52,7 +52,7 @@
             $preview = $this->fetch('board/post_preview_reply.phtml', ['post' => $report]);
           }
 
-          $timestamp = strftime(MB_DATEFORMAT, $report['r_timestamp']);
+          $timestamp = date(MB_DATEFORMAT, $report['r_timestamp']);
           $imported = $report['r_imported'] === 1 ? '<b>TRUE</b>' : 'FALSE';
           $post_deleted = $report['deleted'] === 1 ? '<b>TRUE</b>' : 'FALSE';
           $post_imported = $report['imported'] === 1 ? '<b>TRUE</b>' : 'FALSE';

@@ -12,7 +12,7 @@
     <tbody>
       <?php
         foreach ($logs as $log) {
-          $timestamp = strftime(MB_DATEFORMAT, $log['timestamp']);
+          $timestamp = date(MB_DATEFORMAT, $log['timestamp']);
 
           echo "
             <tr>

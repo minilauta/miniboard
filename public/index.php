@@ -761,7 +761,7 @@ function handle_postform(Request $request, Response $response, array $args, stri
   // check if ip address has been banned
   $ban = select_ban($user_ip);
   if ($ban && !$user_is_logged_in) {
-    $ban_expires = strftime(MB_DATEFORMAT, $ban['expire']);
+    $ban_expires = date(MB_DATEFORMAT, $ban['expire']);
     throw new AppException('index', 'route', "this ip address has been banned for reason: {$ban['reason']}. the ban will expire on {$ban_expires}", SC_FORBIDDEN);
   }
 
@@ -913,7 +913,8 @@ $error_handler = function(
 };
 
 if (MB_ENV === 'dev') {
-  $app->addErrorMiddleware(true, true, true);
+  $app->addErrorMiddleware(false, false, false)
+    ->setDefaultErrorHandler($error_handler);
 } else {
   $app->addErrorMiddleware(false, false, false)
     ->setDefaultErrorHandler($error_handler);

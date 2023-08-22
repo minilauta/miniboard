@@ -15,7 +15,7 @@ WORKDIR /app
 RUN yarn && yarn run build
 
 
-FROM nginx:1.23.2-alpine
+FROM nginx:1.25.2-alpine
 
 # copy self signed ssl certs (OK for local and cloudflare/behind ssl-terminated proxy)
 COPY --from=build /etc/ssl/private/nginx-selfsigned.key /etc/ssl/private/nginx-selfsigned.key
