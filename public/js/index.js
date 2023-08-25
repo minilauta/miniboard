@@ -30,7 +30,8 @@ window.RufflePlayer.config = {
 
 // app state
 var state = {
-  mouse_over_post_ref_link: false
+  mouse_over_post_ref_link: false,
+  post_preview_cache: {}
 };
 
 /**
@@ -375,21 +376,28 @@ function listener_post_reference_link_mouseenter(event) {
     return;
   }
 
-  let xhr = new XMLHttpRequest();
-  xhr.onreadystatechange = function() {
-    if (!state.mouse_over_post_ref_link) {
-      xhr.abort();
-      return;
-    }
+  const key = data.board_id + '/' + data.parent_id + '/' + data.id;
 
-    if (xhr.readyState !== XMLHttpRequest.DONE) {
-      return;
+  if (state.post_preview_cache[key] == null) {
+    let xhr = new XMLHttpRequest();
+    xhr.onreadystatechange = function() {
+      if (!state.mouse_over_post_ref_link) {
+        xhr.abort();
+        return;
+      }
+  
+      if (xhr.readyState !== XMLHttpRequest.DONE) {
+        return;
+      }
+      
+      state.post_preview_cache[key] = xhr.responseText;
+      create_post_preview(target, data.board_id, data.parent_id, data.id, rect, xhr.responseText);
     }
-    
-    create_post_preview(target, data.board_id, data.parent_id, data.id, rect, xhr.responseText);
+    xhr.open('GET', '/' + data.board_id + '/' + data.parent_id + '/' + data.id, true);
+    xhr.send();
+  } else {
+    create_post_preview(target, data.board_id, data.parent_id, data.id, rect, state.post_preview_cache[key]);
   }
-  xhr.open('GET', '/' + data.board_id + '/' + data.parent_id + '/' + data.id, true);
-  xhr.send();
 }
 
 /**
