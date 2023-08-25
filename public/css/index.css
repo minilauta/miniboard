@@ -8,6 +8,18 @@ body {
   text-align: center;
 }
 
+.break-words {
+  -ms-word-break: break-all;
+  -ms-word-wrap: break-all;
+  -webkit-word-break: break-word;
+  -webkit-word-wrap: break-word;
+  word-break: break-word;
+  word-wrap: break-word;
+  -webkit-hyphens: auto;
+  -moz-hyphens: auto;
+  hyphens: auto;
+}
+
 hr {
   clear: both;
 }
@@ -126,8 +138,6 @@ span.post-hashid-hash {
 
 div.file-info {
   display: block;
-  overflow-wrap: break-word;
-  word-wrap: break-word;
 }
 
 div.file-thumb {
@@ -189,7 +199,6 @@ div.post-catalog {
   text-align: center;
   margin: 8px;
   vertical-align: top;
-  word-wrap: break-word;
   overflow: hidden;
 }
 

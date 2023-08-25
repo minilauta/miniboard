@@ -7,7 +7,7 @@
 
     if ($post['embed'] === 0) {
       echo "
-        <div class='file-info'>
+        <div class='file-info break-words'>
           File: <a href='{$post['file_rendered']}' target='_blank'>{$post['file_rendered']}</a>
           -
           ({$post['file_size_formatted']}, {$post['image_width']}x{$post['image_height']}, {$post['file_original']})
@@ -21,7 +21,7 @@
       ";
     } else {
       echo "
-        <div class='file-info'>
+        <div class='file-info break-words'>
           Embed: <a href='{$post['file_hex']}' target='_blank'>{$post['file_original']}</a>
           -
           ({$post['image_width']}x{$post['image_height']}, Embedded URL)
