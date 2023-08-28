@@ -4,6 +4,7 @@ use Psr\Http\Message\UploadedFileInterface;
 
 require_once __DIR__ . '/config.php';
 require_once __DIR__ . '/exception.php';
+require_once __DIR__ . '/shared.php';
 
 /**
  * Validate user access to target board.
@@ -182,15 +183,15 @@ function funcs_board_render_message(string $board_id, ?int $parent_id, string $i
   }, $message);
 
   // preprocess message links
-  $message = preg_replace('/(http|https):\/\/([^\r\n\s]+)/m', '<a href="$0" target="_blank">$0</a>', $message);
+  $message = preg_replace(REGEX_MATCH_URL, '<a href="$0" target="_blank">$0</a>', $message);
 
   // preprocess message quotes
   $message = preg_replace('/(^&gt;)(?!&gt;)([^\r\n]+)/m', '<span class="quote">$0</span>', $message);
 
   // preprocess message bbcode
-  $message = preg_replace('/\[(b|i|u|s)\](.*?)\[\/\1\]/ms', '<$1>$2</$1>', $message);
-  $message = preg_replace('/\[code\](.*?)\[\/code\]/ms', '<pre>$1</pre>', $message);
-  $message = preg_replace('/\[spoiler\](.*?)\[\/spoiler\]/ms', '<span class="spoiler">$1</span>', $message);
+  $message = preg_replace('/\[(b|i|u|s)\](.*?)\[\/\1\]/ims', '<$1>$2</$1>', $message);
+  $message = preg_replace('/\[code\](.*?)\[\/code\]/ims', '<pre>$1</pre>', $message);
+  $message = preg_replace('/\[spoiler\](.*?)\[\/spoiler\]/ims', '<span class="spoiler">$1</span>', $message);
 
   // convert message line endings
   $message = nl2br($message, false);

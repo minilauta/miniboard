@@ -2,6 +2,7 @@
 
 require_once __DIR__ . '/config.php';
 require_once __DIR__ . '/exception.php';
+require_once __DIR__ . '/shared.php';
 
 /**
  * Get board config array by board ID.
@@ -196,7 +197,15 @@ function funcs_common_truncate_string_linebreak(string &$input, int $br_count = 
  * Breaks individual long words with line-breaks. Does not break sentences.
  */
 function funcs_common_break_long_words(string $input, int $max_len): string {
-  return implode(' ', array_map(fn($val): string => wordwrap($val, $max_len, PHP_EOL, true), explode(' ', $input)));
+  $fn_wordwrap = function(string $val) use ($max_len) {
+    if (preg_match(REGEX_MATCH_URL, $val) && strlen($val) < 256) {
+      return $val;
+    }
+
+    return wordwrap($val, $max_len, PHP_EOL, true);
+  };
+
+  return implode(' ', array_map($fn_wordwrap, explode(' ', $input)));
 }
 
 /**
