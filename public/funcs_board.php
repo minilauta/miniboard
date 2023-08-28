@@ -189,7 +189,7 @@ function funcs_board_render_message(string $board_id, ?int $parent_id, string $i
   $message = preg_replace('/(^&gt;)(?!&gt;)([^\r\n]+)/m', '<span class="quote">$0</span>', $message);
 
   // preprocess message bbcode
-  $message = preg_replace('/\[(b|i|u|s)\](.*?)\[\/\1\]/ims', '<$1>$2</$1>', $message);
+  $message = preg_replace('/\[(b|i|u|s|sup|sub)\](.*?)\[\/\1\]/ims', '<$1>$2</$1>', $message);
   $message = preg_replace('/\[code\](.*?)\[\/code\]/ims', '<pre>$1</pre>', $message);
   $message = preg_replace('/\[spoiler\](.*?)\[\/spoiler\]/ims', '<span class="spoiler">$1</span>', $message);
 

@@ -679,6 +679,26 @@ function insert_ref_to_message(id) {
 }
 
 /**
+ * Insert a formatting tag to the message.
+ */
+function insert_format_to_message(format) {
+  let postform_message = document.getElementById('form-post-message');
+
+  if (postform_message == null) {
+    return;
+  }
+
+  let text_idx_s = postform_message.selectionStart;
+  let text_idx_e = postform_message.selectionEnd;
+  let text_val = postform_message.value;
+  postform_message.value = text_val.slice(0, text_idx_s) + '[' + format + ']'
+                         + text_val.slice(text_idx_s, text_idx_e) + '[/' + format + ']'
+                         + text_val.slice(text_idx_e);
+  postform_message.setSelectionRange(text_idx_s + (2 + format.length), text_idx_s + (2 + format.length));
+  postform_message.focus();
+}
+
+/**
  * Initializes all post file thumbnail hrefs.
  */
 function init_post_thumb_links(target) {
@@ -853,6 +873,8 @@ function init_location_hash_features() {
  * - Remember password (local cookie)
  */
 function init_postform_features() {
+  let post_form = document.getElementById('form-post');
+  
   // update password fields appropriately
   let cookie_pass = get_cookie('password');
   let postform_pass = document.getElementById('form-post-password');
@@ -878,7 +900,6 @@ function init_postform_features() {
   }
 
   // setup submit handler
-  let post_form = document.getElementById('form-post');
   if (post_form != null) {
     let submit_btn = post_form.querySelector('input[type=submit]');
 
@@ -908,6 +929,16 @@ function init_postform_features() {
         open_window('', '_blank', 'location=true,status=true,width=480,height=640')
           .document.write(error);
         submit_btn.disabled = false;
+      });
+    });
+  }
+
+  // init post formatting buttons
+  if (post_form != null) {
+    let formatting_btns = post_form.getElementsByClassName('format-btn');
+    Array.from(formatting_btns).forEach(element => {
+      element.addEventListener('click', (event) => {
+        insert_format_to_message(event.currentTarget.dataset.format);
       });
     });
   }
