@@ -23,6 +23,7 @@ ENV PATH="$PATH:/opt/venv/bin"
 RUN mkdir -p /app && mkdir -p /app/tmp
 WORKDIR /app
 COPY microservices/csam-scanner/csam_scanner /app/csam_scanner/
+COPY microservices/csam-scanner/tests /app/tests/
 
 EXPOSE 8000
 
