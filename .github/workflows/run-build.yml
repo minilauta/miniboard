@@ -26,6 +26,9 @@ jobs:
           - name: flyway
             folder: docker/flyway
             dockerfile: Dockerfile
+          - name: csam-scanner
+            folder: docker/csam-scanner
+            dockerfile: Dockerfile
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3

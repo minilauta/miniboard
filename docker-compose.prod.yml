@@ -93,6 +93,25 @@ services:
     depends_on:
       - app
 
+  csam-scanner:
+    image: ghcr.io/anonyymi/miniboard/csam-scanner:latest
+    deploy:
+      replicas: 1
+    restart: on-failure
+    networks:
+      - app
+    expose:
+      - 8000
+    environment:
+      DB_HOST: mariadb
+      DB_NAME: ${DB_NAME}
+      DB_USER: ${DB_USER}
+      DB_PASS: ${DB_PASS}
+      ORIGINATOR: miniboard
+      TOLERANCE: 0.95
+    depends_on:
+      - mariadb
+
 networks:
   app:
     driver: bridge

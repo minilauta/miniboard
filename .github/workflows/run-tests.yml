@@ -25,6 +25,8 @@ jobs:
             app.cache-to=type=gha,scope=${GITHUB_REF_NAME}-tests
       - name: Test
         run: docker compose run --name 'miniboard_test_${{ github.sha }}' test
+      - name: Test CSAM-scanner
+        run: docker compose run --name 'miniboard_test_csam-scanner_${{ github.sha }}' test-csam-scanner
       - name: Copy
         run: |
           docker cp 'miniboard_test_${{ github.sha }}':/app/coverage.xml ./

@@ -2,7 +2,7 @@ version: '3.8'
 
 services:
   app:
-    image: anonyymi/miniboard:latest
+    image: anonyymi/miniboard/app:latest
     pull_policy: build
     build:
       context: .
@@ -36,7 +36,7 @@ services:
       - mariadb
 
   test:
-    image: anonyymi/miniboard:latest
+    image: anonyymi/miniboard/app:latest
     pull_policy: never
     restart: on-failure
     command: ['bash', '-c', 'XDEBUG_MODE=coverage ./vendor/bin/phpunit --coverage-text --coverage-clover coverage.xml --coverage-html ./coverage']
@@ -95,6 +95,33 @@ services:
       - redis:/data
     ports:
       - '127.0.0.1:6379:6379'
+  
+  csam-scanner:
+    image: anonyymi/miniboard/csam-scanner:latest
+    pull_policy: build
+    build:
+      context: .
+      dockerfile: docker/csam-scanner/Dockerfile
+    restart: always
+    networks:
+      - app
+    ports:
+      - "127.0.0.1:8000:8000"
+    environment:
+      DB_HOST: mariadb
+      DB_NAME: ${DB_NAME}
+      DB_USER: ${DB_USER}
+      DB_PASS: ${DB_PASS}
+      ORIGINATOR: localhost
+      TOLERANCE: 0.95
+
+  test-csam-scanner:
+    image: anonyymi/miniboard/csam-scanner:latest
+    pull_policy: never
+    restart: on-failure
+    command: ['bash', '-c', '. /opt/venv/bin/activate && python -m unittest']
+    networks:
+      - test
 
 networks:
   app:

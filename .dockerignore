@@ -5,7 +5,13 @@ node_modules/
 .docs/
 .github/
 .vscode/
+k8s/
+__pycache__/
 
 .gitignore
+.env
+.stylelintrc
 composer.lock
 yarn.lock
+docker-compose.yml
+docker-compose.prod.yml

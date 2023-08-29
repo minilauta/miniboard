@@ -12,7 +12,11 @@ COPY docker/miniboard/php/conf.d/miniboard.ini $PHP_INI_DIR/conf.d/
 COPY docker/miniboard/php/conf.d/xdebug.ini $PHP_INI_DIR/conf.d/
 
 # install miniboard
-COPY . /app
+RUN mkdir -p /app
+COPY composer.json phpunit.xml /app/
+COPY public /app/public/
+COPY tests /app/tests/
+COPY scripts /app/scripts/
 WORKDIR /app
 RUN composer install --no-interaction && \
     chown www-data:www-data -R public

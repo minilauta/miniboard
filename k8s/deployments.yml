@@ -117,3 +117,50 @@ spec:
         persistentVolumeClaim:
           claimName: miniboard-app-pv-claim
           readOnly: true
+
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: miniboard-csam-scanner
+spec:
+  selector:
+    matchLabels:
+      run: miniboard-csam-scanner
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        run: miniboard-csam-scanner
+    spec:
+      containers:
+      - name: miniboard-csam-scanner
+        image: ghcr.io/anonyymi/miniboard/csam-scanner:latest
+        imagePullPolicy: Always
+        ports:
+        - containerPort: 8000
+        resources:
+          requests:
+            cpu: 250m
+            memory: 1024Mi
+          limits:
+            memory: 4096Mi
+        env:
+        - name: DB_HOST
+          value: miniboard-mariadb
+        - name: DB_NAME
+          value: miniboard_db
+        - name: DB_USER
+          valueFrom:
+            secretKeyRef:
+              name: miniboard-mariadb-user
+              key: USER
+        - name: DB_PASS
+          valueFrom:
+            secretKeyRef:
+              name: miniboard-mariadb-user
+              key: PASSWORD
+        - name: ORIGINATOR
+          value: miniboard
+        - name: TOLERANCE
+          value: 0.95
