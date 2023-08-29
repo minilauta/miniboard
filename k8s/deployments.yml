@@ -163,4 +163,4 @@ spec:
         - name: ORIGINATOR
           value: miniboard
         - name: TOLERANCE
-          value: 0.95
+          value: '0.95'
