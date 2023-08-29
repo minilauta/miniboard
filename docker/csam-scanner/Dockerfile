@@ -1,13 +1,27 @@
+FROM python:3.11-slim AS build
+
+# install buildtime pkgs
+RUN apt-get update && apt-get -y install build-essential
+
+# create venv and install pip deps there
+COPY microservices/csam-scanner/requirements.txt .
+RUN python -m venv /opt/venv && \
+    . /opt/venv/bin/activate && \
+    pip install --no-cache-dir --no-input -r requirements.txt && \
+    pip install --no-cache-dir uvicorn
+
 FROM python:3.11-slim
 
-RUN apt-get update && apt-get -y install build-essential libgl1 libglib2.0-0
+# install runtime pkgs
+RUN apt-get update && apt-get -y install libgl1 libglib2.0-0
 
-# install service
+# copy venv and activate it
+COPY --from=build /opt/venv /opt/venv
+ENV PATH="$PATH:/opt/venv/bin"
+
+# copy app files
 RUN mkdir -p /app && mkdir -p /app/tmp
-COPY microservices/csam-scanner/requirements.txt /app/
 WORKDIR /app
-RUN pip install --no-input -r requirements.txt && \
-    pip install uvicorn
 COPY microservices/csam-scanner/csam_scanner /app/csam_scanner/
 
 EXPOSE 8000
