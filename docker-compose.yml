@@ -113,7 +113,7 @@ services:
       DB_USER: ${DB_USER}
       DB_PASS: ${DB_PASS}
       ORIGINATOR: localhost
-      HD_TOLERANCE: 32
+      TOLERANCE: 0.95
 
 networks:
   app:

@@ -15,7 +15,9 @@ def compute_pdq_hash(file_bytes: bytes):
     image = cv2.cvtColor(image, cv2.COLOR_BGR2RGB)
     
     # return (hash_vector, quality) tuple
-    return pdqhash.compute(image)
+    hash_vector, quality = pdqhash.compute(image)
+    hash_vector = hash_vector.astype(np.uint8)
+    return (hash_vector, quality)
 
 def compute_pdq_similarity(hash_vec_a, hash_vec_b) -> float:
     same_bits = [a == b for a, b in zip(hash_vec_a, hash_vec_b)]
