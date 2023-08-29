@@ -3,9 +3,9 @@
 
 CREATE TABLE IF NOT EXISTS csam_scanner (
   `id` int unsigned NOT NULL auto_increment,
-  `algorithm` varchar(32) NOT NULL,
-  `type` varchar(32) NOT NULL,
   `sha256` binary(32) NOT NULL,
+  `type` varchar(32) NOT NULL,
+  `algorithm` varchar(32) NOT NULL,
   `hash` blob NOT NULL,
   `quality` int unsigned NOT NULL,
   `originator` varchar(32) NOT NULL,
@@ -13,10 +13,9 @@ CREATE TABLE IF NOT EXISTS csam_scanner (
   `downvotes` int unsigned NOT NULL,
   `timestamp` int unsigned NOT NULL,
   PRIMARY KEY (`id`),
-  KEY `algorithm` (`algorithm`),
-  KEY `type` (`type`),
+  UNIQUE KEY (`algorithm`, `hash`),
   KEY `sha256` (`sha256`),
-  KEY `hash` (`hash`),
+  KEY `quality` (`quality`),
   KEY `originator` (`originator`),
   KEY `timestamp` (`timestamp`)
 ) ENGINE=InnoDB
