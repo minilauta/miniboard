@@ -12,7 +12,11 @@ COPY docker/miniboard/php/conf.d/miniboard.ini $PHP_INI_DIR/conf.d/
 COPY docker/miniboard/php/conf.d/opcache.ini $PHP_INI_DIR/conf.d/
 
 # install miniboard
-COPY . /app
+RUN mkdir -p /app
+COPY composer.json /app/
+COPY public /app/public/
+COPY tests /app/tests/
+COPY scripts /app/scripts/
 WORKDIR /app
 RUN composer install --no-interaction --no-dev && \
     chown www-data:www-data -R public

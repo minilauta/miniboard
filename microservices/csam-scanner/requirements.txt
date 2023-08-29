@@ -1,3 +1,4 @@
+python-multipart
 fastapi
 numpy
 opencv-python-headless

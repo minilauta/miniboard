@@ -8,7 +8,9 @@ RUN openssl req -x509 -nodes -days 365 \
     -keyout /etc/ssl/private/nginx-selfsigned.key \
     -out /etc/ssl/certs/nginx-selfsigned.crt
 
-COPY . /app
+RUN mkdir -p /app
+COPY package.json webpack.config.js /app/
+COPY public /app/public/
 
 WORKDIR /app
 

@@ -95,6 +95,24 @@ services:
       - redis:/data
     ports:
       - '127.0.0.1:6379:6379'
+  
+  csam-scanner:
+    image: anonyymi/csam-scanner:latest
+    pull_policy: build
+    build:
+      context: .
+      dockerfile: docker/csam-scanner/Dockerfile
+    restart: always
+    networks:
+      - app
+    ports:
+      - "127.0.0.1:8000:8000"
+    environment:
+      DB_HOST: mariadb
+      DB_NAME: ${DB_NAME}
+      DB_USER: ${DB_USER}
+      DB_PASS: ${DB_PASS}
+      ORIGINATOR: localhost
 
 networks:
   app:
