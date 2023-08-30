@@ -221,6 +221,9 @@ function funcs_manage_ban(array $select, int $duration, string $reason): string 
 
     // ban poster by board id and post id
     $processed += ban_poster_by_post_id($selected_board_id, $selected_post_id, $duration, $reason);
+
+    // delete remaining reports
+    delete_reports_by_post_id($selected_board_id, $selected_post_id);
   }
 
   $status = "Banned {$processed} posters";
@@ -278,6 +281,43 @@ function funcs_manage_toggle_sticky(array $select): string {
   }
 
   $status = "Toggled sticky state for {$processed} posts";
+  funcs_manage_log($status);
+  return $status;
+}
+
+function funcs_manage_csam_scanner_cp(array $select): string {
+  // mark each post
+  $processed = 0;
+  foreach ($select as $val) {
+    // parse board id and post id
+    $selected_parsed = explode('/', $val);
+    $selected_board_id = $selected_parsed[0];
+    $selected_post_id = intval($selected_parsed[1]);
+
+    // select target post
+    $target_post = select_post($selected_board_id, $selected_post_id, false);
+
+    // send file to CSAM-scanner microservice
+    $target_file_path = __DIR__ . $target_post['file'];
+    $finfo = finfo_open(FILEINFO_MIME);
+    $target_file_mime = explode(';', finfo_file($finfo, $target_file_path))[0];
+    finfo_close($finfo);
+    $curl = curl_init();
+    curl_setopt($curl, CURLOPT_URL, 'http://' . CSAM_SCANNER_HOST . ':8000/cp');
+    curl_setopt($curl, CURLOPT_POST, true);
+    curl_setopt($curl, CURLOPT_POSTFIELDS, [
+      'input' => new CURLFile($target_file_path, $target_file_mime, $target_post['file_original'])
+    ]);
+    curl_setopt($curl, CURLOPT_RETURNTRANSFER, true);
+    $response = curl_exec($curl);
+    curl_close($curl);
+
+    if ($response) {
+      $processed++;
+    }
+  }
+
+  $status = "Marked content as CSAM for {$processed} posts";
   funcs_manage_log($status);
   return $status;
 }

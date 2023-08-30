@@ -322,6 +322,39 @@ function handle_manage_togglestickyform(Request $request, Response $response, ar
   return $response;
 }
 
+$app->post('/manage/csam_scanner/cp/', function (Request $request, Response $response, array $args) {
+  if (!funcs_manage_is_logged_in()) {
+    throw new AppException('index', 'route', 'access denied', SC_UNAUTHORIZED);
+  }
+
+  // parse request body
+  $params = (array) $request->getParsedBody();
+
+  // validate request fields
+  funcs_common_validate_fields($params, [
+    'select'   => ['required' => true, 'type' => 'array']
+  ]);
+
+  // execute mark as cp
+  $status = funcs_manage_csam_scanner_cp($params['select']);
+
+  // execute ban
+  $status .= "<br>";
+  $status .= funcs_manage_ban($params['select'], 525960 * 60, 'CSAM-scanner: marked as CP');
+
+  // execute delete
+  $status .= "<br>";
+  $status .= funcs_manage_delete($params['select']);
+
+  // set query to return properly
+  $query = funcs_common_mutate_query($_GET, 'status', $status);
+
+  $response = $response
+    ->withHeader('Location', "/manage/?{$query}")
+    ->withStatus(303);
+  return $response;
+});
+
 $app->get('/{board_id}/{post_id}/report/', function (Request $request, Response $response, array $args) {
   // get board config
   $board_cfg = funcs_common_get_board_cfg($args['board_id']);

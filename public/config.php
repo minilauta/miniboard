@@ -72,6 +72,7 @@ define('MB_BANNER_IMAGES', [
   'b6.png' => 'b',
   'b7.gif' => 'b',
 ]);
+define('CSAM_SCANNER_HOST', getenv('CSAM_SCANNER_HOST'));
 
 // board settings
 define('MB_BOARDS', [

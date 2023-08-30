@@ -18,6 +18,7 @@
 	        <input type="submit" value="Ban (ip)" formaction="ban?<?=http_build_query($_GET)?>">
           <input type="number" name="duration" placeholder="Ban minutes">
           <input type="text" name="reason" placeholder="Ban reason">
+	        <input type="submit" value="Mark as CSAM" formaction="csam_scanner/cp?<?=http_build_query($_GET)?>">
 	        <input type="submit" value="Lock/unlock (thread)" formaction="toggle_lock?<?=http_build_query($_GET)?>">
 	        <input type="submit" value="Sticky/unsticky (thread)" formaction="toggle_sticky?<?=http_build_query($_GET)?>">
 	        <input type="submit" value="Approve (report)" formaction="approve?<?=http_build_query($_GET)?>">

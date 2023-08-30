@@ -32,6 +32,7 @@ services:
       MB_DB_PASS: ${DB_PASS}
       REDIS_HOST: redis
       REDIS_PASS: ${REDIS_PASS}
+      CSAM_SCANNER_HOST: csam-scanner
     depends_on:
       - mariadb
 
