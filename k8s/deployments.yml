@@ -52,6 +52,8 @@ spec: # spec for deployment
             secretKeyRef:
               name: miniboard-redis-auth
               key: PASSWORD
+        - name: CSAM_SCANNER_HOST
+          value: miniboard-csam-scanner
         volumeMounts:
         - name: miniboard-app-pv
           mountPath: /app/public/src

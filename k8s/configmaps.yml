@@ -59,7 +59,8 @@ data:
       'miniboard',
       'futaba',
       'yotsuba',
-      'yotsuba_blue'
+      'yotsuba_blue',
+      'zenburn'
     ]);
     define('MB_DELAY', 15);
     define('MB_ERROR_IMAGES', [
@@ -74,6 +75,7 @@ data:
       'b6.png' => 'b',
       'b7.gif' => 'b',
     ]);
+    define('CSAM_SCANNER_HOST', getenv('CSAM_SCANNER_HOST'));
 
     // board settings
     define('MB_BOARDS', [

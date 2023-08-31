@@ -115,6 +115,8 @@ services:
       DB_PASS: ${DB_PASS}
       ORIGINATOR: localhost
       TOLERANCE: 0.95
+    depends_on:
+      - mariadb
 
   test-csam-scanner:
     image: anonyymi/miniboard/csam-scanner:latest
