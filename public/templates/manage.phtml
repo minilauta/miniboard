@@ -100,6 +100,32 @@
           ]);
           echo $this->fetch('common/pagetable.phtml', ['page' => $page, 'page_n' => $page_n]);
           break;
+        case 'csam_hashes':
+          // set constants
+          $rows_per_page = 50;
+
+          // get rows
+          $rows = select_all_csam_hashes(true, $rows_per_page * $page, $rows_per_page);
+
+          // process rows
+          foreach ($rows as $key => &$row) {
+            $row['sha256'] = bin2hex($row['sha256']);
+            $row['hash'] = bin2hex($row['hash']);
+          }
+
+          // get row count
+          $rows_n = count_all_csam_hashes();
+
+          // calculate page count
+          $page_n = ceil($rows_n / $rows_per_page);
+
+          echo $this->fetch('manage/csamhashform.phtml', [
+            'rows' => $rows,
+            'page' => $page,
+            'page_n' => $page_n
+          ]);
+          echo $this->fetch('common/pagetable.phtml', ['page' => $page, 'page_n' => $page_n]);
+          break;
         case 'posts':
           // set constants
           $posts_per_page = 50;

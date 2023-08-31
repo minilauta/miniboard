@@ -10,8 +10,18 @@ import csam_scanner.utils as utils
 
 app = FastAPI()
 
+MIME_TYPES_IMAGE = [
+    'image/jpeg',
+    'image/pjpeg',
+    'image/png',
+    'image/gif',
+    'image/bmp',
+    'image/tiff',
+    'image/webp'
+]
+
 def check_mime(mime_type: str):
-    if not mime_type.startswith('image/'):
+    if mime_type.lower() not in MIME_TYPES_IMAGE:
         raise HTTPException(status_code=400, detail='unsupported MIME type')
 
 @app.post('/check')
