@@ -2,8 +2,8 @@ use crate::types;
 use r2d2_mysql::mysql::prelude::Queryable;
 use r2d2_mysql::{r2d2, MySqlConnectionManager};
 
-pub fn get_stats(conn: &mut r2d2::PooledConnection<MySqlConnectionManager>) -> types::Stats {
-    let stats = conn
+pub fn get_stats(db: &mut r2d2::PooledConnection<MySqlConnectionManager>) -> types::Stats {
+    let stats = db
         .query_map(
             "
             SELECT

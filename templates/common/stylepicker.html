@@ -1,0 +1,5 @@
+<select id='stylepicker'>
+  {% for style in styles %}
+    <option value="{{ style }}" {% if style == selected_style %}selected{% endif %}>{{ style }}</option>
+  {% endfor %}
+</select>
