@@ -6,3 +6,9 @@ dist/
 composer.lock
 coverage.xml
 tests/src/thumb_*
+
+Cargo.lock
+
+# Added by cargo
+
+/target

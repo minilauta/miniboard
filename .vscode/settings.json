@@ -9,5 +9,6 @@
         "tags": [
             "@package ${1:$SYMBOL_NAMESPACE}"
         ]
-    }
+    },
+    "rust-analyzer.showUnlinkedFileNotification": false
 }
