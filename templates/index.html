@@ -67,7 +67,12 @@
       <div class="box">
         <div class="box-title">Rules</div>
         <div class="box-content">
-          {{ rules | safe }}
+          <strong>Forbidden on all boards</strong>
+          <ol>
+            {% for rule in rules %}
+              <li>{{ rule }}</li>
+            {% endfor %}
+          </ol>
         </div>
       </div>
     </div>

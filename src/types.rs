@@ -1,4 +1,41 @@
-use serde::{Serialize, Deserialize};
+use std::collections::HashMap;
+
+use serde::{Deserialize, Serialize};
+
+#[derive(Clone, Serialize, Deserialize)]
+pub struct GlobalSiteConf {
+    pub name: String,
+    pub desc: String,
+    pub disc: String,
+    pub contact: String,
+    pub rules: Vec<String>,
+    pub styles: Vec<String>,
+    pub default_style: String,
+    pub logo: String,
+    pub banners: Vec<String>,
+    pub error_images: HashMap<u32, Vec<String>>,
+}
+
+#[derive(Clone, Serialize, Deserialize)]
+pub struct GlobalBoardConf {
+    pub delay_thread: u32,
+    pub delay_post: u32,
+    pub delay_report: u32,
+    pub delay_hide: u32,
+    pub tripcode_salt: String,
+}
+
+#[derive(Clone, Serialize, Deserialize)]
+pub struct GlobalConf {
+    pub site: GlobalSiteConf,
+    pub board: GlobalBoardConf,
+    pub roles: HashMap<String, u8>,
+    pub datefmt: String,
+    pub captcha_site: String,
+    pub captcha_secret: String,
+    pub captcha_actions: Vec<String>,
+    pub cloudflare: bool,
+}
 
 #[derive(Serialize, Deserialize)]
 pub struct Stats {
@@ -7,7 +44,7 @@ pub struct Stats {
     pub unique_posters: Option<u32>,
     pub imported_posts: Option<u32>,
     pub current_files: Option<u32>,
-    pub active_content: Option<u32>
+    pub active_content: Option<u32>,
 }
 
 #[derive(Serialize, Deserialize)]

@@ -1,0 +1,52 @@
+site:
+  name: Miniboard
+  desc: Minimalistic oldschool imageboard software
+  disc: All trademarks, copyrights, comments, and images on this page are owned by and are the responsibility of their respective parties.
+  contact: info@miniboard.dev
+  rules:
+  - Spamming and/or flooding
+  - Not work safe content on work safe board
+  styles:
+  - futaba
+  - yotsuba
+  - yotsuba_blue
+  - zenburn
+  default_style: futaba
+  logo: logo.png
+  banners:
+  - b2.png
+  - b3.png
+  - b4.png
+  - b6.png
+  - b7.gif
+  error_images:
+    404:
+    - nazrin1.png
+    - mini1.jpg
+    - mini2.png
+    - mini3.png
+board:
+  delay_thread: 60
+  delay_post: 15
+  delay_report: 10
+  delay_hide: 1
+  tripcode_salt: "#!12345_MAKE_THIS_SECURE_67890!#"
+roles:
+  SUPERADMIN: 1
+  ADMIN: 2
+  MODERATOR: 3
+  JANITOR: 4
+  DISABLED: 99
+datefmt: TODO
+captcha_site: TODO
+captcha_secret: TODO
+captcha_actions:
+- thread
+- post
+- report
+- login
+cloudflare: false
+# ??
+# microservices:
+#   csam_scanner:
+#     host: csam-scanner

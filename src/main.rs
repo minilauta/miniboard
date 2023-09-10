@@ -1,10 +1,14 @@
+use std::fs::File;
+use std::env;
+
 use actix_web::web::Data;
-use actix_web::{web, App, HttpServer};
+use actix_web::{App, HttpServer};
 use r2d2_mysql::mysql::OptsBuilder;
 use r2d2_mysql::r2d2;
 use routers::index_router;
 use tera::Tera;
-use std::env;
+
+use types::GlobalConf;
 
 extern crate r2d2_mysql;
 
@@ -15,6 +19,7 @@ mod types;
 type DbPool = r2d2::Pool<r2d2_mysql::MySqlConnectionManager>;
 
 struct AppData {
+    conf: GlobalConf,
     tmpl: Tera,
     dbpl: DbPool,
 }
@@ -22,6 +27,11 @@ struct AppData {
 #[actix_web::main]
 async fn main() -> std::io::Result<()> {
     env_logger::init();
+
+    let conf_reader = File::open("./config/global.yml")
+        .expect("failed to read global conf from file");
+    let global_conf: GlobalConf = serde_yaml::from_reader(conf_reader)
+        .expect("failed to load global conf from file");
 
     let tmpl = Tera::new("templates/**/*")
         .unwrap();
@@ -39,6 +49,7 @@ async fn main() -> std::io::Result<()> {
     HttpServer::new(move || {
         App::new()
             .app_data(Data::new(AppData {
+                conf: global_conf.clone(),
                 tmpl: tmpl.clone(),
                 dbpl: db_pool.clone(),
             }))

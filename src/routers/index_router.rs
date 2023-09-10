@@ -1,11 +1,12 @@
-use std::borrow::BorrowMut;
+use actix_web::{get, web, HttpResponse, Responder, HttpRequest};
 
 use crate::{services::index_service, AppData};
-use actix_web::{get, http::header::ContentType, web, HttpResponse, Responder, HttpRequest, cookie::Cookie};
-use tera::Context;
 
 #[get("/")]
 async fn index(app: web::Data<AppData>, req: HttpRequest) -> impl Responder {
+    // get global conf
+    let conf = &app.conf;
+
     // get data from db
     let mut db = app.dbpl
         .get()
@@ -15,25 +16,18 @@ async fn index(app: web::Data<AppData>, req: HttpRequest) -> impl Responder {
     // render html template
     let mut ctx = tera::Context::new();
     ctx.insert("stats", &stats);
-    ctx.insert("site_name", "Miniboard");
-    ctx.insert("site_desc", "v2");
-    ctx.insert("disclaimer", "All trademarks, etc...");
-    ctx.insert("contact", "info@localhost");
-    ctx.insert("title", "Miniboard");
-    ctx.insert("subtitle", "v2");
-    ctx.insert("logo", "logo.png");
-    let styles = vec!["futaba", "yotsuba", "yotsuba_blue", "zenburn"];
-    ctx.insert("styles", &styles);
+    ctx.insert("site_name", &conf.site.name);
+    ctx.insert("site_desc", &conf.site.desc);
+    ctx.insert("disclaimer", &conf.site.disc);
+    ctx.insert("contact", &conf.site.contact);
+    ctx.insert("title", &conf.site.name);
+    ctx.insert("subtitle", "");
+    ctx.insert("logo", &conf.site.logo);
+    ctx.insert("styles", &conf.site.styles);
     let selected_style = req.cookie("miniboard/style")
-        .map_or(String::from("futaba"), |x| String::from(x.value()));
+        .map_or(conf.site.default_style.clone(), |x| String::from(x.value()));
     ctx.insert("selected_style", &selected_style);
-    ctx.insert("rules", "
-        <strong>Forbidden on all boards</strong>
-        <ol>
-            <li>Do not break rules</li>
-            <li>Read rule #1</li>
-        </ol>
-    ");
+    ctx.insert("rules", &conf.site.rules);
     let boards = vec!["Main", "Random", "Anime"];
     ctx.insert("boards", &boards);
 
