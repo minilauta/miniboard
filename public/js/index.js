@@ -942,6 +942,20 @@ function init_postform_features() {
       });
     });
   }
+
+  // init file pasting
+  if (post_form != null) {
+    let postform_message = document.getElementById('form-post-message');
+    postform_message.addEventListener('paste', (event) => {
+      if (event.clipboardData.files.length > 0) {
+        event.preventDefault();
+        let fileInput = document.getElementById('form-file');
+        if (fileInput !== null) {
+          fileInput.files = event.clipboardData.files;
+        }
+      }
+    });
+  }
 }
 
 function init_stylepicker_features() {
