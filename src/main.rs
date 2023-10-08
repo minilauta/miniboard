@@ -1,27 +1,23 @@
-use std::fs::File;
 use std::env;
+use std::fs::File;
 
 use actix_web::web::Data;
 use actix_web::{App, HttpServer};
-use r2d2_mysql::mysql::OptsBuilder;
-use r2d2_mysql::r2d2;
 use routers::index_router;
+use sqlx::mysql::{MySqlConnectOptions, MySqlPoolOptions};
+use sqlx::MySqlPool;
 use tera::Tera;
 
 use types::GlobalConf;
-
-extern crate r2d2_mysql;
 
 mod routers;
 mod services;
 mod types;
 
-type DbPool = r2d2::Pool<r2d2_mysql::MySqlConnectionManager>;
-
 struct AppData {
     conf: GlobalConf,
     tmpl: Tera,
-    dbpl: DbPool,
+    dbpl: MySqlPool,
 }
 
 #[actix_web::main]
@@ -33,18 +29,22 @@ async fn main() -> std::io::Result<()> {
     let global_conf: GlobalConf = serde_yaml::from_reader(conf_reader)
         .expect("failed to load global conf from file");
 
-    let tmpl = Tera::new("templates/**/*")
-        .unwrap();
+    let tmpl = Tera::new("templates/**/*").unwrap();
 
-    let db_opts = OptsBuilder::new()
-        .ip_or_hostname(env::var("DB_HOST").ok())
-        .db_name(env::var("DB_NAME").ok())
-        .user(env::var("DB_USER").ok())
-        .pass(env::var("DB_PASS").ok());
-    let db_manager = r2d2_mysql::MySqlConnectionManager::new(db_opts);
-    let db_pool = r2d2::Pool::builder()
-        .build(db_manager)
-        .expect("failed to build r2d2 connection pool");
+    let db_opts = MySqlConnectOptions::new()
+        .host(env::var("DB_HOST").unwrap().as_str())
+        .database(env::var("DB_NAME").unwrap().as_str())
+        .username(env::var("DB_USER").unwrap().as_str())
+        .password(env::var("DB_PASS").unwrap().as_str());
+
+    let db_pool = match MySqlPoolOptions::new()
+        .max_connections(10)
+        .connect_with(db_opts)
+        .await
+    {
+        Ok(db_pool) => db_pool,
+        Err(err) => std::process::exit(1),
+    };
 
     HttpServer::new(move || {
         App::new()
@@ -57,7 +57,7 @@ async fn main() -> std::io::Result<()> {
             .service(
                 actix_files::Files::new("/", "./public/")
                     .show_files_listing()
-                    .use_last_modified(true)
+                    .use_last_modified(true),
             )
     })
     .bind(("127.0.0.1", 9090))?
