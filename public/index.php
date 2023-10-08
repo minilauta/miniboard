@@ -870,6 +870,24 @@ function handle_postform(Request $request, Response $response, array $args, stri
     }
   }
 
+  // check for CSAM
+  if (isset($file_info) && isset($file)) {
+    $csam_scan_result = funcs_board_csam_scanner_check($file);
+    if (isset($csam_scan_result) && isset($csam_scan_result['match']) && $csam_scan_result['match'] === true) {
+      $csam_match_similarity = round($csam_scan_result['similarity'] * 100.0, 2);
+      $csam_match_log_msg = "CSAM-scanner: detected as CP, similarity: {$csam_match_similarity}%";
+      // create and insert automatic report
+      insert_report([
+        'ip'        => '127.0.0.1',
+        'timestamp' => time(),
+        'board_id'  => $board_cfg['id'],
+        'post_id'   => $inserted_post_id,
+        'type'      => $csam_match_log_msg
+      ]);
+      insert_log('127.0.0.1', time(), 'CSAM-scanner', $csam_match_log_msg);
+    }
+  }
+
   // handle noko
   $redirect_url = '/' . $board_cfg['id'] . '/';
   if (in_array('noko', $email_split) || $board_cfg['alwaysnoko']) {

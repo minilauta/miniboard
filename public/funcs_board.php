@@ -604,6 +604,29 @@ function funcs_board_execute_embed(string $url, array $embed_types, int $max_w =
   ];
 }
 
+function funcs_board_csam_scanner_check(array $file): ?array {
+  // send file to CSAM-scanner microservice
+  $target_file_path = __DIR__ . $file['file'];
+  $finfo = finfo_open(FILEINFO_MIME);
+  $target_file_mime = explode(';', finfo_file($finfo, $target_file_path))[0];
+  finfo_close($finfo);
+  $curl = curl_init();
+  curl_setopt($curl, CURLOPT_URL, 'http://' . CSAM_SCANNER_HOST . ':8000/check');
+  curl_setopt($curl, CURLOPT_POST, true);
+  curl_setopt($curl, CURLOPT_POSTFIELDS, [
+    'input' => new CURLFile($target_file_path, $target_file_mime, $file['file_original'])
+  ]);
+  curl_setopt($curl, CURLOPT_RETURNTRANSFER, true);
+  $response = curl_exec($curl);
+  curl_close($curl);
+
+  if ($response) {
+    return json_decode($response, true);
+  }
+
+  return null;
+}
+
 /**
  * Creates a new hide object.
  */
