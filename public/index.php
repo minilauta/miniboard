@@ -946,8 +946,7 @@ $error_handler = function(
 };
 
 if (MB_ENV === 'dev') {
-  $app->addErrorMiddleware(false, false, false)
-    ->setDefaultErrorHandler($error_handler);
+  $app->addErrorMiddleware(true, true, true);
 } else {
   $app->addErrorMiddleware(false, false, false)
     ->setDefaultErrorHandler($error_handler);

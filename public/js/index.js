@@ -911,17 +911,25 @@ function init_postform_features() {
         method: 'POST',
         body: new FormData(post_form)
       }).then((data) => {
-        data.json().then((response) => {
-          // 200 OK, follow redirect
-          if (data.status === 200 && response['redirect_url'] != null) {
-            window.location.href = window.location.origin + response['redirect_url'];
-            setTimeout(() => {
-              window.location.reload(true);
-            }, 250);
-          // xxx ERROR, show error window
-          } else {
+        data.text().then((response) => {
+          try {
+            const data_json = JSON.parse(response);
+
+            // 200 OK, follow redirect
+            if (data.status === 200 && data_json['redirect_url'] != null) {
+              window.location.href = window.location.origin + data_json['redirect_url'];
+              setTimeout(() => {
+                window.location.reload(true);
+              }, 250);
+            // xxx ERROR, show error window
+            } else {
+              open_window('', '_blank', 'location=true,status=true,width=480,height=640')
+                .document.write(data_json['error_message']);
+              submit_btn.disabled = false;
+            }
+          } catch (error) {
             open_window('', '_blank', 'location=true,status=true,width=480,height=640')
-              .document.write(response['error_message']);
+              .document.write(response);
             submit_btn.disabled = false;
           }
         });
