@@ -21,6 +21,10 @@ a:hover {
 }
 
 /* root/general */
+.page-root a {
+  text-decoration: none;
+}
+
 .box-title {
   background: #98e;
   font-weight: bold;
@@ -28,6 +32,11 @@ a:hover {
 
 .box-content {
   background: #ffffff;
+}
+
+.nsfw {
+  color: #FF0000;
+  font-weight: bold;
 }
 
 /* header */

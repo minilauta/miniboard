@@ -105,7 +105,8 @@ define('MB_BOARDS', [
     'maxkb'             => 0,
     'nofileok'          => false,
     'max_width'         => 0,
-    'max_height'        => 0
+    'max_height'        => 0,
+    'nsfw'              => true,
   ],
   'b' => [
     'id'                => 'b',
@@ -150,7 +151,8 @@ define('MB_BOARDS', [
     'maxkb'             => 24000,
     'nofileok'          => false,
     'max_width'         => 250,
-    'max_height'        => 250
+    'max_height'        => 250,
+    'nsfw'              => true,
   ],
   'a' => [
     'id'                => 'a',
@@ -192,7 +194,8 @@ define('MB_BOARDS', [
     'maxkb'             => 24000,
     'nofileok'          => false,
     'max_width'         => 250,
-    'max_height'        => 250
+    'max_height'        => 250,
+    'nsfw'              => false,
   ],
   'mod' => [
     'id'                => 'mod',
@@ -237,6 +240,7 @@ define('MB_BOARDS', [
     'maxkb'             => 24000,
     'nofileok'          => false,
     'max_width'         => 250,
-    'max_height'        => 250
+    'max_height'        => 250,
+    'nsfw'              => false,
   ]
 ]);
