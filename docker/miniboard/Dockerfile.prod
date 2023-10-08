@@ -13,13 +13,13 @@ COPY docker/miniboard/php/conf.d/opcache.ini $PHP_INI_DIR/conf.d/
 
 # install miniboard
 RUN mkdir -p /app
+WORKDIR /app
 COPY composer.json /app/
+RUN composer install --no-interaction --no-dev
 COPY public /app/public/
 COPY tests /app/tests/
 COPY scripts /app/scripts/
-WORKDIR /app
-RUN composer install --no-interaction --no-dev && \
-    chown www-data:www-data -R public
+RUN chown www-data:www-data -R public
 
 # runtime setup
 WORKDIR /app/public

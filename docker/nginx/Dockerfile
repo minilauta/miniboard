@@ -9,12 +9,11 @@ RUN openssl req -x509 -nodes -days 365 \
     -out /etc/ssl/certs/nginx-selfsigned.crt
 
 RUN mkdir -p /app
-COPY package.json webpack.config.js /app/
-COPY public /app/public/
-
 WORKDIR /app
-
-RUN yarn && yarn run build
+COPY package.json webpack.config.js /app/
+RUN yarn
+COPY public /app/public/
+RUN yarn run build
 
 
 FROM nginx:1.25.2-alpine
