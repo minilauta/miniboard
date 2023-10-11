@@ -44,7 +44,7 @@ hr {
   /* TODO: align td contents... how? */
 }
 
-.box-container {
+.page-root .box-container {
   margin-bottom: 8px;
 }
 

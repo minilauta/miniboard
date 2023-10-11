@@ -22,7 +22,7 @@
     <hr>
     [<a href="../">Return</a>]
     <div class="mode">Posting mode: Reply</div>
-    <div class="container-centered">
+    <div id="form-post-container" class="container-centered">
       <?=$this->fetch('board/postform.phtml', ['context' => 'thread', 'board' => $board, 'action' => "/{$board['id']}/{$thread['post_id']}"])?>
     </div>
     <hr>

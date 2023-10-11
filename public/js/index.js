@@ -128,6 +128,95 @@ function get_lsvar(key) {
 }
 
 /**
+ * Creates a draggable window div with fixed position.
+ * @param {*} id 
+ * @param {*} title 
+ * @param {*} content 
+ * @returns 
+ */
+function create_fixed_window(id, title, left, top, right, bottom, content) {
+  const div_container = document.createElement('div');
+  div_container.id = id;
+  div_container.style.position = 'fixed';
+  div_container.style.left = left != null ? left + 'px' : undefined;
+  div_container.style.top = top != null ? top + 'px' : undefined;
+  div_container.style.right = right != null ? right + 'px' : undefined;
+  div_container.style.bottom = bottom != null ? bottom + 'px' : undefined;
+  div_container.classList.add('box-container');
+
+  const div_box = document.createElement('div');
+  div_box.style.display = 'block';
+  div_box.classList.add('box');
+  div_container.appendChild(div_box);
+
+  const div_box_title = document.createElement('div');
+  div_box_title.style.cursor = 'move';
+  div_box_title.style.userSelect = 'none';
+  div_box_title.classList.add('box-title');
+  div_box_title.textContent = title;
+  const close_anchor = document.createElement('a');
+  close_anchor.text = 'x';
+  close_anchor.href = '#';
+  close_anchor.addEventListener('click', (event) => {
+    event.preventDefault();
+
+    div_container.remove();
+  });
+  const close_anchor_wrapper = document.createElement('div');
+  close_anchor_wrapper.style.float = 'right';
+  close_anchor_wrapper.appendChild(close_anchor);
+  div_box_title.append(close_anchor_wrapper);
+  div_box.appendChild(div_box_title);
+
+  const div_box_content = document.createElement('div');
+  div_box_content.classList.add('box-content');
+  div_box_content.appendChild(content);
+  div_box.appendChild(div_box_content);
+
+  let fixed_box_mouse_down = false;
+  let fixed_box_mouse_offset = { x: 0.0, y: 0.0 };
+
+  div_box_title.addEventListener('mousedown', (event) => {
+    fixed_box_mouse_down = true;
+
+    if (left != null) {
+      fixed_box_mouse_offset.x = div_container.offsetLeft - event.clientX;
+      fixed_box_mouse_offset.y = div_container.offsetTop - event.clientY;
+    } else {
+      const offsetRight = div_container.offsetLeft + div_container.offsetWidth;
+      const offsetBottom = div_container.offsetTop + div_container.offsetHeight;
+
+      fixed_box_mouse_offset.x = offsetRight - event.clientX;
+      fixed_box_mouse_offset.y = offsetBottom - event.clientY;
+    }
+  });
+
+  div_box_title.addEventListener('mouseup', (event) => {
+    fixed_box_mouse_down = false;
+  });
+
+  document.addEventListener('mousemove', (event) => {
+    if (fixed_box_mouse_down) {
+      if (left != null) {
+        const left = event.clientX + fixed_box_mouse_offset.x;
+        const top = event.clientY + fixed_box_mouse_offset.y;
+
+        div_container.style.left = left + 'px';
+        div_container.style.top = top + 'px';
+      } else {
+        const right = (window.innerWidth - event.clientX) - fixed_box_mouse_offset.x;
+        const bottom = (window.innerHeight - event.clientY) - fixed_box_mouse_offset.y;
+
+        div_container.style.right = right + 'px';
+        div_container.style.bottom = bottom + 'px';
+      }
+    }
+  });
+
+  return div_container;
+}
+
+/**
  * Event listener: click on post thumbnail anchor.
  * Expands/shrinks the content.
  * @param {*} event 
@@ -681,37 +770,11 @@ function create_post_highlight(id) {
 }
 
 /**
- * Creates a new settings window div with given list of variables.
+ * Creates a fixed position settings window.
+ * @param {*} target 
+ * @param {*} variables 
  */
 function create_settings_window(target, variables) {
-  const div_container = document.createElement('div');
-  div_container.id = 'settingswindow';
-  div_container.style.position = 'absolute';
-  div_container.style.top = '32px';
-  div_container.style.left = '32px';
-  div_container.classList.add('box-container');
-
-  const div_box = document.createElement('div');
-  div_box.style.display = 'block';
-  div_box.classList.add('box');
-  div_container.appendChild(div_box);
-
-  const div_box_title = document.createElement('div');
-  div_box_title.style.cursor = 'move';
-  div_box_title.classList.add('box-title');
-  div_box_title.textContent = 'Settings';
-  const close_anchor = document.createElement('a');
-  close_anchor.text = 'x';
-  close_anchor.href = '#';
-  close_anchor.addEventListener('click', (event) => {
-    div_container.remove();
-  });
-  const close_anchor_wrapper = document.createElement('div');
-  close_anchor_wrapper.style.float = 'right';
-  close_anchor_wrapper.appendChild(close_anchor);
-  div_box_title.append(close_anchor_wrapper);
-  div_box.appendChild(div_box_title);
-
   const create_settings_variable = (target_div, name, type) => {
     const div_var = document.createElement('div');
     div_var.style.clear = 'both';
@@ -729,7 +792,7 @@ function create_settings_window(target, variables) {
       case 'bool':
         div_var_value_data = document.createElement('input');
         div_var_value_data.type = 'checkbox';
-        div_var_value_data.checked = get_lsvar(name) == 'true';
+        div_var_value_data.checked = get_lsvar(name) === 'true';
         break;
       case 'string':
         div_var_value_data = document.createElement('input');
@@ -753,23 +816,30 @@ function create_settings_window(target, variables) {
     target_div.appendChild(div_var);
   };
 
-  const div_box_content = document.createElement('div');
-  div_box_content.classList.add('box-content');
+  const div_content = document.createElement('div');
 
   variables.forEach((variable) => {
-    create_settings_variable(div_box_content, variable.name, variable.type);
+    create_settings_variable(div_content, variable.name, variable.type);
   });
 
   const btn_apply = document.createElement('button');
   btn_apply.innerText = 'Apply';
   btn_apply.addEventListener('click', (event) => {
     apply_settings();
-  })
-  div_box_content.appendChild(btn_apply);
-
-  div_box.appendChild(div_box_content);
-
-  target.appendChild(div_container);
+  });
+  div_content.appendChild(btn_apply);
+  
+  const target_rect = target.getBoundingClientRect();
+  const div_fixed_window = create_fixed_window(
+    'settingswindow',
+    'Settings',
+    target_rect.left,
+    target_rect.bottom + 4,
+    null,
+    null,
+    div_content
+  );
+  document.body.appendChild(div_fixed_window);
 }
 
 /**
@@ -785,6 +855,26 @@ function apply_settings() {
     }
     style_element.innerHTML = css_override;
     document.head.appendChild(style_element);
+  }
+
+  const postform_detach = get_lsvar('postform_detach');
+  const postform_container_element = document.getElementById('form-post-container');
+  const postform_element = document.getElementById('form-post');
+  const postformwindow_element = document.getElementById('postformwindow');
+  if (postform_detach === 'true' && postform_element && !postformwindow_element) {
+    const div_fixed_window = create_fixed_window(
+      'postformwindow',
+      'Make a post',
+      null,
+      null,
+      0,
+      0,
+      postform_element
+    );
+    document.body.appendChild(div_fixed_window);
+  } else if (postform_detach === 'false' && postform_element && postformwindow_element) {
+    postform_container_element.appendChild(postform_element);
+    postformwindow_element.remove();
   }
 }
 
@@ -1031,6 +1121,24 @@ function init_postform_features() {
   if (post_form != null) {
     let submit_btn = post_form.querySelector('input[type=submit]');
 
+    const create_error_window = (content) => {
+      const div_content = document.createElement('div');
+      div_content.innerHTML = content;
+      const div_fixed_window = create_fixed_window(
+        'errorwindow',
+        'Error',
+        0,
+        0,
+        null,
+        null,
+        div_content
+      );
+      document.body.appendChild(div_fixed_window);
+      const client_rect = div_fixed_window.getBoundingClientRect();
+      div_fixed_window.style.left = (window.innerWidth * 0.5 - client_rect.width * 0.5) + 'px';
+      div_fixed_window.style.top = (window.innerHeight * 0.5 - client_rect.height * 0.5) + 'px';
+    };
+
     post_form.addEventListener('submit', (event) => {
       event.preventDefault();
       
@@ -1051,19 +1159,16 @@ function init_postform_features() {
               }, 250);
             // xxx ERROR, show error window
             } else {
-              open_window('', '_blank', 'location=true,status=true,width=480,height=640')
-                .document.write(data_json['error_message']);
+              create_error_window(data_json['error_message']);
               submit_btn.disabled = false;
             }
           } catch (error) {
-            open_window('', '_blank', 'location=true,status=true,width=480,height=640')
-              .document.write(response);
+            create_error_window(response);
             submit_btn.disabled = false;
           }
         });
       }).catch((error) => {
-        open_window('', '_blank', 'location=true,status=true,width=480,height=640')
-          .document.write(error);
+        create_error_window(error);
         submit_btn.disabled = false;
       });
     });
@@ -1121,11 +1226,14 @@ function init_settings_features() {
   settings_anchor.href = '#';
 
   settings_anchor.addEventListener('click', (event) => {
+    event.preventDefault();
+    
     const existing_element = document.getElementById('settingswindow');
     if (existing_element) {
       existing_element.remove();
     } else {
-      create_settings_window(document.body, [
+      create_settings_window(settings_anchor, [
+        { name: 'postform_detach', type: 'bool' },
         { name: 'css_override', type: 'string_multiline' },
       ]);
     }

@@ -11,7 +11,7 @@
     <hr>
     <?=$this->fetch('common/header.phtml', ['h_title' => "/{$board['id']}/ - {$board['name']}", 'h_subtitle' => $board['desc']])?>
     <hr>
-    <div class="container-centered">
+    <div id="form-post-container" class="container-centered">
       <?=$this->fetch('board/postform.phtml', ['context' => 'board', 'board' => $board, 'action' => "/{$board['id']}"])?>
     </div>
     <hr>
