@@ -108,6 +108,26 @@ function get_cookie(key) {
 }
 
 /**
+ * Set local storage value.
+ * @param {*} key 
+ * @param {*} val 
+ */
+function set_lsvar(key, val) {
+  key = 'miniboard/' + key;
+  localStorage.setItem(key, val);
+}
+
+/**
+ * Get local storage value by key.
+ * @param {*} key 
+ * @returns 
+ */
+function get_lsvar(key) {
+  key = 'miniboard/' + key;
+  return localStorage.getItem(key);
+}
+
+/**
  * Event listener: click on post thumbnail anchor.
  * Expands/shrinks the content.
  * @param {*} event 
@@ -661,6 +681,114 @@ function create_post_highlight(id) {
 }
 
 /**
+ * Creates a new settings window div with given list of variables.
+ */
+function create_settings_window(target, variables) {
+  const div_container = document.createElement('div');
+  div_container.id = 'settingswindow';
+  div_container.style.position = 'absolute';
+  div_container.style.top = '32px';
+  div_container.style.left = '32px';
+  div_container.classList.add('box-container');
+
+  const div_box = document.createElement('div');
+  div_box.style.display = 'block';
+  div_box.classList.add('box');
+  div_container.appendChild(div_box);
+
+  const div_box_title = document.createElement('div');
+  div_box_title.style.cursor = 'move';
+  div_box_title.classList.add('box-title');
+  div_box_title.textContent = 'Settings';
+  const close_anchor = document.createElement('a');
+  close_anchor.text = 'x';
+  close_anchor.href = '#';
+  close_anchor.addEventListener('click', (event) => {
+    div_container.remove();
+  });
+  const close_anchor_wrapper = document.createElement('div');
+  close_anchor_wrapper.style.float = 'right';
+  close_anchor_wrapper.appendChild(close_anchor);
+  div_box_title.append(close_anchor_wrapper);
+  div_box.appendChild(div_box_title);
+
+  const create_settings_variable = (target_div, name, type) => {
+    const div_var = document.createElement('div');
+    div_var.style.clear = 'both';
+    div_var.style.overflow = 'auto';
+    const div_var_name = document.createElement('div');
+    div_var_name.style.float = 'left';
+    div_var_name.style.marginRight = '16px';
+    div_var_name.textContent = name;
+    div_var.appendChild(div_var_name);
+    const div_var_value = document.createElement('div');
+    div_var_value.style.float = 'right';
+
+    let div_var_value_data = null;
+    switch (type) {
+      case 'bool':
+        div_var_value_data = document.createElement('input');
+        div_var_value_data.type = 'checkbox';
+        div_var_value_data.checked = get_lsvar(name) == 'true';
+        break;
+      case 'string':
+        div_var_value_data = document.createElement('input');
+        div_var_value_data.type = 'text';
+        div_var_value_data.value = get_lsvar(name);
+        break;
+      case 'string_multiline':
+        div_var_value_data = document.createElement('textarea');
+        div_var_value_data.rows = '4';
+        div_var_value_data.value = get_lsvar(name);
+        break;
+    }
+    div_var_value_data.addEventListener('change', (event) => {
+      const val_data = type === 'bool' ? event.target.checked : event.target.value;
+      set_lsvar(name, val_data);
+    });
+    div_var_value.appendChild(div_var_value_data);
+
+    div_var.appendChild(div_var_value);
+
+    target_div.appendChild(div_var);
+  };
+
+  const div_box_content = document.createElement('div');
+  div_box_content.classList.add('box-content');
+
+  variables.forEach((variable) => {
+    create_settings_variable(div_box_content, variable.name, variable.type);
+  });
+
+  const btn_apply = document.createElement('button');
+  btn_apply.innerText = 'Apply';
+  btn_apply.addEventListener('click', (event) => {
+    apply_settings();
+  })
+  div_box_content.appendChild(btn_apply);
+
+  div_box.appendChild(div_box_content);
+
+  target.appendChild(div_container);
+}
+
+/**
+ * Applies all currently saved settings.
+ */
+function apply_settings() {
+  const css_override = get_lsvar('css_override');
+  if (css_override != null) {
+    let style_element = document.getElementById('css_override');
+    if (style_element == null) {
+      style_element = document.createElement('style');
+      style_element.id = 'css_override';
+    }
+    style_element.innerHTML = css_override;
+    document.head.appendChild(style_element);
+  }
+}
+
+/**
  * Insert a post ref to the message.
  */
 function insert_ref_to_message(id) {
@@ -980,6 +1108,32 @@ function init_stylepicker_features() {
   });
 }
 
+function init_settings_features() {
+  apply_settings();
+  
+  const boardmenu_element = document.getElementById('boardmenu');
+  if (boardmenu_element == null) {
+    return;
+  }
+  
+  const settings_anchor = document.createElement('a');
+  settings_anchor.text = 'Settings';
+  settings_anchor.href = '#';
+
+  settings_anchor.addEventListener('click', (event) => {
+    const existing_element = document.getElementById('settingswindow');
+    if (existing_element) {
+      existing_element.remove();
+    } else {
+      create_settings_window(document.body, [
+        { name: 'css_override', type: 'string_multiline' },
+      ]);
+    }
+  });
+
+  boardmenu_element.prepend('[', settings_anchor, ']');
+}
+
 document.addEventListener('DOMContentLoaded', function(event) {
   if (!location.pathname.includes('/catalog/') && !location.pathname.includes('/manage/')) {
     console.time('init_post_thumb_links');
@@ -1014,4 +1168,8 @@ document.addEventListener('DOMContentLoaded', function(event) {
   console.time('init_stylepicker_features');
   init_stylepicker_features();
   console.timeEnd('init_stylepicker_features');
+
+  console.time('init_settings_features');
+  init_settings_features();
+  console.timeEnd('init_settings_features');
 });

@@ -57,6 +57,11 @@ hr {
   text-align: left;
   font-size: large;
   padding-left: 0.5em;
+  padding-right: 0.5em;
+}
+
+.box-title a {
+  text-decoration: none;
 }
 
 .box-content {
