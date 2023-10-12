@@ -114,7 +114,7 @@ function get_cookie(key) {
  */
 function set_lsvar(key, val) {
   key = 'miniboard/' + key;
-  localStorage.setItem(key, val);
+  window.localStorage.setItem(key, val);
 }
 
 /**
@@ -124,7 +124,7 @@ function set_lsvar(key, val) {
  */
 function get_lsvar(key) {
   key = 'miniboard/' + key;
-  return localStorage.getItem(key);
+  return window.localStorage.getItem(key);
 }
 
 /**
@@ -823,6 +823,7 @@ function create_settings_window(target, variables) {
   });
 
   const btn_apply = document.createElement('button');
+  btn_apply.type = 'button';
   btn_apply.innerText = 'Apply';
   btn_apply.addEventListener('click', (event) => {
     apply_settings();
