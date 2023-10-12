@@ -124,6 +124,9 @@ div.post-info .backreference * {
 }
 
 /* menubar */
+.menubar-detached {
+  border-bottom: 1px solid #1a1a1a;
+}
 
 /* dropdown menu */
 a.dd-menu-btn {

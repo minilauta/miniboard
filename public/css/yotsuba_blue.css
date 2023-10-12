@@ -149,6 +149,9 @@ a.post-reply-link:hover {
 }
 
 /* menubar */
+.menubar-detached {
+  border-bottom: 1px solid #b7c5d9;
+}
 
 /* dropdown menu */
 a.dd-menu-btn {

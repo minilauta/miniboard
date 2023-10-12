@@ -131,6 +131,9 @@ a.post-reply-link {
 }
 
 /* menubar */
+.menubar-detached {
+  border-bottom: 1px solid #806060;
+}
 
 /* dropdown menu */
 a.dd-menu-btn:hover {

@@ -165,10 +165,6 @@ function create_fixed_window(id, title, left, top, right, bottom, content) {
     fixed_window.element.style.top = top != null ? top + 'px' : undefined;
     fixed_window.element.style.right = right != null ? right + 'px' : undefined;
     fixed_window.element.style.bottom = bottom != null ? bottom + 'px' : undefined;
-
-    console.log('setXY x: ' + x + ', y: ' + y);
-    console.log('setXY left: ' + left + ', top: ' + top);
-    console.log('setXY right: ' + right + ', bottom: ' + bottom);
   };
 
   fixed_window.element.id = id;
@@ -900,6 +896,16 @@ function apply_settings() {
     document.head.appendChild(style_element);
   }
 
+  const menubar_detach = get_lsvar('menubar_detach');
+  const menubar_element = document.getElementById('menubar');
+  if (menubar_detach === 'true' && menubar_element) {
+    menubar_element.classList.add('menubar-detached');
+    document.body.style.padding = '32px 8px 8px 8px';
+  } else if (menubar_detach === 'false' && menubar_element) {
+    menubar_element.classList.remove('menubar-detached');
+    document.body.style.padding = '8px 8px 8px 8px';
+  }
+
   const postform_detach = get_lsvar('postform_detach');
   const postform_container_element = document.getElementById('form-post-container');
   const postform_element = document.getElementById('form-post');
@@ -1278,6 +1284,7 @@ function init_settings_features() {
       existing_element.remove();
     } else {
       create_settings_window(settings_anchor, [
+        { name: 'menubar_detach', type: 'bool' },
         { name: 'postform_detach', type: 'bool' },
         { name: 'css_override', type: 'string_multiline' },
       ]);
