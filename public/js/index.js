@@ -862,7 +862,7 @@ function create_settings_window(target, variables) {
 
   const btn_apply = document.createElement('button');
   btn_apply.type = 'button';
-  btn_apply.innerText = 'Apply';
+  btn_apply.innerHTML = 'Apply';
   btn_apply.addEventListener('click', (event) => {
     apply_settings();
   });
