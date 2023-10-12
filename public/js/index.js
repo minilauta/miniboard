@@ -135,19 +135,51 @@ function get_lsvar(key) {
  * @returns 
  */
 function create_fixed_window(id, title, left, top, right, bottom, content) {
-  const div_container = document.createElement('div');
-  div_container.id = id;
-  div_container.style.position = 'fixed';
-  div_container.style.left = left != null ? left + 'px' : undefined;
-  div_container.style.top = top != null ? top + 'px' : undefined;
-  div_container.style.right = right != null ? right + 'px' : undefined;
-  div_container.style.bottom = bottom != null ? bottom + 'px' : undefined;
-  div_container.classList.add('box-container');
+  let fixed_window = {
+    element: document.createElement('div'),
+    pos: {
+      x: left != null ? left : right,
+      y: top != null ? top : bottom,
+    },
+    mouse_down: false,
+    mouse_offset: {
+      x: 0.0,
+      y: 0.0,
+    }
+  };
+  fixed_window.setXY = function(x, y) {
+    if (left != null) {
+      left = x;
+      top = y;
+    } else {
+      right = x;
+      bottom = y;
+    }
+
+    fixed_window.pos = {
+      x: x,
+      y: y,
+    };
+
+    fixed_window.element.style.left = left != null ? left + 'px' : undefined;
+    fixed_window.element.style.top = top != null ? top + 'px' : undefined;
+    fixed_window.element.style.right = right != null ? right + 'px' : undefined;
+    fixed_window.element.style.bottom = bottom != null ? bottom + 'px' : undefined;
+
+    console.log('setXY x: ' + x + ', y: ' + y);
+    console.log('setXY left: ' + left + ', top: ' + top);
+    console.log('setXY right: ' + right + ', bottom: ' + bottom);
+  };
+
+  fixed_window.element.id = id;
+  fixed_window.element.style.position = 'fixed';
+  fixed_window.setXY(left || right, top || bottom);
+  fixed_window.element.classList.add('box-container');
 
   const div_box = document.createElement('div');
   div_box.style.display = 'block';
   div_box.classList.add('box');
-  div_container.appendChild(div_box);
+  fixed_window.element.appendChild(div_box);
 
   const div_box_title = document.createElement('div');
   div_box_title.style.cursor = 'move';
@@ -160,7 +192,7 @@ function create_fixed_window(id, title, left, top, right, bottom, content) {
   close_anchor.addEventListener('click', (event) => {
     event.preventDefault();
 
-    div_container.remove();
+    fixed_window.element.remove();
   });
   const close_anchor_wrapper = document.createElement('div');
   close_anchor_wrapper.style.float = 'right';
@@ -173,47 +205,57 @@ function create_fixed_window(id, title, left, top, right, bottom, content) {
   div_box_content.appendChild(content);
   div_box.appendChild(div_box_content);
 
-  let fixed_box_mouse_down = false;
-  let fixed_box_mouse_offset = { x: 0.0, y: 0.0 };
+  const down_handler = (event) => {
+    event.preventDefault();
 
-  div_box_title.addEventListener('mousedown', (event) => {
-    fixed_box_mouse_down = true;
+    const clientX = event.clientX || event.touches[0].clientX;
+    const clientY = event.clientY || event.touches[0].clientY;
 
-    if (left != null) {
-      fixed_box_mouse_offset.x = div_container.offsetLeft - event.clientX;
-      fixed_box_mouse_offset.y = div_container.offsetTop - event.clientY;
-    } else {
-      const offsetRight = div_container.offsetLeft + div_container.offsetWidth;
-      const offsetBottom = div_container.offsetTop + div_container.offsetHeight;
+    fixed_window.mouse_down = true;
+    fixed_window.mouse_offset.x = clientX;
+    fixed_window.mouse_offset.y = clientY;
+  };
 
-      fixed_box_mouse_offset.x = offsetRight - event.clientX;
-      fixed_box_mouse_offset.y = offsetBottom - event.clientY;
-    }
-  });
+  const up_handler = (event) => {
+    event.preventDefault();
+    
+    fixed_window.mouse_down = false;
+  };
 
-  div_box_title.addEventListener('mouseup', (event) => {
-    fixed_box_mouse_down = false;
-  });
+  const move_handler = (event) => {
+    if (fixed_window.mouse_down) {
+      event.preventDefault();
 
-  document.addEventListener('mousemove', (event) => {
-    if (fixed_box_mouse_down) {
+      const clientX = event.clientX || event.touches[0].clientX;
+      const clientY = event.clientY || event.touches[0].clientY;
+
       if (left != null) {
-        const left = event.clientX + fixed_box_mouse_offset.x;
-        const top = event.clientY + fixed_box_mouse_offset.y;
+        fixed_window.pos.x += clientX - fixed_window.mouse_offset.x;
+        fixed_window.pos.y += clientY - fixed_window.mouse_offset.y;
 
-        div_container.style.left = left + 'px';
-        div_container.style.top = top + 'px';
+        fixed_window.element.style.left = fixed_window.pos.x + 'px';
+        fixed_window.element.style.top = fixed_window.pos.y + 'px';
       } else {
-        const right = (window.innerWidth - event.clientX) - fixed_box_mouse_offset.x;
-        const bottom = (window.innerHeight - event.clientY) - fixed_box_mouse_offset.y;
+        fixed_window.pos.x += fixed_window.mouse_offset.x - clientX;
+        fixed_window.pos.y += fixed_window.mouse_offset.y - clientY;
 
-        div_container.style.right = right + 'px';
-        div_container.style.bottom = bottom + 'px';
+        fixed_window.element.style.right = fixed_window.pos.x + 'px';
+        fixed_window.element.style.bottom = fixed_window.pos.y + 'px';
       }
+      
+      fixed_window.mouse_offset.x = clientX;
+      fixed_window.mouse_offset.y = clientY;
     }
-  });
+  };
 
-  return div_container;
+  div_box_title.addEventListener('mousedown', down_handler);
+  div_box_title.addEventListener('touchstart', down_handler);
+  div_box_title.addEventListener('mouseup', up_handler);
+  div_box_title.addEventListener('touchend', up_handler);
+  document.addEventListener('mousemove', move_handler);
+  document.addEventListener('touchmove', move_handler);
+
+  return fixed_window;
 }
 
 /**
@@ -840,7 +882,7 @@ function create_settings_window(target, variables) {
     null,
     div_content
   );
-  document.body.appendChild(div_fixed_window);
+  document.body.appendChild(div_fixed_window.element);
 }
 
 /**
@@ -872,7 +914,7 @@ function apply_settings() {
       0,
       postform_element
     );
-    document.body.appendChild(div_fixed_window);
+    document.body.appendChild(div_fixed_window.element);
   } else if (postform_detach === 'false' && postform_element && postformwindow_element) {
     postform_container_element.appendChild(postform_element);
     postformwindow_element.remove();
@@ -1125,7 +1167,7 @@ function init_postform_features() {
     const create_error_window = (content) => {
       const div_content = document.createElement('div');
       div_content.innerHTML = content;
-      const div_fixed_window = create_fixed_window(
+      const fixed_window = create_fixed_window(
         'errorwindow',
         'Error',
         0,
@@ -1134,10 +1176,12 @@ function init_postform_features() {
         null,
         div_content
       );
-      document.body.appendChild(div_fixed_window);
-      const client_rect = div_fixed_window.getBoundingClientRect();
-      div_fixed_window.style.left = (window.innerWidth * 0.5 - client_rect.width * 0.5) + 'px';
-      div_fixed_window.style.top = (window.innerHeight * 0.5 - client_rect.height * 0.5) + 'px';
+      document.body.appendChild(fixed_window.element);
+      const client_rect = fixed_window.element.getBoundingClientRect();
+      fixed_window.setXY(
+        window.innerWidth * 0.5 - client_rect.width * 0.5,
+        window.innerHeight * 0.5 - client_rect.height * 0.5
+      );
     };
 
     post_form.addEventListener('submit', (event) => {
