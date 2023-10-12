@@ -197,6 +197,10 @@ div.post-message pre {
   font-weight: bold;
 }
 
+.catalog {
+  text-align: center;
+}
+
 div.post-catalog {
   display: inline-block;
   width: 150px;
