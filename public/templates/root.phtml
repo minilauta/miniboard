@@ -3,6 +3,7 @@
   <head>
     <?=$this->fetch('common/meta.phtml')?>
     <?=$this->fetch('common/styles.phtml')?>
+    <?=$this->fetch('common/scripts.phtml')?>
     <title><?=$site_name?> - <?=$site_desc?></title>
   </head>
   <body>
@@ -95,12 +96,9 @@
         </div>
       </div>
     </div>
-
     <hr>
     <div class="container-centered">
       <?=$this->fetch('common/footer.phtml')?>
     </div>
-
-    <?=$this->fetch('common/scripts.phtml')?>
   </body>
 </html>

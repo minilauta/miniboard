@@ -3,6 +3,7 @@
   <head>
     <?=$this->fetch('common/meta.phtml')?>
     <?=$this->fetch('common/styles.phtml')?>
+    <?=$this->fetch('common/scripts.phtml')?>
     <?php
       $title = "/{$board['id']}/ - ";
       if (strlen($thread['subject']) > 0) {
@@ -31,7 +32,5 @@
     <div class="container-centered">
       <?=$this->fetch('common/footer.phtml')?>
     </div>
-
-    <?=$this->fetch('common/scripts.phtml')?>
   </body>
 </html>
