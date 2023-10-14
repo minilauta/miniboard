@@ -35,6 +35,8 @@ var state = {
   audio_volume: 0.1,
   video_volume: 0.1,
   swf_volume: 0.1,
+  audio_loop: false,
+  video_loop: false,
 };
 
 /**
@@ -304,6 +306,9 @@ function listener_post_thumb_link_click(event) {
         video.setAttribute('onloadstart', 'this.volume=' + state.video_volume);
         video.setAttribute('autoplay', 'true');
         video.setAttribute('controls', 'true');
+        if (state.video_loop) {
+          video.setAttribute('loop', state.video_loop);
+        }
         video.style.maxWidth = '85vw';
         video.style.height = 'auto';
         video.style.cursor = 'default';
@@ -320,6 +325,9 @@ function listener_post_thumb_link_click(event) {
         audio.setAttribute('onloadstart', 'this.volume=' + state.audio_volume);
         audio.setAttribute('autoplay', 'true');
         audio.setAttribute('controls', 'true');
+        if (state.audio_loop) {
+          audio.setAttribute('loop', state.audio_loop);
+        }
         audio.style.width = target.width + 'px';
         audio.style.cursor = 'default';
 
@@ -942,6 +950,8 @@ function apply_settings() {
   state.audio_volume = parseFloat(get_lsvar('audio_volume') || 0.1);
   state.video_volume = parseFloat(get_lsvar('video_volume') || 0.1);
   state.swf_volume = parseFloat(get_lsvar('swf_volume') || 0.1);
+  state.audio_loop = get_lsvar('audio_loop') === 'true' || false;
+  state.video_loop = get_lsvar('video_loop') === 'true' || false;
 }
 
 /**
@@ -1330,8 +1340,10 @@ function init_settings_features() {
       create_settings_window(settings_anchor, [
         { name: 'menubar_detach', type: 'bool' },
         { name: 'postform_detach', type: 'bool' },
-        { name: 'video_volume', type: 'float_slider', min: 0, max: 1, step: 0.1 },
+        { name: 'audio_loop', type: 'bool' },
+        { name: 'video_loop', type: 'bool' },
         { name: 'audio_volume', type: 'float_slider', min: 0, max: 1, step: 0.1 },
+        { name: 'video_volume', type: 'float_slider', min: 0, max: 1, step: 0.1 },
         { name: 'swf_volume', type: 'float_slider', min: 0, max: 1, step: 0.1 },
         { name: 'css_override', type: 'string_multiline' },
       ]);
