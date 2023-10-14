@@ -55,6 +55,10 @@ module.exports = {
         {
           from: path.resolve(__dirname, 'node_modules', '@ruffle-rs', 'ruffle'),
           to: path.resolve(__dirname, 'public', 'dist')
+        },
+        {
+          from: path.resolve(__dirname, 'public', 'vendor', 'tegaki'),
+          to: path.resolve(__dirname, 'public', 'dist')
         }
       ]
     })
