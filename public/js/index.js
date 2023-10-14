@@ -31,7 +31,10 @@ window.RufflePlayer.config = {
 // app state
 var state = {
   mouse_over_post_ref_link: false,
-  post_preview_cache: {}
+  post_preview_cache: {},
+  audio_volume: 0.1,
+  video_volume: 0.1,
+  swf_volume: 0.1,
 };
 
 /**
@@ -298,7 +301,7 @@ function listener_post_thumb_link_click(event) {
         let source = document.createElement('source');
         source.src = file_href;
         let video = document.createElement('video');
-        video.setAttribute('onloadstart', 'this.volume=0.25');
+        video.setAttribute('onloadstart', 'this.volume=' + state.video_volume);
         video.setAttribute('autoplay', 'true');
         video.setAttribute('controls', 'true');
         video.style.maxWidth = '85vw';
@@ -314,7 +317,7 @@ function listener_post_thumb_link_click(event) {
       case 'flac':
         let audio = document.createElement('audio');
         audio.src = file_href;
-        audio.setAttribute('onloadstart', 'this.volume=0.25');
+        audio.setAttribute('onloadstart', 'this.volume=' + state.audio_volume);
         audio.setAttribute('autoplay', 'true');
         audio.setAttribute('controls', 'true');
         audio.style.width = target.width + 'px';
@@ -327,6 +330,9 @@ function listener_post_thumb_link_click(event) {
 
         const ruffle = window.RufflePlayer.newest();
         const player = ruffle.createPlayer();
+        player.style.minWidth = (window.innerWidth * 0.5) + 'px';
+        player.style.maxWidth = (window.innerWidth * 0.85) + 'px';
+        player.style.height = (window.innerHeight * 0.5) + 'px';
 
         current.appendChild(player);
         player.load({
@@ -334,7 +340,7 @@ function listener_post_thumb_link_click(event) {
           autoplay: 'on',
           allowScriptAccess: false,
         }).then(() => {
-          player.volume = 0.25;
+          player.volume = state.swf_volume;
         });
         break;
       case 'embed':
@@ -342,10 +348,9 @@ function listener_post_thumb_link_click(event) {
 
         let embed = document.createElement('div');
         embed.innerHTML = decodeURIComponent(file_data);
-        embed.style.width = '33vw';
-        embed.style.maxWidth = '33vw';
-        embed.style.height = '33vh';
-        embed.style.maxHeight = '33vh';
+        embed.style.minWidth = '50vw';
+        embed.style.maxWidth = '85vw';
+        embed.style.height = '50vh';
         embed.firstElementChild.width = '100%';
         embed.firstElementChild.height = '100%';
 
@@ -813,39 +818,47 @@ function create_post_highlight(id) {
  * @param {*} variables 
  */
 function create_settings_window(target, variables) {
-  const create_settings_variable = (target_div, name, type) => {
+  const create_settings_variable = (target_div, variable) => {
     const div_var = document.createElement('div');
     div_var.style.clear = 'both';
     div_var.style.overflow = 'auto';
     const div_var_name = document.createElement('div');
     div_var_name.style.float = 'left';
     div_var_name.style.marginRight = '16px';
-    div_var_name.textContent = name;
+    div_var_name.textContent = variable.name;
     div_var.appendChild(div_var_name);
     const div_var_value = document.createElement('div');
     div_var_value.style.float = 'right';
 
     let div_var_value_data = null;
-    switch (type) {
+    switch (variable.type) {
       case 'bool':
         div_var_value_data = document.createElement('input');
         div_var_value_data.type = 'checkbox';
-        div_var_value_data.checked = get_lsvar(name) === 'true';
+        div_var_value_data.checked = get_lsvar(variable.name) === 'true';
         break;
       case 'string':
         div_var_value_data = document.createElement('input');
         div_var_value_data.type = 'text';
-        div_var_value_data.value = get_lsvar(name);
+        div_var_value_data.value = get_lsvar(variable.name);
         break;
       case 'string_multiline':
         div_var_value_data = document.createElement('textarea');
         div_var_value_data.rows = '4';
-        div_var_value_data.value = get_lsvar(name);
+        div_var_value_data.value = get_lsvar(variable.name);
+        break;
+      case 'float_slider':
+        div_var_value_data = document.createElement('input');
+        div_var_value_data.type = 'range';
+        div_var_value_data.min = variable.min;
+        div_var_value_data.max = variable.max;
+        div_var_value_data.step = variable.step;
+        div_var_value_data.value = get_lsvar(variable.name);
         break;
     }
     div_var_value_data.addEventListener('change', (event) => {
-      const val_data = type === 'bool' ? event.target.checked : event.target.value;
-      set_lsvar(name, val_data);
+      const val_data = variable.type === 'bool' ? event.target.checked : event.target.value;
+      set_lsvar(variable.name, val_data);
     });
     div_var_value.appendChild(div_var_value_data);
 
@@ -857,7 +870,7 @@ function create_settings_window(target, variables) {
   const div_content = document.createElement('div');
 
   variables.forEach((variable) => {
-    create_settings_variable(div_content, variable.name, variable.type);
+    create_settings_variable(div_content, variable);
   });
 
   const btn_apply = document.createElement('button');
@@ -925,6 +938,10 @@ function apply_settings() {
     postform_container_element.appendChild(postform_element);
     postformwindow_element.remove();
   }
+
+  state.audio_volume = parseFloat(get_lsvar('audio_volume') || 0.1);
+  state.video_volume = parseFloat(get_lsvar('video_volume') || 0.1);
+  state.swf_volume = parseFloat(get_lsvar('swf_volume') || 0.1);
 }
 
 /**
@@ -1286,6 +1303,9 @@ function init_settings_features() {
       create_settings_window(settings_anchor, [
         { name: 'menubar_detach', type: 'bool' },
         { name: 'postform_detach', type: 'bool' },
+        { name: 'video_volume', type: 'float_slider', min: 0, max: 1, step: 0.1 },
+        { name: 'audio_volume', type: 'float_slider', min: 0, max: 1, step: 0.1 },
+        { name: 'swf_volume', type: 'float_slider', min: 0, max: 1, step: 0.1 },
         { name: 'css_override', type: 'string_multiline' },
       ]);
     }
