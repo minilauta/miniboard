@@ -378,3 +378,9 @@ table.form-manage-table {
 .form-manage td * {
   padding: 0px;
 }
+
+/* animations */
+@keyframes marquee {
+  0%   { transform: translate(100%, 0); }
+  100% { transform: translate(-100%, 0); }
+}

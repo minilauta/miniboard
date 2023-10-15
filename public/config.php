@@ -141,6 +141,8 @@ define('MB_BOARDS', [
       'video/mp4'           => ['mp4'],
       'video/webm'          => ['webm'],
       'audio/mpeg'          => ['mp3'],
+      'audio/x-mod'         => ['mod', 'xm'],
+      'audio/x-s3m'         => ['s3m'],
       'application/x-shockwave-flash' => ['swf']
     ],
     'embed_types'       => [

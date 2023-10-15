@@ -28,6 +28,9 @@ window.RufflePlayer.config = {
   'preloader': true,
 };
 
+// chiptune2.js player
+window.libopenmpt = {};
+
 // app state
 var state = {
   mouse_over_post_ref_link: false,
@@ -37,6 +40,10 @@ var state = {
   swf_volume: 0.1,
   audio_loop: false,
   video_loop: false,
+  chiptune2js: {
+    player: null,
+    interval: null,
+  },
 };
 
 /**
@@ -281,6 +288,16 @@ function listener_post_thumb_link_click(event) {
       case 'flac':
         current.lastElementChild.remove();
         break;
+      case 'mod':
+      case 'xm':
+      case 's3m':
+        if (state.chiptune2js.player != null) {
+          clearInterval(state.chiptune2js.interval);
+          state.chiptune2js.player.stop();
+        }
+
+        current.lastElementChild.remove();
+        break;
       default:
         target.remove();
         break;
@@ -303,6 +320,10 @@ function listener_post_thumb_link_click(event) {
         let source = document.createElement('source');
         source.src = file_href;
         let video = document.createElement('video');
+        video.addEventListener('click', (event) => {
+          event.preventDefault();
+          event.stopPropagation();
+        });
         video.setAttribute('onloadstart', 'this.volume=' + state.video_volume);
         video.setAttribute('autoplay', 'true');
         video.setAttribute('controls', 'true');
@@ -321,6 +342,10 @@ function listener_post_thumb_link_click(event) {
       case 'opus':
       case 'flac':
         let audio = document.createElement('audio');
+        audio.addEventListener('click', (event) => {
+          event.preventDefault();
+          event.stopPropagation();
+        });
         audio.src = file_href;
         audio.setAttribute('onloadstart', 'this.volume=' + state.audio_volume);
         audio.setAttribute('autoplay', 'true');
@@ -332,6 +357,59 @@ function listener_post_thumb_link_click(event) {
         audio.style.cursor = 'default';
 
         current.appendChild(audio);
+        break;
+      case 'mod':
+      case 'xm':
+      case 's3m':
+        let wrapper = document.createElement('div');
+        wrapper.addEventListener('click', (event) => {
+          event.preventDefault();
+          event.stopPropagation();
+        });
+        wrapper.style.width = target.width + 'px';
+        wrapper.style.cursor = 'default';
+        let mod_meta = document.createElement('div');
+        mod_meta.style.overflow = 'hidden';
+        mod_meta.style.whiteSpace = 'nowrap';
+        mod_meta.style.width = wrapper.style.width;
+        wrapper.appendChild(mod_meta);
+        let mod_pos = document.createElement('input');
+        mod_pos.setAttribute('type', 'range');
+        mod_pos.style.width = wrapper.style.width;
+        wrapper.appendChild(mod_pos);
+
+        if (state.chiptune2js.player != null) {
+          state.chiptune2js.player.stop();
+        } else {
+          state.chiptune2js.player = new ChiptuneJsPlayer(new ChiptuneJsConfig(-1));
+        }
+
+        state.chiptune2js.player.load(file_href, (data) => {
+          state.chiptune2js.player.play(data);
+
+          const metadata = state.chiptune2js.player.metadata();
+          let mod_meta_scroll = document.createElement('div');
+          mod_meta_scroll.style.display = 'inline-block';
+          mod_meta_scroll.style.animation = 'marquee 10s linear infinite';
+          mod_meta_scroll.innerHTML += 'TITLE: ' + metadata.title;
+          mod_meta_scroll.innerHTML += ', ';
+          mod_meta_scroll.innerHTML += 'TRACKER: ' + metadata.tracker;
+          mod_meta_scroll.innerHTML += ', ';
+          mod_meta_scroll.innerHTML += 'TYPE: ' + metadata.type_long;
+          mod_meta.appendChild(mod_meta_scroll);
+
+          mod_pos.setAttribute('min', '0');
+          mod_pos.setAttribute('max', state.chiptune2js.player.duration());
+          mod_pos.setAttribute('value', '0');
+
+          state.chiptune2js.interval = setInterval(() => {
+            if (state.chiptune2js.player != null && state.chiptune2js.player.currentPlayingNode != null) {
+              mod_pos.value = state.chiptune2js.player.getCurrentTime();
+            }
+          }, 1000);
+        });
+
+        current.appendChild(wrapper);
         break;
       case 'swf':
         target.style.display = 'none';
@@ -355,6 +433,10 @@ function listener_post_thumb_link_click(event) {
         target.style.display = 'none';
 
         let embed = document.createElement('div');
+        embed.addEventListener('click', (event) => {
+          event.preventDefault();
+          event.stopPropagation();
+        });
         embed.innerHTML = decodeURIComponent(file_data);
         embed.style.minWidth = '50vw';
         embed.style.maxWidth = '85vw';

@@ -244,7 +244,19 @@ function funcs_board_validate_upload(UploadedFileInterface $input, bool $no_file
   if (!isset($mime_types[$file_mime])) {
     throw new AppException('funcs_board', 'validate_upload', "file mime type invalid: {$file_mime}", SC_BAD_REQUEST);
   }
-  $file_ext = $mime_types[$file_mime];
+  $file_exts = $mime_types[$file_mime];
+
+  if (count($file_exts) > 1) {
+    $file_ext_idx = array_search(strtolower($file_ext_pathinfo), $file_exts);
+
+    if ($file_ext_idx === false) {
+      throw new AppException('funcs_board', 'validate_upload', "file extension invalid: {$file_ext_pathinfo}", SC_BAD_REQUEST);
+    }
+
+    $file_ext = $file_exts[$file_ext_idx];
+  } else {
+    $file_ext = $file_exts[0];
+  }
 
   // validate file size
   $file_size = filesize($tmp_file);
@@ -258,7 +270,7 @@ function funcs_board_validate_upload(UploadedFileInterface $input, bool $no_file
   return [
     'tmp'            => $tmp_file,
     'mime'           => $file_mime,
-    'ext'            => $file_ext[0],
+    'ext'            => $file_ext,
     'size'           => $file_size,
     'md5'            => $file_md5
   ];
@@ -370,13 +382,22 @@ function funcs_board_execute_upload(UploadedFileInterface $file, ?array $file_in
           $thumb_width = $generated_thumb['thumb_width'];
           $thumb_height = $generated_thumb['thumb_height'];
         } else {
-          $thumb_file_name = '';
-          $thumb_dir = '';
+          $thumb_file_name = 'audio.png';
+          $thumb_dir = '/static/';
           $image_width = 0;
           $image_height = 0;
-          $thumb_width = 0;
-          $thumb_height = 0;
+          $thumb_width = 250;
+          $thumb_height = 250;
         }
+        break;
+      case 'audio/x-mod':
+      case 'audio/x-s3m':
+        $thumb_file_name = 'mod.png';
+        $thumb_dir = '/static/';
+        $image_width = 0;
+        $image_height = 0;
+        $thumb_width = 250;
+        $thumb_height = 250;
         break;
       case 'application/x-shockwave-flash':
         $thumb_file_name = 'swf.png';
