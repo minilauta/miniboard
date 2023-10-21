@@ -335,12 +335,6 @@ function listener_post_thumb_link_click(event) {
 
   const expand = function(target, current) {
     const finfo = get_finfo(current);
-
-    // shrink any elements that are already expanded
-    const exp_elements = document.querySelectorAll('[expanded="true"]');
-    Array.from(exp_elements).forEach((exp_element) => {
-      shrink(exp_element.lastElementChild, exp_element);
-    });
     
     // expand the selected element
     switch (finfo.file_ext) {
@@ -503,6 +497,19 @@ function listener_post_thumb_link_click(event) {
         break;
     }
 
+    // shrink specific media elements that were already expanded
+    const exp_elements = document.querySelectorAll('[expanded="true"]');
+    Array.from(exp_elements).forEach((exp_element) => {
+      const shrink_types = ['AUDIO', 'VIDEO', 'RUFFLE-PLAYER', 'DIV'];
+      const exp_node_type = exp_element.lastElementChild.nodeName;
+      const curr_node_type = current.lastElementChild.nodeName;
+
+      if (shrink_types.includes(exp_node_type) && shrink_types.includes(curr_node_type)) {
+        shrink(exp_element.lastElementChild, exp_element);
+      }
+    });
+
+    // make expanded element shrinkable via an anchor element
     let anchor = document.createElement('a');
     anchor.href = '';
     anchor.innerHTML = '[-]';
