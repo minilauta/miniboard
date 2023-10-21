@@ -38,6 +38,7 @@ var state = {
   audio_volume: 0.1,
   video_volume: 0.1,
   swf_volume: 0.1,
+  mod_stereo: 0.5,
   audio_loop: false,
   video_loop: false,
   audio_autoclose: false,
@@ -419,7 +420,12 @@ function listener_post_thumb_link_click(event) {
         if (state.chiptune2js.player != null) {
           state.chiptune2js.player.stop();
         } else {
-          state.chiptune2js.player = new ChiptuneJsPlayer(new ChiptuneJsConfig(-1));
+          state.chiptune2js.player = new ChiptuneJsPlayer(new ChiptuneJsConfig(
+            -1,
+            state.mod_stereo * 100.0,
+            undefined,
+            undefined
+          ));
         }
 
         state.chiptune2js.player.load(finfo.file_href, (data) => {
@@ -1064,6 +1070,7 @@ function apply_settings() {
   state.audio_volume = parseFloat(get_lsvar('audio_volume') || 0.1);
   state.video_volume = parseFloat(get_lsvar('video_volume') || 0.1);
   state.swf_volume = parseFloat(get_lsvar('swf_volume') || 0.1);
+  state.mod_stereo = parseFloat(get_lsvar('mod_stereo') || 0.5);
   state.audio_loop = get_lsvar('audio_loop') === 'true' || false;
   state.video_loop = get_lsvar('video_loop') === 'true' || false;
   state.audio_autoclose = get_lsvar('audio_autoclose') === 'true' || false;
@@ -1463,6 +1470,7 @@ function init_settings_features() {
         { name: 'audio_volume', type: 'float_slider', min: 0, max: 1, step: 0.1 },
         { name: 'video_volume', type: 'float_slider', min: 0, max: 1, step: 0.1 },
         { name: 'swf_volume', type: 'float_slider', min: 0, max: 1, step: 0.1 },
+        { name: 'mod_stereo', type: 'float_slider', min: 0, max: 1, step: 0.1 },
         { name: 'css_override', type: 'string_multiline' },
       ]);
     }
