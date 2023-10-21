@@ -2,10 +2,6 @@
 
 Minimalistic imageboard software, written in PHP 8 with the help of Slim 4 micro framework.
 
-# NOTE
-
-This software is currently a work in progress. Breaking changes are to be expected. For example, the SQL migrations are still being changed in-place, instead of using incremental migrations properly. This is because we want the baseline database schema to be sensible and optimal.
-
 # Dev commands
 
 ## Install deps
@@ -71,4 +67,3 @@ By default, the persistent volumes created by the claims have retain policy set 
 # Screenshots
 
 ![Example screenshot](/.docs/screenshot.png "Example screenshot")
-*As you can see, quite a few features are yet to be implemented...*
