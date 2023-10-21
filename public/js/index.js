@@ -40,6 +40,8 @@ var state = {
   swf_volume: 0.1,
   audio_loop: false,
   video_loop: false,
+  audio_autoclose: false,
+  video_autoclose: false,
   chiptune2js: {
     player: null,
     interval: null,
@@ -357,7 +359,7 @@ function listener_post_thumb_link_click(event) {
         video.setAttribute('controls', 'true');
         if (state.video_loop) {
           video.setAttribute('loop', state.video_loop);
-        } else {
+        } else if (state.video_autoclose) {
           video.addEventListener('ended', () => {
             shrink(current.lastElementChild, current);
           });
@@ -384,7 +386,7 @@ function listener_post_thumb_link_click(event) {
         audio.setAttribute('controls', 'true');
         if (state.audio_loop) {
           audio.setAttribute('loop', state.audio_loop);
-        } else {
+        } else if (state.audio_autoclose) {
           audio.addEventListener('ended', () => {
             shrink(current.lastElementChild, current);
           });
@@ -1064,6 +1066,8 @@ function apply_settings() {
   state.swf_volume = parseFloat(get_lsvar('swf_volume') || 0.1);
   state.audio_loop = get_lsvar('audio_loop') === 'true' || false;
   state.video_loop = get_lsvar('video_loop') === 'true' || false;
+  state.audio_autoclose = get_lsvar('audio_autoclose') === 'true' || false;
+  state.video_autoclose = get_lsvar('video_autoclose') === 'true' || false;
 }
 
 /**
@@ -1454,6 +1458,8 @@ function init_settings_features() {
         { name: 'postform_detach', type: 'bool' },
         { name: 'audio_loop', type: 'bool' },
         { name: 'video_loop', type: 'bool' },
+        { name: 'audio_autoclose', type: 'bool' },
+        { name: 'video_autoclose', type: 'bool' },
         { name: 'audio_volume', type: 'float_slider', min: 0, max: 1, step: 0.1 },
         { name: 'video_volume', type: 'float_slider', min: 0, max: 1, step: 0.1 },
         { name: 'swf_volume', type: 'float_slider', min: 0, max: 1, step: 0.1 },
