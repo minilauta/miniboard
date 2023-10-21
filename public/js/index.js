@@ -329,6 +329,10 @@ function listener_post_thumb_link_click(event) {
         video.setAttribute('controls', 'true');
         if (state.video_loop) {
           video.setAttribute('loop', state.video_loop);
+        } else {
+          video.addEventListener('ended', () => {
+            shrink(current.lastElementChild, current, file_info, file_ext);
+          });
         }
         video.style.maxWidth = '85vw';
         video.style.height = 'auto';
@@ -352,6 +356,10 @@ function listener_post_thumb_link_click(event) {
         audio.setAttribute('controls', 'true');
         if (state.audio_loop) {
           audio.setAttribute('loop', state.audio_loop);
+        } else {
+          audio.addEventListener('ended', () => {
+            shrink(current.lastElementChild, current, file_info, file_ext);
+          });
         }
         audio.style.width = target.width + 'px';
         audio.style.cursor = 'default';
