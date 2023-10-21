@@ -275,13 +275,32 @@ function listener_post_thumb_link_click(event) {
   event.preventDefault();
   event.stopPropagation();
 
-  let target = event.target;
-  let current = event.currentTarget;
+  let event_target = event.target;
+  let event_current = event.currentTarget;
 
-  const shrink = function(target, current, file_info, file_ext) {
+  const get_finfo = function(element) {
+    let file_info = element.parentElement.parentElement.getElementsByClassName('file-info');
+    file_info = file_info.length > 0 ? file_info[0] : null;
+    let file_data = element.parentElement.parentElement.getElementsByClassName('file-data');
+    file_data = file_data.length > 0 ? file_data[0].innerHTML : null;
+    file_data = file_data.length > 0 ? file_data : null;
+    const file_href = element.href;
+    let file_ext = file_data == null ? file_href.split('.').pop().toLowerCase() : 'embed';
+
+    return {
+      file_info,
+      file_data,
+      file_href,
+      file_ext,
+    };
+  };
+
+  const shrink = function(target, current) {
+    const finfo = get_finfo(current);
+
     current.firstElementChild.style.display = null;
 
-    switch (file_ext) {
+    switch (finfo.file_ext) {
       case 'mp3':
       case 'ogg':
       case 'opus':
@@ -303,7 +322,7 @@ function listener_post_thumb_link_click(event) {
         break;
     }
 
-    const file_shrink = file_info.getElementsByClassName('file-shrink-href');
+    const file_shrink = finfo.file_info.getElementsByClassName('file-shrink-href');
     if (file_shrink.length > 0) {
       file_shrink[0].remove();
     }
@@ -311,14 +330,23 @@ function listener_post_thumb_link_click(event) {
     current.setAttribute('expanded', 'false');
   };
 
-  const expand = function(target, current, file_info, file_href, file_ext, file_data) {
-    switch (file_ext) {
+  const expand = function(target, current) {
+    const finfo = get_finfo(current);
+
+    // shrink any elements that are already expanded
+    const exp_elements = document.querySelectorAll('[expanded="true"]');
+    Array.from(exp_elements).forEach((exp_element) => {
+      shrink(exp_element.lastElementChild, exp_element);
+    });
+    
+    // expand the selected element
+    switch (finfo.file_ext) {
       case 'mp4':
       case 'webm':
         target.style.display = 'none';
         
         let source = document.createElement('source');
-        source.src = file_href;
+        source.src = finfo.file_href;
         let video = document.createElement('video');
         video.addEventListener('click', (event) => {
           event.preventDefault();
@@ -331,7 +359,7 @@ function listener_post_thumb_link_click(event) {
           video.setAttribute('loop', state.video_loop);
         } else {
           video.addEventListener('ended', () => {
-            shrink(current.lastElementChild, current, file_info, file_ext);
+            shrink(current.lastElementChild, current);
           });
         }
         video.style.maxWidth = '85vw';
@@ -350,7 +378,7 @@ function listener_post_thumb_link_click(event) {
           event.preventDefault();
           event.stopPropagation();
         });
-        audio.src = file_href;
+        audio.src = finfo.file_href;
         audio.setAttribute('onloadstart', 'this.volume=' + state.audio_volume);
         audio.setAttribute('autoplay', 'true');
         audio.setAttribute('controls', 'true');
@@ -358,7 +386,7 @@ function listener_post_thumb_link_click(event) {
           audio.setAttribute('loop', state.audio_loop);
         } else {
           audio.addEventListener('ended', () => {
-            shrink(current.lastElementChild, current, file_info, file_ext);
+            shrink(current.lastElementChild, current);
           });
         }
         audio.style.width = target.width + 'px';
@@ -392,7 +420,7 @@ function listener_post_thumb_link_click(event) {
           state.chiptune2js.player = new ChiptuneJsPlayer(new ChiptuneJsConfig(-1));
         }
 
-        state.chiptune2js.player.load(file_href, (data) => {
+        state.chiptune2js.player.load(finfo.file_href, (data) => {
           state.chiptune2js.player.play(data);
 
           const metadata = state.chiptune2js.player.metadata();
@@ -430,7 +458,7 @@ function listener_post_thumb_link_click(event) {
 
         current.appendChild(player);
         player.load({
-          url: file_href,
+          url: finfo.file_href,
           autoplay: 'on',
           allowScriptAccess: false,
         }).then(() => {
@@ -445,7 +473,7 @@ function listener_post_thumb_link_click(event) {
           event.preventDefault();
           event.stopPropagation();
         });
-        embed.innerHTML = decodeURIComponent(file_data);
+        embed.innerHTML = decodeURIComponent(finfo.file_data);
         embed.style.minWidth = '50vw';
         embed.style.maxWidth = '85vw';
         embed.style.height = '50vh';
@@ -458,7 +486,7 @@ function listener_post_thumb_link_click(event) {
         target.style.display = 'none';
 
         let img = document.createElement('img');
-        img.src = file_href;
+        img.src = finfo.file_href;
         img.style.maxWidth = '85vw';
         img.style.height = 'auto';
         img.loading = 'lazy';
@@ -475,26 +503,20 @@ function listener_post_thumb_link_click(event) {
       event.preventDefault();
       event.stopPropagation();
 
-      shrink(current.lastElementChild, current, file_info, file_ext);
+      shrink(current.lastElementChild, current);
     }
-    file_info.prepend(anchor);
+    finfo.file_info.prepend(anchor);
 
     current.setAttribute('expanded', 'true');
   };
-
-  let file_info = current.parentElement.parentElement.getElementsByClassName('file-info');
-  file_info = file_info.length > 0 ? file_info[0] : null;
-  let file_data = current.parentElement.parentElement.getElementsByClassName('file-data');
-  file_data = file_data.length > 0 ? file_data[0].innerHTML : null;
-  file_data = file_data.length > 0 ? file_data : null;
-  const file_href = current.href;
-  let file_ext = file_data == null ? file_href.split('.').pop().toLowerCase() : 'embed';
   
-  if (current.getAttribute('expanded') !== 'true') {
-    expand(target, current, file_info, file_href, file_ext, file_data);
+  if (event_current.getAttribute('expanded') !== 'true') {
+    expand(event_target, event_current);
   } else {
-    if (file_ext !== 'swf') {
-      shrink(target, current, file_info, file_ext);
+    // TODO: this is a hack, to prevent SWF from closing on click
+    const finfo = get_finfo(event_current);
+    if (finfo.file_ext !== 'swf') {
+      shrink(event_target, event_current);
     }
   }
 }
