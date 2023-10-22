@@ -305,6 +305,7 @@ function listener_post_thumb_link_click(event) {
 
     switch (finfo.file_ext) {
       case 'mp3':
+      case 'wav':
       case 'ogg':
       case 'opus':
       case 'flac':
@@ -312,6 +313,7 @@ function listener_post_thumb_link_click(event) {
         break;
       case 'mod':
       case 'xm':
+      case 'it':
       case 's3m':
         if (state.chiptune2js.player != null) {
           clearInterval(state.chiptune2js.interval);
@@ -367,6 +369,7 @@ function listener_post_thumb_link_click(event) {
         current.appendChild(video);
         break;
       case 'mp3':
+      case 'wav':
       case 'ogg':
       case 'opus':
       case 'flac':
@@ -393,6 +396,7 @@ function listener_post_thumb_link_click(event) {
         break;
       case 'mod':
       case 'xm':
+      case 'it':
       case 's3m':
         let wrapper = document.createElement('div');
         wrapper.addEventListener('click', (event) => {

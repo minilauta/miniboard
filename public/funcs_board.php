@@ -364,9 +364,11 @@ function funcs_board_execute_upload(UploadedFileInterface $file, ?array $file_in
         $thumb_height = $generated_thumb['thumb_height'];
         break;
       case 'audio/mpeg':
+      case 'audio/wav':
+      case 'audio/x-wav':
+      case 'audio/vnd.wave':
       case 'audio/flac':
       case 'audio/opus':
-      case 'application/ogg':
       case 'audio/ogg':
         $album_file_path = __DIR__ . '/src/' . 'album_' . $file_name;
         if ($file_info['mime'] === 'audio/mpeg') {
