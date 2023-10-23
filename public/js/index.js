@@ -38,7 +38,7 @@ var state = {
   audio_volume: 0.1,
   video_volume: 0.1,
   swf_volume: 0.1,
-  mod_stereo: 0.5,
+  mod_stereo: 1.0,
   audio_loop: false,
   video_loop: false,
   audio_autoclose: false,
@@ -50,7 +50,7 @@ var state = {
 };
 
 /**
- * Open a new window, center if possible.
+ * Open a new browser window, center if possible.
  * @param {*} url 
  * @param {*} target 
  * @param {*} features 
@@ -80,7 +80,7 @@ function open_window(url, target, features) {
 }
 
 /**
- * Set cookie value.
+ * Set cookie value by key.
  * @param {*} key 
  * @param {*} val 
  * @param {*} samesite 
@@ -123,7 +123,7 @@ function get_cookie(key) {
 }
 
 /**
- * Set local storage value.
+ * Set local storage value by key.
  * @param {*} key 
  * @param {*} val 
  */
@@ -143,9 +143,13 @@ function get_lsvar(key) {
 }
 
 /**
- * Creates a draggable window div with fixed position.
+ * Creates a draggable fixed position 'window' div.
  * @param {*} id 
  * @param {*} title 
+ * @param {*} left 
+ * @param {*} top 
+ * @param {*} right 
+ * @param {*} bottom 
  * @param {*} content 
  * @returns 
  */
@@ -585,7 +589,10 @@ function listener_dropdown_menu_button_click(event) {
             type: 'li',
             text: 'Search: SauceNAO',
             data: {
-              cmd: 'search_saucenao',
+              cmd: 'search_thumb',
+              cmd_data: {
+                url: 'https://saucenao.com/search.php?url=',
+              },
               board_id: data.board_id,
               id: data.id
             }
@@ -593,7 +600,10 @@ function listener_dropdown_menu_button_click(event) {
             type: 'li',
             text: 'Search: IQDB',
             data: {
-              cmd: 'search_iqdb',
+              cmd: 'search_thumb',
+              cmd_data: {
+                url: 'http://iqdb.org/?url=',
+              },
               board_id: data.board_id,
               id: data.id
             }
@@ -601,7 +611,10 @@ function listener_dropdown_menu_button_click(event) {
             type: 'li',
             text: 'Search: IQDB 3D',
             data: {
-              cmd: 'search_iqdb3d',
+              cmd: 'search_thumb',
+              cmd_data: {
+                url: 'http://3d.iqdb.org/?url=',
+              },
               board_id: data.board_id,
               id: data.id
             }
@@ -609,7 +622,10 @@ function listener_dropdown_menu_button_click(event) {
             type: 'li',
             text: 'Search: ASCII2D',
             data: {
-              cmd: 'search_ascii2d',
+              cmd: 'search_thumb',
+              cmd_data: {
+                url: 'https://ascii2d.net/search/url/',
+              },
               board_id: data.board_id,
               id: data.id
             }
@@ -617,7 +633,10 @@ function listener_dropdown_menu_button_click(event) {
             type: 'li',
             text: 'Search: TinEye',
             data: {
-              cmd: 'search_tineye',
+              cmd: 'search_thumb',
+              cmd_data: {
+                url: 'https://tineye.com/search?url=',
+              },
               board_id: data.board_id,
               id: data.id
             }
@@ -742,29 +761,9 @@ function listener_post_reference_link_mouseleave(event) {
       xhr.open('POST', '/' + data.board_id + '/' + data.id + '/hide', true);
       xhr.send();
       break;
-    case 'search_saucenao':
+    case 'search_thumb':
       if (thumb != null) {
-        open_window('https://saucenao.com/search.php?url=' + thumb.src, '_blank');
-      }
-      break;
-    case 'search_iqdb':
-      if (thumb != null) {
-        open_window('http://iqdb.org/?url=' + thumb.src, '_blank');
-      }
-      break;
-    case 'search_iqdb3d':
-      if (thumb != null) {
-        open_window('http://3d.iqdb.org/?url=' + thumb.src, '_blank');
-      }
-      break;
-    case 'search_ascii2d':
-      if (thumb != null) {
-        open_window('https://ascii2d.net/search/url/' + thumb.src, '_blank');
-      }
-      break;
-    case 'search_tineye':
-      if (thumb != null) {
-        open_window('https://tineye.com/search?url=' + thumb.src, '_blank');
+        open_window(data.url + thumb.src, '_blank');
       }
       break;
     default:
@@ -801,6 +800,11 @@ function create_dropdown_menu(target, board_id, parent_id, id, rect, indices) {
       case 'li':
         let li = document.createElement('li');
         li.dataset.cmd = indice.data.cmd;
+        if (indice.data.cmd_data != null) {
+          for (const [key, value] of Object.entries(indice.data.cmd_data)) {
+            li.dataset[key] = value;
+          }
+        }
         li.dataset.board_id = indice.data.board_id;
         li.dataset.id = indice.data.id;
         li.innerHTML = indice.text;
@@ -897,7 +901,7 @@ function create_post_preview(target, board_id, parent_id, id, rect, content) {
 }
 
 /**
- * Deletes an existing dropdown menu.
+ * Deletes an existing dropdown menu by id.
  * @param {number} id 
  */
 function delete_dropdown_menu(id) {
@@ -919,7 +923,8 @@ function delete_dropdown_menu(id) {
 }
 
 /**
- * Deletes all existing post previews.
+ * Deletes all existing post previews under target element.
+ * @param {*} target 
  */
 function delete_post_previews(target) {
   if (target == null) {
@@ -933,7 +938,8 @@ function delete_post_previews(target) {
 }
 
 /**
- * Highlights a post.
+ * Highlights a post by id.
+ * @param {*} id 
  */
 function create_post_highlight(id) {
   // cleanup old highlights
@@ -1081,7 +1087,7 @@ function apply_settings() {
   state.audio_volume = parseFloat(get_lsvar('audio_volume') || 0.1);
   state.video_volume = parseFloat(get_lsvar('video_volume') || 0.1);
   state.swf_volume = parseFloat(get_lsvar('swf_volume') || 0.1);
-  state.mod_stereo = parseFloat(get_lsvar('mod_stereo') || 0.5);
+  state.mod_stereo = parseFloat(get_lsvar('mod_stereo') || 1.0);
   state.audio_loop = get_lsvar('audio_loop') === 'true' || false;
   state.video_loop = get_lsvar('video_loop') === 'true' || false;
   state.audio_autoclose = get_lsvar('audio_autoclose') === 'true' || false;
@@ -1089,7 +1095,9 @@ function apply_settings() {
 }
 
 /**
- * Insert a post ref to the message.
+ * Insert a post id ref to the message.
+ * @param {*} id 
+ * @returns 
  */
 function insert_ref_to_message(id) {
   let postform_message = document.getElementById('form-post-message');
@@ -1108,6 +1116,8 @@ function insert_ref_to_message(id) {
 
 /**
  * Insert a formatting tag to the message.
+ * @param {*} format 
+ * @returns 
  */
 function insert_format_to_message(format) {
   let postform_message = document.getElementById('form-post-message');
@@ -1127,7 +1137,8 @@ function insert_format_to_message(format) {
 }
 
 /**
- * Initializes all post file thumbnail hrefs.
+ * Initializes all post file thumbnail hrefs under target element.
+ * @param {*} target 
  */
 function init_post_thumb_links(target) {
   if (target == null) {
@@ -1141,7 +1152,8 @@ function init_post_thumb_links(target) {
 }
 
 /**
- * Initializes all dropdown menu buttons.
+ * Initializes all dropdown menu buttons under target element.
+ * @param {*} target 
  */
 function init_dropdown_menu_buttons(target) {
   if (target == null) {
@@ -1157,6 +1169,7 @@ function init_dropdown_menu_buttons(target) {
 
 /**
  * Initializes all post reference links under target element.
+ * @param {*} target 
  */
 function init_post_reference_links(target) {
   if (target == null) {
@@ -1172,6 +1185,7 @@ function init_post_reference_links(target) {
 
 /**
  * Initializes all post backreference links under target element.
+ * @param {*} target 
  */
 function init_post_backreference_links(target) {
   if (target == null) {
@@ -1249,6 +1263,7 @@ function init_post_backreference_links(target) {
 
 /**
  * Initializes all post hashid fields with unique RGB color hash under target element.
+ * @param {*} target 
  */
 function init_post_hashid_features(target) {
   if (target == null) {
@@ -1438,6 +1453,9 @@ function init_postform_features() {
   }
 }
 
+/**
+ * Initializes features related to the style select element.
+ */
 function init_stylepicker_features() {
   const stylepicker_element = document.getElementById('stylepicker');
   if (stylepicker_element == null) {
@@ -1452,6 +1470,9 @@ function init_stylepicker_features() {
   });
 }
 
+/**
+ * Initializes features related to the settings menu button.
+ */
 function init_settings_features() {
   apply_settings();
   
