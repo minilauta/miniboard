@@ -44,7 +44,7 @@ hr {
   /* TODO: align td contents... how? */
 }
 
-.box-container {
+.page-root .box-container {
   margin-bottom: 8px;
 }
 
@@ -57,6 +57,11 @@ hr {
   text-align: left;
   font-size: large;
   padding-left: 0.5em;
+  padding-right: 0.5em;
+}
+
+.box-title a {
+  text-decoration: none;
 }
 
 .box-content {
@@ -192,6 +197,10 @@ div.post-message pre {
   font-weight: bold;
 }
 
+.catalog {
+  text-align: center;
+}
+
 div.post-catalog {
   display: inline-block;
   width: 150px;
@@ -227,14 +236,30 @@ div.deleteform-group {
 }
 
 /* menubar */
-div.menubar div.boardlist {
-  float: left;
-  text-align: left;
+.menubar {
+  margin-bottom: 32px;
 }
 
-div.menubar div.boardmenu {
+.menubar select {
+  font-size: 100%;
+  padding: 0px;
+  border: none;
+}
+
+.menubar .boardlist {
+  float: left;
+}
+
+.menubar .boardmenu {
   float: right;
-  text-align: right;
+}
+
+.menubar-detached {
+  position: fixed;
+  left: 0px;
+  right: 0px;
+  top: 0px;
+  background: inherit;
 }
 
 /* dropdown menu */
@@ -352,4 +377,10 @@ table.form-manage-table {
 
 .form-manage td * {
   padding: 0px;
+}
+
+/* animations */
+@keyframes marquee {
+  0%   { transform: translate(100%, 0); }
+  100% { transform: translate(-100%, 0); }
 }

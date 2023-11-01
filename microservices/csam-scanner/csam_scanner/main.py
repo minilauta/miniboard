@@ -14,7 +14,7 @@ MIME_TYPES_IMAGE = [
     'image/jpeg',
     'image/pjpeg',
     'image/png',
-    'image/gif',
+#    'image/gif',
     'image/bmp',
     'image/tiff',
     'image/webp'

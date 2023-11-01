@@ -108,7 +108,8 @@ data:
         'maxkb'             => 0,
         'nofileok'          => false,
         'max_width'         => 0,
-        'max_height'        => 0
+        'max_height'        => 0,
+        'nsfw'              => true,
       ],
       'b' => [
         'id'                => 'b',
@@ -153,6 +154,7 @@ data:
         'maxkb'             => 24000,
         'nofileok'          => false,
         'max_width'         => 250,
-        'max_height'        => 250
+        'max_height'        => 250,
+        'nsfw'              => true,
       ]
     ]);

@@ -3,11 +3,12 @@
   <head>
     <?=$this->fetch('common/meta.phtml')?>
     <?=$this->fetch('common/styles.phtml')?>
+    <?=$this->fetch('common/scripts.phtml')?>
     <title><?=$site_name?> - <?=$site_desc?></title>
   </head>
   <body>
-    <div class="menubar">
-			<div class="boardmenu">
+    <div id="menubar" class="menubar">
+			<div id="boardmenu" class="boardmenu">
         [<a href="/manage/">Manage</a>]
 				<?=$this->fetch('common/stylepicker.phtml')?>
 			</div>
@@ -33,7 +34,8 @@
                     echo '<tr>';
                   }
 
-                  echo "<td><a href='/{$board['id']}/'>{$board['name']}</a></td>";
+                  $nsfw = isset($board['nsfw']) && $board['nsfw'] === true ? '<span class="nsfw">(NSFW)</span>' : '';
+                  echo "<td><a href='/{$board['id']}/'>{$board['name']}</a> {$nsfw}</td>";
 
                   if ($board_table_n % 4 === 3) {
                     echo '</tr>';
@@ -94,12 +96,9 @@
         </div>
       </div>
     </div>
-
     <hr>
     <div class="container-centered">
       <?=$this->fetch('common/footer.phtml')?>
     </div>
-
-    <?=$this->fetch('common/scripts.phtml')?>
   </body>
 </html>

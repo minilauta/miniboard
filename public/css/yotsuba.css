@@ -21,6 +21,10 @@ a:hover {
 }
 
 /* root/general */
+.page-root a {
+  text-decoration: none;
+}
+
 .box-title {
   background: #fca;
   font-weight: bold;
@@ -28,6 +32,11 @@ a:hover {
 
 .box-content {
   background: #ffffff;
+}
+
+.nsfw {
+  color: #FF0000;
+  font-weight: bold;
 }
 
 /* footer */
@@ -135,6 +144,9 @@ a.post-reply-link:hover {
 }
 
 /* menubar */
+.menubar-detached {
+  border-bottom: 1px solid #d9bfb7;
+}
 
 /* dropdown menu */
 a.dd-menu-btn {

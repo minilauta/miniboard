@@ -3,6 +3,7 @@
   <head>
     <?=$this->fetch('common/meta.phtml')?>
     <?=$this->fetch('common/styles.phtml')?>
+    <?=$this->fetch('common/scripts.phtml')?>
     <title>/<?=$board['id']?>/ - Catalog</title>
   </head>
   <body>
@@ -13,7 +14,7 @@
     <hr>
     [<a href="../">Return</a>]
     <div class="mode">Catalog</div>
-    <div class="container-centered">
+    <div id="form-post-container" class="container-centered">
       <?=$this->fetch('board/postform.phtml', ['context' => 'board', 'board' => $board, 'action' => "/{$board['id']}"])?>
     </div>
     <hr>
@@ -29,7 +30,5 @@
     <div class="container-centered">
       <?=$this->fetch('common/footer.phtml')?>
     </div>
-
-    <?=$this->fetch('common/scripts.phtml')?>
   </body>
 </html>

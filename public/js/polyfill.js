@@ -66,3 +66,30 @@ import 'whatwg-fetch';
 		});
 	});
 })([Element.prototype, CharacterData.prototype, DocumentType.prototype]);
+
+(function (ls) {
+  if (ls == null) {
+    console.log('polyfill.js: window.localStorage does not exist, using in-memory polyfill');
+
+    const lsMock = (() => {
+      let _data = {};
+    
+      return {
+        getItem(key) {
+          return _data[key] || null;
+        },
+        setItem(key, value) {
+          _data[key] = value.toString();
+        },
+        removeItem(key) {
+          delete _data[key];
+        },
+        clear() {
+          _data = {};
+        }
+      };
+    })();
+
+    Object.defineProperty(window, 'localStorage', { value: lsMock });
+  }
+})(window.localStorage);

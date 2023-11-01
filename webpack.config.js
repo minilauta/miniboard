@@ -54,7 +54,15 @@ module.exports = {
       patterns: [
         {
           from: path.resolve(__dirname, 'node_modules', '@ruffle-rs', 'ruffle'),
-          to: path.resolve(__dirname, 'public', 'dist')
+          to: path.resolve(__dirname, 'public', 'dist', 'ruffle')
+        },
+        {
+          from: path.resolve(__dirname, 'public', 'vendor', 'tegaki'),
+          to: path.resolve(__dirname, 'public', 'dist', 'tegaki')
+        },
+        {
+          from: path.resolve(__dirname, 'public', 'vendor', 'chiptune2js'),
+          to: path.resolve(__dirname, 'public', 'dist', 'chiptune2js')
         }
       ]
     })

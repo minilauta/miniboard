@@ -28,14 +28,29 @@ window.RufflePlayer.config = {
   'preloader': true,
 };
 
+// chiptune2.js player
+window.libopenmpt = {};
+
 // app state
 var state = {
   mouse_over_post_ref_link: false,
-  post_preview_cache: {}
+  post_preview_cache: {},
+  audio_volume: 0.1,
+  video_volume: 0.1,
+  swf_volume: 0.1,
+  mod_stereo: 1.0,
+  audio_loop: false,
+  video_loop: false,
+  audio_autoclose: false,
+  video_autoclose: false,
+  chiptune2js: {
+    player: null,
+    interval: null,
+  },
 };
 
 /**
- * Open a new window, center if possible.
+ * Open a new browser window, center if possible.
  * @param {*} url 
  * @param {*} target 
  * @param {*} features 
@@ -65,7 +80,7 @@ function open_window(url, target, features) {
 }
 
 /**
- * Set cookie value.
+ * Set cookie value by key.
  * @param {*} key 
  * @param {*} val 
  * @param {*} samesite 
@@ -108,6 +123,157 @@ function get_cookie(key) {
 }
 
 /**
+ * Set local storage value by key.
+ * @param {*} key 
+ * @param {*} val 
+ */
+function set_lsvar(key, val) {
+  key = 'miniboard/' + key;
+  window.localStorage.setItem(key, val);
+}
+
+/**
+ * Get local storage value by key.
+ * @param {*} key 
+ * @returns 
+ */
+function get_lsvar(key) {
+  key = 'miniboard/' + key;
+  return window.localStorage.getItem(key);
+}
+
+/**
+ * Creates a draggable fixed position 'window' div.
+ * @param {*} id 
+ * @param {*} title 
+ * @param {*} left 
+ * @param {*} top 
+ * @param {*} right 
+ * @param {*} bottom 
+ * @param {*} content 
+ * @returns 
+ */
+function create_fixed_window(id, title, left, top, right, bottom, content) {
+  let fixed_window = {
+    element: document.createElement('div'),
+    pos: {
+      x: left != null ? left : right,
+      y: top != null ? top : bottom,
+    },
+    mouse_down: false,
+    mouse_offset: {
+      x: 0.0,
+      y: 0.0,
+    }
+  };
+  fixed_window.setXY = function(x, y) {
+    if (left != null) {
+      left = x;
+      top = y;
+    } else {
+      right = x;
+      bottom = y;
+    }
+
+    fixed_window.pos = {
+      x: x,
+      y: y,
+    };
+
+    fixed_window.element.style.left = left != null ? left + 'px' : undefined;
+    fixed_window.element.style.top = top != null ? top + 'px' : undefined;
+    fixed_window.element.style.right = right != null ? right + 'px' : undefined;
+    fixed_window.element.style.bottom = bottom != null ? bottom + 'px' : undefined;
+  };
+
+  fixed_window.element.id = id;
+  fixed_window.element.style.position = 'fixed';
+  fixed_window.setXY(left || right, top || bottom);
+  fixed_window.element.classList.add('box-container');
+
+  const div_box = document.createElement('div');
+  div_box.style.display = 'block';
+  div_box.classList.add('box');
+  fixed_window.element.appendChild(div_box);
+
+  const div_box_title = document.createElement('div');
+  div_box_title.style.cursor = 'move';
+  div_box_title.style.userSelect = 'none';
+  div_box_title.classList.add('box-title');
+  div_box_title.textContent = title;
+  const close_anchor = document.createElement('a');
+  close_anchor.text = 'x';
+  close_anchor.href = '#';
+  close_anchor.addEventListener('click', (event) => {
+    event.preventDefault();
+
+    fixed_window.element.remove();
+  });
+  const close_anchor_wrapper = document.createElement('div');
+  close_anchor_wrapper.style.float = 'right';
+  close_anchor_wrapper.appendChild(close_anchor);
+  div_box_title.append(close_anchor_wrapper);
+  div_box.appendChild(div_box_title);
+
+  const div_box_content = document.createElement('div');
+  div_box_content.classList.add('box-content');
+  div_box_content.appendChild(content);
+  div_box.appendChild(div_box_content);
+
+  const down_handler = (event) => {
+    event.preventDefault();
+
+    const clientX = event.clientX || event.touches[0].clientX;
+    const clientY = event.clientY || event.touches[0].clientY;
+
+    fixed_window.mouse_down = true;
+    fixed_window.mouse_offset.x = clientX;
+    fixed_window.mouse_offset.y = clientY;
+  };
+
+  const up_handler = (event) => {
+    event.preventDefault();
+    
+    fixed_window.mouse_down = false;
+  };
+
+  const move_handler = (event) => {
+    if (fixed_window.mouse_down) {
+      event.preventDefault();
+
+      const clientX = event.clientX || event.touches[0].clientX;
+      const clientY = event.clientY || event.touches[0].clientY;
+
+      if (left != null) {
+        fixed_window.pos.x += clientX - fixed_window.mouse_offset.x;
+        fixed_window.pos.y += clientY - fixed_window.mouse_offset.y;
+
+        fixed_window.element.style.left = fixed_window.pos.x + 'px';
+        fixed_window.element.style.top = fixed_window.pos.y + 'px';
+      } else {
+        fixed_window.pos.x += fixed_window.mouse_offset.x - clientX;
+        fixed_window.pos.y += fixed_window.mouse_offset.y - clientY;
+
+        fixed_window.element.style.right = fixed_window.pos.x + 'px';
+        fixed_window.element.style.bottom = fixed_window.pos.y + 'px';
+      }
+      
+      fixed_window.mouse_offset.x = clientX;
+      fixed_window.mouse_offset.y = clientY;
+    }
+  };
+
+  div_box_title.addEventListener('mousedown', down_handler);
+  div_box_title.addEventListener('touchstart', down_handler);
+  div_box_title.addEventListener('mouseup', up_handler);
+  div_box_title.addEventListener('touchend', up_handler);
+  document.addEventListener('mousemove', move_handler);
+  document.addEventListener('touchmove', move_handler);
+
+  return fixed_window;
+}
+
+/**
  * Event listener: click on post thumbnail anchor.
  * Expands/shrinks the content.
  * @param {*} event 
@@ -116,17 +282,48 @@ function listener_post_thumb_link_click(event) {
   event.preventDefault();
   event.stopPropagation();
 
-  let target = event.target;
-  let current = event.currentTarget;
+  let event_target = event.target;
+  let event_current = event.currentTarget;
 
-  const shrink = function(target, current, file_info, file_ext) {
+  const get_finfo = function(element) {
+    let file_info = element.parentElement.parentElement.getElementsByClassName('file-info');
+    file_info = file_info.length > 0 ? file_info[0] : null;
+    let file_data = element.parentElement.parentElement.getElementsByClassName('file-data');
+    file_data = file_data.length > 0 ? file_data[0].innerHTML : null;
+    file_data = file_data.length > 0 ? file_data : null;
+    const file_href = element.href;
+    let file_ext = file_data == null ? file_href.split('.').pop().toLowerCase() : 'embed';
+
+    return {
+      file_info,
+      file_data,
+      file_href,
+      file_ext,
+    };
+  };
+
+  const shrink = function(target, current) {
+    const finfo = get_finfo(current);
+
     current.firstElementChild.style.display = null;
 
-    switch (file_ext) {
+    switch (finfo.file_ext) {
       case 'mp3':
+      case 'wav':
       case 'ogg':
       case 'opus':
       case 'flac':
+        current.lastElementChild.remove();
+        break;
+      case 'mod':
+      case 'xm':
+      case 'it':
+      case 's3m':
+        if (state.chiptune2js.player != null) {
+          clearInterval(state.chiptune2js.interval);
+          state.chiptune2js.player.stop();
+        }
+
         current.lastElementChild.remove();
         break;
       default:
@@ -134,7 +331,7 @@ function listener_post_thumb_link_click(event) {
         break;
     }
 
-    const file_shrink = file_info.getElementsByClassName('file-shrink-href');
+    const file_shrink = finfo.file_info.getElementsByClassName('file-shrink-href');
     if (file_shrink.length > 0) {
       file_shrink[0].remove();
     }
@@ -142,18 +339,32 @@ function listener_post_thumb_link_click(event) {
     current.setAttribute('expanded', 'false');
   };
 
-  const expand = function(target, current, file_info, file_href, file_ext, file_data) {
-    switch (file_ext) {
+  const expand = function(target, current) {
+    const finfo = get_finfo(current);
+    
+    // expand the selected element
+    switch (finfo.file_ext) {
       case 'mp4':
       case 'webm':
         target.style.display = 'none';
         
         let source = document.createElement('source');
-        source.src = file_href;
+        source.src = finfo.file_href;
         let video = document.createElement('video');
-        video.setAttribute('onloadstart', 'this.volume=0.25');
+        video.addEventListener('click', (event) => {
+          event.preventDefault();
+          event.stopPropagation();
+        });
+        video.setAttribute('onloadstart', 'this.volume=' + state.video_volume);
         video.setAttribute('autoplay', 'true');
         video.setAttribute('controls', 'true');
+        if (state.video_loop) {
+          video.setAttribute('loop', state.video_loop);
+        } else if (state.video_autoclose) {
+          video.addEventListener('ended', () => {
+            shrink(current.lastElementChild, current);
+          });
+        }
         video.style.maxWidth = '85vw';
         video.style.height = 'auto';
         video.style.cursor = 'default';
@@ -162,43 +373,120 @@ function listener_post_thumb_link_click(event) {
         current.appendChild(video);
         break;
       case 'mp3':
+      case 'wav':
       case 'ogg':
       case 'opus':
       case 'flac':
         let audio = document.createElement('audio');
-        audio.src = file_href;
-        audio.setAttribute('onloadstart', 'this.volume=0.25');
+        audio.addEventListener('click', (event) => {
+          event.preventDefault();
+          event.stopPropagation();
+        });
+        audio.src = finfo.file_href;
+        audio.setAttribute('onloadstart', 'this.volume=' + state.audio_volume);
         audio.setAttribute('autoplay', 'true');
         audio.setAttribute('controls', 'true');
+        if (state.audio_loop) {
+          audio.setAttribute('loop', state.audio_loop);
+        } else if (state.audio_autoclose) {
+          audio.addEventListener('ended', () => {
+            shrink(current.lastElementChild, current);
+          });
+        }
         audio.style.width = target.width + 'px';
         audio.style.cursor = 'default';
 
         current.appendChild(audio);
+        break;
+      case 'mod':
+      case 'xm':
+      case 'it':
+      case 's3m':
+        let wrapper = document.createElement('div');
+        wrapper.addEventListener('click', (event) => {
+          event.preventDefault();
+          event.stopPropagation();
+        });
+        wrapper.style.width = target.width + 'px';
+        wrapper.style.cursor = 'default';
+        let mod_meta = document.createElement('div');
+        mod_meta.style.overflow = 'hidden';
+        mod_meta.style.whiteSpace = 'nowrap';
+        mod_meta.style.width = wrapper.style.width;
+        wrapper.appendChild(mod_meta);
+        let mod_pos = document.createElement('input');
+        mod_pos.setAttribute('type', 'range');
+        mod_pos.style.width = wrapper.style.width;
+        wrapper.appendChild(mod_pos);
+
+        if (state.chiptune2js.player != null) {
+          state.chiptune2js.player.stop();
+        } else {
+          state.chiptune2js.player = new ChiptuneJsPlayer(new ChiptuneJsConfig(
+            -1,
+            state.mod_stereo * 100.0,
+            undefined,
+            undefined
+          ));
+        }
+
+        state.chiptune2js.player.load(finfo.file_href, (data) => {
+          state.chiptune2js.player.play(data);
+
+          const metadata = state.chiptune2js.player.metadata();
+          let mod_meta_scroll = document.createElement('div');
+          mod_meta_scroll.style.display = 'inline-block';
+          mod_meta_scroll.style.animation = 'marquee 10s linear infinite';
+          mod_meta_scroll.innerHTML += 'TITLE: ' + metadata.title;
+          mod_meta_scroll.innerHTML += ', ';
+          mod_meta_scroll.innerHTML += 'TRACKER: ' + metadata.tracker;
+          mod_meta_scroll.innerHTML += ', ';
+          mod_meta_scroll.innerHTML += 'TYPE: ' + metadata.type_long;
+          mod_meta.appendChild(mod_meta_scroll);
+
+          mod_pos.setAttribute('min', '0');
+          mod_pos.setAttribute('max', state.chiptune2js.player.duration());
+          mod_pos.setAttribute('value', '0');
+
+          state.chiptune2js.interval = setInterval(() => {
+            if (state.chiptune2js.player != null && state.chiptune2js.player.currentPlayingNode != null) {
+              mod_pos.value = state.chiptune2js.player.getCurrentTime();
+            }
+          }, 1000);
+        });
+
+        current.appendChild(wrapper);
         break;
       case 'swf':
         target.style.display = 'none';
 
         const ruffle = window.RufflePlayer.newest();
         const player = ruffle.createPlayer();
+        player.style.minWidth = (window.innerWidth * 0.5) + 'px';
+        player.style.maxWidth = (window.innerWidth * 0.85) + 'px';
+        player.style.height = (window.innerHeight * 0.5) + 'px';
 
         current.appendChild(player);
         player.load({
-          url: file_href,
+          url: finfo.file_href,
           autoplay: 'on',
           allowScriptAccess: false,
         }).then(() => {
-          player.volume = 0.25;
+          player.volume = state.swf_volume;
         });
         break;
       case 'embed':
         target.style.display = 'none';
 
         let embed = document.createElement('div');
-        embed.innerHTML = decodeURIComponent(file_data);
-        embed.style.width = '33vw';
-        embed.style.maxWidth = '33vw';
-        embed.style.height = '33vh';
-        embed.style.maxHeight = '33vh';
+        embed.addEventListener('click', (event) => {
+          event.preventDefault();
+          event.stopPropagation();
+        });
+        embed.innerHTML = decodeURIComponent(finfo.file_data);
+        embed.style.minWidth = '50vw';
+        embed.style.maxWidth = '85vw';
+        embed.style.height = '50vh';
         embed.firstElementChild.width = '100%';
         embed.firstElementChild.height = '100%';
 
@@ -208,7 +496,7 @@ function listener_post_thumb_link_click(event) {
         target.style.display = 'none';
 
         let img = document.createElement('img');
-        img.src = file_href;
+        img.src = finfo.file_href;
         img.style.maxWidth = '85vw';
         img.style.height = 'auto';
         img.loading = 'lazy';
@@ -217,6 +505,19 @@ function listener_post_thumb_link_click(event) {
         break;
     }
 
+    // shrink specific media elements that were already expanded
+    const exp_elements = document.querySelectorAll('[expanded="true"]');
+    Array.from(exp_elements).forEach((exp_element) => {
+      const shrink_types = ['AUDIO', 'VIDEO', 'RUFFLE-PLAYER', 'DIV'];
+      const exp_node_type = exp_element.lastElementChild.nodeName;
+      const curr_node_type = current.lastElementChild.nodeName;
+
+      if (shrink_types.includes(exp_node_type) && shrink_types.includes(curr_node_type)) {
+        shrink(exp_element.lastElementChild, exp_element);
+      }
+    });
+
+    // make expanded element shrinkable via an anchor element
     let anchor = document.createElement('a');
     anchor.href = '';
     anchor.innerHTML = '[-]';
@@ -225,26 +526,20 @@ function listener_post_thumb_link_click(event) {
       event.preventDefault();
       event.stopPropagation();
 
-      shrink(current.lastElementChild, current, file_info, file_ext);
+      shrink(current.lastElementChild, current);
     }
-    file_info.prepend(anchor);
+    finfo.file_info.prepend(anchor);
 
     current.setAttribute('expanded', 'true');
   };
-
-  let file_info = current.parentElement.parentElement.getElementsByClassName('file-info');
-  file_info = file_info.length > 0 ? file_info[0] : null;
-  let file_data = current.parentElement.parentElement.getElementsByClassName('file-data');
-  file_data = file_data.length > 0 ? file_data[0].innerHTML : null;
-  file_data = file_data.length > 0 ? file_data : null;
-  const file_href = current.href;
-  let file_ext = file_data == null ? file_href.split('.').pop().toLowerCase() : 'embed';
   
-  if (current.getAttribute('expanded') !== 'true') {
-    expand(target, current, file_info, file_href, file_ext, file_data);
+  if (event_current.getAttribute('expanded') !== 'true') {
+    expand(event_target, event_current);
   } else {
-    if (file_ext !== 'swf') {
-      shrink(target, current, file_info, file_ext);
+    // TODO: this is a hack, to prevent SWF from closing on click
+    const finfo = get_finfo(event_current);
+    if (finfo.file_ext !== 'swf') {
+      shrink(event_target, event_current);
     }
   }
 }
@@ -294,7 +589,10 @@ function listener_dropdown_menu_button_click(event) {
             type: 'li',
             text: 'Search: SauceNAO',
             data: {
-              cmd: 'search_saucenao',
+              cmd: 'search_thumb',
+              cmd_data: {
+                url: 'https://saucenao.com/search.php?url=',
+              },
               board_id: data.board_id,
               id: data.id
             }
@@ -302,7 +600,10 @@ function listener_dropdown_menu_button_click(event) {
             type: 'li',
             text: 'Search: IQDB',
             data: {
-              cmd: 'search_iqdb',
+              cmd: 'search_thumb',
+              cmd_data: {
+                url: 'http://iqdb.org/?url=',
+              },
               board_id: data.board_id,
               id: data.id
             }
@@ -310,7 +611,10 @@ function listener_dropdown_menu_button_click(event) {
             type: 'li',
             text: 'Search: IQDB 3D',
             data: {
-              cmd: 'search_iqdb3d',
+              cmd: 'search_thumb',
+              cmd_data: {
+                url: 'http://3d.iqdb.org/?url=',
+              },
               board_id: data.board_id,
               id: data.id
             }
@@ -318,7 +622,10 @@ function listener_dropdown_menu_button_click(event) {
             type: 'li',
             text: 'Search: ASCII2D',
             data: {
-              cmd: 'search_ascii2d',
+              cmd: 'search_thumb',
+              cmd_data: {
+                url: 'https://ascii2d.net/search/url/',
+              },
               board_id: data.board_id,
               id: data.id
             }
@@ -326,7 +633,10 @@ function listener_dropdown_menu_button_click(event) {
             type: 'li',
             text: 'Search: TinEye',
             data: {
-              cmd: 'search_tineye',
+              cmd: 'search_thumb',
+              cmd_data: {
+                url: 'https://tineye.com/search?url=',
+              },
               board_id: data.board_id,
               id: data.id
             }
@@ -451,29 +761,9 @@ function listener_post_reference_link_mouseleave(event) {
       xhr.open('POST', '/' + data.board_id + '/' + data.id + '/hide', true);
       xhr.send();
       break;
-    case 'search_saucenao':
+    case 'search_thumb':
       if (thumb != null) {
-        open_window('https://saucenao.com/search.php?url=' + thumb.src, '_blank');
-      }
-      break;
-    case 'search_iqdb':
-      if (thumb != null) {
-        open_window('http://iqdb.org/?url=' + thumb.src, '_blank');
-      }
-      break;
-    case 'search_iqdb3d':
-      if (thumb != null) {
-        open_window('http://3d.iqdb.org/?url=' + thumb.src, '_blank');
-      }
-      break;
-    case 'search_ascii2d':
-      if (thumb != null) {
-        open_window('https://ascii2d.net/search/url/' + thumb.src, '_blank');
-      }
-      break;
-    case 'search_tineye':
-      if (thumb != null) {
-        open_window('https://tineye.com/search?url=' + thumb.src, '_blank');
+        open_window(data.url + thumb.src, '_blank');
       }
       break;
     default:
@@ -510,6 +800,11 @@ function create_dropdown_menu(target, board_id, parent_id, id, rect, indices) {
       case 'li':
         let li = document.createElement('li');
         li.dataset.cmd = indice.data.cmd;
+        if (indice.data.cmd_data != null) {
+          for (const [key, value] of Object.entries(indice.data.cmd_data)) {
+            li.dataset[key] = value;
+          }
+        }
         li.dataset.board_id = indice.data.board_id;
         li.dataset.id = indice.data.id;
         li.innerHTML = indice.text;
@@ -606,7 +901,7 @@ function create_post_preview(target, board_id, parent_id, id, rect, content) {
 }
 
 /**
- * Deletes an existing dropdown menu.
+ * Deletes an existing dropdown menu by id.
  * @param {number} id 
  */
 function delete_dropdown_menu(id) {
@@ -628,7 +923,8 @@ function delete_dropdown_menu(id) {
 }
 
 /**
- * Deletes all existing post previews.
+ * Deletes all existing post previews under target element.
+ * @param {*} target 
  */
 function delete_post_previews(target) {
   if (target == null) {
@@ -642,7 +938,8 @@ function delete_post_previews(target) {
 }
 
 /**
- * Highlights a post.
+ * Highlights a post by id.
+ * @param {*} id 
  */
 function create_post_highlight(id) {
   // cleanup old highlights
@@ -661,7 +958,146 @@ function create_post_highlight(id) {
 }
 
 /**
- * Insert a post ref to the message.
+ * Creates a fixed position settings window.
+ * @param {*} target 
+ * @param {*} variables 
+ */
+function create_settings_window(target, variables) {
+  const create_settings_variable = (target_div, variable) => {
+    const div_var = document.createElement('div');
+    div_var.style.clear = 'both';
+    div_var.style.overflow = 'auto';
+    const div_var_name = document.createElement('div');
+    div_var_name.style.float = 'left';
+    div_var_name.style.marginRight = '16px';
+    div_var_name.textContent = variable.name;
+    div_var.appendChild(div_var_name);
+    const div_var_value = document.createElement('div');
+    div_var_value.style.float = 'right';
+
+    let div_var_value_data = null;
+    switch (variable.type) {
+      case 'bool':
+        div_var_value_data = document.createElement('input');
+        div_var_value_data.type = 'checkbox';
+        div_var_value_data.checked = get_lsvar(variable.name) === 'true';
+        break;
+      case 'string':
+        div_var_value_data = document.createElement('input');
+        div_var_value_data.type = 'text';
+        div_var_value_data.value = get_lsvar(variable.name);
+        break;
+      case 'string_multiline':
+        div_var_value_data = document.createElement('textarea');
+        div_var_value_data.rows = '4';
+        div_var_value_data.value = get_lsvar(variable.name);
+        break;
+      case 'float_slider':
+        div_var_value_data = document.createElement('input');
+        div_var_value_data.type = 'range';
+        div_var_value_data.min = variable.min;
+        div_var_value_data.max = variable.max;
+        div_var_value_data.step = variable.step;
+        div_var_value_data.value = get_lsvar(variable.name);
+        break;
+    }
+    div_var_value_data.addEventListener('change', (event) => {
+      const val_data = variable.type === 'bool' ? event.target.checked : event.target.value;
+      set_lsvar(variable.name, val_data);
+    });
+    div_var_value.appendChild(div_var_value_data);
+
+    div_var.appendChild(div_var_value);
+
+    target_div.appendChild(div_var);
+  };
+
+  const div_content = document.createElement('div');
+
+  variables.forEach((variable) => {
+    create_settings_variable(div_content, variable);
+  });
+
+  const btn_apply = document.createElement('button');
+  btn_apply.type = 'button';
+  btn_apply.innerHTML = 'Apply';
+  btn_apply.addEventListener('click', (event) => {
+    apply_settings();
+  });
+  div_content.appendChild(btn_apply);
+  
+  const target_rect = target.getBoundingClientRect();
+  const div_fixed_window = create_fixed_window(
+    'settingswindow',
+    'Settings',
+    target_rect.left,
+    target_rect.bottom + 4,
+    null,
+    null,
+    div_content
+  );
+  document.body.appendChild(div_fixed_window.element);
+}
+
+/**
+ * Applies all currently saved settings.
+ */
+function apply_settings() {
+  const css_override = get_lsvar('css_override');
+  if (css_override != null) {
+    let style_element = document.getElementById('css_override');
+    if (style_element == null) {
+      style_element = document.createElement('style');
+      style_element.id = 'css_override';
+    }
+    style_element.innerHTML = css_override;
+    document.head.appendChild(style_element);
+  }
+
+  const menubar_detach = get_lsvar('menubar_detach');
+  const menubar_element = document.getElementById('menubar');
+  if (menubar_detach === 'true' && menubar_element) {
+    menubar_element.classList.add('menubar-detached');
+    document.body.style.padding = '32px 8px 8px 8px';
+  } else if (menubar_detach === 'false' && menubar_element) {
+    menubar_element.classList.remove('menubar-detached');
+    document.body.style.padding = '8px 8px 8px 8px';
+  }
+
+  const postform_detach = get_lsvar('postform_detach');
+  const postform_container_element = document.getElementById('form-post-container');
+  const postform_element = document.getElementById('form-post');
+  const postformwindow_element = document.getElementById('postformwindow');
+  if (postform_detach === 'true' && postform_element && !postformwindow_element) {
+    const div_fixed_window = create_fixed_window(
+      'postformwindow',
+      'Make a post',
+      null,
+      null,
+      0,
+      0,
+      postform_element
+    );
+    document.body.appendChild(div_fixed_window.element);
+  } else if (postform_detach === 'false' && postform_element && postformwindow_element) {
+    postform_container_element.appendChild(postform_element);
+    postformwindow_element.remove();
+  }
+
+  state.audio_volume = parseFloat(get_lsvar('audio_volume') || 0.1);
+  state.video_volume = parseFloat(get_lsvar('video_volume') || 0.1);
+  state.swf_volume = parseFloat(get_lsvar('swf_volume') || 0.1);
+  state.mod_stereo = parseFloat(get_lsvar('mod_stereo') || 1.0);
+  state.audio_loop = get_lsvar('audio_loop') === 'true' || false;
+  state.video_loop = get_lsvar('video_loop') === 'true' || false;
+  state.audio_autoclose = get_lsvar('audio_autoclose') === 'true' || false;
+  state.video_autoclose = get_lsvar('video_autoclose') === 'true' || false;
+}
+
+/**
+ * Insert a post id ref to the message.
+ * @param {*} id 
+ * @returns 
  */
 function insert_ref_to_message(id) {
   let postform_message = document.getElementById('form-post-message');
@@ -680,6 +1116,8 @@ function insert_ref_to_message(id) {
 
 /**
  * Insert a formatting tag to the message.
+ * @param {*} format 
+ * @returns 
  */
 function insert_format_to_message(format) {
   let postform_message = document.getElementById('form-post-message');
@@ -699,7 +1137,8 @@ function insert_format_to_message(format) {
 }
 
 /**
- * Initializes all post file thumbnail hrefs.
+ * Initializes all post file thumbnail hrefs under target element.
+ * @param {*} target 
  */
 function init_post_thumb_links(target) {
   if (target == null) {
@@ -713,7 +1152,8 @@ function init_post_thumb_links(target) {
 }
 
 /**
- * Initializes all dropdown menu buttons.
+ * Initializes all dropdown menu buttons under target element.
+ * @param {*} target 
  */
 function init_dropdown_menu_buttons(target) {
   if (target == null) {
@@ -729,6 +1169,7 @@ function init_dropdown_menu_buttons(target) {
 
 /**
  * Initializes all post reference links under target element.
+ * @param {*} target 
  */
 function init_post_reference_links(target) {
   if (target == null) {
@@ -744,6 +1185,7 @@ function init_post_reference_links(target) {
 
 /**
  * Initializes all post backreference links under target element.
+ * @param {*} target 
  */
 function init_post_backreference_links(target) {
   if (target == null) {
@@ -821,6 +1263,7 @@ function init_post_backreference_links(target) {
 
 /**
  * Initializes all post hashid fields with unique RGB color hash under target element.
+ * @param {*} target 
  */
 function init_post_hashid_features(target) {
   if (target == null) {
@@ -903,6 +1346,26 @@ function init_postform_features() {
   if (post_form != null) {
     let submit_btn = post_form.querySelector('input[type=submit]');
 
+    const create_error_window = (content) => {
+      const div_content = document.createElement('div');
+      div_content.innerHTML = content;
+      const fixed_window = create_fixed_window(
+        'errorwindow',
+        'Error',
+        0,
+        0,
+        null,
+        null,
+        div_content
+      );
+      document.body.appendChild(fixed_window.element);
+      const client_rect = fixed_window.element.getBoundingClientRect();
+      fixed_window.setXY(
+        window.innerWidth * 0.5 - client_rect.width * 0.5,
+        window.innerHeight * 0.5 - client_rect.height * 0.5
+      );
+    };
+
     post_form.addEventListener('submit', (event) => {
       event.preventDefault();
       
@@ -911,23 +1374,28 @@ function init_postform_features() {
         method: 'POST',
         body: new FormData(post_form)
       }).then((data) => {
-        data.json().then((response) => {
-          // 200 OK, follow redirect
-          if (data.status === 200 && response['redirect_url'] != null) {
-            window.location.href = window.location.origin + response['redirect_url'];
-            setTimeout(() => {
-              window.location.reload(true);
-            }, 250);
-          // xxx ERROR, show error window
-          } else {
-            open_window('', '_blank', 'location=true,status=true,width=480,height=640')
-              .document.write(response['error_message']);
+        data.text().then((response) => {
+          try {
+            const data_json = JSON.parse(response);
+
+            // 200 OK, follow redirect
+            if (data.status === 200 && data_json['redirect_url'] != null) {
+              window.location.href = window.location.origin + data_json['redirect_url'];
+              setTimeout(() => {
+                window.location.reload(true);
+              }, 250);
+            // xxx ERROR, show error window
+            } else {
+              create_error_window(data_json['error_message']);
+              submit_btn.disabled = false;
+            }
+          } catch (error) {
+            create_error_window(response);
             submit_btn.disabled = false;
           }
         });
       }).catch((error) => {
-        open_window('', '_blank', 'location=true,status=true,width=480,height=640')
-          .document.write(error);
+        create_error_window(error);
         submit_btn.disabled = false;
       });
     });
@@ -942,8 +1410,52 @@ function init_postform_features() {
       });
     });
   }
+
+  // init file pasting
+  if (post_form != null) {
+    let postform_message = document.getElementById('form-post-message');
+    postform_message.addEventListener('paste', (event) => {
+      if (event.clipboardData.files.length > 0) {
+        event.preventDefault();
+        let fileInput = document.getElementById('form-file');
+        if (fileInput !== null) {
+          fileInput.files = event.clipboardData.files;
+        }
+      }
+    });
+  }
+
+  // init file drawing (Tegaki)
+  if (Tegaki !== undefined && post_form != null) {
+    let postform_draw = document.getElementById('form-draw');
+    postform_draw.addEventListener('click', (event) => {
+      console.log('tegaki: created');
+
+      Tegaki.open({
+        onDone: () => {
+          Tegaki.flatten().toBlob((blob) => {
+            const input_file = new File([blob], 'drawing.png');
+            const input_data = new DataTransfer();
+            input_data.items.add(input_file);
+
+            const postform_file = document.getElementById('form-file');
+            console.log(postform_file.files);
+            postform_file.files = input_data.files;
+          }, 'image/png');
+        },
+        onCancel: () => {
+          console.log('tegaki: canceling...');
+        },
+        width: 512,
+        height: 512,
+      });
+    });
+  }
 }
 
+/**
+ * Initializes features related to the style select element.
+ */
 function init_stylepicker_features() {
   const stylepicker_element = document.getElementById('stylepicker');
   if (stylepicker_element == null) {
@@ -956,6 +1468,47 @@ function init_stylepicker_features() {
     set_cookie('style', event.target.value, 'Lax', style_expires);
     location.reload();
   });
+}
+
+/**
+ * Initializes features related to the settings menu button.
+ */
+function init_settings_features() {
+  apply_settings();
+  
+  const boardmenu_element = document.getElementById('boardmenu');
+  if (boardmenu_element == null) {
+    return;
+  }
+  
+  const settings_anchor = document.createElement('a');
+  settings_anchor.text = 'Settings';
+  settings_anchor.href = '#';
+
+  settings_anchor.addEventListener('click', (event) => {
+    event.preventDefault();
+    
+    const existing_element = document.getElementById('settingswindow');
+    if (existing_element) {
+      existing_element.remove();
+    } else {
+      create_settings_window(settings_anchor, [
+        { name: 'menubar_detach', type: 'bool' },
+        { name: 'postform_detach', type: 'bool' },
+        { name: 'audio_loop', type: 'bool' },
+        { name: 'video_loop', type: 'bool' },
+        { name: 'audio_autoclose', type: 'bool' },
+        { name: 'video_autoclose', type: 'bool' },
+        { name: 'audio_volume', type: 'float_slider', min: 0, max: 1, step: 0.1 },
+        { name: 'video_volume', type: 'float_slider', min: 0, max: 1, step: 0.1 },
+        { name: 'swf_volume', type: 'float_slider', min: 0, max: 1, step: 0.1 },
+        { name: 'mod_stereo', type: 'float_slider', min: 0, max: 1, step: 0.1 },
+        { name: 'css_override', type: 'string_multiline' },
+      ]);
+    }
+  });
+
+  boardmenu_element.prepend('[', settings_anchor, ']');
 }
 
 document.addEventListener('DOMContentLoaded', function(event) {
@@ -992,4 +1545,8 @@ document.addEventListener('DOMContentLoaded', function(event) {
   console.time('init_stylepicker_features');
   init_stylepicker_features();
   console.timeEnd('init_stylepicker_features');
+
+  console.time('init_settings_features');
+  init_settings_features();
+  console.timeEnd('init_settings_features');
 });

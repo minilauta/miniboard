@@ -21,6 +21,10 @@ a:hover {
 }
 
 /* root/general */
+.page-root a {
+  text-decoration: none;
+}
+
 .box {
   border: 1px solid #1a1a1a;
 }
@@ -32,6 +36,11 @@ a:hover {
 
 .box-content {
   background: #36372f;
+}
+
+.nsfw {
+  color: #F92672;
+  font-weight: bold;
 }
 
 /* footer */
@@ -115,6 +124,9 @@ div.post-info .backreference * {
 }
 
 /* menubar */
+.menubar-detached {
+  border-bottom: 1px solid #1a1a1a;
+}
 
 /* dropdown menu */
 a.dd-menu-btn {

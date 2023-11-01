@@ -799,27 +799,26 @@ function ban_poster_by_post_id(string $board_id, int $post_id, int $duration, st
   ]);
   $affected = $sth->rowCount();
 
-  if ($affected > 0) {
-    $banmsg = '<br><br><span class="banned">(USER WAS BANNED FOR THIS POST';
-    if (strlen($reason) > 0) {
-      $banmsg .= ': ' . $reason . ')';
-    } else {
-      $banmsg .= ')';
-    }
-    $banmsg .= '</span>';
-
-    $sth = $dbh->prepare('
-      UPDATE posts
-      SET
-        message_rendered = concat(message_rendered, :banmsg)
-      WHERE board_id = :board_id AND post_id = :post_id
-    ');
-    $sth->execute([
-      'banmsg' => $banmsg,
-      'board_id' => $board_id,
-      'post_id' => $post_id
-    ]);
+  $banmsg = '<br><br><span class="banned">(USER WAS BANNED FOR THIS POST';
+  if (strlen($reason) > 0) {
+    $banmsg .= ': ' . $reason . ')';
+  } else {
+    $banmsg .= ')';
   }
+  $banmsg .= '</span>';
+
+  $sth = $dbh->prepare('
+    UPDATE posts
+    SET
+      message_rendered = concat(message_rendered, :banmsg)
+    WHERE board_id = :board_id AND post_id = :post_id
+  ');
+  $sth->execute([
+    'banmsg' => $banmsg,
+    'board_id' => $board_id,
+    'post_id' => $post_id
+  ]);
+  
   return $affected;
 }
 

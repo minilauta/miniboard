@@ -105,7 +105,8 @@ define('MB_BOARDS', [
     'maxkb'             => 0,
     'nofileok'          => false,
     'max_width'         => 0,
-    'max_height'        => 0
+    'max_height'        => 0,
+    'nsfw'              => true,
   ],
   'b' => [
     'id'                => 'b',
@@ -140,6 +141,14 @@ define('MB_BOARDS', [
       'video/mp4'           => ['mp4'],
       'video/webm'          => ['webm'],
       'audio/mpeg'          => ['mp3'],
+      'audio/wav'           => ['wav'],
+      'audio/x-wav'         => ['wav'],
+      'audio/vnd.wave'      => ['wav'],
+      'audio/flac'          => ['flac'],
+      'audio/opus'          => ['opus'],
+      'audio/ogg'           => ['oga'],
+      'audio/x-mod'         => ['mod', 'xm', 'it'],
+      'audio/x-s3m'         => ['s3m'],
       'application/x-shockwave-flash' => ['swf']
     ],
     'embed_types'       => [
@@ -150,7 +159,8 @@ define('MB_BOARDS', [
     'maxkb'             => 24000,
     'nofileok'          => false,
     'max_width'         => 250,
-    'max_height'        => 250
+    'max_height'        => 250,
+    'nsfw'              => true,
   ],
   'a' => [
     'id'                => 'a',
@@ -192,7 +202,8 @@ define('MB_BOARDS', [
     'maxkb'             => 24000,
     'nofileok'          => false,
     'max_width'         => 250,
-    'max_height'        => 250
+    'max_height'        => 250,
+    'nsfw'              => false,
   ],
   'mod' => [
     'id'                => 'mod',
@@ -237,6 +248,7 @@ define('MB_BOARDS', [
     'maxkb'             => 24000,
     'nofileok'          => false,
     'max_width'         => 250,
-    'max_height'        => 250
+    'max_height'        => 250,
+    'nsfw'              => false,
   ]
 ]);

@@ -244,7 +244,19 @@ function funcs_board_validate_upload(UploadedFileInterface $input, bool $no_file
   if (!isset($mime_types[$file_mime])) {
     throw new AppException('funcs_board', 'validate_upload', "file mime type invalid: {$file_mime}", SC_BAD_REQUEST);
   }
-  $file_ext = $mime_types[$file_mime];
+  $file_exts = $mime_types[$file_mime];
+
+  if (count($file_exts) > 1) {
+    $file_ext_idx = array_search(strtolower($file_ext_pathinfo), $file_exts);
+
+    if ($file_ext_idx === false) {
+      throw new AppException('funcs_board', 'validate_upload', "file extension invalid: {$file_ext_pathinfo}", SC_BAD_REQUEST);
+    }
+
+    $file_ext = $file_exts[$file_ext_idx];
+  } else {
+    $file_ext = $file_exts[0];
+  }
 
   // validate file size
   $file_size = filesize($tmp_file);
@@ -258,7 +270,7 @@ function funcs_board_validate_upload(UploadedFileInterface $input, bool $no_file
   return [
     'tmp'            => $tmp_file,
     'mime'           => $file_mime,
-    'ext'            => $file_ext[0],
+    'ext'            => $file_ext,
     'size'           => $file_size,
     'md5'            => $file_md5
   ];
@@ -352,9 +364,11 @@ function funcs_board_execute_upload(UploadedFileInterface $file, ?array $file_in
         $thumb_height = $generated_thumb['thumb_height'];
         break;
       case 'audio/mpeg':
+      case 'audio/wav':
+      case 'audio/x-wav':
+      case 'audio/vnd.wave':
       case 'audio/flac':
       case 'audio/opus':
-      case 'application/ogg':
       case 'audio/ogg':
         $album_file_path = __DIR__ . '/src/' . 'album_' . $file_name;
         if ($file_info['mime'] === 'audio/mpeg') {
@@ -370,13 +384,22 @@ function funcs_board_execute_upload(UploadedFileInterface $file, ?array $file_in
           $thumb_width = $generated_thumb['thumb_width'];
           $thumb_height = $generated_thumb['thumb_height'];
         } else {
-          $thumb_file_name = '';
-          $thumb_dir = '';
+          $thumb_file_name = 'audio.png';
+          $thumb_dir = '/static/';
           $image_width = 0;
           $image_height = 0;
-          $thumb_width = 0;
-          $thumb_height = 0;
+          $thumb_width = 250;
+          $thumb_height = 250;
         }
+        break;
+      case 'audio/x-mod':
+      case 'audio/x-s3m':
+        $thumb_file_name = 'mod.png';
+        $thumb_dir = '/static/';
+        $image_width = 0;
+        $image_height = 0;
+        $thumb_width = 250;
+        $thumb_height = 250;
         break;
       case 'application/x-shockwave-flash':
         $thumb_file_name = 'swf.png';
@@ -602,6 +625,29 @@ function funcs_board_execute_embed(string $url, array $embed_types, int $max_w =
     'thumb_height'        => $thumb_height,
     'embed'               => 1
   ];
+}
+
+function funcs_board_csam_scanner_check(array $file): ?array {
+  // send file to CSAM-scanner microservice
+  $target_file_path = __DIR__ . $file['file'];
+  $finfo = finfo_open(FILEINFO_MIME);
+  $target_file_mime = explode(';', finfo_file($finfo, $target_file_path))[0];
+  finfo_close($finfo);
+  $curl = curl_init();
+  curl_setopt($curl, CURLOPT_URL, 'http://' . CSAM_SCANNER_HOST . ':8000/check');
+  curl_setopt($curl, CURLOPT_POST, true);
+  curl_setopt($curl, CURLOPT_POSTFIELDS, [
+    'input' => new CURLFile($target_file_path, $target_file_mime, $file['file_original'])
+  ]);
+  curl_setopt($curl, CURLOPT_RETURNTRANSFER, true);
+  $response = curl_exec($curl);
+  curl_close($curl);
+
+  if ($response) {
+    return json_decode($response, true);
+  }
+
+  return null;
 }
 
 /**
