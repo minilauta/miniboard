@@ -21,7 +21,6 @@ function createGallery() {
       const e_figure = document.createElement('figure');
       e_figure.classList.add('gallery-item');
       e_figure.style.width = state.figure_size + '%';
-      e_figure.style.height = state.figure_size + '%';
       const e_anchor = document.createElement('a');
       e_anchor.href = image;
       e_anchor.target = '_blank';
@@ -49,11 +48,11 @@ function createGallery() {
     } else if (event.deltaY < 0) {
       state.figure_size += 1;
     }
+    state.figure_size = Math.max(0, Math.min(100, state.figure_size));
 
     const e_figures = document.getElementsByClassName('gallery-item');
     Array.from(e_figures).forEach((e_figure) => {
       e_figure.style.width = state.figure_size + '%';
-      e_figure.style.height = state.figure_size + '%';
     });
   });
 
