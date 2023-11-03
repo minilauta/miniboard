@@ -384,3 +384,24 @@ table.form-manage-table {
   0%   { transform: translate(100%, 0); }
   100% { transform: translate(-100%, 0); }
 }
+
+/* gallery component */
+.gallery-container {
+  display: flex;
+  flex-flow: row wrap;
+  overflow-y: auto;
+  max-height: 100vh;
+}
+
+.gallery-item {
+  display: flex;
+  flex-grow: 1;
+}
+
+.gallery-image {
+  display: flex;
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  object-position: center;
+}

@@ -1,5 +1,6 @@
 export * from './polyfill';
 export * from './utils';
+import { createGallery } from './gallery';
 
 // ruffle player
 window.RufflePlayer = window.RufflePlayer || {};
@@ -150,10 +151,11 @@ function get_lsvar(key) {
  * @param {*} top 
  * @param {*} right 
  * @param {*} bottom 
+ * @param {*} draggable 
  * @param {*} content 
  * @returns 
  */
-function create_fixed_window(id, title, left, top, right, bottom, content) {
+function create_fixed_window(id, title, left, top, right, bottom, draggable, content) {
   let fixed_window = {
     element: document.createElement('div'),
     pos: {
@@ -188,7 +190,7 @@ function create_fixed_window(id, title, left, top, right, bottom, content) {
 
   fixed_window.element.id = id;
   fixed_window.element.style.position = 'fixed';
-  fixed_window.setXY(left || right, top || bottom);
+  fixed_window.setXY(left != null ? left : right, top != null ? top : bottom);
   fixed_window.element.classList.add('box-container');
 
   const div_box = document.createElement('div');
@@ -220,55 +222,57 @@ function create_fixed_window(id, title, left, top, right, bottom, content) {
   div_box_content.appendChild(content);
   div_box.appendChild(div_box_content);
 
-  const down_handler = (event) => {
-    event.preventDefault();
-
-    const clientX = event.clientX || event.touches[0].clientX;
-    const clientY = event.clientY || event.touches[0].clientY;
-
-    fixed_window.mouse_down = true;
-    fixed_window.mouse_offset.x = clientX;
-    fixed_window.mouse_offset.y = clientY;
-  };
-
-  const up_handler = (event) => {
-    event.preventDefault();
-    
-    fixed_window.mouse_down = false;
-  };
-
-  const move_handler = (event) => {
-    if (fixed_window.mouse_down) {
+  if (draggable === true) {
+    const down_handler = (event) => {
       event.preventDefault();
 
       const clientX = event.clientX || event.touches[0].clientX;
       const clientY = event.clientY || event.touches[0].clientY;
 
-      if (left != null) {
-        fixed_window.pos.x += clientX - fixed_window.mouse_offset.x;
-        fixed_window.pos.y += clientY - fixed_window.mouse_offset.y;
-
-        fixed_window.element.style.left = fixed_window.pos.x + 'px';
-        fixed_window.element.style.top = fixed_window.pos.y + 'px';
-      } else {
-        fixed_window.pos.x += fixed_window.mouse_offset.x - clientX;
-        fixed_window.pos.y += fixed_window.mouse_offset.y - clientY;
-
-        fixed_window.element.style.right = fixed_window.pos.x + 'px';
-        fixed_window.element.style.bottom = fixed_window.pos.y + 'px';
-      }
-      
+      fixed_window.mouse_down = true;
       fixed_window.mouse_offset.x = clientX;
       fixed_window.mouse_offset.y = clientY;
-    }
-  };
+    };
 
-  div_box_title.addEventListener('mousedown', down_handler);
-  div_box_title.addEventListener('touchstart', down_handler);
-  div_box_title.addEventListener('mouseup', up_handler);
-  div_box_title.addEventListener('touchend', up_handler);
-  document.addEventListener('mousemove', move_handler);
-  document.addEventListener('touchmove', move_handler);
+    const up_handler = (event) => {
+      event.preventDefault();
+      
+      fixed_window.mouse_down = false;
+    };
+
+    const move_handler = (event) => {
+      if (fixed_window.mouse_down) {
+        event.preventDefault();
+
+        const clientX = event.clientX || event.touches[0].clientX;
+        const clientY = event.clientY || event.touches[0].clientY;
+
+        if (left != null) {
+          fixed_window.pos.x += clientX - fixed_window.mouse_offset.x;
+          fixed_window.pos.y += clientY - fixed_window.mouse_offset.y;
+
+          fixed_window.element.style.left = fixed_window.pos.x + 'px';
+          fixed_window.element.style.top = fixed_window.pos.y + 'px';
+        } else {
+          fixed_window.pos.x += fixed_window.mouse_offset.x - clientX;
+          fixed_window.pos.y += fixed_window.mouse_offset.y - clientY;
+
+          fixed_window.element.style.right = fixed_window.pos.x + 'px';
+          fixed_window.element.style.bottom = fixed_window.pos.y + 'px';
+        }
+        
+        fixed_window.mouse_offset.x = clientX;
+        fixed_window.mouse_offset.y = clientY;
+      }
+    };
+
+    div_box_title.addEventListener('mousedown', down_handler);
+    div_box_title.addEventListener('touchstart', down_handler);
+    div_box_title.addEventListener('mouseup', up_handler);
+    div_box_title.addEventListener('touchend', up_handler);
+    document.addEventListener('mousemove', move_handler);
+    document.addEventListener('touchmove', move_handler);
+  }
 
   return fixed_window;
 }
@@ -1034,6 +1038,7 @@ function create_settings_window(target, variables) {
     target_rect.bottom + 4,
     null,
     null,
+    true,
     div_content
   );
   document.body.appendChild(div_fixed_window.element);
@@ -1076,6 +1081,7 @@ function apply_settings() {
       null,
       0,
       0,
+      true,
       postform_element
     );
     document.body.appendChild(div_fixed_window.element);
@@ -1356,6 +1362,7 @@ function init_postform_features() {
         0,
         null,
         null,
+        true,
         div_content
       );
       document.body.appendChild(fixed_window.element);
@@ -1508,7 +1515,37 @@ function init_settings_features() {
     }
   });
 
-  boardmenu_element.prepend('[', settings_anchor, ']');
+  boardmenu_element.prepend('[', settings_anchor, '] ');
+}
+
+function init_gallery_features() {
+  const boardmenu_element = document.getElementById('boardmenu');
+  if (boardmenu_element == null) {
+    return;
+  }
+  
+  const gallery_anchor = document.createElement('a');
+  gallery_anchor.text = 'Gallery';
+  gallery_anchor.href = '#';
+
+  gallery_anchor.addEventListener('click', (event) => {
+    event.preventDefault();
+
+    const div_gallery_container = createGallery();
+    const div_fixed_window = create_fixed_window(
+      'gallerywindow',
+      'Gallery',
+      0,
+      0,
+      null,
+      null,
+      false,
+      div_gallery_container
+    );
+    document.body.appendChild(div_fixed_window.element);
+  });
+
+  boardmenu_element.prepend('[', gallery_anchor, '] ');
 }
 
 document.addEventListener('DOMContentLoaded', function(event) {
@@ -1549,4 +1586,8 @@ document.addEventListener('DOMContentLoaded', function(event) {
   console.time('init_settings_features');
   init_settings_features();
   console.timeEnd('init_settings_features');
+
+  console.time('init_gallery_features');
+  init_gallery_features();
+  console.timeEnd('init_gallery_features');
 });
