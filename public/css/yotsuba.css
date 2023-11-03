@@ -202,3 +202,8 @@ a > div.post-preview {
 .form-manage table, .form-manage th, .form-manage td {
   border: 1px solid #d9bfb7;
 }
+
+/* gallery component */
+.gallery-item:hover {
+  border: 1px solid #800000;
+}

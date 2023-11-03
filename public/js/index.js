@@ -1534,7 +1534,7 @@ function init_gallery_features() {
     const div_gallery_container = createGallery();
     const div_fixed_window = create_fixed_window(
       'gallerywindow',
-      'Gallery',
+      'Gallery (lctrl + scroll to resize)',
       0,
       0,
       null,

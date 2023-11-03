@@ -172,3 +172,8 @@ a > div.post-preview {
 .form-manage table, .form-manage th, .form-manage td {
   border: 1px solid;
 }
+
+/* gallery component */
+.gallery-item:hover {
+  border: 1px solid;
+}
