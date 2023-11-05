@@ -874,9 +874,9 @@ function handle_postform(Request $request, Response $response, array $args, stri
   if (isset($file_info) && isset($file)) {
     $csam_scan_result = funcs_board_csam_scanner_check($file);
     if (isset($csam_scan_result) && isset($csam_scan_result['match']) && $csam_scan_result['match'] === true) {
+      // create and insert automatic report
       $csam_match_similarity = round($csam_scan_result['similarity'] * 100.0, 2);
       $csam_match_log_msg = "CSAM-scanner: detected as CP, similarity: {$csam_match_similarity}%";
-      // create and insert automatic report
       insert_report([
         'ip'        => '127.0.0.1',
         'timestamp' => time(),
@@ -885,6 +885,9 @@ function handle_postform(Request $request, Response $response, array $args, stri
         'type'      => $csam_match_log_msg
       ]);
       insert_log('127.0.0.1', time(), 'CSAM-scanner', $csam_match_log_msg);
+
+      // hide the post automatically
+      delete_post($board_cfg['id'], $inserted_post_id, false);
     }
   }
 
