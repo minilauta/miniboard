@@ -1,3 +1,4 @@
 User-agent: *
-Crawl-delay: 250
-Disallow: *.php
+Crawl-delay: 15
+Allow: /$
+Disallow: /
