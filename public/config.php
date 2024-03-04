@@ -50,11 +50,11 @@ define('MB_REPORT_TYPES', [
 define('MB_CLOUDFLARE', false);
 define('MB_TRIPCODE_SALT', '#!12345_MAKE_THIS_SECURE_67890!#');
 define('MB_STYLES', [
-  'miniboard',
   'futaba',
   'yotsuba',
   'yotsuba_blue',
-  'zenburn'
+  'zenburn',
+  'miniboard',
 ]);
 define('MB_DELAY', 15);
 define('MB_ERROR_IMAGES', [
