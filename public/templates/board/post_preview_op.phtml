@@ -20,14 +20,7 @@
   </div>
   <div class="post-message-wrapper">
     <div class="post-message">
-      <?php
-        if (!isset($post['message_truncated'])) {
-          echo $post['message_rendered'];
-        } else {
-          echo $post['message_truncated'];
-          echo '<br><br><span class="truncated">Post truncated. Click reply to view.</span>';
-        }
-      ?>
+      <?=$post['message_rendered']?>
     </div>
   </div>
 </div>
