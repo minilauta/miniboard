@@ -314,6 +314,8 @@ function listener_post_thumb_link_click(event) {
     switch (finfo.file_ext) {
       case 'mp4':
       case 'webm':
+        current.parentElement.lastElementChild.remove();
+        break;
       case 'mp3':
       case 'wav':
       case 'ogg':
@@ -376,7 +378,7 @@ function listener_post_thumb_link_click(event) {
         video.style.cursor = 'default';
         video.appendChild(source);
 
-        current.appendChild(video);
+        current.parentElement.appendChild(video);
         break;
       case 'mp3':
       case 'wav':
@@ -515,8 +517,20 @@ function listener_post_thumb_link_click(event) {
     const exp_elements = document.querySelectorAll('[expanded="true"]');
     Array.from(exp_elements).forEach((exp_element) => {
       const shrink_types = ['AUDIO', 'VIDEO', 'RUFFLE-PLAYER', 'DIV'];
-      const exp_node_type = exp_element.lastElementChild.nodeName;
-      const curr_node_type = current.lastElementChild.nodeName;
+
+      // select the element's container based on file ext
+      // NOTE: this is because <video> is created inside the parent <div>
+      //       because <video> inside <a> is glitchy
+      const exp_finfo = get_finfo(exp_element);
+      const exp_container = ['mp4', 'webm'].includes(exp_finfo.file_ext) ?
+        exp_element.parentElement :
+        exp_element;
+      const curr_container = ['mp4', 'webm'].includes(finfo.file_ext) ?
+        current.parentElement :
+        current;
+      
+      const exp_node_type = exp_container.lastElementChild.nodeName;
+      const curr_node_type = curr_container.lastElementChild.nodeName;
 
       if (shrink_types.includes(exp_node_type) && shrink_types.includes(curr_node_type)) {
         shrink(exp_element.lastElementChild, exp_element);
