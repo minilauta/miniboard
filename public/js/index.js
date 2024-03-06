@@ -312,6 +312,8 @@ function listener_post_thumb_link_click(event) {
     current.firstElementChild.style.display = null;
 
     switch (finfo.file_ext) {
+      case 'mp4':
+      case 'webm':
       case 'mp3':
       case 'wav':
       case 'ogg':
