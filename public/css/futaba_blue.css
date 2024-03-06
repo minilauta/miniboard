@@ -1,0 +1,179 @@
+/* general */
+body {
+  background: #EEFFFF;
+  color: #000080;
+}
+
+hr {
+  border: 0;
+  height: 1px;
+  color: #b7bfd9;
+  background-color: #b7bfd9;
+	background-image: linear-gradient(to left, rgba(238,255,255,1), rgb(167, 175, 200), rgba(238,255,255,1));
+}
+
+a {
+  color: #EE0000;
+}
+
+a:hover {
+  color: #0000DD;
+}
+
+/* root/general */
+.page-root a {
+  text-decoration: none;
+}
+
+.box-title {
+  background: #acf;
+  font-weight: bold;
+}
+
+.box-content {
+  background: #ffffff;
+}
+
+.nsfw {
+  color: #0000FF;
+  font-weight: bold;
+}
+
+/* footer */
+
+/* board */
+div.mode {
+  background: #0040E0;
+  color: #FFFFFF;
+}
+
+/* post */
+.post.reply {
+  background: #D6E0F0;
+}
+
+span.post-board {
+  color: #0000EE;
+}
+
+span.post-subject {
+  color: #CC1105;
+}
+
+span.post-name {
+  color: #117743;
+}
+
+span.post-trip {
+  color: #117743;
+}
+
+div.post-message span.quote {
+  color: #229978;
+}
+
+div.post-message .spoiler {
+  text-shadow: 0 0 10px #000000;
+}
+
+.post-message .banned {
+  color: #0000FF;
+}
+
+.truncated {
+  color: #707070;
+}
+
+.omitted {
+  color: #707070;
+}
+
+span.post-catalog-subject {
+  color: #0511CC;
+}
+
+span.cap-admin {
+  color: #FF0000;
+}
+
+span.cap-mod {
+  color: #0000EE;
+}
+
+span.post-id a {
+  color: inherit;
+}
+
+span.post-id a:hover {
+  font-weight: bold;
+}
+
+div.post-info .backreference {
+  font-size: small;
+}
+
+div.post-info .backreference * {
+  font-size: initial;
+}
+
+/* menubar */
+.menubar-detached {
+  border-bottom: 1px solid;
+}
+
+/* dropdown menu */
+a.dd-menu-btn {
+  color: #000080;
+}
+
+a.dd-menu-btn:hover {
+  color: #0000DD;
+}
+
+div.dd-menu ul {
+  background: #D6E0F0;
+  border: 1px solid;
+  border-right-width: 2px;
+}
+
+div.dd-menu li {
+  border-bottom: 1px solid;
+}
+
+div.dd-menu li:hover {
+  background: #EEFFFF;
+}
+
+/* post preview */
+div.post-preview > .post.op {
+  background: #EEFFFF;
+}
+
+div.post-preview > .post {
+  border: 1px solid;
+}
+
+a > div.post-preview {
+  color: #000080;
+}
+
+/* highlights (posts, etc) */
+.highlight {
+  border: 2px dashed;
+}
+
+/* forms */
+.form-label {
+  background: #88AAEE;
+  font-weight: bold;
+}
+
+/* manage */
+.form-manage table, .form-manage th, .form-manage td {
+  border: 1px solid;
+}
+
+/* gallery component */
+.gallery-item:hover {
+  border: 1px solid;
+}
