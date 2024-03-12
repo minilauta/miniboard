@@ -584,6 +584,38 @@ $app->get('/{board_id}/{thread_id}/', function (Request $request, Response $resp
   return $renderer->render($response, 'thread.phtml');
 });
 
+$app->get('/{board_id}/{thread_id}/replies/', function (Request $request, Response $response, array $args) {
+  // get board config
+  $board_cfg = funcs_common_get_board_cfg($args['board_id']);
+
+  // check board access
+  if (!funcs_board_check_access($board_cfg, funcs_manage_get_role())) {
+    throw new AppException('index', 'route', 'access denied', SC_UNAUTHORIZED);
+  }
+  $user_role = funcs_manage_get_role();
+
+  // get query params
+  $query_params = $request->getQueryParams();
+  $query_post_id_after = funcs_common_parse_input_int($query_params, 'post_id_after', 0, 0, null);
+
+  // get thread
+  $thread = select_post($board_cfg['id'], $args['thread_id']);
+  if ($thread == null) {
+    throw new AppException('index', 'route', "thread with ID /{$board_cfg['id']}/{$args['thread_id']} not found", SC_NOT_FOUND);
+  } else if ($thread['parent_id'] !== 0) {
+    throw new AppException('index', 'route', 'not a valid thread', SC_BAD_REQUEST);
+  }
+
+  // get replies
+  $posts = select_replies_after($user_role, $thread['board_id'], $thread['post_id'], $query_post_id_after, false, 0, 9001, false);
+
+  $renderer = new PhpRenderer('templates/', [
+    'board' => $board_cfg,
+    'posts' => $posts
+  ]);
+  return $renderer->render($response, 'board/post_replies_wrapper.phtml');
+});
+
 $app->get('/{board_id}/{thread_id}/{post_id}/', function (Request $request, Response $response, array $args) {
   // get board config
   $board_cfg = funcs_common_get_board_cfg($args['board_id']);

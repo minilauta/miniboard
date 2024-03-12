@@ -257,6 +257,31 @@ function select_posts(string $session_id, ?int $user_role, ?string $board_id, in
   return $sth->fetchAll();
 }
 
+function select_replies_after(?int $user_role, string $board_id, int $parent_id, int $post_id, bool $desc = true, int $offset = 0, int $limit = 10, bool $deleted = false): array|bool {
+  $dbh = get_db_handle();
+  $sth = null;
+  $sth = $dbh->prepare('
+    SELECT * FROM posts
+    WHERE board_id = :board_id AND parent_id = :parent_id AND post_id > :post_id AND deleted = :deleted
+    AND (
+      req_role IS NULL OR (:user_role_1 IS NOT NULL AND :user_role_2 <= req_role)
+    )
+    ORDER BY stickied DESC, bumped ' . ($desc === true ? 'DESC' : 'ASC') . '
+    LIMIT :limit OFFSET :offset
+  ');
+  $sth->execute([
+    'board_id' => $board_id,
+    'parent_id' => $parent_id,
+    'post_id' => $post_id,
+    'deleted' => $deleted ? 1 : 0,
+    'user_role_1' => $user_role,
+    'user_role_2' => $user_role,
+    'limit' => $limit,
+    'offset' => $offset
+  ]);
+  return $sth->fetchAll();
+}
+
 function select_posts_preview(string $session_id, string $board_id, int $parent_id = 0, int $offset = 0, int $limit = 10, bool $deleted = false): array|bool {
   $dbh = get_db_handle();
   $sth = $dbh->prepare('

@@ -4,7 +4,7 @@ var state = {
   figure_size: 20,
 };
 
-function createGallery() {
+function create() {
   // create gallery container
   const e_gallery_container = document.createElement('div');
   e_gallery_container.id = 'gallery-container';
@@ -59,6 +59,8 @@ function createGallery() {
   return e_gallery_container;
 }
 
-export {
-  createGallery,
+const gallery = {
+  create,
 };
+
+export default gallery;

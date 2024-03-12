@@ -1,6 +1,8 @@
 export * from './polyfill';
-export * from './utils';
-import { createGallery } from './gallery';
+import utils from './utils';
+import storage from './storage';
+import ui_window from './ui_window';
+import gallery from './gallery';
 
 // ruffle player
 window.RufflePlayer = window.RufflePlayer || {};
@@ -44,238 +46,16 @@ var state = {
   video_loop: false,
   audio_autoclose: false,
   video_autoclose: false,
+  thread_auto_update: {
+    enabled: true,
+    interval: null,
+    post_id_after: 0,
+  },
   chiptune2js: {
     player: null,
     interval: null,
   },
 };
-
-/**
- * Open a new browser window, center if possible.
- * @param {*} url 
- * @param {*} target 
- * @param {*} features 
- * @returns 
- */
-function open_window(url, target, features) {
-  if (features != null) {
-    let features_split = features.split(',')
-      .map(x => x.trim());
-    let width = features_split.find(x => x.startsWith('width'));
-    let height = features_split.find(x => x.startsWith('height'));
-
-    // center window
-    if (width != null && height != null) {
-      width = parseInt(width.split('=')[1]);
-      height = parseInt(height.split('=')[1]);
-
-      let top = 0.5 * (screen.height - height);
-      let left = 0.5 * (screen.width - width);
-
-      features = features.concat(',', 'top=' + top);
-      features = features.concat(',', 'left=' + left);
-    }
-  }
-
-  return window.open(url, target, features);
-}
-
-/**
- * Set cookie value by key.
- * @param {*} key 
- * @param {*} val 
- * @param {*} samesite 
- * @param {*} expires 
- */
-function set_cookie(key, val, samesite, expires) {
-  key = 'miniboard/' + key;
-
-  if (expires instanceof Date) {
-    expires = expires.toUTCString();
-  }
-
-  document.cookie = key + '=' + encodeURIComponent(val) + '; path=/; SameSite=' + samesite + '; expires=' + expires;
-}
-
-/**
- * Get cookie value by key.
- * @param {*} key 
- * @returns 
- */
-function get_cookie(key) {
-  key = 'miniboard/' + key;
-
-  let decoded = decodeURIComponent(document.cookie);
-  let cookies = decoded.split(';');
-
-  for (let i = 0; i < cookies.length; i++) {
-    let cookie = cookies[i].split('=');
-
-    if (cookie.length !== 2) {
-      return;
-    }
-
-    if (cookie[0].trimStart() === key) {
-      return cookie[1];
-    }
-  };
-
-  return null;
-}
-
-/**
- * Set local storage value by key.
- * @param {*} key 
- * @param {*} val 
- */
-function set_lsvar(key, val) {
-  key = 'miniboard/' + key;
-  window.localStorage.setItem(key, val);
-}
-
-/**
- * Get local storage value by key.
- * @param {*} key 
- * @returns 
- */
-function get_lsvar(key) {
-  key = 'miniboard/' + key;
-  return window.localStorage.getItem(key);
-}
-
-/**
- * Creates a draggable fixed position 'window' div.
- * @param {*} id 
- * @param {*} title 
- * @param {*} left 
- * @param {*} top 
- * @param {*} right 
- * @param {*} bottom 
- * @param {*} draggable 
- * @param {*} content 
- * @returns 
- */
-function create_fixed_window(id, title, left, top, right, bottom, draggable, content) {
-  let fixed_window = {
-    element: document.createElement('div'),
-    pos: {
-      x: left != null ? left : right,
-      y: top != null ? top : bottom,
-    },
-    mouse_down: false,
-    mouse_offset: {
-      x: 0.0,
-      y: 0.0,
-    }
-  };
-  fixed_window.setXY = function(x, y) {
-    if (left != null) {
-      left = x;
-      top = y;
-    } else {
-      right = x;
-      bottom = y;
-    }
-
-    fixed_window.pos = {
-      x: x,
-      y: y,
-    };
-
-    fixed_window.element.style.left = left != null ? left + 'px' : undefined;
-    fixed_window.element.style.top = top != null ? top + 'px' : undefined;
-    fixed_window.element.style.right = right != null ? right + 'px' : undefined;
-    fixed_window.element.style.bottom = bottom != null ? bottom + 'px' : undefined;
-  };
-
-  fixed_window.element.id = id;
-  fixed_window.element.style.position = 'fixed';
-  fixed_window.setXY(left != null ? left : right, top != null ? top : bottom);
-  fixed_window.element.classList.add('box-container');
-
-  const div_box = document.createElement('div');
-  div_box.style.display = 'block';
-  div_box.classList.add('box');
-  fixed_window.element.appendChild(div_box);
-
-  const div_box_title = document.createElement('div');
-  div_box_title.style.cursor = 'move';
-  div_box_title.style.userSelect = 'none';
-  div_box_title.classList.add('box-title');
-  div_box_title.textContent = title;
-  const close_anchor = document.createElement('a');
-  close_anchor.text = 'x';
-  close_anchor.href = '#';
-  close_anchor.addEventListener('click', (event) => {
-    event.preventDefault();
-
-    fixed_window.element.remove();
-  });
-  const close_anchor_wrapper = document.createElement('div');
-  close_anchor_wrapper.style.float = 'right';
-  close_anchor_wrapper.appendChild(close_anchor);
-  div_box_title.append(close_anchor_wrapper);
-  div_box.appendChild(div_box_title);
-
-  const div_box_content = document.createElement('div');
-  div_box_content.classList.add('box-content');
-  div_box_content.appendChild(content);
-  div_box.appendChild(div_box_content);
-
-  if (draggable === true) {
-    const down_handler = (event) => {
-      event.preventDefault();
-
-      const clientX = event.clientX || event.touches[0].clientX;
-      const clientY = event.clientY || event.touches[0].clientY;
-
-      fixed_window.mouse_down = true;
-      fixed_window.mouse_offset.x = clientX;
-      fixed_window.mouse_offset.y = clientY;
-    };
-
-    const up_handler = (event) => {
-      event.preventDefault();
-      
-      fixed_window.mouse_down = false;
-    };
-
-    const move_handler = (event) => {
-      if (fixed_window.mouse_down) {
-        event.preventDefault();
-
-        const clientX = event.clientX || event.touches[0].clientX;
-        const clientY = event.clientY || event.touches[0].clientY;
-
-        if (left != null) {
-          fixed_window.pos.x += clientX - fixed_window.mouse_offset.x;
-          fixed_window.pos.y += clientY - fixed_window.mouse_offset.y;
-
-          fixed_window.element.style.left = fixed_window.pos.x + 'px';
-          fixed_window.element.style.top = fixed_window.pos.y + 'px';
-        } else {
-          fixed_window.pos.x += fixed_window.mouse_offset.x - clientX;
-          fixed_window.pos.y += fixed_window.mouse_offset.y - clientY;
-
-          fixed_window.element.style.right = fixed_window.pos.x + 'px';
-          fixed_window.element.style.bottom = fixed_window.pos.y + 'px';
-        }
-        
-        fixed_window.mouse_offset.x = clientX;
-        fixed_window.mouse_offset.y = clientY;
-      }
-    };
-
-    div_box_title.addEventListener('mousedown', down_handler);
-    div_box_title.addEventListener('touchstart', down_handler);
-    div_box_title.addEventListener('mouseup', up_handler);
-    div_box_title.addEventListener('touchend', up_handler);
-    document.addEventListener('mousemove', move_handler);
-    document.addEventListener('touchmove', move_handler);
-  }
-
-  return fixed_window;
-}
 
 /**
  * Event listener: click on post thumbnail anchor.
@@ -759,7 +539,7 @@ function listener_post_reference_link_mouseleave(event) {
 
   switch (data.cmd) {
     case 'report':
-      open_window('/' + data.board_id + '/' + data.id + '/report', '_blank', 'location=true,status=true,width=480,height=640');
+      ui_window.open_native('/' + data.board_id + '/' + data.id + '/report', '_blank', 'location=true,status=true,width=480,height=640');
       break;
     case 'hide':
       let xhr = new XMLHttpRequest();
@@ -783,7 +563,7 @@ function listener_post_reference_link_mouseleave(event) {
       break;
     case 'search_thumb':
       if (thumb != null) {
-        open_window(data.url + thumb.src, '_blank');
+        ui_window.open_native(data.url + thumb.src, '_blank');
       }
       break;
     default:
@@ -1000,17 +780,25 @@ function create_settings_window(target, variables) {
       case 'bool':
         div_var_value_data = document.createElement('input');
         div_var_value_data.type = 'checkbox';
-        div_var_value_data.checked = get_lsvar(variable.name) === 'true';
+        div_var_value_data.checked = storage.get_lsvar(variable.name) === 'true';
         break;
       case 'string':
         div_var_value_data = document.createElement('input');
         div_var_value_data.type = 'text';
-        div_var_value_data.value = get_lsvar(variable.name);
+        div_var_value_data.value = storage.get_lsvar(variable.name);
+        break;
+      case 'float':
+        div_var_value_data = document.createElement('input');
+        div_var_value_data.type = 'number';
+        div_var_value_data.min = variable.min;
+        div_var_value_data.max = variable.max;
+        div_var_value_data.step = variable.step;
+        div_var_value_data.value = storage.get_lsvar(variable.name);
         break;
       case 'string_multiline':
         div_var_value_data = document.createElement('textarea');
         div_var_value_data.rows = '4';
-        div_var_value_data.value = get_lsvar(variable.name);
+        div_var_value_data.value = storage.get_lsvar(variable.name);
         break;
       case 'float_slider':
         div_var_value_data = document.createElement('input');
@@ -1018,12 +806,12 @@ function create_settings_window(target, variables) {
         div_var_value_data.min = variable.min;
         div_var_value_data.max = variable.max;
         div_var_value_data.step = variable.step;
-        div_var_value_data.value = get_lsvar(variable.name);
+        div_var_value_data.value = storage.get_lsvar(variable.name);
         break;
     }
     div_var_value_data.addEventListener('change', (event) => {
       const val_data = variable.type === 'bool' ? event.target.checked : event.target.value;
-      set_lsvar(variable.name, val_data);
+      storage.set_lsvar(variable.name, val_data);
     });
     div_var_value.appendChild(div_var_value_data);
 
@@ -1047,7 +835,7 @@ function create_settings_window(target, variables) {
   div_content.appendChild(btn_apply);
   
   const target_rect = target.getBoundingClientRect();
-  const div_fixed_window = create_fixed_window(
+  const div_fixed_window = ui_window.open(
     'settingswindow',
     'Settings',
     target_rect.left,
@@ -1064,7 +852,7 @@ function create_settings_window(target, variables) {
  * Applies all currently saved settings.
  */
 function apply_settings() {
-  const css_override = get_lsvar('css_override');
+  const css_override = storage.get_lsvar('css_override');
   if (css_override != null) {
     let style_element = document.getElementById('css_override');
     if (style_element == null) {
@@ -1075,7 +863,7 @@ function apply_settings() {
     document.head.appendChild(style_element);
   }
 
-  const menubar_detach = get_lsvar('menubar_detach');
+  const menubar_detach = storage.get_lsvar('menubar_detach');
   const menubar_element = document.getElementById('menubar');
   if (menubar_detach === 'true' && menubar_element) {
     menubar_element.classList.add('menubar-detached');
@@ -1085,12 +873,12 @@ function apply_settings() {
     document.body.style.padding = '8px 8px 8px 8px';
   }
 
-  const postform_detach = get_lsvar('postform_detach');
+  const postform_detach = storage.get_lsvar('postform_detach');
   const postform_container_element = document.getElementById('form-post-container');
   const postform_element = document.getElementById('form-post');
   const postformwindow_element = document.getElementById('postformwindow');
   if (postform_detach === 'true' && postform_element && !postformwindow_element) {
-    const div_fixed_window = create_fixed_window(
+    const div_fixed_window = ui_window.open(
       'postformwindow',
       'Make a post',
       null,
@@ -1106,14 +894,15 @@ function apply_settings() {
     postformwindow_element.remove();
   }
 
-  state.audio_volume = parseFloat(get_lsvar('audio_volume') || 0.1);
-  state.video_volume = parseFloat(get_lsvar('video_volume') || 0.1);
-  state.swf_volume = parseFloat(get_lsvar('swf_volume') || 0.1);
-  state.mod_stereo = parseFloat(get_lsvar('mod_stereo') || 1.0);
-  state.audio_loop = get_lsvar('audio_loop') === 'true' || false;
-  state.video_loop = get_lsvar('video_loop') === 'true' || false;
-  state.audio_autoclose = get_lsvar('audio_autoclose') === 'true' || false;
-  state.video_autoclose = get_lsvar('video_autoclose') === 'true' || false;
+  state.audio_volume = parseFloat(storage.get_lsvar('audio_volume') || 0.1);
+  state.video_volume = parseFloat(storage.get_lsvar('video_volume') || 0.1);
+  state.swf_volume = parseFloat(storage.get_lsvar('swf_volume') || 0.1);
+  state.mod_stereo = parseFloat(storage.get_lsvar('mod_stereo') || 1.0);
+  state.audio_loop = storage.get_lsvar('audio_loop') === 'true' || false;
+  state.video_loop = storage.get_lsvar('video_loop') === 'true' || false;
+  state.audio_autoclose = storage.get_lsvar('audio_autoclose') === 'true' || false;
+  state.video_autoclose = storage.get_lsvar('video_autoclose') === 'true' || false;
+  state.thread_auto_update.enabled = storage.get_lsvar('thread_auto_update') || true;
 }
 
 /**
@@ -1167,7 +956,7 @@ function init_post_thumb_links(target) {
     target = document;
   }
 
-  let post_thumb_links = document.getElementsByClassName('file-thumb-href');
+  let post_thumb_links = target.getElementsByClassName('file-thumb-href');
   Array.from(post_thumb_links).forEach(element => {
     element.addEventListener('click', listener_post_thumb_link_click);
   });
@@ -1182,7 +971,7 @@ function init_dropdown_menu_buttons(target) {
     target = document;
   }
 
-  let dd_menu_btns = document.getElementsByClassName('dd-menu-btn');
+  let dd_menu_btns = target.getElementsByClassName('dd-menu-btn');
   Array.from(dd_menu_btns).forEach(element => {
     element.addEventListener('click', listener_dropdown_menu_button_click);
     element.addEventListener('blur', listener_dropdown_menu_button_blur);
@@ -1295,7 +1084,7 @@ function init_post_hashid_features(target) {
   let hashid_elements = target.getElementsByClassName('post-hashid-hash');
   Array.from(hashid_elements).forEach(element => {
     // calculate hashid bg color by simple hash to rgb
-    const hid_bg = element.innerHTML.toHex();
+    const hid_bg = utils.toHex(element.innerHTML);
 
     // calculate hashid bg color luminance
     const hid_bg_rgb = parseInt(hid_bg.substring(1), 16);
@@ -1341,7 +1130,7 @@ function init_postform_features() {
   let post_form = document.getElementById('form-post');
   
   // update password fields appropriately
-  let cookie_pass = get_cookie('password');
+  let cookie_pass = storage.get_cookie('password');
   let postform_pass = document.getElementById('form-post-password');
   let deleteform_pass = document.getElementById('deleteform-password');
 
@@ -1356,7 +1145,7 @@ function init_postform_features() {
     let cookie_pass_expires = new Date();
     cookie_pass_expires.setFullYear(cookie_pass_expires.getFullYear() + 10);
     postform_pass.addEventListener('input', function(event) {
-      set_cookie('password', event.target.value, 'Lax', cookie_pass_expires);
+      storage.set_cookie('password', event.target.value, 'Lax', cookie_pass_expires);
       
       if (deleteform_pass != null) {
         deleteform_pass.value = event.target.value;
@@ -1371,7 +1160,7 @@ function init_postform_features() {
     const create_error_window = (content) => {
       const div_content = document.createElement('div');
       div_content.innerHTML = content;
-      const fixed_window = create_fixed_window(
+      const fixed_window = ui_window.open(
         'errorwindow',
         'Error',
         0,
@@ -1477,6 +1266,79 @@ function init_postform_features() {
 }
 
 /**
+ * Initializes features related to thread view.
+ * @returns 
+ */
+function init_thread_features() {
+  const mode = document.getElementById('mode');
+  if (mode == null || mode.innerText != 'Reply') {
+    return;
+  }
+
+  const get_last_post_id = (target) => {
+    if (target == null) {
+      target = document;
+    }
+
+    const posts = Array.from(target.getElementsByClassName('post'));
+    return Math.max(...posts.map(x => parseInt(x.id.split('-')[1], 10)));
+  };
+
+  if (state.thread_auto_update.enabled) {
+    state.thread_auto_update.post_id_after = get_last_post_id();
+    state.thread_auto_update.interval = setInterval(() => {
+      fetch(window.location.pathname + '/replies/?post_id_after=' + state.thread_auto_update.post_id_after, {
+        method: 'GET'
+      }).then((response) => response.text())
+        .then((data) => {
+          if (data == null || data.length === 0) {
+            return;
+          }
+
+          // create temp div to hold the elements
+          let tmp_div = document.createElement('div');
+          tmp_div.innerHTML = data;
+
+          // validate temp div contents
+          if (!Number.isInteger(get_last_post_id(tmp_div))) {
+            return;
+          }
+
+          // init features for the new post elements
+          console.time('init_post_thumb_links');
+          init_post_thumb_links(tmp_div);
+          console.timeEnd('init_post_thumb_links');
+
+          console.time('init_dropdown_menu_buttons');
+          init_dropdown_menu_buttons(tmp_div);
+          console.timeEnd('init_dropdown_menu_buttons');
+
+          console.time('init_post_reference_links');
+          init_post_reference_links(tmp_div);
+          console.timeEnd('init_post_reference_links');
+
+          console.time('init_post_backreference_links');
+          init_post_backreference_links(tmp_div);
+          console.timeEnd('init_post_backreference_links');
+
+          console.time('init_post_hashid_features');
+          init_post_hashid_features(tmp_div);
+          console.timeEnd('init_post_hashid_features');
+
+          // move the new post elements from temp div to thread div
+          const thread_div = document.getElementsByClassName('thread')[0];
+          thread_div.appendChild(document.createElement('hr'));
+          Array.from(tmp_div.children).forEach((child) => {
+            thread_div.appendChild(child);
+          });
+
+          state.thread_auto_update.post_id_after = get_last_post_id();
+        });
+    }, 10000);
+  }
+}
+
+/**
  * Initializes features related to the style select element.
  */
 function init_stylepicker_features() {
@@ -1488,7 +1350,7 @@ function init_stylepicker_features() {
   let style_expires = new Date();
   style_expires.setFullYear(style_expires.getFullYear() + 10);
   stylepicker_element.addEventListener('change', (event) => {
-    set_cookie('style', event.target.value, 'Lax', style_expires);
+    storage.set_cookie('style', event.target.value, 'Lax', style_expires);
     location.reload();
   });
 }
@@ -1518,6 +1380,7 @@ function init_settings_features() {
       create_settings_window(settings_anchor, [
         { name: 'menubar_detach', type: 'bool' },
         { name: 'postform_detach', type: 'bool' },
+        { name: 'thread_auto_update', type: 'bool' },
         { name: 'audio_loop', type: 'bool' },
         { name: 'video_loop', type: 'bool' },
         { name: 'audio_autoclose', type: 'bool' },
@@ -1547,8 +1410,8 @@ function init_gallery_features() {
   gallery_anchor.addEventListener('click', (event) => {
     event.preventDefault();
 
-    const div_gallery_container = createGallery();
-    const div_fixed_window = create_fixed_window(
+    const div_gallery_container = gallery.create();
+    const div_fixed_window = ui_window.open(
       'gallerywindow',
       'Gallery (lctrl + scroll to resize)',
       0,
@@ -1594,6 +1457,10 @@ document.addEventListener('DOMContentLoaded', function(event) {
   console.time('init_postform_features');
   init_postform_features();
   console.timeEnd('init_postform_features');
+
+  console.time('init_thread_features');
+  init_thread_features();
+  console.timeEnd('init_thread_features');
 
   console.time('init_stylepicker_features');
   init_stylepicker_features();
