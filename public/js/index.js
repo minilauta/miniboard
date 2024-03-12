@@ -1287,7 +1287,7 @@ function init_thread_features() {
   if (state.thread_auto_update.enabled) {
     state.thread_auto_update.post_id_after = get_last_post_id();
     state.thread_auto_update.interval = setInterval(() => {
-      fetch(window.location.pathname + '/replies/?post_id_after=' + state.thread_auto_update.post_id_after, {
+      fetch(utils.removeTrailingSlash(window.location.pathname) + '/replies/?post_id_after=' + state.thread_auto_update.post_id_after, {
         method: 'GET'
       }).then((response) => response.text())
         .then((data) => {

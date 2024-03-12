@@ -14,8 +14,13 @@ function toHex(input_str) {
   return color;
 }
 
+function removeTrailingSlash(input_str) {
+  return input_str.endsWith('/') ? input_str.slice(0, -1) : input_str;
+}
+
 const utils = {
   toHex,
+  removeTrailingSlash,
 };
 
 export default utils;
