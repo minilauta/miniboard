@@ -52,8 +52,8 @@ jobs:
           file: ${{ matrix.image.folder }}/${{ matrix.image.dockerfile }}
           push: true
           tags: |
-            ghcr.io/anonyymi/miniboard/${{ matrix.image.name }}:latest
-            ghcr.io/anonyymi/miniboard/${{ matrix.image.name }}:${{ env.SHORT_SHA }}
+            ghcr.io/minilauta/miniboard/${{ matrix.image.name }}:latest
+            ghcr.io/minilauta/miniboard/${{ matrix.image.name }}:${{ env.SHORT_SHA }}
           platforms: |
             linux/arm64
             linux/amd64
