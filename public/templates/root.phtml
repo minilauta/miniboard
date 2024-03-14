@@ -30,6 +30,10 @@
               <?php
                 $board_table_n = 0;
                 foreach (MB_BOARDS as $key => $board) {
+                  if (isset($board['hidden']) && $board['hidden'] == true) {
+                    continue;
+                  }
+
                   if ($board_table_n % 4 === 0) {
                     echo '<tr>';
                   }

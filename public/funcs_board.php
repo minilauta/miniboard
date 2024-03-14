@@ -154,7 +154,7 @@ function funcs_board_render_message(string $board_id, ?int $parent_id, string $i
   $message = funcs_common_break_long_words($message, 79);
 
   // preprocess message reference links (same board)
-  $message = preg_replace_callback('/(&gt;&gt;)([0-9]+)/m', function ($matches) use ($board_id, $parent_id) {
+  $message = preg_replace_callback('/(&gt;&gt;)([0-9]{1,16})/m', function ($matches) use ($board_id, $parent_id) {
     $post = select_post($board_id, intval($matches[2]));
 
     if ($post) {
@@ -169,7 +169,7 @@ function funcs_board_render_message(string $board_id, ?int $parent_id, string $i
   }, $message);
 
   // preprocess message reference links (any board)
-  $message = preg_replace_callback('/(&gt;&gt;&gt;)\/([a-z]+)\/([0-9]+)/m', function ($matches) {
+  $message = preg_replace_callback('/(&gt;&gt;&gt;)\/([a-z]{1,10})\/([0-9]{1,16})/m', function ($matches) {
     $post = select_post($matches[2], intval($matches[3]));
 
     if ($post) {
@@ -189,7 +189,12 @@ function funcs_board_render_message(string $board_id, ?int $parent_id, string $i
   $message = preg_replace('/(^&gt;)(?!&gt;)([^\r\n]+)/m', '<span class="quote">$0</span>', $message);
 
   // preprocess message bbcode
-  $message = preg_replace('/\[(b|i|u|s|sup|sub)\](.*?)\[\/\1\]/ims', '<$1>$2</$1>', $message);
+  $message = preg_replace('/\[b\](.*?)\[\/b\]/ims', '<b>$1</b>', $message);
+  $message = preg_replace('/\[i\](.*?)\[\/i\]/ims', '<i>$1</i>', $message);
+  $message = preg_replace('/\[u\](.*?)\[\/u\]/ims', '<u>$1</u>', $message);
+  $message = preg_replace('/\[s\](.*?)\[\/s\]/ims', '<s>$1</s>', $message);
+  $message = preg_replace('/\[sup\](.*?)\[\/sup\]/ims', '<sup>$1</sup>', $message);
+  $message = preg_replace('/\[sub\](.*?)\[\/sub\]/ims', '<sub>$1</sub>', $message);
   $message = preg_replace('/\[code\](.*?)\[\/code\]/ims', '<pre>$1</pre>', $message);
   $message = preg_replace('/\[spoiler\](.*?)\[\/spoiler\]/ims', '<span class="spoiler">$1</span>', $message);
 
