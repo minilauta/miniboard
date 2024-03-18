@@ -15,10 +15,20 @@
     $thumb_width *= 0.6;
     $thumb_height *= 0.6;
 
+    $post_catalog_board = '';
+    if ($board['type'] === 'main') {
+      $post_catalog_board = "<span class='post-catalog-board'>/{$post['board_id']}/</span>";
+    }
+    echo "
+      <div class='post-catalog-header'>
+        {$post_catalog_board}
+        <span class='post-catalog-name'>{$post['name']}</span>
+        <span class='post-catalog-id'>No.{$post['post_id']}</span>
+      </div>
+    ";
 
     echo "
       <a href='/{$post['board_id']}/{$post['post_id']}'>
-        <span class='post-catalog-id'>No.{$post['post_id']}</span>
         <img id='thumb-{$post['board_id']}-{$post['post_id']}' src='{$thumb_src}' width='{$thumb_width}' height='{$thumb_height}' loading='lazy'>
       </a>
     ";
@@ -35,7 +45,10 @@
     // TODO: create specific function for this
     $message_truncated = substr(trim(str_ireplace("\n", '', strip_tags($post['message_rendered']))), 0, 75);
     echo "
-      <div class='post-catalog-meta'>{$stickied}{$locked} R: <b>{$post['replies_n']}</b></div>
+      <div class='post-catalog-meta'>
+        {$stickied}{$locked} R: <b>{$post['replies_n']}</b>
+        <a href='#' class='dd-menu-btn' data-board_id='{$post['board_id']}' data-id='{$post['post_id']}' data-cmd='post-menu'>▶</a>
+      </div>
       <div class='post-catalog-title'>
         <span class='post-catalog-subject'>{$post['subject']}</span>
         <span class='post-catalog-message'>{$message_truncated}</span>

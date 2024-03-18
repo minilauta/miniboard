@@ -95,6 +95,14 @@ div.post-message .spoiler {
   color: #707070;
 }
 
+span.post-catalog-board {
+  color: #66D9EF;
+}
+
+span.post-catalog-name {
+  color: #AE81FF;
+}
+
 span.post-catalog-subject {
   color: #F92672;
 }

@@ -211,8 +211,17 @@ div.post-catalog {
   overflow: hidden;
 }
 
+.post-catalog-board {
+  font-size: small;
+  font-weight: bold;
+}
+
+.post-catalog-name {
+  font-size: small;
+  font-weight: bold;
+}
+
 .post-catalog-id {
-  display: block;
   font-size: small;
 }
 

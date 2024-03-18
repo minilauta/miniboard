@@ -1433,10 +1433,6 @@ document.addEventListener('DOMContentLoaded', function(event) {
     init_post_thumb_links();
     console.timeEnd('init_post_thumb_links');
 
-    console.time('init_dropdown_menu_buttons');
-    init_dropdown_menu_buttons();
-    console.timeEnd('init_dropdown_menu_buttons');
-
     console.time('init_post_reference_links');
     init_post_reference_links();
     console.timeEnd('init_post_reference_links');
@@ -1449,6 +1445,10 @@ document.addEventListener('DOMContentLoaded', function(event) {
     init_location_hash_features();
     console.timeEnd('init_location_hash_features');
   }
+
+  console.time('init_dropdown_menu_buttons');
+  init_dropdown_menu_buttons();
+  console.timeEnd('init_dropdown_menu_buttons');
 
   console.time('init_post_hashid_features');
   init_post_hashid_features();
