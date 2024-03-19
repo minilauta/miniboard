@@ -502,12 +502,12 @@ function listener_post_reference_link_mouseenter(event) {
       }
       
       state.post_preview_cache[key] = xhr.responseText;
-      create_post_preview(target, data.board_id, data.parent_id, data.id, rect, xhr.responseText);
+      create_post_preview(target, data.board_id, data.parent_id, data.id, rect, false, xhr.responseText);
     }
     xhr.open('GET', '/' + data.board_id + '/' + data.parent_id + '/' + data.id, true);
     xhr.send();
   } else {
-    create_post_preview(target, data.board_id, data.parent_id, data.id, rect, state.post_preview_cache[key]);
+    create_post_preview(target, data.board_id, data.parent_id, data.id, rect, false, state.post_preview_cache[key]);
   }
 }
 
@@ -559,12 +559,12 @@ function listener_post_catalog_link_mouseenter(event) {
       }
       
       state.post_preview_cache[key] = xhr.responseText;
-      create_post_preview(document.body, data.board_id, data.parent_id, data.id, rect, xhr.responseText);
+      create_post_preview(document.body, data.board_id, data.parent_id, data.id, rect, true, xhr.responseText);
     }
     xhr.open('GET', '/' + data.board_id + '/' + data.parent_id + '/' + data.id, true);
     xhr.send();
   } else {
-    create_post_preview(document.body, data.board_id, data.parent_id, data.id, rect, state.post_preview_cache[key]);
+    create_post_preview(document.body, data.board_id, data.parent_id, data.id, rect, true, state.post_preview_cache[key]);
   }
 }
 
@@ -705,7 +705,7 @@ function create_dropdown_menu(target, board_id, parent_id, id, rect, indices) {
  * @param {Rect} rect 
  * @param {array} content 
  */
-function create_post_preview(target, board_id, parent_id, id, rect, content) {
+function create_post_preview(target, board_id, parent_id, id, rect, swap_x, content) {
   // get target bounding client rect
   let target_rect = rect;
 
@@ -746,8 +746,13 @@ function create_post_preview(target, board_id, parent_id, id, rect, content) {
   // overflow on x-axis: shift container left/right by overflow amount
   div_rect = div.getBoundingClientRect();
   if (div_rect.right > window.innerWidth) {
-    let overflow_x = div_rect.right - window.innerWidth;
-    div.style.left = (parseInt(div.style.left, 10) - overflow_x) + 'px';
+    if (swap_x) {
+      div.style.left = 'auto';
+      div.style.right = (window.innerWidth - parseInt(target_rect.left, 10)) + 'px';
+    } else {
+      let overflow_x = div_rect.right - window.innerWidth;
+      div.style.left = (parseInt(div.style.left, 10) - overflow_x) + 'px';
+    }
   } else if (div_rect.left < 0) {
     let overflow_x = div_rect.left;
     div.style.left = (parseInt(div.style.left, 10) - overflow_x) + 'px';
