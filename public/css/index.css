@@ -303,6 +303,7 @@ div.dd-menu li {
 /* post preview */
 div.post-preview {
   position: fixed;
+  text-align: initial;
 }
 
 div.post-preview > div.post {

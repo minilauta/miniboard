@@ -37,6 +37,7 @@ window.libopenmpt = {};
 // app state
 var state = {
   mouse_over_post_ref_link: false,
+  mouse_over_post_catalog_link: false,
   post_preview_cache: {},
   audio_volume: 0.1,
   video_volume: 0.1,
@@ -525,6 +526,63 @@ function listener_post_reference_link_mouseleave(event) {
 }
 
 /**
+ * Event listener: mouse over on post catalog link.
+ * Opens a preview.
+ * @param {*} event 
+ */
+function listener_post_catalog_link_mouseenter(event) {
+  event.preventDefault();
+
+  // update state
+  state.mouse_over_post_catalog_link = true;
+
+  let target = event.target;
+  let rect = target.getBoundingClientRect();
+  let data = target.dataset;
+  
+  if (data.board_id == null || data.parent_id == null || data.id == null) {
+    return;
+  }
+
+  const key = data.board_id + '/' + data.parent_id + '/' + data.id;
+
+  if (state.post_preview_cache[key] == null) {
+    let xhr = new XMLHttpRequest();
+    xhr.onreadystatechange = function() {
+      if (!state.mouse_over_post_catalog_link) {
+        xhr.abort();
+        return;
+      }
+  
+      if (xhr.readyState !== XMLHttpRequest.DONE) {
+        return;
+      }
+      
+      state.post_preview_cache[key] = xhr.responseText;
+      create_post_preview(document.body, data.board_id, data.parent_id, data.id, rect, xhr.responseText);
+    }
+    xhr.open('GET', '/' + data.board_id + '/' + data.parent_id + '/' + data.id, true);
+    xhr.send();
+  } else {
+    create_post_preview(document.body, data.board_id, data.parent_id, data.id, rect, state.post_preview_cache[key]);
+  }
+}
+
+/**
+ * Event listener: mouse out from post catalog link.
+ * Closes all opened previews.
+ * @param {*} event 
+ */
+function listener_post_catalog_link_mouseleave(event) {
+  event.preventDefault();
+
+  // update state
+  state.mouse_over_post_catalog_link = false;
+
+  delete_post_previews(document.body);
+}
+
+/**
  * Event listener: click on dropdown menu indice.
  * Executes menu action.
  * @param {*} event 
@@ -649,7 +707,7 @@ function create_dropdown_menu(target, board_id, parent_id, id, rect, indices) {
  */
 function create_post_preview(target, board_id, parent_id, id, rect, content) {
   // get target bounding client rect
-  let target_rect = target.getBoundingClientRect();
+  let target_rect = rect;
 
   // create container element
   let div = document.createElement('div');
@@ -987,10 +1045,26 @@ function init_post_reference_links(target) {
     target = document;
   }
 
-  let post_ref_links = target.getElementsByClassName('reference');
+  const post_ref_links = target.getElementsByClassName('reference');
   Array.from(post_ref_links).forEach(element => {
     element.addEventListener('mouseenter', listener_post_reference_link_mouseenter);
     element.addEventListener('mouseleave', listener_post_reference_link_mouseleave);
+  });
+}
+
+/**
+ * Initializes all post catalog links under target element.
+ * @param {*} target 
+ */
+function init_post_catalog_links(target) {
+  if (target == null) {
+    target = document;
+  }
+
+  const post_catalog_links = target.getElementsByClassName('post-catalog-link');
+  Array.from(post_catalog_links).forEach(element => {
+    element.addEventListener('mouseenter', listener_post_catalog_link_mouseenter);
+    element.addEventListener('mouseleave', listener_post_catalog_link_mouseleave);
   });
 }
 
@@ -1445,6 +1519,10 @@ document.addEventListener('DOMContentLoaded', function(event) {
     init_location_hash_features();
     console.timeEnd('init_location_hash_features');
   }
+
+  console.time('init_post_catalog_links');
+  init_post_catalog_links();
+  console.timeEnd('init_post_catalog_links');
 
   console.time('init_dropdown_menu_buttons');
   init_dropdown_menu_buttons();
