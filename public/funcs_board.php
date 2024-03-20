@@ -33,7 +33,7 @@ function funcs_board_check_access(array $board_cfg, ?int $user_role): bool {
 /**
  * Creates a new post object.
  */
-function funcs_board_create_post(string $ip, array $board_cfg, ?int $parent_id, ?array $file_info, array $file, array $input): array {
+function funcs_board_create_post(string $ip, ?string $country, array $board_cfg, ?int $parent_id, ?array $file_info, array $file, array $input): array {
   // handle anonfile flag
   if ($file_info != null && isset($input['anonfile']) && $input['anonfile'] == true) {
     $file['file_original'] = substr(str_shuffle('0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ'), 1, 8) . '.' . $file_info['ext'];
@@ -68,7 +68,7 @@ function funcs_board_create_post(string $ip, array $board_cfg, ?int $parent_id, 
   }
 
   // render nameblock
-  $nameblock = funcs_board_render_nameblock($name_trip[0], $name_trip[1], $email, $hashid, $role, $timestamp);
+  $nameblock = funcs_board_render_nameblock($name_trip[0], $name_trip[1], $email, $hashid, $country, $role, $timestamp);
 
   return [
     'board_id'            => $board_cfg['id'],
@@ -99,14 +99,14 @@ function funcs_board_create_post(string $ip, array $board_cfg, ?int $parent_id, 
     'timestamp'           => $timestamp,
     'bumped'              => $timestamp,
     'ip'                  => $ip,
-    'country'             => null
+    'country'             => $country,
   ];
 }
 
 /**
  * Renders the nameblock-prop of a post object.
  */
-function funcs_board_render_nameblock(string $name, ?string $tripcode, ?string $email, ?string $hashid, ?int $role, int $timestamp): string {
+function funcs_board_render_nameblock(string $name, ?string $tripcode, ?string $email, ?string $hashid, ?string $country, ?int $role, int $timestamp): string {
   $nameblock = '';
 
   if (isset($email) && strlen($email) > 0) {
@@ -123,6 +123,11 @@ function funcs_board_render_nameblock(string $name, ?string $tripcode, ?string $
 
   if (isset($hashid) && strlen($hashid) > 0 && $role == null) {
     $nameblock .= "<span class='post-hashid'>(ID: <span class='post-hashid-hash'>{$hashid}</span>)</span>";
+    $nameblock .= "\n";
+  }
+
+  if (isset($country) && strlen($country) > 0) {
+    $nameblock .= "<span class='flag flag-{$country}' title='{$country}'></span>";
     $nameblock .= "\n";
   }
 

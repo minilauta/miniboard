@@ -143,6 +143,18 @@ function funcs_common_get_client_remote_address(bool $cloudflare, array $server)
 }
 
 /**
+ * Returns client remote ISO-3166-1 alpha-2 country code as a lowercase string.
+ * NOTE: currently supports only cloudflare.
+ */
+function funcs_common_get_client_remote_country(bool $cloudflare, array $server): ?string {
+  if ($cloudflare && isset($server['HTTP_CF_IPCOUNTRY'])) {
+    return strtolower($server['HTTP_CF_IPCOUNTRY']);
+  }
+
+  return null;
+}
+
+/**
  * Truncates a string to N line breaks (\n or <br>). Terminates leftover HTML-elements.
  */
 function funcs_common_truncate_string_linebreak(string &$input, int $br_count = 15, bool $handle_html = true): bool {

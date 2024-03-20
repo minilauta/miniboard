@@ -1082,7 +1082,8 @@ function select_rebuild_posts(string $board_id): array|bool {
       message,
       file,
       embed,
-      imported
+      imported,
+      country
     FROM posts
     WHERE board_id = :board_id
   ');
@@ -1111,6 +1112,7 @@ function insert_refresh_board(array $board): bool {
   // convert bools to int
   $board['nsfw'] = $board['nsfw'] == true ? 1 : 0;
   $board['hidden'] = $board['hidden'] == true ? 1 : 0;
+  $board['flags'] = $board['flags'] == true ? 1 : 0;
   $board['alwaysnoko'] = $board['alwaysnoko'] == true ? 1 : 0;
   $board['nofileok'] = $board['nofileok'] == true ? 1 : 0;
 
@@ -1130,6 +1132,7 @@ function insert_refresh_board(array $board): bool {
       hashid_salt,
       nsfw,
       hidden,
+      flags,
       role,
       alwaysnoko,
       threads_per_page,
@@ -1155,6 +1158,7 @@ function insert_refresh_board(array $board): bool {
       :hashid_salt,
       :nsfw,
       :hidden,
+      :flags,
       :req_role,
       :alwaysnoko,
       :threads_per_page,
@@ -1179,6 +1183,7 @@ function insert_refresh_board(array $board): bool {
       hashid_salt = VALUES(hashid_salt),
       nsfw = VALUES(nsfw),
       hidden = VALUES(hidden),
+      flags = VALUES(flags),
       role = VALUES(role),
       alwaysnoko = VALUES(alwaysnoko),
       threads_per_page = VALUES(threads_per_page),

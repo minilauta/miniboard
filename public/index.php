@@ -814,6 +814,10 @@ function handle_postform(Request $request, Response $response, array $args, stri
 
   // get user info
   $user_ip = funcs_common_get_client_remote_address(MB_CLOUDFLARE, $_SERVER);
+  $user_country = null;
+  if ($board_cfg['flags'] == true) {
+    $user_country = funcs_common_get_client_remote_country(MB_CLOUDFLARE, $_SERVER);
+  }
   $user_last_post_by_ip = select_last_post_by_ip($user_ip);
   $user_is_logged_in = funcs_manage_is_logged_in();
 
@@ -902,7 +906,7 @@ function handle_postform(Request $request, Response $response, array $args, stri
   }
 
   // create post
-  $post = funcs_board_create_post($user_ip, $board_cfg, $thread_id, $file_info, $file, $params);
+  $post = funcs_board_create_post($user_ip, $user_country, $board_cfg, $thread_id, $file_info, $file, $params);
 
   // generate unique post_id on current board
   init_post_auto_increment($post['board_id']);

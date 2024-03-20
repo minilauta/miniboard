@@ -112,6 +112,7 @@ data:
         'max_height'        => 0,
         'nsfw'              => true,
         'hidden'            => false,
+        'flags'             => false,
       ],
       'b' => [
         'id'                => 'b',
@@ -159,5 +160,6 @@ data:
         'max_height'        => 250,
         'nsfw'              => true,
         'hidden'            => false,
+        'flags'             => false,
       ]
     ]);

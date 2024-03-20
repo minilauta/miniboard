@@ -109,6 +109,7 @@ define('MB_BOARDS', [
     'max_height'        => 0,
     'nsfw'              => true,
     'hidden'            => false,
+    'flags'             => false,
   ],
   'b' => [
     'id'                => 'b',
@@ -164,6 +165,7 @@ define('MB_BOARDS', [
     'max_height'        => 250,
     'nsfw'              => true,
     'hidden'            => false,
+    'flags'             => false,
   ],
   'a' => [
     'id'                => 'a',
@@ -208,6 +210,7 @@ define('MB_BOARDS', [
     'max_height'        => 250,
     'nsfw'              => false,
     'hidden'            => false,
+    'flags'             => false,
   ],
   'mod' => [
     'id'                => 'mod',
@@ -255,5 +258,6 @@ define('MB_BOARDS', [
     'max_height'        => 250,
     'nsfw'              => false,
     'hidden'            => false,
+    'flags'             => false,
   ]
 ]);
