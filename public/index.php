@@ -169,6 +169,36 @@ function handle_rebuildform(Request $request, Response $response, array $args): 
   return $response;
 }
 
+$app->post('/manage/refresh/', function (Request $request, Response $response, array $args) {
+  if (!funcs_manage_is_logged_in()) {
+    throw new AppException('index', 'route', 'access denied', SC_UNAUTHORIZED);
+  }
+
+  if ($_SESSION['mb_role'] !== MB_ROLE_SUPERADMIN) {
+    throw new AppException('index', 'route', 'insufficient permissions', SC_FORBIDDEN);
+  }
+
+  return handle_refreshform($request, $response, $args);
+});
+
+function handle_refreshform(Request $request, Response $response, array $args): Response {
+  // parse request body
+  $params = (array) $request->getParsedBody();
+
+  // validate request fields
+  funcs_common_validate_fields($params, [
+    'board_id'   => ['required' => true, 'type' => 'string']
+  ]);
+
+  // execute refresh
+  $status = funcs_manage_refresh($params);
+
+  $response = $response
+    ->withHeader('Location', "/manage/?route=refresh&status={$status}")
+    ->withStatus(303);
+  return $response;
+}
+
 $app->post('/manage/delete/', function (Request $request, Response $response, array $args) {
   if (!funcs_manage_is_logged_in()) {
     throw new AppException('index', 'route', 'access denied', SC_UNAUTHORIZED);

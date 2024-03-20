@@ -179,6 +179,21 @@ function funcs_manage_rebuild(array $params): string {
 }
 
 /**
+ * Refreshes boards table row in the database.
+ */
+function funcs_manage_refresh(array $params): string {
+  // get board config
+  $board_cfg = funcs_common_get_board_cfg($params['board_id']);
+
+  // refresh board
+  $result = insert_refresh_board($board_cfg);
+
+  $status = "Refreshed board: /{$board_cfg['id']}/";
+  funcs_manage_log($status);
+  return $status;
+}
+
+/**
  * Deletes all selected posts from filesystem and database.
  */
 function funcs_manage_delete(array $select): string {

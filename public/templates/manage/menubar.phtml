@@ -4,6 +4,7 @@
       $user_role = funcs_manage_get_role();
       
       echo $user_role === MB_ROLE_SUPERADMIN ? "[<a href='?route=rebuild'>Rebuild</a>]\n"   : '';
+      echo $user_role === MB_ROLE_SUPERADMIN ? "[<a href='?route=refresh'>Refresh</a>]\n"   : '';
       echo $user_role === MB_ROLE_SUPERADMIN ? "[<a href='?route=import'>Import</a>]\n"     : '';
       echo $user_role === MB_ROLE_SUPERADMIN ? "[<a href='?route=accounts'>Accounts</a>]\n" : '';
     ?>

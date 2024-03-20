@@ -88,7 +88,7 @@ define('MB_BOARDS', [
     'threads_per_catalog_page' => 50,
     'posts_per_preview' => 4,
     'truncate'          => 15,
-    'anonymous'         => null,
+    'anonymous'         => 'Anonymous',
     'hashid_salt'       => null,
     'max_threads'       => 0,
     'max_replies'       => 0,
@@ -108,6 +108,7 @@ define('MB_BOARDS', [
     'max_width'         => 0,
     'max_height'        => 0,
     'nsfw'              => true,
+    'hidden'            => false,
   ],
   'b' => [
     'id'                => 'b',
@@ -162,6 +163,7 @@ define('MB_BOARDS', [
     'max_width'         => 250,
     'max_height'        => 250,
     'nsfw'              => true,
+    'hidden'            => false,
   ],
   'a' => [
     'id'                => 'a',
@@ -205,6 +207,7 @@ define('MB_BOARDS', [
     'max_width'         => 250,
     'max_height'        => 250,
     'nsfw'              => false,
+    'hidden'            => false,
   ],
   'mod' => [
     'id'                => 'mod',
@@ -251,5 +254,6 @@ define('MB_BOARDS', [
     'max_width'         => 250,
     'max_height'        => 250,
     'nsfw'              => false,
+    'hidden'            => false,
   ]
 ]);

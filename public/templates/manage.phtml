@@ -26,6 +26,13 @@
 
           echo $this->fetch('manage/rebuildform.phtml');
           break;
+        case 'refresh':
+          if (funcs_manage_get_role() !== MB_ROLE_SUPERADMIN) {
+            throw new AppException('manage.phtml', 'inline', 'insufficient permissions', SC_FORBIDDEN);
+          }
+
+          echo $this->fetch('manage/refreshform.phtml');
+          break;
         case 'accounts':
           if (funcs_manage_get_role() !== MB_ROLE_SUPERADMIN) {
             throw new AppException('manage.phtml', 'inline', 'insufficient permissions', SC_FORBIDDEN);
