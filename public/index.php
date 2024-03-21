@@ -704,7 +704,29 @@ $app->post('/{board_id}/', function (Request $request, Response $response, array
 });
 
 $app->post('/{board_id}/delete/', function (Request $request, Response $response, array $args) {
-  return handle_deleteform($request, $response, $args);
+  $error_code = null;
+  $error_message = null;
+  
+  try {
+    return handle_deleteform($request, $response, $args);
+  } catch (AppException $ex) {
+    $error_code = $ex->getCode();
+    $error_message = $ex->getMessage();
+  } catch (DbException $ex) {
+    $error_code = $ex->getCode();
+    $error_message = $ex->getMessage();
+  } catch (Exception $ex) {
+    $error_code = $ex->getCode();
+    $error_message = $ex->getMessage();
+  }
+  
+  $response = $response
+    ->withHeader('Content-Type', 'application/json')
+    ->withStatus($error_code);
+  $response->getBody()->write(json_encode([
+    'error_message' => $error_message,
+  ]));
+  return $response;
 });
 
 function handle_deleteform(Request $request, Response $response, array $args): Response {
@@ -742,13 +764,21 @@ function handle_deleteform(Request $request, Response $response, array $args): R
 
     // get post
     $post = select_post($delete_board_id, $delete_post_id);
-    if ($post == null) {
+    if ($post == null || $post['password'] == null) {
       continue;
     }
 
     // verify password
     if (funcs_common_verify_password($params['password'], $post['password']) !== true) {
-      continue;
+      throw new AppException('index', 'route', "invalid password for post with ID /{$delete_board_id}/{$delete_post_id}", SC_FORBIDDEN);
+    }
+
+    // validate timeframe if post is a thread
+    if (MB_TIMEFRAME > 0 && $post['parent_id'] === 0) {
+      $timeframe_in_seconds = MB_TIMEFRAME;
+      if (time() - $post['timestamp'] > $timeframe_in_seconds) {
+        throw new AppException('index', 'route', "you cannot delete threads older than {$timeframe_in_seconds}s", SC_FORBIDDEN);
+      }
     }
 
     // delete post
@@ -768,8 +798,11 @@ function handle_deleteform(Request $request, Response $response, array $args): R
   }
 
   $response = $response
-    ->withHeader('Location', '/' . $board_cfg['id'] . '/')
-    ->withStatus(303);
+    ->withHeader('Content-Type', 'application/json')
+    ->withStatus(200);
+  $response->getBody()->write(json_encode([
+    'redirect_url' => '/' . $board_cfg['id'] . '/',
+  ]));
   return $response;
 }
 

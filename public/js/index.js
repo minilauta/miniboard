@@ -1201,6 +1201,27 @@ function init_location_hash_features() {
   });
 }
 
+function create_error_window(content) {
+  const div_content = document.createElement('div');
+  div_content.innerHTML = content;
+  const fixed_window = ui_window.open(
+    'errorwindow',
+    'Error',
+    0,
+    0,
+    null,
+    null,
+    true,
+    div_content
+  );
+  document.body.appendChild(fixed_window.element);
+  const client_rect = fixed_window.element.getBoundingClientRect();
+  fixed_window.setXY(
+    window.innerWidth * 0.5 - client_rect.width * 0.5,
+    window.innerHeight * 0.5 - client_rect.height * 0.5
+  );
+}
+
 /**
  * Initializes features related to postform fields.
  * - Remember password (local cookie)
@@ -1339,6 +1360,52 @@ function init_postform_features() {
         },
         width: 512,
         height: 512,
+      });
+    });
+  }
+}
+
+/**
+ * Initializes features related to deleteform fields.
+ */
+function init_deleteform_features() {
+  const delete_form = document.getElementById('deleteform');
+
+  // setup submit handler
+  if (delete_form != null) {
+    let submit_btn = delete_form.querySelector('input[type=submit]');
+
+    delete_form.addEventListener('submit', (event) => {
+      event.preventDefault();
+      
+      submit_btn.disabled = true;
+      fetch(delete_form.action, {
+        method: 'POST',
+        body: new FormData(delete_form)
+      }).then((data) => {
+        data.text().then((response) => {
+          try {
+            const data_json = JSON.parse(response);
+
+            // 200 OK, follow redirect
+            if (data.status === 200 && data_json['redirect_url'] != null) {
+              window.location.href = window.location.origin + data_json['redirect_url'];
+              setTimeout(() => {
+                window.location.reload(true);
+              }, 250);
+            // xxx ERROR, show error window
+            } else {
+              create_error_window(data_json['error_message']);
+              submit_btn.disabled = false;
+            }
+          } catch (error) {
+            create_error_window(response);
+            submit_btn.disabled = false;
+          }
+        });
+      }).catch((error) => {
+        create_error_window(error);
+        submit_btn.disabled = false;
       });
     });
   }
@@ -1540,6 +1607,10 @@ document.addEventListener('DOMContentLoaded', function(event) {
   console.time('init_postform_features');
   init_postform_features();
   console.timeEnd('init_postform_features');
+  
+  console.time('init_deleteform_features');
+  init_deleteform_features();
+  console.timeEnd('init_deleteform_features');
 
   console.time('init_thread_features');
   init_thread_features();
