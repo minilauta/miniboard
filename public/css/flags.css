@@ -263,9 +263,9 @@
 .flag-ws { background-position: -176px -165px }
 .flag-xk { background-position: -192px -165px }
 .flag-xx { background-position: -208px -165px }
-.flag-t1 { background-position: -208px -165px } /* cloudflare TOR */
 .flag-ye { background-position: -224px -165px }
 .flag-yt { background-position: -240px -165px }
 .flag-za { background-position: 0 -176px }
 .flag-zm { background-position: -16px -176px }
 .flag-zw { background-position: -32px -176px }
+.flag-t1 { background-position: -240px -176px } /* cloudflare TOR */
