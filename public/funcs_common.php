@@ -122,6 +122,16 @@ function funcs_common_clean_field(string $field): string {
 }
 
 /**
+ * Cleans an user submitted text field before it's stored in database.
+ */
+function funcs_common_clean_unicode(string $field): string {
+  $result = preg_replace('/[\x00-\x08\x0B-\x1F\x7F]/um', '', $field); // non-printable (excluding LF, HT and SP)
+  $result = preg_replace(REGEX_MATCH_UNICODE_ICONS, '', $result);     // any unicode symbols and pictographs
+
+  return $result;
+}
+
+/**
  * Turns a size in bytes to a human readable string representation.
  */
 function funcs_common_human_filesize(int $bytes, int $dec = 2): string {

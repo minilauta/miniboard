@@ -854,6 +854,12 @@ function handle_postform(Request $request, Response $response, array $args, stri
   $user_last_post_by_ip = select_last_post_by_ip($user_ip);
   $user_is_logged_in = funcs_manage_is_logged_in();
 
+  // clean some request fields (UNICODE icons)
+  $params['name'] = funcs_common_clean_unicode($params['name']);
+  $params['email'] = funcs_common_clean_unicode($params['email']);
+  $params['subject'] = funcs_common_clean_unicode($params['subject']);
+  $params['message'] = funcs_common_clean_unicode($params['message']);
+
   // validate request fields
   funcs_common_validate_fields($params, $board_cfg['fields_post']);
 
