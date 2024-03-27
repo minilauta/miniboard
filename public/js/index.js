@@ -1074,16 +1074,16 @@ function init_post_catalog_links(target) {
 }
 
 /**
- * Initializes all post backreference links under target element.
+ * Initializes all post backreference links, cleans up existing first.
  * @param {*} target 
  */
-function init_post_backreference_links(target) {
-  if (target == null) {
-    target = document;
-  }
+function init_post_backreference_links() {
+  // clear existing backreference links
+  Array.from(document.getElementsByClassName('backreference'))
+    .forEach((x) => x.remove());
 
   // get all post elements
-  let post_elements = target.getElementsByClassName('post');
+  let post_elements = document.getElementsByClassName('post');
 
   // create a lookup map of posts and array of {post, refs} objs
   let post_lookup = {};
@@ -1463,10 +1463,6 @@ function init_thread_features() {
           init_post_reference_links(tmp_div);
           console.timeEnd('init_post_reference_links');
 
-          console.time('init_post_backreference_links');
-          init_post_backreference_links(tmp_div);
-          console.timeEnd('init_post_backreference_links');
-
           console.time('init_post_hashid_features');
           init_post_hashid_features(tmp_div);
           console.timeEnd('init_post_hashid_features');
@@ -1477,6 +1473,10 @@ function init_thread_features() {
           Array.from(tmp_div.children).forEach((child) => {
             thread_div.appendChild(child);
           });
+
+          console.time('init_post_backreference_links');
+          init_post_backreference_links();
+          console.timeEnd('init_post_backreference_links');
 
           state.thread_auto_update.post_id_after = get_last_post_id();
         });
