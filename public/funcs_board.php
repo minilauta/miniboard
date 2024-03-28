@@ -600,6 +600,10 @@ function funcs_board_get_mp3_album_art(string $file_path, string $output_path): 
     }
   }
 
+  if ($album_path == null) {
+    return null;
+  }
+
   return [
     'ext' => $album_ext,
     'file_path' => $album_path,
