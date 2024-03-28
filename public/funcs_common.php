@@ -409,6 +409,12 @@ function funcs_common_delete_post(string $board_id, int $post_id): array {
           $warnings[] = "Failed to delete thumbnail for post /{$post['board_id']}/{$post['post_id']}/ (maybe it didn't exist?)";
         }
       }
+
+      if (isset($post['audio_album']) && strlen($post['audio_album']) > 0) {
+        if (!unlink(__DIR__ . $post['audio_album'])) {
+          $warnings[] = "Failed to delete album art for post /{$post['board_id']}/{$post['post_id']}/ (maybe it didn't exist?)";
+        }
+      }
     }
 
     // delete post from db

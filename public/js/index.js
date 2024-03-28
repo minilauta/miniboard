@@ -443,6 +443,21 @@ function listener_dropdown_menu_button_click(event) {
             }
           });
         }
+        let album_link = document.getElementById('album-' + data.board_id + '-' + data.id);
+        if (album_link != null && album_link.innerText.length > 0) {
+          lis.push({
+            type: 'li',
+            text: 'Audio: Album art',
+            data: {
+              cmd: 'audio_album',
+              cmd_data: {
+                url: album_link.innerText,
+              },
+              board_id: data.board_id,
+              id: data.id
+            }
+          });
+        }
         create_dropdown_menu(target, data.board_id, data.parent_id, data.id, rect, lis);
         break;
       default:
@@ -623,6 +638,9 @@ function listener_post_catalog_link_mouseleave(event) {
       if (thumb != null) {
         ui_window.open_native(data.url + thumb.src, '_blank');
       }
+      break;
+    case 'audio_album':
+      ui_window.open_native(data.url, '_blank');
       break;
     default:
       console.error('listener_dropdown_menu_indice unhandled cmd: ' + data.cmd);

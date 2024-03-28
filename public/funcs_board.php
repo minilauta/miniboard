@@ -90,11 +90,13 @@ function funcs_board_create_post(string $ip, ?string $country, array $board_cfg,
     'file_original'       => funcs_common_clean_field($file['file_original']),
     'file_size'           => $file['file_size'],
     'file_size_formatted' => $file['file_size_formatted'],
+    'file_mime'           => $file['file_mime'],
     'image_width'         => $file['image_width'],
     'image_height'        => $file['image_height'],
     'thumb'               => $file['thumb'],
     'thumb_width'         => $file['thumb_width'],
     'thumb_height'        => $file['thumb_height'],
+    'audio_album'         => $file['audio_album'],
     'embed'               => $file['embed'],
     'timestamp'           => $timestamp,
     'bumped'              => $timestamp,
@@ -299,11 +301,13 @@ function funcs_board_execute_upload(UploadedFileInterface $file, ?array $file_in
       'file_original'       => '',
       'file_size'           => 0,
       'file_size_formatted' => '',
+      'file_mime'           => null,
       'image_width'         => 0,
       'image_height'        => 0,
       'thumb'               => '',
       'thumb_width'         => 0,
       'thumb_height'        => 0,
+      'audio_album'         => null,
       'embed'               => 0
     ];
   }
@@ -319,9 +323,12 @@ function funcs_board_execute_upload(UploadedFileInterface $file, ?array $file_in
     $file_hex = $file_info['md5'];
     $file_size = $file_info['size'];
     $file_size_formatted = funcs_common_human_filesize($file_size);
+    $file_mime = $file_info['mime'];
     $thumb_file_name = 'thumb_' . $file_name . '.png';
     $thumb_dir = '/src/';
     $thumb_file_path = __DIR__ . $thumb_dir . $thumb_file_name;
+    $album_file_name = null;
+    $album_dir = '/src/';
 
     // run exiftool on supported file extensions
     switch ($file_info['mime']) {
@@ -380,15 +387,17 @@ function funcs_board_execute_upload(UploadedFileInterface $file, ?array $file_in
       case 'audio/flac':
       case 'audio/opus':
       case 'audio/ogg':
-        $album_file_path = __DIR__ . '/src/' . 'album_' . $file_name;
+        $album_file_path = __DIR__ . $album_dir . 'album_' . $file_name;
+        $album_file_result = null;
         if ($file_info['mime'] === 'audio/mpeg') {
-          $album_file_path = funcs_board_get_mp3_album_art($file_path, $album_file_path);
+          $album_file_result = funcs_board_get_mp3_album_art($file_path, $album_file_path);
         } else {
-          $album_file_path = funcs_board_get_audio_album_art($file_path, $album_file_path);
+          $album_file_result = funcs_board_get_audio_album_art($file_path, $album_file_path);
         }
        
-        if ($album_file_path != null) {
-          $generated_thumb = funcs_board_generate_thumbnail($album_file_path, $spoiler, true, 'png', $thumb_file_path, $max_w, $max_h);
+        if ($album_file_result != null) {
+          $album_file_name = 'album_' . $file_name . '.' . $album_file_result['ext'];
+          $generated_thumb = funcs_board_generate_thumbnail($album_file_result['file_path'], $spoiler, true, 'png', $thumb_file_path, $max_w, $max_h);
           $image_width = $generated_thumb['image_width'];
           $image_height = $generated_thumb['image_height'];
           $thumb_width = $generated_thumb['thumb_width'];
@@ -429,12 +438,15 @@ function funcs_board_execute_upload(UploadedFileInterface $file, ?array $file_in
     $file_hex = $file_collisions[0]['file_hex'];
     $file_size = $file_collisions[0]['file_size'];
     $file_size_formatted = $file_collisions[0]['file_size_formatted'];
+    $file_mime = $file_collisions[0]['file_mime'];
     $image_width = $file_collisions[0]['image_width'];
     $image_height = $file_collisions[0]['image_height'];
     $thumb_file_name = $file_collisions[0]['thumb'];
     $thumb_dir = '';
     $thumb_width = $file_collisions[0]['thumb_width'];
     $thumb_height = $file_collisions[0]['thumb_height'];
+    $album_dir = '';
+    $album_file_name = $file_collisions[0]['audio_album'];
   }
 
   return [
@@ -444,11 +456,13 @@ function funcs_board_execute_upload(UploadedFileInterface $file, ?array $file_in
     'file_original'       => $file_name_client,
     'file_size'           => $file_size,
     'file_size_formatted' => $file_size_formatted,
+    'file_mime'           => $file_mime,
     'image_width'         => $image_width,
     'image_height'        => $image_height,
     'thumb'               => $thumb_dir . $thumb_file_name,
     'thumb_width'         => $thumb_width,
     'thumb_height'        => $thumb_height,
+    'audio_album'         => isset($album_file_name) ? $album_dir . $album_file_name : null,
     'embed'               => 0
   ];
 }
@@ -526,7 +540,7 @@ function funcs_board_generate_thumbnail(string $file_path, bool $spoiler, bool $
 /**
  * Extracts album art from input AUDIO file metadata.
  */
-function funcs_board_get_audio_album_art(string $file_path, string $output_path): ?string {
+function funcs_board_get_audio_album_art(string $file_path, string $output_path): ?array {
   // check if ffmpeg is available
   $ffmpeg_output = '';
   $ffmpeg_status = 1;
@@ -545,13 +559,16 @@ function funcs_board_get_audio_album_art(string $file_path, string $output_path)
     return null;
   }
 
-  return $output_path;
+  return [
+    'ext' => 'png',
+    'file_path' => $output_path,
+  ];
 }
 
 /**
  * Extracts album art (jpg or png) from input MP3 file metadata.
  */
-function funcs_board_get_mp3_album_art(string $file_path, string $output_path): ?string {
+function funcs_board_get_mp3_album_art(string $file_path, string $output_path): ?array {
   // get file info
   $get_id3 = new getID3;
   $id3_info = $get_id3->analyze($file_path);
@@ -559,9 +576,9 @@ function funcs_board_get_mp3_album_art(string $file_path, string $output_path): 
   // extract album art data
   $album_mime = null;
   $album_path = null;
+  $album_ext = null;
   if (isset($id3_info['comments']['picture'][0])) {
     $album_mime = $id3_info['comments']['picture'][0]['image_mime'];
-    $album_ext = null;
     switch ($album_mime) {
       case 'image/jpeg':
       case 'image/pjpeg':
@@ -583,7 +600,10 @@ function funcs_board_get_mp3_album_art(string $file_path, string $output_path): 
     }
   }
 
-  return $album_path;
+  return [
+    'ext' => $album_ext,
+    'file_path' => $album_path,
+  ];
 }
 
 function funcs_board_execute_embed(string $url, array $embed_types, int $max_w = 250, int $max_h = 250): ?array {
@@ -628,11 +648,13 @@ function funcs_board_execute_embed(string $url, array $embed_types, int $max_w =
     'file_original'       => funcs_common_clean_field($response['title']),
     'file_size'           => null,
     'file_size_formatted' => null,
+    'file_mime'           => null,
     'image_width'         => $image_width,
     'image_height'        => $image_height,
     'thumb'               => $thumb_dir . $thumb_file_name,
     'thumb_width'         => $thumb_width,
     'thumb_height'        => $thumb_height,
+    'audio_album'         => null,
     'embed'               => 1
   ];
 }

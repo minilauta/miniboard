@@ -365,11 +365,13 @@ function insert_post($post): int|bool {
       file_original,
       file_size,
       file_size_formatted,
+      file_mime,
       image_width,
       image_height,
       thumb,
       thumb_width,
       thumb_height,
+      audio_album,
       embed,
       country
     )
@@ -397,11 +399,13 @@ function insert_post($post): int|bool {
       :file_original,
       :file_size,
       :file_size_formatted,
+      :file_mime,
       :image_width,
       :image_height,
       :thumb,
       :thumb_width,
       :thumb_height,
+      :audio_album,
       :embed,
       :country
     )
@@ -473,11 +477,13 @@ function select_files_by_md5(string $file_md5): array|bool {
       file_original,
       file_size,
       file_size_formatted,
+      file_mime,
       image_width,
       image_height,
       thumb,
       thumb_width,
-      thumb_height
+      thumb_height,
+      audio_album
     FROM posts
     WHERE file_hex = :file_md5
   ');
@@ -1000,11 +1006,13 @@ function insert_import_posts_tinyib(array $db_creds, string $table_name, string 
       file_original,
       file_size,
       file_size_formatted,
+      file_mime,
       image_width,
       image_height,
       thumb,
       thumb_width,
       thumb_height,
+      audio_album,
       embed,
       country,
       stickied,
@@ -1040,11 +1048,13 @@ function insert_import_posts_tinyib(array $db_creds, string $table_name, string 
       file_original,
       file_size,
       file_size_formatted,
+      NULL,
       image_width,
       image_height,
       CONCAT(\'/src/\', thumb) AS thumb,
       thumb_width,
       thumb_height,
+      NULL,
       (CASE
         WHEN file LIKE \'%iframe%\' THEN 1
         ELSE 0
