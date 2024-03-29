@@ -934,7 +934,7 @@ function create_settings_window(target, variables) {
  */
 function apply_settings() {
   const css_override = storage.get_lsvar('css_override');
-  if (css_override != null) {
+  if (css_override != null && css_override.length > 0) {
     let style_element = document.getElementById('css_override');
     if (style_element == null) {
       style_element = document.createElement('style');
@@ -945,14 +945,14 @@ function apply_settings() {
   }
 
   const js_override = storage.get_lsvar('js_override');
-  if (js_override != null) {
+  if (js_override != null && js_override.length > 0) {
     let script_element = document.getElementById('js_override');
     if (script_element == null) {
       script_element = document.createElement('script');
       script_element.id = 'js_override';
     }
     script_element.innerHTML = js_override;
-    document.body.appendChild(script_element);
+    document.head.appendChild(script_element);
   }
 
   const menubar_detach = storage.get_lsvar('menubar_detach');
