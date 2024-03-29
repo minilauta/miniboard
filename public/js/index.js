@@ -1563,9 +1563,9 @@ function init_settings_features() {
         { name: 'Audio: volume', key: 'audio_volume', type: 'float_slider', min: 0, max: 1, step: 0.1 },
         { name: 'Video: volume', key: 'video_volume', type: 'float_slider', min: 0, max: 1, step: 0.1 },
         { name: 'Flash: volume', key: 'swf_volume', type: 'float_slider', min: 0, max: 1, step: 0.1 },
-        { name: 'MOD: Stereo', key: 'mod_stereo', type: 'float_slider', min: 0, max: 1, step: 0.1 },
-        { name: 'CSS: Override', key: 'css_override', type: 'string_multiline' },
-        { name: 'JS: Override', key: 'js_override', type: 'string_multiline' },
+        { name: 'MOD: stereo', key: 'mod_stereo', type: 'float_slider', min: 0, max: 1, step: 0.1 },
+        { name: 'CSS: override', key: 'css_override', type: 'string_multiline' },
+        { name: 'JS: override', key: 'js_override', type: 'string_multiline' },
       ]);
     }
   });
