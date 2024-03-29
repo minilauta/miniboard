@@ -861,12 +861,12 @@ function create_settings_window(target, variables) {
       case 'bool':
         div_var_value_data = document.createElement('input');
         div_var_value_data.type = 'checkbox';
-        div_var_value_data.checked = storage.get_lsvar(variable.name) === 'true';
+        div_var_value_data.checked = storage.get_lsvar(variable.key) === 'true';
         break;
       case 'string':
         div_var_value_data = document.createElement('input');
         div_var_value_data.type = 'text';
-        div_var_value_data.value = storage.get_lsvar(variable.name);
+        div_var_value_data.value = storage.get_lsvar(variable.key);
         break;
       case 'float':
         div_var_value_data = document.createElement('input');
@@ -874,12 +874,12 @@ function create_settings_window(target, variables) {
         div_var_value_data.min = variable.min;
         div_var_value_data.max = variable.max;
         div_var_value_data.step = variable.step;
-        div_var_value_data.value = storage.get_lsvar(variable.name);
+        div_var_value_data.value = storage.get_lsvar(variable.key);
         break;
       case 'string_multiline':
         div_var_value_data = document.createElement('textarea');
         div_var_value_data.rows = '4';
-        div_var_value_data.value = storage.get_lsvar(variable.name);
+        div_var_value_data.value = storage.get_lsvar(variable.key);
         break;
       case 'float_slider':
         div_var_value_data = document.createElement('input');
@@ -887,12 +887,12 @@ function create_settings_window(target, variables) {
         div_var_value_data.min = variable.min;
         div_var_value_data.max = variable.max;
         div_var_value_data.step = variable.step;
-        div_var_value_data.value = storage.get_lsvar(variable.name);
+        div_var_value_data.value = storage.get_lsvar(variable.key);
         break;
     }
     div_var_value_data.addEventListener('change', (event) => {
       const val_data = variable.type === 'bool' ? event.target.checked : event.target.value;
-      storage.set_lsvar(variable.name, val_data);
+      storage.set_lsvar(variable.key, val_data);
     });
     div_var_value.appendChild(div_var_value_data);
 
@@ -942,6 +942,17 @@ function apply_settings() {
     }
     style_element.innerHTML = css_override;
     document.head.appendChild(style_element);
+  }
+
+  const js_override = storage.get_lsvar('js_override');
+  if (js_override != null) {
+    let script_element = document.getElementById('js_override');
+    if (script_element == null) {
+      script_element = document.createElement('script');
+      script_element.id = 'js_override';
+    }
+    script_element.innerHTML = js_override;
+    document.body.appendChild(script_element);
   }
 
   const menubar_detach = storage.get_lsvar('menubar_detach');
@@ -1542,18 +1553,19 @@ function init_settings_features() {
       existing_element.remove();
     } else {
       create_settings_window(settings_anchor, [
-        { name: 'menubar_detach', type: 'bool' },
-        { name: 'postform_detach', type: 'bool' },
-        { name: 'thread_auto_update', type: 'bool' },
-        { name: 'audio_loop', type: 'bool' },
-        { name: 'video_loop', type: 'bool' },
-        { name: 'audio_autoclose', type: 'bool' },
-        { name: 'video_autoclose', type: 'bool' },
-        { name: 'audio_volume', type: 'float_slider', min: 0, max: 1, step: 0.1 },
-        { name: 'video_volume', type: 'float_slider', min: 0, max: 1, step: 0.1 },
-        { name: 'swf_volume', type: 'float_slider', min: 0, max: 1, step: 0.1 },
-        { name: 'mod_stereo', type: 'float_slider', min: 0, max: 1, step: 0.1 },
-        { name: 'css_override', type: 'string_multiline' },
+        { name: 'Menu bar: detach', key: 'menubar_detach', type: 'bool' },
+        { name: 'Post form: detach', key: 'postform_detach', type: 'bool' },
+        { name: 'Thread: auto update', key: 'thread_auto_update', type: 'bool' },
+        { name: 'Audio: loop', key: 'audio_loop', type: 'bool' },
+        { name: 'Video: loop', key: 'video_loop', type: 'bool' },
+        { name: 'Audio: autoclose', key: 'audio_autoclose', type: 'bool' },
+        { name: 'Video: autoclose', key: 'video_autoclose', type: 'bool' },
+        { name: 'Audio: volume', key: 'audio_volume', type: 'float_slider', min: 0, max: 1, step: 0.1 },
+        { name: 'Video: volume', key: 'video_volume', type: 'float_slider', min: 0, max: 1, step: 0.1 },
+        { name: 'Flash: volume', key: 'swf_volume', type: 'float_slider', min: 0, max: 1, step: 0.1 },
+        { name: 'MOD: Stereo', key: 'mod_stereo', type: 'float_slider', min: 0, max: 1, step: 0.1 },
+        { name: 'CSS: Override', key: 'css_override', type: 'string_multiline' },
+        { name: 'JS: Override', key: 'js_override', type: 'string_multiline' },
       ]);
     }
   });
