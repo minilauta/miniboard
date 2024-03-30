@@ -1086,10 +1086,12 @@ function open_quickreply_on_post(id) {
   }
   const post_target = post_div.querySelector('.post-id');
 
-  post_target.scrollIntoView({
-    behavior: 'instant',
-    block: 'center',
-  });
+  if (!utils.isVisible(post_div, 32, 'visible')) {
+    post_target.scrollIntoView({
+      behavior: 'instant',
+      block: 'center',
+    });
+  }
 
   const form_reply = document.getElementById('quickreplywindow');
   if (!form_reply) {

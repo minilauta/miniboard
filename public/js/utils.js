@@ -18,9 +18,26 @@ function removeTrailingSlash(input_str) {
   return input_str.endsWith('/') ? input_str.slice(0, -1) : input_str;
 }
 
+function isVisible(element, threshold, mode) {
+  if (element == null) {
+    return false;
+  }
+
+  threshold = threshold || 0;
+  mode = mode || 'visible';
+
+  const rect = element.getBoundingClientRect();
+  const viewHeight = Math.max(document.documentElement.clientHeight, window.innerHeight);
+  const above = rect.bottom - threshold < 0;
+  const below = rect.top - viewHeight + threshold >= 0;
+
+  return mode === 'above' ? above : (mode === 'below' ? below : !above && !below);
+}
+
 const utils = {
   toHex,
   removeTrailingSlash,
+  isVisible,
 };
 
 export default utils;
