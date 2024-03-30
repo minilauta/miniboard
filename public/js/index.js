@@ -649,6 +649,10 @@ function listener_post_catalog_link_mouseleave(event) {
   delete_dropdown_menu(data.id);
 }
 
+function select_postform_element(id) {
+  return document.getElementById(`form-reply::${id}`) || document.getElementById(`${id}`);
+}
+
 /**
  * Creates a new dropdown menu.
  * @param {string} board_id 
@@ -929,6 +933,79 @@ function create_settings_window(target, variables) {
   document.body.appendChild(div_fixed_window.element);
 }
 
+function create_quickreply_window(target) {
+  // clone the base of postform
+  const form_post = document.getElementById('form-post');
+  if (form_post == null) {
+    return;
+  }
+  const form_reply = form_post.cloneNode(false);
+
+  // construct replyform
+  const form_post_inputs = form_post.querySelectorAll('input,button[id=\'form-draw\']');
+  form_post_inputs.forEach((x) => {
+    const form_reply_input = x.tagName === 'INPUT' ? x.cloneNode() : x.cloneNode(true);
+    let form_reply_input_container = form_reply_input;
+    if (form_reply_input.type === 'checkbox') {
+      const form_reply_label = document.createElement('label');
+      form_reply_label.innerText = form_reply_input.name;
+      form_reply_label.prepend(form_reply_input);
+      form_reply_input_container = form_reply_label;
+    } else {
+      form_reply_input.placeholder = x.name;
+    }
+    if (form_reply_input.type === 'text') {
+      form_reply_input.style = 'width:100%;box-sizing:border-box;';
+    }
+    form_reply.appendChild(form_reply_input_container);
+    form_reply.appendChild(document.createElement('br'));
+  });
+  const form_post_captcha = form_post.querySelector('#form-post-captcha');
+  if (form_post_captcha != null) {
+    form_reply.appendChild(form_post_captcha.cloneNode());
+  }
+  const form_post_format_btns = form_post.querySelectorAll('.format-btn');
+  form_post_format_btns.forEach((x) => {
+    const format_btn = x.cloneNode(true);
+    form_reply.appendChild(format_btn);
+  });
+  form_reply.appendChild(document.createElement('br'));
+  const form_reply_message = form_post.querySelector('#form-post-message').cloneNode();
+  form_reply_message.placeholder = form_reply_message.name;
+  form_reply_message.value = '';
+  form_reply.appendChild(form_reply_message);
+
+  const div_content = document.createElement('div');
+  div_content.appendChild(form_reply);
+  const form_reply_ids = div_content.querySelectorAll('[id]');
+  form_reply_ids.forEach((x) => x.id = 'form-reply::' + x.id);
+
+  const target_rect = target.getBoundingClientRect();
+  const div_fixed_window = ui_window.open(
+    'quickreplywindow',
+    'Quick Reply',
+    target_rect.left,
+    target_rect.bottom + 4,
+    null,
+    null,
+    true,
+    div_content
+  );
+  const div_fixed_window_content = div_fixed_window.element.querySelector('.box-content');
+  div_fixed_window_content.style = 'padding: 0;';
+  document.body.appendChild(div_fixed_window.element);
+  
+  // init features for the new replyform
+  console.time('init_postform_features');
+  init_postform_features('form-reply\\:\\:');
+  console.timeEnd('init_postform_features');
+
+  // init captcha
+  if (form_post_captcha != null && window.hcaptcha != null) {
+    window.hcaptcha.render('form-reply::form-post-captcha');
+  }
+}
+
 /**
  * Applies all currently saved settings.
  */
@@ -998,13 +1075,35 @@ function apply_settings() {
 }
 
 /**
+ * Opens the quick reply window and focuses it on target post.
+ * @param {*} id 
+ * @returns 
+ */
+function open_quickreply_on_post(id) {
+  const post_div = document.querySelector(`.post[id$='-${id}']`);
+  if (post_div == null) {
+    return;
+  }
+  const post_target = post_div.querySelector('.post-id');
+
+  post_target.scrollIntoView({
+    behavior: 'instant',
+    block: 'center',
+  });
+
+  const form_reply = document.getElementById('quickreplywindow');
+  if (!form_reply) {
+    create_quickreply_window(post_target);
+  }
+}
+
+/**
  * Insert a post id ref to the message.
  * @param {*} id 
  * @returns 
  */
 function insert_ref_to_message(id) {
-  let postform_message = document.getElementById('form-post-message');
-
+  let postform_message = select_postform_element('form-post-message');
   if (postform_message == null) {
     return;
   }
@@ -1023,7 +1122,7 @@ function insert_ref_to_message(id) {
  * @returns 
  */
 function insert_format_to_message(format) {
-  let postform_message = document.getElementById('form-post-message');
+  let postform_message = select_postform_element('form-post-message');
 
   if (postform_message == null) {
     return;
@@ -1215,7 +1314,14 @@ function init_post_hashid_features(target) {
 function init_location_hash_features() {
   function highlight_or_ref(hash) {
     if (hash.startsWith('#q')) {
-      insert_ref_to_message(hash.substring(2));
+      const post_id = hash.substring(2);
+
+      // if enabled: create quickreply window
+      if (storage.get_lsvar('postform_quickreply') == 'true') {
+        open_quickreply_on_post(post_id);
+      }
+
+      insert_ref_to_message(post_id);
     } else {
       create_post_highlight(hash.substring(1));
     }
@@ -1255,12 +1361,15 @@ function create_error_window(content) {
  * Initializes features related to postform fields.
  * - Remember password (local cookie)
  */
-function init_postform_features() {
-  let post_form = document.getElementById('form-post');
-  
+function init_postform_features(target_id_prefix) {
+  const post_form = document.querySelector(`#${target_id_prefix}form-post`);
+  if (post_form == null) {
+    return;
+  }
+
   // update password fields appropriately
   let cookie_pass = storage.get_cookie('password');
-  let postform_pass = document.getElementById('form-post-password');
+  let postform_pass = post_form.querySelector(`#${target_id_prefix}form-post-password`);
   let deleteform_pass = document.getElementById('deleteform-password');
 
   if (postform_pass != null) {
@@ -1354,11 +1463,11 @@ function init_postform_features() {
 
   // init file pasting
   if (post_form != null) {
-    let postform_message = document.getElementById('form-post-message');
+    let postform_message = post_form.querySelector(`#${target_id_prefix}form-post-message`);
     postform_message.addEventListener('paste', (event) => {
       if (event.clipboardData.files.length > 0) {
         event.preventDefault();
-        let fileInput = document.getElementById('form-file');
+        let fileInput = post_form.querySelector(`#${target_id_prefix}form-file`);
         if (fileInput !== null) {
           fileInput.files = event.clipboardData.files;
         }
@@ -1368,7 +1477,7 @@ function init_postform_features() {
 
   // init file drawing (Tegaki)
   if (Tegaki !== undefined && post_form != null) {
-    let postform_draw = document.getElementById('form-draw');
+    let postform_draw = post_form.querySelector(`#${target_id_prefix}form-draw`);
     postform_draw.addEventListener('click', (event) => {
       console.log('tegaki: created');
 
@@ -1379,7 +1488,7 @@ function init_postform_features() {
             const input_data = new DataTransfer();
             input_data.items.add(input_file);
 
-            const postform_file = document.getElementById('form-file');
+            const postform_file = post_form.querySelector(`#${target_id_prefix}form-file`);
             console.log(postform_file.files);
             postform_file.files = input_data.files;
           }, 'image/png');
@@ -1555,6 +1664,7 @@ function init_settings_features() {
       create_settings_window(settings_anchor, [
         { name: 'Menu bar: detach', key: 'menubar_detach', type: 'bool' },
         { name: 'Post form: detach', key: 'postform_detach', type: 'bool' },
+        { name: 'Post form: quick reply', key: 'postform_quickreply', type: 'bool' },
         { name: 'Thread: auto update', key: 'thread_auto_update', type: 'bool' },
         { name: 'Audio: loop', key: 'audio_loop', type: 'bool' },
         { name: 'Video: loop', key: 'video_loop', type: 'bool' },
@@ -1635,7 +1745,7 @@ document.addEventListener('DOMContentLoaded', function(event) {
   console.timeEnd('init_post_hashid_features');
   
   console.time('init_postform_features');
-  init_postform_features();
+  init_postform_features('');
   console.timeEnd('init_postform_features');
   
   console.time('init_deleteform_features');
