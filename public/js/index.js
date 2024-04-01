@@ -1119,7 +1119,7 @@ function open_quickreply_on_post(id) {
 }
 
 /**
- * Insert a post id ref to the message.
+ * Insert a post id ref + selected text to the message.
  * @param {*} id 
  * @returns 
  */
@@ -1134,6 +1134,18 @@ function insert_ref_to_message(id) {
   let text_ref = '>>' + id + '\n';
   postform_message.value = text_val.slice(0, text_idx) + text_ref + text_val.slice(text_idx);
   postform_message.setSelectionRange(text_idx + text_ref.length, text_idx + text_ref.length);
+  const post_div = document.querySelector(`.post[id$='-${id}']`);
+  let text_sel = window.getSelection();
+  if (text_sel.rangeCount > 0 && post_div != null) {
+    text_sel = text_sel.getRangeAt(0);
+    let text = text_sel.toString().trim();
+    if (text.length > 0 && post_div.contains(text_sel.commonAncestorContainer.parentElement)) {
+      text = text
+        .split('\n')
+        .join('\n>');
+      postform_message.value += '>' + text.trim() + '\n';
+    }
+  }
   postform_message.focus();
 }
 
