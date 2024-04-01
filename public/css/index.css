@@ -366,6 +366,22 @@ div.h-captcha {
   min-height: 81px;
 }
 
+.form-post-message {
+  margin: 0;
+}
+
+input,
+textarea,
+select,
+button {
+  border-radius: 0;
+}
+
+input:focus,
+textarea:focus {
+  outline: none;
+}
+
 /* manage */
 .form-manage table, .form-manage th, .form-manage td {
   border-collapse: collapse;

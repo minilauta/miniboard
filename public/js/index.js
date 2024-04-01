@@ -942,8 +942,8 @@ function create_quickreply_window(target) {
   const form_reply = form_post.cloneNode(false);
 
   // construct replyform
-  const form_post_inputs = form_post.querySelectorAll('input,button[id=\'form-draw\']');
-  form_post_inputs.forEach((x) => {
+  form_post.querySelectorAll('input,button[id=\'form-draw\']')
+    .forEach((x, i) => {
     const form_reply_input = x.tagName === 'INPUT' ? x.cloneNode() : x.cloneNode(true);
     let form_reply_input_container = form_reply_input;
     if (form_reply_input.type === 'checkbox') {
@@ -954,11 +954,10 @@ function create_quickreply_window(target) {
     } else {
       form_reply_input.placeholder = x.name;
     }
-    if (form_reply_input.type === 'text') {
-      form_reply_input.style = 'width:100%;box-sizing:border-box;';
-    }
     form_reply.appendChild(form_reply_input_container);
-    form_reply.appendChild(document.createElement('br'));
+    if (['email', 'capcode', 'submit', 'draw', 'anonfile', 'password'].includes(x.name)) {
+      form_reply.appendChild(document.createElement('br'));
+    }
   });
   const form_post_captcha = form_post.querySelector('#form-post-captcha');
   if (form_post_captcha != null) {
@@ -970,9 +969,12 @@ function create_quickreply_window(target) {
     form_reply.appendChild(format_btn);
   });
   form_reply.appendChild(document.createElement('br'));
-  const form_reply_message = form_post.querySelector('#form-post-message').cloneNode();
+  const form_post_message = form_post.querySelector('#form-post-message')
+  const form_reply_message = form_post_message.cloneNode();
   form_reply_message.placeholder = form_reply_message.name;
-  form_reply_message.value = '';
+  form_reply_message.addEventListener('input', (event) => {
+    form_post_message.value = event.target.value;
+  });
   form_reply.appendChild(form_reply_message);
 
   const div_content = document.createElement('div');
@@ -984,7 +986,7 @@ function create_quickreply_window(target) {
   const div_fixed_window = ui_window.open(
     'quickreplywindow',
     'Quick Reply',
-    target_rect.left,
+    target_rect.right,
     target_rect.bottom + 4,
     null,
     null,
@@ -994,6 +996,18 @@ function create_quickreply_window(target) {
   const div_fixed_window_content = div_fixed_window.element.querySelector('.box-content');
   div_fixed_window_content.style = 'padding: 0;';
   document.body.appendChild(div_fixed_window.element);
+
+  // shift container up if overflow-y
+  let div_rect = div_fixed_window.element.getBoundingClientRect();
+  if (div_rect.bottom > window.innerHeight) {
+    div_fixed_window.setXY(div_fixed_window.pos.x, div_fixed_window.pos.y - (div_rect.bottom - window.innerHeight));
+  }
+
+  // shift container up if overflow-x
+  div_rect = div_fixed_window.element.getBoundingClientRect();
+  if (div_rect.right > window.innerWidth) {
+    div_fixed_window.setXY(div_fixed_window.pos.x - (div_rect.right - window.innerWidth), div_fixed_window.pos.y);
+  }
   
   // init features for the new replyform
   console.time('init_postform_features');
@@ -1084,13 +1098,18 @@ function open_quickreply_on_post(id) {
   if (post_div == null) {
     return;
   }
-  const post_target = post_div.querySelector('.post-id');
 
+  const post_target = post_div.querySelector('.post-id');
   if (!utils.isVisible(post_div, 32, 'visible')) {
     post_target.scrollIntoView({
       behavior: 'instant',
       block: 'center',
     });
+  }
+
+  const post_form_message = document.getElementById('form-post-message');
+  if (utils.isVisible(post_form_message, 32, 'visible')) {
+    return;
   }
 
   const form_reply = document.getElementById('quickreplywindow');

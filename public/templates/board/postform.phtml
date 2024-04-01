@@ -56,22 +56,7 @@
         </td>
         <td>
           <input type="text" name="subject" autocomplete="off">
-          <input type="submit" value="Submit">
-        </td>
-      </tr>
-      <tr>
-        <td class="form-label">
-          <label for="formatting">Formatting</label>
-        </td>
-        <td>
-          <button type="button" class="format-btn" data-format="b"><b>b</b></button>
-          <button type="button" class="format-btn" data-format="i"><i>i</i></button>
-          <button type="button" class="format-btn" data-format="u"><u>u</u></button>
-          <button type="button" class="format-btn" data-format="s"><s>s</s></button>
-          <button type="button" class="format-btn" data-format="sup">sup</button>
-          <button type="button" class="format-btn" data-format="sub">sub</button>
-          <button type="button" class="format-btn" data-format="code">code</button>
-          <button type="button" class="format-btn" data-format="spoiler">spoiler</button>
+          <input type="submit" name="submit" value="Submit">
         </td>
       </tr>
       <tr>
@@ -79,7 +64,16 @@
           <label for="message">Message</label>
         </td>
         <td>
-          <textarea id="form-post-message" name="message" autocomplete="off" cols="41" rows="4" maxlength="8192"></textarea>
+          <button type="button" class="format-btn" data-format="b"><b>b</b></button><!--
+       --><button type="button" class="format-btn" data-format="i"><i>i</i></button><!--
+       --><button type="button" class="format-btn" data-format="u"><u>u</u></button><!--
+       --><button type="button" class="format-btn" data-format="s"><s>s</s></button><!--
+       --><button type="button" class="format-btn" data-format="sup">sup</button><!--
+       --><button type="button" class="format-btn" data-format="sub">sub</button><!--
+       --><button type="button" class="format-btn" data-format="code">code</button><!--
+       --><button type="button" class="format-btn" data-format="spoiler">spoiler</button>
+          <br>
+          <textarea id="form-post-message" class="form-post-message" name="message" autocomplete="off" cols="41" rows="4" maxlength="8192"></textarea>
         </td>
       </tr>
       <?php
@@ -130,7 +124,7 @@
         </td>
         <td>
           <input id="form-file" type="file" name="file" autocomplete="off" size="35">
-          <button id="form-draw" type="button">Draw</button>
+          <button id="form-draw" type="button" name="draw">Draw</button>
         </td>
       </tr>
       <tr>
