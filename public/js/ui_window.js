@@ -91,11 +91,13 @@ function open(id, title, left, top, right, bottom, draggable, content) {
   const close_anchor = document.createElement('a');
   close_anchor.text = 'x';
   close_anchor.href = '#';
-  close_anchor.addEventListener('click', (event) => {
+  const click_handler = (event) => {
     event.preventDefault();
 
     fixed_window.element.remove();
-  });
+  };
+  close_anchor.addEventListener('click', click_handler);
+  close_anchor.addEventListener('touchend', click_handler);
   const close_anchor_wrapper = document.createElement('div');
   close_anchor_wrapper.style.float = 'right';
   close_anchor_wrapper.appendChild(close_anchor);
