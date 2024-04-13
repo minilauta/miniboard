@@ -15,10 +15,18 @@
     display: none;
   }
 
+  .file-thumb {
+    margin-right: 12px !important;
+  }
+
   .file-thumb-img {
     max-width: 125px;
     max-height: 125px;
     object-fit: scale-down;
+  }
+  
+  .post-message-wrapper {
+    margin-left: 12px !important;
   }
 
   .post-message {
