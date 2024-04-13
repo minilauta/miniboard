@@ -4,6 +4,10 @@ body {
   padding: 8px;
 }
 
+* {
+  scroll-margin-top: 18px;
+}
+
 .container-centered {
   text-align: center;
 }
@@ -187,10 +191,12 @@ div.post-message .spoiler:hover {
   text-shadow: none;
 }
 
-div.post-message pre {
+.post-message pre {
+  max-width: 480px;
   margin: 0px;
   padding-bottom: 12px;
   overflow-x: scroll;
+  border: 1px dashed;
 }
 
 .post-message .banned {
@@ -368,6 +374,10 @@ div.h-captcha {
 
 .form-post-message {
   margin: 0;
+  min-width: 240px;
+  min-height: 120px;
+  max-width: 480px;
+  max-height: 240px;
 }
 
 input,

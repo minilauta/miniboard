@@ -1,0 +1,39 @@
+@media only screen and (max-width: 480px) {
+  html {
+    text-size-adjust: 100%;
+    -moz-text-size-adjust: 100%;
+    -webkit-text-size-adjust: 100%;
+    -ms-text-size-adjust: 100%
+  }
+
+  body {
+    padding-left: 0 !important;
+    padding-right: 0 !important;
+  }
+
+  .post-dash {
+    display: none;
+  }
+
+  .file-thumb-img {
+    max-width: 125px;
+    max-height: 125px;
+    object-fit: scale-down;
+  }
+
+  .post-message {
+    -ms-word-break: break-all;
+    -ms-word-wrap: break-all;
+    -webkit-word-break: break-word;
+    -webkit-word-wrap: break-word;
+    word-break: break-word;
+    word-wrap: break-word;
+    -webkit-hyphens: auto;
+    -moz-hyphens: auto;
+    hyphens: auto;
+  }
+
+  .post-message pre {
+    max-width: 240px;
+  }
+}

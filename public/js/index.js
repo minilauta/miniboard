@@ -1050,7 +1050,7 @@ function apply_settings() {
   const menubar_element = document.getElementById('menubar');
   if (menubar_detach === 'true' && menubar_element) {
     menubar_element.classList.add('menubar-detached');
-    document.body.style.padding = '32px 8px 8px 8px';
+    document.body.style.padding = '40px 8px 8px 8px';
   } else if (menubar_detach === 'false' && menubar_element) {
     menubar_element.classList.remove('menubar-detached');
     document.body.style.padding = '8px 8px 8px 8px';
