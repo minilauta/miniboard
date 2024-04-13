@@ -1,5 +1,5 @@
 <div id="menubar" class="menubar">
-  <div class="boardlist">
+  <div class="boardlist desktop">
     [ <?php
       foreach (MB_BOARDS as $key => $board_cfg) {
         if (isset($board_cfg['hidden']) && $board_cfg['hidden'] == true) {
@@ -13,11 +13,44 @@
       }
     ?> ]
   </div>
-  <div id="boardmenu" class="boardmenu">
-    [<a href="/">Home</a>]
-    [<a href="/<?=$board_id?>/hidden/">Hidden</a>]
-    [<a href="/<?=$board_id?>/catalog/">Catalog</a>]
-    [<a href="/manage/">Manage</a>]
-    <?=$this->fetch('common/stylepicker.phtml')?>
+  <div class="boardlist mobile">
+    <?php
+      $options = '<option value=""></option>';
+      foreach (MB_BOARDS as $key => $board_cfg) {
+        if (isset($board_cfg['hidden']) && $board_cfg['hidden'] == true) {
+          continue;
+        }
+
+        $selected = '';
+        if ($board_cfg['id'] === $board_id) {
+          $selected = ' selected';
+        }
+
+        $options .= "<option value='{$board_cfg['id']}'{$selected}>/{$board_cfg['id']}/ - {$board_cfg['name']}</option>";
+      }
+
+      echo "
+        <select id='boardselect-mobile'>{$options}</select>
+      ";
+    ?>
   </div>
+
+  <div id="boardmenu-desktop" class="boardmenu desktop">
+    [<a id="boardmenu-desktop-home" href="/">Home</a>]
+    [<a id="boardmenu-desktop-hidden" href="/<?=$board_id?>/hidden/">Hidden</a>]
+    [<a id="boardmenu-desktop-catalog" href="/<?=$board_id?>/catalog/">Catalog</a>]
+    [<a id="boardmenu-desktop-gallery" href="#">Gallery</a>]
+    [<a id="boardmenu-desktop-settings" href="#">Settings</a>]
+    [<a id="boardmenu-desktop-manage" href="/manage/">Manage</a>]
+  </div>
+
+  <div id="boardmenu-mobile" class="boardmenu mobile">
+    <a id="boardmenu-mobile-home" href="/"><img class="icon" src="/icons/home.svg"></a>
+    <a id="boardmenu-mobile-hidden" href="/<?=$board_id?>/hidden/"><img class="icon" src="/icons/eye-slash.svg"></a>
+    <a id="boardmenu-mobile-catalog" href="/<?=$board_id?>/catalog/"><img class="icon" src="/icons/squares-2x2.svg"></a>
+    <a id="boardmenu-mobile-gallery" href="#"><img class="icon" src="/icons/photo.svg"></a>
+    <a id="boardmenu-mobile-settings" href="#"><img class="icon" src="/icons/wrench.svg"></a>
+    <a id="boardmenu-mobile-manage" href="/manage/"><img class="icon" src="/icons/users.svg"></a>
+  </div>
+  <?=$this->fetch('common/stylepicker.phtml')?>
 </div>

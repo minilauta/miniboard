@@ -844,10 +844,9 @@ function create_post_highlight(id) {
 
 /**
  * Creates a fixed position settings window.
- * @param {*} target 
  * @param {*} variables 
  */
-function create_settings_window(target, variables) {
+function create_settings_window(variables) {
   const create_settings_variable = (target_div, variable) => {
     const div_var = document.createElement('div');
     div_var.style.clear = 'both';
@@ -893,11 +892,23 @@ function create_settings_window(target, variables) {
         div_var_value_data.step = variable.step;
         div_var_value_data.value = storage.get_lsvar(variable.key);
         break;
+      case 'element':
+        div_var_value_data = document.getElementById(variable.id)?.cloneNode(true);
+        if (div_var_value_data != null) {
+          div_var_value_data.id += '_settings_var';
+          div_var_value_data.style = '';
+          if (variable.callback != null) {
+            variable.callback(div_var_value_data);
+          }
+        }
+        break;
     }
-    div_var_value_data.addEventListener('change', (event) => {
-      const val_data = variable.type === 'bool' ? event.target.checked : event.target.value;
-      storage.set_lsvar(variable.key, val_data);
-    });
+    if (variable.key != null) {
+      div_var_value_data.addEventListener('change', (event) => {
+        const val_data = variable.type === 'bool' ? event.target.checked : event.target.value;
+        storage.set_lsvar(variable.key, val_data);
+      });
+    }
     div_var_value.appendChild(div_var_value_data);
 
     div_var.appendChild(div_var_value);
@@ -919,18 +930,22 @@ function create_settings_window(target, variables) {
   });
   div_content.appendChild(btn_apply);
   
-  const target_rect = target.getBoundingClientRect();
   const div_fixed_window = ui_window.open(
     'settingswindow',
     'Settings',
-    target_rect.left,
-    target_rect.bottom + 4,
+    0,
+    0,
     null,
     null,
     true,
     div_content
   );
   document.body.appendChild(div_fixed_window.element);
+  const client_rect = div_fixed_window.element.getBoundingClientRect();
+  div_fixed_window.setXY(
+    window.innerWidth * 0.5 - client_rect.width * 0.5,
+    window.innerHeight * 0.5 - client_rect.height * 0.5
+  );
 }
 
 function create_quickreply_window(target) {
@@ -1427,28 +1442,7 @@ function init_postform_features(target_id_prefix) {
   // setup submit handler
   if (post_form != null) {
     let submit_btn = post_form.querySelector('input[type=submit]');
-
-    const create_error_window = (content) => {
-      const div_content = document.createElement('div');
-      div_content.innerHTML = content;
-      const fixed_window = ui_window.open(
-        'errorwindow',
-        'Error',
-        0,
-        0,
-        null,
-        null,
-        true,
-        div_content
-      );
-      document.body.appendChild(fixed_window.element);
-      const client_rect = fixed_window.element.getBoundingClientRect();
-      fixed_window.setXY(
-        window.innerWidth * 0.5 - client_rect.width * 0.5,
-        window.innerHeight * 0.5 - client_rect.height * 0.5
-      );
-    };
-
+    
     post_form.addEventListener('submit', (event) => {
       event.preventDefault();
       
@@ -1655,20 +1649,14 @@ function init_thread_features() {
   }
 }
 
-/**
- * Initializes features related to the style select element.
- */
-function init_stylepicker_features() {
-  const stylepicker_element = document.getElementById('stylepicker');
-  if (stylepicker_element == null) {
+function init_boardselect_mobile_features() {
+  const select = document.getElementById('boardselect-mobile');
+  if (select == null) {
     return;
   }
 
-  let style_expires = new Date();
-  style_expires.setFullYear(style_expires.getFullYear() + 10);
-  stylepicker_element.addEventListener('change', (event) => {
-    storage.set_cookie('style', event.target.value, 'Lax', style_expires);
-    location.reload();
+  select.addEventListener('change', (event) => {
+    window.location.href = `/${event.target.value}/`;
   });
 }
 
@@ -1677,24 +1665,28 @@ function init_stylepicker_features() {
  */
 function init_settings_features() {
   apply_settings();
-  
-  const boardmenu_element = document.getElementById('boardmenu');
-  if (boardmenu_element == null) {
+
+  const anchors = document.querySelectorAll('#boardmenu-desktop-settings,#boardmenu-mobile-settings');
+  if (anchors.length === 0) {
     return;
   }
-  
-  const settings_anchor = document.createElement('a');
-  settings_anchor.text = 'Settings';
-  settings_anchor.href = '#';
 
-  settings_anchor.addEventListener('click', (event) => {
+  const settings_anchor_click_handler = (event) => {
     event.preventDefault();
     
     const existing_element = document.getElementById('settingswindow');
     if (existing_element) {
       existing_element.remove();
     } else {
-      create_settings_window(settings_anchor, [
+      create_settings_window([
+        { name: 'Set style', id: 'stylepicker', type: 'element', callback: (target) => {
+          let style_expires = new Date();
+          style_expires.setFullYear(style_expires.getFullYear() + 10);
+          target.addEventListener('change', (event) => {
+            storage.set_cookie('style', event.target.value, 'Lax', style_expires);
+            location.reload();
+          });
+        } },
         { name: 'Menu bar: detach', key: 'menubar_detach', type: 'bool' },
         { name: 'Post form: detach', key: 'postform_detach', type: 'bool' },
         { name: 'Post form: quick reply', key: 'postform_quickreply', type: 'bool' },
@@ -1711,22 +1703,18 @@ function init_settings_features() {
         { name: 'JS: override', key: 'js_override', type: 'string_multiline' },
       ]);
     }
-  });
+  };
 
-  boardmenu_element.prepend('[', settings_anchor, '] ');
+  anchors.forEach((x) => x.addEventListener('click', settings_anchor_click_handler));
 }
 
 function init_gallery_features() {
-  const boardmenu_element = document.getElementById('boardmenu');
-  if (boardmenu_element == null) {
+  const anchors = document.querySelectorAll('#boardmenu-desktop-gallery,#boardmenu-mobile-gallery');
+  if (anchors.length === 0) {
     return;
   }
-  
-  const gallery_anchor = document.createElement('a');
-  gallery_anchor.text = 'Gallery';
-  gallery_anchor.href = '#';
 
-  gallery_anchor.addEventListener('click', (event) => {
+  const gallery_anchor_click_handler = (event) => {
     event.preventDefault();
 
     const div_gallery_container = gallery.create();
@@ -1741,9 +1729,9 @@ function init_gallery_features() {
       div_gallery_container
     );
     document.body.appendChild(div_fixed_window.element);
-  });
+  };
 
-  boardmenu_element.prepend('[', gallery_anchor, '] ');
+  anchors.forEach((x) => x.addEventListener('click', gallery_anchor_click_handler));
 }
 
 document.addEventListener('DOMContentLoaded', function(event) {
@@ -1789,9 +1777,9 @@ document.addEventListener('DOMContentLoaded', function(event) {
   init_thread_features();
   console.timeEnd('init_thread_features');
 
-  console.time('init_stylepicker_features');
-  init_stylepicker_features();
-  console.timeEnd('init_stylepicker_features');
+  console.time('init_boardselect_mobile_features');
+  init_boardselect_mobile_features();
+  console.timeEnd('init_boardselect_mobile_features');
 
   console.time('init_settings_features');
   init_settings_features();

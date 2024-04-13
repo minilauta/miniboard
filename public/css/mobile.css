@@ -1,4 +1,4 @@
-@media only screen and (max-width: 480px) {
+@media only screen and (max-width: 767px) {
   html {
     text-size-adjust: 100%;
     -moz-text-size-adjust: 100%;
@@ -9,6 +9,14 @@
   body {
     padding-left: 0 !important;
     padding-right: 0 !important;
+  }
+
+  .desktop {
+    display: none;
+  }
+
+  .mobile {
+    display: unset;
   }
 
   .post-dash {

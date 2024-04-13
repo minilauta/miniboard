@@ -4,6 +4,10 @@ body {
   padding: 8px;
 }
 
+.mobile {
+  display: none;
+}
+
 * {
   scroll-margin-top: 18px;
 }
@@ -71,6 +75,15 @@ hr {
 .box-content {
   text-align: left;
   padding: 0.5em;
+}
+
+.icon {
+  display: inline-block;
+  width: 16px;
+  height: 16px;
+  padding: 0;
+  margin: 0;
+  vertical-align: top;
 }
 
 /* banner */
