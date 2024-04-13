@@ -155,6 +155,7 @@ function listener_post_thumb_link_click(event) {
           });
         }
         video.style.maxWidth = '85vw';
+        video.style.maxHeight = '85vh';
         video.style.height = 'auto';
         video.style.cursor = 'default';
         video.appendChild(source);
@@ -251,9 +252,8 @@ function listener_post_thumb_link_click(event) {
 
         const ruffle = window.RufflePlayer.newest();
         const player = ruffle.createPlayer();
-        player.style.minWidth = (window.innerWidth * 0.5) + 'px';
         player.style.maxWidth = (window.innerWidth * 0.85) + 'px';
-        player.style.height = (window.innerHeight * 0.5) + 'px';
+        player.style.maxHeight = (window.innerHeight * 0.85) + 'px';
 
         current.appendChild(player);
         player.load({
@@ -287,6 +287,7 @@ function listener_post_thumb_link_click(event) {
         let img = document.createElement('img');
         img.src = finfo.file_href;
         img.style.maxWidth = '85vw';
+        img.style.maxHeight = '85vh';
         img.style.height = 'auto';
         img.loading = 'lazy';
 
