@@ -20,6 +20,14 @@ a:hover {
   color: #ff0000;
 }
 
+.navlinks a {
+  color: #000080;
+}
+
+.navlinks a:hover {
+  color: #FF0000;
+}
+
 /* root/general */
 .page-root a {
   text-decoration: none;

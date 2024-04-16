@@ -12,8 +12,12 @@
     <hr>
     <?=$this->fetch('common/header.phtml', ['h_title' => "/{$board['id']}/ - {$board['name']}", 'h_subtitle' => $board['desc']])?>
     <hr>
-    [<a href="../">Return</a>]
     <div class="mode">Hidden</div>
+    <hr>
+    <div id="navlinks-top" class="navlinks">
+      [<a id="navlinks-top-index" href="/<?=$board['id']?>/">Return</a>]
+      [<a id="navlinks-top-catalog" href="/<?=$board['id']?>/catalog/">Catalog</a>]
+    </div>
     <hr>
     <?=$this->fetch('board/deleteform.phtml', ['context' => 'board', 'board' => $board, 'threads' => $threads])?>
     <?=$this->fetch('common/pagetable.phtml', ['page' => $page, 'page_n' => $page_n])?>

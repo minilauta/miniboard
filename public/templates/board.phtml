@@ -16,6 +16,11 @@
       <?=$this->fetch('board/postform.phtml', ['context' => 'board', 'board' => $board, 'action' => "/{$board['id']}"])?>
     </div>
     <hr>
+    <div id="navlinks-top" class="navlinks">
+      [<a id="navlinks-top-catalog" href="/<?=$board['id']?>/catalog/">Catalog</a>]
+      [<a id="navlinks-top-refresh" href="./">Refresh</a>]
+    </div>
+    <hr>
     <?=$this->fetch('board/deleteform.phtml', ['context' => 'board', 'board' => $board, 'threads' => $threads])?>
     <?=$this->fetch('common/pagetable.phtml', ['page' => $page, 'page_n' => $page_n])?>
     <div class="container-centered">
