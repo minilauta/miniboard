@@ -938,7 +938,7 @@ function handle_postform(Request $request, Response $response, array $args, stri
 
   // upload file or embed url
   if (!$embed) {
-    $file = funcs_board_execute_upload($file, $file_info, $file_collisions, $spoiler, $board_cfg['max_width'], $board_cfg['max_height']);
+    $file = funcs_board_execute_upload($file_info, $file_collisions, $spoiler, $board_cfg['max_width'], $board_cfg['max_height']);
   } else {
     $file = funcs_board_execute_embed($params['embed'], $board_cfg['embed_types'], $board_cfg['max_width'], $board_cfg['max_height']);
     $file_info = null;

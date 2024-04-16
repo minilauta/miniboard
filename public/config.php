@@ -142,6 +142,7 @@ define('MB_BOARDS', [
       'image/gif'           => ['gif'],
       'image/bmp'           => ['bmp'],
       'image/webp'          => ['webp'],
+      'image/avif'          => ['avif'], // NOTE: it's converted to png
       'video/mp4'           => ['mp4'],
       'video/webm'          => ['webm'],
       'audio/mpeg'          => ['mp3'],

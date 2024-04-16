@@ -237,6 +237,7 @@ function funcs_board_validate_upload(UploadedFileInterface $input, bool $no_file
 
   // get temp file handle
   $tmp_file = $input->getStream()->getMetadata('uri');
+  $cli_file = $input->getClientFilename();
 
   // validate MIME type
   $finfo = finfo_open(FILEINFO_MIME);
@@ -256,12 +257,31 @@ function funcs_board_validate_upload(UploadedFileInterface $input, bool $no_file
   if (!isset($mime_types[$file_mime])) {
     throw new AppException('funcs_board', 'validate_upload', "file mime type invalid: {$file_mime}", SC_BAD_REQUEST);
   }
+  
+  // save to tmp file, terminate stream
+  $tmp_file_name = time() . substr(microtime(), 2, 3);
+  $tmp_file_dir = sys_get_temp_dir() . '/';
+  $tmp_file_path = $tmp_file_dir . $tmp_file_name;
+  $input->moveTo($tmp_file_path);
+
+  // calculate md5 hash
+  $file_md5 = ($spoiler === true ? 'spoiler/' : '') . md5_file($tmp_file_path);
+
+  // convert avif to png
+  if ($file_mime === 'image/avif') {
+    $tmp_image = new Imagick($tmp_file_path);
+    $tmp_image->setImageFormat('png');
+    $tmp_image->writeImage($tmp_file_path);
+    $file_mime = 'image/png';
+  }
+
   $file_exts = $mime_types[$file_mime];
 
   if (count($file_exts) > 1) {
     $file_ext_idx = array_search(strtolower($file_ext_pathinfo), $file_exts);
 
     if ($file_ext_idx === false) {
+      unlink($tmp_file_path);
       throw new AppException('funcs_board', 'validate_upload', "file extension invalid: {$file_ext_pathinfo}", SC_BAD_REQUEST);
     }
 
@@ -271,16 +291,15 @@ function funcs_board_validate_upload(UploadedFileInterface $input, bool $no_file
   }
 
   // validate file size
-  $file_size = filesize($tmp_file);
+  $file_size = filesize($tmp_file_path);
   if ($file_size > $max_bytes) {
+    unlink($tmp_file_path);
     throw new AppException('funcs_board', 'validate_upload', "file size exceeds limit: {$file_size} bytes > {$max_bytes} bytes", SC_BAD_REQUEST);
   }
 
-  // calculate md5 hash
-  $file_md5 = ($spoiler === true ? 'spoiler/' : '') . md5_file($tmp_file);
-
   return [
-    'tmp'            => $tmp_file,
+    'tmp'            => $tmp_file_path,
+    'cli'            => $cli_file,
     'mime'           => $file_mime,
     'ext'            => $file_ext,
     'size'           => $file_size,
@@ -291,7 +310,7 @@ function funcs_board_validate_upload(UploadedFileInterface $input, bool $no_file
 /**
  * Processes an uploaded file, stores the file in a persistent path and returns an array containing the results.
  */
-function funcs_board_execute_upload(UploadedFileInterface $file, ?array $file_info, array $file_collisions, bool $spoiler, int $max_w = 250, int $max_h = 250): array {
+function funcs_board_execute_upload(?array $file_info, array $file_collisions, bool $spoiler, int $max_w = 250, int $max_h = 250): array {
   // return if no file was uploaded
   if ($file_info == null) {
     return [
@@ -312,14 +331,15 @@ function funcs_board_execute_upload(UploadedFileInterface $file, ?array $file_in
     ];
   }
 
-  $file_name_client = $file->getClientFilename();
-
   // either use the uploaded file or an already existing file
   if (empty($file_collisions)) {
     $file_name = time() . substr(microtime(), 2, 3) . '.' . $file_info['ext'];
     $file_dir = '/src/';
     $file_path = __DIR__ . $file_dir . $file_name;
-    $file->moveTo($file_path);
+    if (!rename($file_info['tmp'], $file_path)) {
+      unlink($file_info['tmp']);
+      throw new AppException('funcs_board', 'execute_upload', "failed to move the uploaded tmp file to a persistent location", SC_INTERNAL_ERROR);
+    }
     $file_hex = $file_info['md5'];
     $file_size = $file_info['size'];
     $file_size_formatted = funcs_common_human_filesize($file_size);
@@ -433,6 +453,8 @@ function funcs_board_execute_upload(UploadedFileInterface $file, ?array $file_in
         throw new AppException('funcs_board', 'execute_upload', "file MIME type unsupported: {$file_info['mime']}", SC_INTERNAL_ERROR);
     }
   } else {
+    unlink($file_info['tmp']);
+    
     $file_name = $file_collisions[0]['file'];
     $file_dir = '';
     $file_hex = $file_collisions[0]['file_hex'];
@@ -453,7 +475,7 @@ function funcs_board_execute_upload(UploadedFileInterface $file, ?array $file_in
     'file'                => $file_dir . $file_name,
     'file_rendered'       => $file_dir . $file_name,
     'file_hex'            => $file_hex,
-    'file_original'       => $file_name_client,
+    'file_original'       => $file_info['cli'],
     'file_size'           => $file_size,
     'file_size_formatted' => $file_size_formatted,
     'file_mime'           => $file_mime,
