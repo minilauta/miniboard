@@ -187,6 +187,7 @@ div.post div.post-message-wrapper {
 div.reply div.post-message-wrapper {
   display: block;
   margin-left: 25px;
+  margin-right: 25px;
 }
 
 div.post-message {

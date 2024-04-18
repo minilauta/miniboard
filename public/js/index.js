@@ -70,6 +70,10 @@ function listener_post_thumb_link_click(event) {
   let event_target = event.target;
   let event_current = event.currentTarget;
 
+  if (event_target.tagName !== 'IMG') {
+    return;
+  }
+
   const get_finfo = function(element) {
     let file_info = element.parentElement.parentElement.getElementsByClassName('file-info');
     file_info = file_info.length > 0 ? file_info[0] : null;
