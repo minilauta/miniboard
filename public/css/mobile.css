@@ -24,13 +24,23 @@
   }
 
   .file-thumb {
-    margin-right: 12px !important;
+    margin-right: 0px !important;
   }
 
   .file-thumb-img {
     max-width: 125px;
     max-height: 125px;
     object-fit: scale-down;
+    margin-right: 12px !important;
+  }
+
+  .post-container,.post {
+    width: 100%;
+  }
+
+  .post.reply {
+    border-left: none !important;
+    border-right: none !important;
   }
   
   .post-message-wrapper {

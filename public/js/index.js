@@ -154,7 +154,7 @@ function listener_post_thumb_link_click(event) {
             shrink(current.lastElementChild, current);
           });
         }
-        video.style.maxWidth = '85vw';
+        video.style.maxWidth = '100%';
         video.style.maxHeight = '85vh';
         video.style.height = 'auto';
         video.style.cursor = 'default';
@@ -286,7 +286,7 @@ function listener_post_thumb_link_click(event) {
 
         let img = document.createElement('img');
         img.src = finfo.file_href;
-        img.style.maxWidth = '85vw';
+        img.style.maxWidth = '100%';
         img.style.maxHeight = '85vh';
         img.style.height = 'auto';
         img.loading = 'lazy';
