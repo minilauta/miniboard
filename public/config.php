@@ -59,6 +59,7 @@ define('MB_STYLES', [
 ]);
 define('MB_DELAY', 15);
 define('MB_TIMEFRAME', 3600);
+define('MB_ANONYMIZE_AFTER', 3600 * 24 * 15);
 define('MB_ERROR_IMAGES', [
   404 => [
     'nazrin1.png',

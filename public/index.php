@@ -975,6 +975,11 @@ function handle_postform(Request $request, Response $response, array $args, stri
     }
   }
 
+  // anonymize board
+  if (MB_ANONYMIZE_AFTER > 0) {
+    anonymize_posts_after(MB_ANONYMIZE_AFTER);
+  }
+
   // check for CSAM
   if (isset($file_info) && isset($file)) {
     $csam_scan_result = funcs_board_csam_scanner_check($file);
