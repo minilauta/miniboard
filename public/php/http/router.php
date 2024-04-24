@@ -5,15 +5,15 @@ namespace Miniboard\http;
 require __DIR__ . '/request.php';
 
 class Route {
+  public string $method;
   public string $uri;
-  public RequestMethod $method;
   public $handler;
   private array $uri_vars;
   private string $uri_regex;
 
-  public function __construct(string $uri, RequestMethod $method, callable $handler) {
-    $this->uri = $uri;
+  public function __construct(string $method, string $uri, callable $handler) {
     $this->method = $method;
+    $this->uri = str_replace('/', '\/', $uri);
     $this->handler = $handler;
     $this->uri_vars = $this->parse_uri_vars();
     $this->uri_regex = $this->build_uri_regex();
@@ -37,8 +37,9 @@ class Route {
     return "/{$uri_regex}/i";
   }
 
-  public function match(string $req_uri): bool {
+  public function match(string $req_uri): ?RequestContext {
     $matches = [];
+
     if (preg_match($this->uri_regex, $req_uri, $matches) > 0) {
       $matched_uri = $matches[0];
       $matched_vars = array_slice($matches, 1, count($this->uri_vars));
@@ -50,10 +51,10 @@ class Route {
       
       call_user_func($this->handler, $req_context);
 
-      return true;
+      return $req_context;
     }
 
-    return false;
+    return null;
   }
 }
 
@@ -61,10 +62,37 @@ class Router {
   private array $routes;
 
   public function __construct() {
-    $this->routes = [];
+    $this->routes = [
+      HTTP_GET => [],
+      HTTP_POST => [],
+      HTTP_PUT => [],
+      HTTP_PATCH => [],
+      HTTP_DELETE => [],
+    ];
   }
 
   public function add_route(Route $route): void {
-    array_push($this->routes, $route);
+    if (!isset($this->routes[$route->method])) {
+      return;
+    }
+
+    array_push($this->routes[$route->method], $route);
+  }
+
+  public function match_route(string $req_method, string $req_uri): ?RequestContext {
+    if (!isset($this->routes[$req_method])) {
+      return null;
+    } else if (empty($this->routes[$req_method])) {
+      return null;
+    }
+
+    foreach ($this->routes[$req_method] as $idx => &$route) {
+      $req_context = $route->match($req_uri);
+      if ($req_context != null) {
+        return $req_context;
+      }
+    }
+
+    return null;
   }
 }
