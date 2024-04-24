@@ -514,6 +514,19 @@ function select_threads_past_offset(string $board_id, int $offset = 100, int $li
   return $sth->fetchAll();
 }
 
+function anonymize_posts_after(int $anonymize_after): bool {
+  $dbh = get_db_handle();
+  $sth = $dbh->prepare('
+    UPDATE posts
+    SET
+      ip = INET6_ATON(\'127.0.0.1\')
+    WHERE timestamp < :timelimit
+  ');
+  return $sth->execute([
+    'timelimit' => time() - $anonymize_after,
+  ]);
+}
+
 // HIDE related functions below
 // ----------------------------
 
