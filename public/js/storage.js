@@ -54,11 +54,25 @@ function set_lsvar(key, val) {
 /**
  * Get local storage value by key.
  * @param {*} key 
+ * @param {*} default_val  
  * @returns 
  */
-function get_lsvar(key) {
+function get_lsvar(key, default_val) {
   key = 'miniboard/' + key;
-  return window.localStorage.getItem(key);
+  const val = window.localStorage.getItem(key);
+  return val != null ? val : default_val;
+}
+
+/**
+ * Get local storage boolean value by key.
+ * @param {*} key 
+ * @param {*} default_val  
+ * @returns 
+ */
+function get_lsvar_bool(key, default_val) {
+  key = 'miniboard/' + key;
+  const val = window.localStorage.getItem(key);
+  return val === 'true' ? true : val === 'false' ? false : default_val;
 }
 
 const storage = {
@@ -66,6 +80,7 @@ const storage = {
   get_cookie,
   set_lsvar,
   get_lsvar,
+  get_lsvar_bool,
 };
 
 export default storage;
