@@ -373,6 +373,7 @@ function funcs_board_execute_upload(?array $file_info, array $file_collisions, b
       case 'image/png':
       case 'image/gif':
       case 'image/bmp':
+      case 'image/x-ms-bmp':
       case 'image/tiff':
       case 'image/webp':
         $generated_thumb = funcs_board_generate_thumbnail($file_path, $spoiler, false, 'png', $thumb_file_path, $max_w, $max_h);
@@ -513,7 +514,7 @@ function funcs_board_strip_metadata(string $file_path): int {
  * Generates a thumbnail from input file.
  */
 function funcs_board_generate_thumbnail(string $file_path, bool $spoiler, bool $player, string $thumb_ext, string $thumb_path, int $thumb_width, int $thumb_height): array {
-  $image = new Imagick($file_path);
+  $image = new Imagick($file_path . '[0-9]'); // NOTE: load frames 0-9 (10 frames max)
 
   if (str_contains(strtolower($file_path), '.gif')) {
     $image = $image->coalesceImages();
@@ -534,6 +535,7 @@ function funcs_board_generate_thumbnail(string $file_path, bool $spoiler, bool $
   $thumb_height = floor($image_height * $scale_factor);
 
   $image->thumbnailImage($thumb_width, $thumb_height);
+  $image->setImagePage($thumb_width, $thumb_height, 0, 0);
   if ($spoiler) {
     $image->gaussianBlurImage(32, 16);
     $image->modulateImage(50.0, 50.0, 100.0);
