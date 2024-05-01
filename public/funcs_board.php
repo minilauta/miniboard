@@ -505,7 +505,7 @@ function funcs_board_strip_metadata(string $file_path): int {
   // execute exiftool to strip any metadata
   $exiftool_output = '';
   $exiftool_status = 1;
-  exec('exiftool -All= -overwrite_original_in_place ' . escapeshellarg($file_path), $exiftool_output, $exiftool_status);
+  exec('exiftool -All= -overwrite_original_in_place -m ' . escapeshellarg($file_path), $exiftool_output, $exiftool_status);
 
   return $exiftool_status;
 }
