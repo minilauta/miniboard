@@ -357,12 +357,14 @@ function funcs_board_execute_upload(?array $file_info, array $file_collisions, b
       case 'image/png':
       case 'image/gif':
       case 'image/tiff':
-      case 'video/mp4':
         $exiftool_status = funcs_board_strip_metadata($file_path);
         if ($exiftool_status !== 0) {
           unlink($file_path);
           throw new AppException('funcs_board', 'execute_upload', "failed to strip metadata from file, exiftool status: {$exiftool_status}", SC_INTERNAL_ERROR);
         }
+        break;
+      case 'video/mp4':
+        funcs_board_strip_metadata($file_path);
         break;
     }
 
