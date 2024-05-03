@@ -1418,14 +1418,14 @@ function init_postform_features(target_id_prefix) {
   }
 
   // init file drawing (Tegaki)
-  if (Tegaki !== undefined && post_form != null) {
+  if (window.Tegaki != null && post_form != null) {
     let postform_draw = post_form.querySelector(`#${target_id_prefix}form-draw`);
     postform_draw.addEventListener('click', (event) => {
       console.log('tegaki: created');
 
-      Tegaki.open({
+      window.Tegaki.open({
         onDone: () => {
-          Tegaki.flatten().toBlob((blob) => {
+          window.Tegaki.flatten().toBlob((blob) => {
             const input_file = new File([blob], 'drawing.png');
             const input_data = new DataTransfer();
             input_data.items.add(input_file);
