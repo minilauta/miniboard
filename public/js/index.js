@@ -1419,29 +1419,31 @@ function init_postform_features(target_id_prefix) {
 
   // init file drawing (Tegaki)
   if (window.Tegaki != null && post_form != null) {
-    let postform_draw = post_form.querySelector(`#${target_id_prefix}form-draw`);
-    postform_draw.addEventListener('click', (event) => {
-      console.log('tegaki: created');
-
-      window.Tegaki.open({
-        onDone: () => {
-          window.Tegaki.flatten().toBlob((blob) => {
-            const input_file = new File([blob], 'drawing.png');
-            const input_data = new DataTransfer();
-            input_data.items.add(input_file);
-
-            const postform_file = post_form.querySelector(`#${target_id_prefix}form-file`);
-            console.log(postform_file.files);
-            postform_file.files = input_data.files;
-          }, 'image/png');
-        },
-        onCancel: () => {
-          console.log('tegaki: canceling...');
-        },
-        width: 512,
-        height: 512,
+    const postform_draw = post_form.querySelector(`#${target_id_prefix}form-draw`);
+    if (postform_draw != null) {
+      postform_draw.addEventListener('click', (event) => {
+        console.log('tegaki: created');
+  
+        window.Tegaki.open({
+          onDone: () => {
+            window.Tegaki.flatten().toBlob((blob) => {
+              const input_file = new File([blob], 'drawing.png');
+              const input_data = new DataTransfer();
+              input_data.items.add(input_file);
+  
+              const postform_file = post_form.querySelector(`#${target_id_prefix}form-file`);
+              console.log(postform_file.files);
+              postform_file.files = input_data.files;
+            }, 'image/png');
+          },
+          onCancel: () => {
+            console.log('tegaki: canceling...');
+          },
+          width: 512,
+          height: 512,
+        });
       });
-    });
+    }
   }
 }
 

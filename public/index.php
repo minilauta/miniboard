@@ -835,7 +835,10 @@ $app->post('/{board_id}/{thread_id}/', function (Request $request, Response $res
 function handle_postform(Request $request, Response $response, array $args, string $context): Response {
   // parse request body
   $params = (array) $request->getParsedBody();
-  $file = $request->getUploadedFiles()['file'];
+  $file = null;
+  if (isset($request->getUploadedFiles()['file'])) {
+    $file = $request->getUploadedFiles()['file'];
+  }
 
   // get board config
   $board_cfg = funcs_common_get_board_cfg($args['board_id']);
@@ -918,29 +921,54 @@ function handle_postform(Request $request, Response $response, array $args, stri
     }
   }
 
-  // validate request file
-  $embed = strlen(trim($params['embed'])) > 0;
-  $spoiler = isset($params['spoiler']) && $params['spoiler'] == true ? true : false;
-  $no_file_ok = ($thread_id != null || $embed) ? true : $board_cfg['nofileok'];
-  $file_info = funcs_board_validate_upload($file, $no_file_ok, $spoiler, $board_cfg['mime_ext_types'], $board_cfg['maxkb'] * 1000);
-  $is_file_or_embed = $embed || $file_info != null;
+  if (!isset($board_cfg['text']) || $board_cfg['text'] == false) {
+    // validate request file
+    $embed = strlen(trim($params['embed'])) > 0;
+    $spoiler = isset($params['spoiler']) && $params['spoiler'] == true ? true : false;
+    $no_file_ok = ($thread_id != null || $embed) ? true : $board_cfg['nofileok'];
+    $file_info = funcs_board_validate_upload($file, $no_file_ok, $spoiler, $board_cfg['mime_ext_types'], $board_cfg['maxkb'] * 1000);
+    $is_file_or_embed = $embed || $file_info != null;
 
-  // validate request message + file or embed
-  if (strlen(trim($params['message'])) === 0 && !$is_file_or_embed) {
-    throw new AppException('index', 'route', 'message and file or embed cannot both be null', SC_BAD_REQUEST);
-  }
+    // validate request message + file or embed
+    if (strlen(trim($params['message'])) === 0 && !$is_file_or_embed) {
+      throw new AppException('index', 'route', 'message and file or embed cannot both be null', SC_BAD_REQUEST);
+    }
 
-  // check md5 file collisions
-  $file_collisions = [];
-  if ($file_info != null) {
-    $file_collisions = select_files_by_md5($file_info['md5']);
-  }
+    // check md5 file collisions
+    $file_collisions = [];
+    if ($file_info != null) {
+      $file_collisions = select_files_by_md5($file_info['md5']);
+    }
 
-  // upload file or embed url
-  if (!$embed) {
-    $file = funcs_board_execute_upload($file_info, $file_collisions, $spoiler, $board_cfg['max_width'], $board_cfg['max_height']);
+    // upload file or embed url
+    if (!$embed) {
+      $file = funcs_board_execute_upload($file_info, $file_collisions, $spoiler, $board_cfg['max_width'], $board_cfg['max_height']);
+    } else {
+      $file = funcs_board_execute_embed($params['embed'], $board_cfg['embed_types'], $board_cfg['max_width'], $board_cfg['max_height']);
+      $file_info = null;
+    }
   } else {
-    $file = funcs_board_execute_embed($params['embed'], $board_cfg['embed_types'], $board_cfg['max_width'], $board_cfg['max_height']);
+    // validate request message
+    if (strlen(trim($params['message'])) === 0) {
+      throw new AppException('index', 'route', 'message cannot be null', SC_BAD_REQUEST);
+    }
+
+    $file = [
+      'file'                => '',
+      'file_rendered'       => '',
+      'file_hex'            => '',
+      'file_original'       => '',
+      'file_size'           => 0,
+      'file_size_formatted' => '',
+      'file_mime'           => null,
+      'image_width'         => 0,
+      'image_height'        => 0,
+      'thumb'               => '',
+      'thumb_width'         => 0,
+      'thumb_height'        => 0,
+      'audio_album'         => null,
+      'embed'               => 0
+    ];
     $file_info = null;
   }
 

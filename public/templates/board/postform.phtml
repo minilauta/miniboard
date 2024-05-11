@@ -117,39 +117,45 @@
             </tr>
           ";
         }
+
+        // file
+        if (!isset($board['text']) || $board['text'] == false) {
+          echo "
+            <tr>
+              <td class='form-label'>
+                <label for='file'>File</label>
+              </td>
+              <td>
+                <input id='form-file' type='file' name='file' autocomplete='off' size='35'>
+                <button id='form-draw' type='button' name='draw'>Draw</button>
+              </td>
+            </tr>
+            <tr>
+              <td class='form-label'>
+                <label for='file-options'>File options</label>
+              </td>
+              <td>
+                <label>
+                  <input type='checkbox' name='spoiler' value='1'>
+                  Spoiler
+                </label>
+                <label>
+                  <input type='checkbox' name='anonfile' value='1'>
+                  No filename
+                </label>
+              </td>
+            </tr>
+            <tr>
+              <td class='form-label'>
+                <label for='embed'>Embed</label>
+              </td>
+              <td>
+                <input type='text' name='embed' autocomplete='off'>
+              </td>
+            </tr>
+          ";
+        }
       ?>
-      <tr>
-        <td class="form-label">
-          <label for="file">File</label>
-        </td>
-        <td>
-          <input id="form-file" type="file" name="file" autocomplete="off" size="35">
-          <button id="form-draw" type="button" name="draw">Draw</button>
-        </td>
-      </tr>
-      <tr>
-        <td class="form-label">
-          <label for="file-options">File options</label>
-        </td>
-        <td>
-          <label>
-            <input type="checkbox" name="spoiler" value="1">
-            Spoiler
-          </label>
-          <label>
-            <input type="checkbox" name="anonfile" value="1">
-            No filename
-          </label>
-        </td>
-      </tr>
-      <tr>
-        <td class="form-label">
-          <label for="embed">Embed</label>
-        </td>
-        <td>
-          <input type="text" name="embed" autocomplete="off">
-        </td>
-      </tr>
       <tr>
         <td class="form-label">
           <label for="password">Password</label>
@@ -159,7 +165,7 @@
         </td>
       </tr>
       <?php
-        if ($board['type'] !== 'main') {
+        if ($board['type'] !== 'main' && (!isset($board['text']) || $board['text'] == false)) {
           $info_exts = strtoupper(implode(', ', array_unique(array_column($board['mime_ext_types'], 0))));
           $info_embs = strtoupper(implode(', ', array_keys($board['embed_types'])));
           $info_fsize = funcs_common_human_filesize($board['maxkb'] * 1000);

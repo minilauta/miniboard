@@ -1138,6 +1138,7 @@ function insert_refresh_board(array $board): bool {
   $board['flags'] = $board['flags'] == true ? 1 : 0;
   $board['alwaysnoko'] = $board['alwaysnoko'] == true ? 1 : 0;
   $board['nofileok'] = $board['nofileok'] == true ? 1 : 0;
+  $board['text'] = $board['text'] == true ? 1 : 0;
 
   // convert arrays to json
   $board['fields_post'] = json_encode($board['fields_post']);
@@ -1166,6 +1167,7 @@ function insert_refresh_board(array $board): bool {
       max_replies,
       maxkb,
       nofileok,
+      text,
       max_width,
       max_height,
       post_fields,
@@ -1192,6 +1194,7 @@ function insert_refresh_board(array $board): bool {
       :max_replies,
       :maxkb,
       :nofileok,
+      :text,
       :max_width,
       :max_height,
       :fields_post,
@@ -1217,6 +1220,7 @@ function insert_refresh_board(array $board): bool {
       max_replies = VALUES(max_replies),
       maxkb = VALUES(maxkb),
       nofileok = VALUES(nofileok),
+      text = VALUES(text),
       max_width = VALUES(max_width),
       max_height = VALUES(max_height),
       post_fields = VALUES(post_fields),
