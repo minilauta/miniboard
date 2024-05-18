@@ -37,21 +37,22 @@ window.libopenmpt = {};
 // app state
 var state = {
   mouse_over_post_ref_link: false,
-  mouse_over_post_catalog_link: false,
   post_preview_cache: {},
-  audio_volume: 0.1,
-  video_volume: 0.1,
-  swf_volume: 0.1,
-  mod_stereo: 1.0,
-  audio_loop: false,
-  video_loop: false,
-  audio_autoclose: false,
-  video_autoclose: false,
+  menubar_detach: true,
+  thread_quickreply: true,
   thread_auto_update: {
     enabled: true,
     interval: null,
     post_id_after: 0,
   },
+  audio_loop: false,
+  video_loop: false,
+  audio_autoclose: true,
+  video_autoclose: true,
+  audio_volume: 0.2,
+  video_volume: 0.2,
+  swf_volume: 0.2,
+  mod_stereo: 1.0,
   chiptune2js: {
     player: null,
     interval: null,
@@ -546,63 +547,6 @@ function listener_post_reference_link_mouseleave(event) {
 }
 
 /**
- * Event listener: mouse over on post catalog link.
- * Opens a preview.
- * @param {*} event 
- */
-function listener_post_catalog_link_mouseenter(event) {
-  event.preventDefault();
-
-  // update state
-  state.mouse_over_post_catalog_link = true;
-
-  let target = event.target;
-  let rect = target.getBoundingClientRect();
-  let data = target.dataset;
-  
-  if (data.board_id == null || data.parent_id == null || data.id == null) {
-    return;
-  }
-
-  const key = data.board_id + '/' + data.parent_id + '/' + data.id;
-
-  if (state.post_preview_cache[key] == null) {
-    let xhr = new XMLHttpRequest();
-    xhr.onreadystatechange = function() {
-      if (!state.mouse_over_post_catalog_link) {
-        xhr.abort();
-        return;
-      }
-  
-      if (xhr.readyState !== XMLHttpRequest.DONE) {
-        return;
-      }
-      
-      state.post_preview_cache[key] = xhr.responseText;
-      create_post_preview(document.body, data.board_id, data.parent_id, data.id, rect, true, xhr.responseText);
-    }
-    xhr.open('GET', '/' + data.board_id + '/' + data.parent_id + '/' + data.id, true);
-    xhr.send();
-  } else {
-    create_post_preview(document.body, data.board_id, data.parent_id, data.id, rect, true, state.post_preview_cache[key]);
-  }
-}
-
-/**
- * Event listener: mouse out from post catalog link.
- * Closes all opened previews.
- * @param {*} event 
- */
-function listener_post_catalog_link_mouseleave(event) {
-  event.preventDefault();
-
-  // update state
-  state.mouse_over_post_catalog_link = false;
-
-  delete_post_previews(document.body);
-}
-
-/**
  * Event listener: click on dropdown menu indice.
  * Executes menu action.
  * @param {*} event 
@@ -869,12 +813,12 @@ function create_settings_window(variables) {
       case 'bool':
         div_var_value_data = document.createElement('input');
         div_var_value_data.type = 'checkbox';
-        div_var_value_data.checked = storage.get_lsvar(variable.key) === 'true';
+        div_var_value_data.checked = storage.get_lsvar_bool(variable.key, variable.def);
         break;
       case 'string':
         div_var_value_data = document.createElement('input');
         div_var_value_data.type = 'text';
-        div_var_value_data.value = storage.get_lsvar(variable.key);
+        div_var_value_data.value = storage.get_lsvar(variable.key, variable.def);
         break;
       case 'float':
         div_var_value_data = document.createElement('input');
@@ -882,12 +826,12 @@ function create_settings_window(variables) {
         div_var_value_data.min = variable.min;
         div_var_value_data.max = variable.max;
         div_var_value_data.step = variable.step;
-        div_var_value_data.value = storage.get_lsvar(variable.key);
+        div_var_value_data.value = storage.get_lsvar(variable.key, variable.def);
         break;
       case 'string_multiline':
         div_var_value_data = document.createElement('textarea');
         div_var_value_data.rows = '4';
-        div_var_value_data.value = storage.get_lsvar(variable.key);
+        div_var_value_data.value = storage.get_lsvar(variable.key, variable.def);
         break;
       case 'float_slider':
         div_var_value_data = document.createElement('input');
@@ -895,7 +839,7 @@ function create_settings_window(variables) {
         div_var_value_data.min = variable.min;
         div_var_value_data.max = variable.max;
         div_var_value_data.step = variable.step;
-        div_var_value_data.value = storage.get_lsvar(variable.key);
+        div_var_value_data.value = storage.get_lsvar(variable.key, variable.def);
         break;
       case 'element':
         div_var_value_data = document.getElementById(variable.id)?.cloneNode(true);
@@ -1044,7 +988,20 @@ function create_quickreply_window(target) {
  * Applies all currently saved settings.
  */
 function apply_settings() {
-  const css_override = storage.get_lsvar('css_override');
+  state.menubar_detach = storage.get_lsvar_bool('menubar_detach', state.menubar_detach);
+  state.thread_quickreply = storage.get_lsvar_bool('thread_quickreply', state.thread_quickreply);
+  state.thread_auto_update.enabled = storage.get_lsvar_bool('thread_auto_update', state.thread_auto_update.enabled);
+  state.audio_loop = storage.get_lsvar_bool('audio_loop', state.audio_loop);
+  state.video_loop = storage.get_lsvar_bool('video_loop', state.video_loop);
+  state.audio_autoclose = storage.get_lsvar_bool('audio_autoclose', state.audio_autoclose);
+  state.video_autoclose = storage.get_lsvar_bool('video_autoclose', state.video_autoclose);
+  state.audio_volume = parseFloat(storage.get_lsvar('audio_volume', state.audio_volume));
+  state.video_volume = parseFloat(storage.get_lsvar('video_volume', state.video_volume));
+  state.swf_volume = parseFloat(storage.get_lsvar('swf_volume', state.swf_volume));
+  state.mod_stereo = parseFloat(storage.get_lsvar('mod_stereo', state.mod_stereo));
+  const css_override = storage.get_lsvar('css_override', '');
+  const js_override = storage.get_lsvar('js_override', '');
+
   if (css_override != null && css_override.length > 0) {
     let style_element = document.getElementById('css_override');
     if (style_element == null) {
@@ -1055,7 +1012,6 @@ function apply_settings() {
     document.head.appendChild(style_element);
   }
 
-  const js_override = storage.get_lsvar('js_override');
   if (js_override != null && js_override.length > 0) {
     let script_element = document.getElementById('js_override');
     if (script_element == null) {
@@ -1066,46 +1022,16 @@ function apply_settings() {
     document.head.appendChild(script_element);
   }
 
-  const menubar_detach = storage.get_lsvar('menubar_detach');
   const menubar_element = document.getElementById('menubar');
-  if (menubar_detach === 'true' && menubar_element) {
+  if (state.menubar_detach && menubar_element) {
     menubar_element.classList.add('menubar-detached');
     document.body.style.padding = '40px 8px 8px 8px';
-  } else if (menubar_detach === 'false' && menubar_element) {
+  } else if (!state.menubar_detach && menubar_element) {
     menubar_element.classList.remove('menubar-detached');
     document.body.style.padding = '8px 8px 8px 8px';
   }
 
-  const postform_detach = storage.get_lsvar('postform_detach');
-  const postform_container_element = document.getElementById('form-post-container');
-  const postform_element = document.getElementById('form-post');
-  const postformwindow_element = document.getElementById('postformwindow');
-  if (postform_detach === 'true' && postform_element && !postformwindow_element) {
-    const div_fixed_window = ui_window.open(
-      'postformwindow',
-      'Make a post',
-      null,
-      null,
-      0,
-      0,
-      true,
-      postform_element
-    );
-    document.body.appendChild(div_fixed_window.element);
-  } else if (postform_detach === 'false' && postform_element && postformwindow_element) {
-    postform_container_element.appendChild(postform_element);
-    postformwindow_element.remove();
-  }
-
-  state.audio_volume = parseFloat(storage.get_lsvar('audio_volume') || 0.1);
-  state.video_volume = parseFloat(storage.get_lsvar('video_volume') || 0.1);
-  state.swf_volume = parseFloat(storage.get_lsvar('swf_volume') || 0.1);
-  state.mod_stereo = parseFloat(storage.get_lsvar('mod_stereo') || 1.0);
-  state.audio_loop = storage.get_lsvar('audio_loop') === 'true' || false;
-  state.video_loop = storage.get_lsvar('video_loop') === 'true' || false;
-  state.audio_autoclose = storage.get_lsvar('audio_autoclose') === 'true' || false;
-  state.video_autoclose = storage.get_lsvar('video_autoclose') === 'true' || false;
-  state.thread_auto_update.enabled = storage.get_lsvar('thread_auto_update') || true;
+  console.log(state);
 }
 
 /**
@@ -1239,22 +1165,6 @@ function init_post_reference_links(target) {
 }
 
 /**
- * Initializes all post catalog links under target element.
- * @param {*} target 
- */
-function init_post_catalog_links(target) {
-  if (target == null) {
-    target = document;
-  }
-
-  const post_catalog_links = target.getElementsByClassName('post-catalog-link');
-  Array.from(post_catalog_links).forEach(element => {
-    element.addEventListener('mouseenter', listener_post_catalog_link_mouseenter);
-    element.addEventListener('mouseleave', listener_post_catalog_link_mouseleave);
-  });
-}
-
-/**
  * Initializes all post backreference links, cleans up existing first.
  * @param {*} target 
  */
@@ -1370,7 +1280,7 @@ function init_location_hash_features() {
       const post_id = hash.substring(2);
 
       // if enabled: create quickreply window
-      if (storage.get_lsvar('postform_quickreply') == 'true') {
+      if (state.thread_quickreply) {
         open_quickreply_on_post(post_id);
       }
 
@@ -1508,30 +1418,32 @@ function init_postform_features(target_id_prefix) {
   }
 
   // init file drawing (Tegaki)
-  if (Tegaki !== undefined && post_form != null) {
-    let postform_draw = post_form.querySelector(`#${target_id_prefix}form-draw`);
-    postform_draw.addEventListener('click', (event) => {
-      console.log('tegaki: created');
-
-      Tegaki.open({
-        onDone: () => {
-          Tegaki.flatten().toBlob((blob) => {
-            const input_file = new File([blob], 'drawing.png');
-            const input_data = new DataTransfer();
-            input_data.items.add(input_file);
-
-            const postform_file = post_form.querySelector(`#${target_id_prefix}form-file`);
-            console.log(postform_file.files);
-            postform_file.files = input_data.files;
-          }, 'image/png');
-        },
-        onCancel: () => {
-          console.log('tegaki: canceling...');
-        },
-        width: 512,
-        height: 512,
+  if (window.Tegaki != null && post_form != null) {
+    const postform_draw = post_form.querySelector(`#${target_id_prefix}form-draw`);
+    if (postform_draw != null) {
+      postform_draw.addEventListener('click', (event) => {
+        console.log('tegaki: created');
+  
+        window.Tegaki.open({
+          onDone: () => {
+            window.Tegaki.flatten().toBlob((blob) => {
+              const input_file = new File([blob], 'drawing.png');
+              const input_data = new DataTransfer();
+              input_data.items.add(input_file);
+  
+              const postform_file = post_form.querySelector(`#${target_id_prefix}form-file`);
+              console.log(postform_file.files);
+              postform_file.files = input_data.files;
+            }, 'image/png');
+          },
+          onCancel: () => {
+            console.log('tegaki: canceling...');
+          },
+          width: 512,
+          height: 512,
+        });
       });
-    });
+    }
   }
 }
 
@@ -1692,20 +1604,19 @@ function init_settings_features() {
             location.reload();
           });
         } },
-        { name: 'Menu bar: detach', key: 'menubar_detach', type: 'bool' },
-        { name: 'Post form: detach', key: 'postform_detach', type: 'bool' },
-        { name: 'Post form: quick reply', key: 'postform_quickreply', type: 'bool' },
-        { name: 'Thread: auto update', key: 'thread_auto_update', type: 'bool' },
-        { name: 'Audio: loop', key: 'audio_loop', type: 'bool' },
-        { name: 'Video: loop', key: 'video_loop', type: 'bool' },
-        { name: 'Audio: autoclose', key: 'audio_autoclose', type: 'bool' },
-        { name: 'Video: autoclose', key: 'video_autoclose', type: 'bool' },
-        { name: 'Audio: volume', key: 'audio_volume', type: 'float_slider', min: 0, max: 1, step: 0.1 },
-        { name: 'Video: volume', key: 'video_volume', type: 'float_slider', min: 0, max: 1, step: 0.1 },
-        { name: 'Flash: volume', key: 'swf_volume', type: 'float_slider', min: 0, max: 1, step: 0.1 },
-        { name: 'MOD: stereo', key: 'mod_stereo', type: 'float_slider', min: 0, max: 1, step: 0.1 },
-        { name: 'CSS: override', key: 'css_override', type: 'string_multiline' },
-        { name: 'JS: override', key: 'js_override', type: 'string_multiline' },
+        { name: 'Menubar: detach', key: 'menubar_detach', type: 'bool', def: state.menubar_detach },
+        { name: 'Thread: quick reply', key: 'thread_quickreply', type: 'bool', def: state.thread_quickreply },
+        { name: 'Thread: auto update', key: 'thread_auto_update', type: 'bool', def: state.thread_auto_update },
+        { name: 'Audio: loop', key: 'audio_loop', type: 'bool', def: state.audio_loop },
+        { name: 'Video: loop', key: 'video_loop', type: 'bool', def: state.video_loop },
+        { name: 'Audio: autoclose', key: 'audio_autoclose', type: 'bool', def: state.audio_autoclose },
+        { name: 'Video: autoclose', key: 'video_autoclose', type: 'bool', def: state.video_autoclose },
+        { name: 'Audio: volume', key: 'audio_volume', type: 'float_slider', min: 0, max: 1, step: 0.1, def: state.audio_volume },
+        { name: 'Video: volume', key: 'video_volume', type: 'float_slider', min: 0, max: 1, step: 0.1, def: state.video_volume },
+        { name: 'Flash: volume', key: 'swf_volume', type: 'float_slider', min: 0, max: 1, step: 0.1, def: state.swf_volume },
+        { name: 'MOD: stereo', key: 'mod_stereo', type: 'float_slider', min: 0, max: 1, step: 0.1, def: state.mod_stereo },
+        { name: 'CSS: override', key: 'css_override', type: 'string_multiline', def: '' },
+        { name: 'JS: override', key: 'js_override', type: 'string_multiline', def: '' },
       ]);
     }
   };
@@ -1740,6 +1651,10 @@ function init_gallery_features() {
 }
 
 document.addEventListener('DOMContentLoaded', function(event) {
+  console.time('init_settings_features');
+  init_settings_features();
+  console.timeEnd('init_settings_features');
+
   if (!location.pathname.includes('/catalog/') && !location.pathname.includes('/manage/')) {
     console.time('init_post_thumb_links');
     init_post_thumb_links();
@@ -1757,10 +1672,6 @@ document.addEventListener('DOMContentLoaded', function(event) {
     init_location_hash_features();
     console.timeEnd('init_location_hash_features');
   }
-
-  console.time('init_post_catalog_links');
-  init_post_catalog_links();
-  console.timeEnd('init_post_catalog_links');
 
   console.time('init_dropdown_menu_buttons');
   init_dropdown_menu_buttons();
@@ -1785,10 +1696,6 @@ document.addEventListener('DOMContentLoaded', function(event) {
   console.time('init_boardselect_mobile_features');
   init_boardselect_mobile_features();
   console.timeEnd('init_boardselect_mobile_features');
-
-  console.time('init_settings_features');
-  init_settings_features();
-  console.timeEnd('init_settings_features');
 
   console.time('init_gallery_features');
   init_gallery_features();

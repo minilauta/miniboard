@@ -7,6 +7,11 @@ services:
     build:
       context: .
       dockerfile: docker/miniboard/Dockerfile.dev
+    deploy:
+      resources:
+        limits:
+          cpus: "0.5"
+          memory: "256M"
     restart: always
     healthcheck:
       test: ['CMD', 'curl', '-fs', 'http://localhost:80']
