@@ -81,9 +81,9 @@ hr {
   display: inline-block;
   width: 16px;
   height: 16px;
-  padding: 0;
+  padding: 0px 4px 0px 4px;
   margin: 0;
-  vertical-align: top;
+  vertical-align: middle;
 }
 
 .fixed-window {
