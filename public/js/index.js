@@ -34,6 +34,18 @@ window.RufflePlayer.config = {
 // chiptune2.js player
 window.libopenmpt = {};
 
+// app constants
+const FILE_EXTS_VIDEO = [
+  'mp4',
+  'webm',
+];
+const FILE_EXTS_AUDIO = [
+  'mp3',
+  'wav',
+  'ogg',
+  'opus',
+  'flac',
+];
 // app state
 var state = {
   mouse_over_post_ref_link: false,
@@ -107,7 +119,8 @@ function listener_post_thumb_link_click(event) {
       case 'ogg':
       case 'opus':
       case 'flac':
-        current.lastElementChild.remove();
+        target.style.minWidth = null;
+        current.parentElement.lastElementChild.remove();
         break;
       case 'mod':
       case 'xm':
@@ -172,6 +185,8 @@ function listener_post_thumb_link_click(event) {
       case 'ogg':
       case 'opus':
       case 'flac':
+        target.style.minWidth = '270px';  
+
         let audio = document.createElement('audio');
         audio.addEventListener('click', (event) => {
           event.preventDefault();
@@ -191,7 +206,7 @@ function listener_post_thumb_link_click(event) {
         audio.style.width = target.width + 'px';
         audio.style.cursor = 'default';
 
-        current.appendChild(audio);
+        current.parentElement.appendChild(audio);
         break;
       case 'mod':
       case 'xm':
@@ -308,11 +323,12 @@ function listener_post_thumb_link_click(event) {
       // select the element's container based on file ext
       // NOTE: this is because <video> is created inside the parent <div>
       //       because <video> inside <a> is glitchy
+      const exts_video_audio = FILE_EXTS_VIDEO.concat(FILE_EXTS_AUDIO);
       const exp_finfo = get_finfo(exp_element);
-      const exp_container = ['mp4', 'webm'].includes(exp_finfo.file_ext) ?
+      const exp_container = exts_video_audio.includes(exp_finfo.file_ext) ?
         exp_element.parentElement :
         exp_element;
-      const curr_container = ['mp4', 'webm'].includes(finfo.file_ext) ?
+      const curr_container = exts_video_audio.includes(finfo.file_ext) ?
         current.parentElement :
         current;
       
