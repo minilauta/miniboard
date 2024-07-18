@@ -86,6 +86,10 @@ hr {
   vertical-align: top;
 }
 
+.fixed-window {
+  z-index: 10;
+}
+
 /* banner */
 div.banner {
   clear: both;
@@ -289,6 +293,7 @@ div.deleteform-group {
   right: 0px;
   top: 0px;
   background: inherit;
+  z-index: 1;
 }
 
 /* dropdown menu */
