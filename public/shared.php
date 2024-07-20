@@ -1,6 +1,13 @@
 <?php
 
-define('REGEX_MATCH_URL', '/(http|https):\/\/([^\r\n\s]{3,256})/im');
+define('REGEX_MATCH_URL', "/(http|https|ftp):\/\/([A-Za-zäö0-9-.]{3,128})([\/]{0,1}["
+  ."\p{Latin}"
+  ."\p{Hiragana}"
+  ."\p{Katakana}"
+  ."\x{4E00}-\x{9FAF}"    // kanji + chinese
+  ."äöå0-9-_.~!*'();:@&=+$,\/?%#"
+  ."]{0,128})/uim"
+);
 define('REGEX_MATCH_UNICODE_ICONS', "/["
   ."\x{1F100}-\x{1F1FF}"  // enclosed alphanumeric supplement
   ."\x{1F300}-\x{1F5FF}"  // miscellaneous symbols and pictographs
