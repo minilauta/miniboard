@@ -5,7 +5,7 @@ use PHPUnit\Framework\TestCase;
 use Miniboard\http\RouteMatch;
 use Miniboard\http\Router;
 
-require __DIR__ . '/../../../../public/php/http/router.php';
+require __ROOT__ . '/public/php/http/router.php';
 
 final class RouterTest extends TestCase {
   public function test_match_route_get_simple_match() {
