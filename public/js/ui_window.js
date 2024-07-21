@@ -77,6 +77,7 @@ function open(id, title, left, top, right, bottom, draggable, content) {
   fixed_window.element.style.position = 'fixed';
   fixed_window.setXY(left != null ? left : right, top != null ? top : bottom);
   fixed_window.element.classList.add('box-container');
+  fixed_window.element.classList.add('fixed-window');
 
   const div_box = document.createElement('div');
   div_box.style.display = 'block';
