@@ -191,7 +191,8 @@ a > div.post-preview {
 
 /* forms */
 .form input[type="text"], input[type="password"], textarea {
-  color: #222;
+  color: #fff;
+  text-shadow: #222 2px 2px 1px;
   background: #6f6f6f;
   border: 1px inset #dca3a3;
 }

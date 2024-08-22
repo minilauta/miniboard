@@ -263,6 +263,10 @@ span.post-catalog-subject {
   font-weight: bold;
 }
 
+.post-catalog-link > img {
+  box-shadow: 0 0 5px rgba(0, 0, 0, .25);
+}
+
 /* deleteform */
 div.deleteform-group {
   float: right;
