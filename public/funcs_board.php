@@ -253,6 +253,15 @@ function funcs_board_validate_upload(UploadedFileInterface $input, bool $no_file
       $file_mime = 'audio/mpeg';
     }
   }
+  // NOTE: med files do not contain mime-type in magic.mgc database
+  else if ($file_mime === 'application/octet-stream' && $file_ext_pathinfo === 'med') {
+    $file_handle = fopen($tmp_file, 'rb');
+    $mmd_id = fread($file_handle, 4);
+    fclose($file_handle);
+    if ($mmd_id != false && in_array($mmd_id, ['MMD0', 'MMD1', 'MMD2', 'MMD3'])) {
+      $file_mime = 'audio/x-mod';
+    }
+  }
   
   if (!isset($mime_types[$file_mime])) {
     throw new AppException('funcs_board', 'validate_upload', "file mime type invalid: {$file_mime}", SC_BAD_REQUEST);

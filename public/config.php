@@ -155,7 +155,7 @@ define('MB_BOARDS', [
       'audio/flac'          => ['flac'],
       'audio/opus'          => ['opus'],
       'audio/ogg'           => ['oga'],
-      'audio/x-mod'         => ['mod', 'xm', 'it'],
+      'audio/x-mod'         => ['mod', 'xm', 'it', 'med'],
       'audio/x-s3m'         => ['s3m'],
       'application/x-shockwave-flash' => ['swf']
     ],

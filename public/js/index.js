@@ -126,6 +126,7 @@ function listener_post_thumb_link_click(event) {
       case 'xm':
       case 'it':
       case 's3m':
+      case 'med':
         if (state.chiptune2js.player != null) {
           clearInterval(state.chiptune2js.interval);
           state.chiptune2js.player.stop();
@@ -212,6 +213,7 @@ function listener_post_thumb_link_click(event) {
       case 'xm':
       case 'it':
       case 's3m':
+      case 'med':
         let wrapper = document.createElement('div');
         wrapper.addEventListener('click', (event) => {
           event.preventDefault();
