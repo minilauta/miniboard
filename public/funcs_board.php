@@ -359,6 +359,20 @@ function funcs_board_execute_upload(?array $file_info, array $file_collisions, b
     $album_file_name = null;
     $album_dir = '/src/';
 
+    // run convert to auto-orient images based on EXIF-data
+    switch ($file_info['mime']) {
+      case 'image/jpeg':
+      case 'image/pjpeg':
+      case 'image/png':
+      case 'image/webp':
+        $convert_status = funcs_board_auto_orient($file_path);
+        if ($convert_status !== 0) {
+          unlink($file_path);
+          throw new AppException('funcs_board', 'execute_upload', "failed to auto-orient image file, convert status: {$convert_status}", SC_INTERNAL_ERROR);
+        }
+        break;
+    }
+
     // run exiftool on supported file extensions
     switch ($file_info['mime']) {
       case 'image/jpeg':
@@ -366,13 +380,18 @@ function funcs_board_execute_upload(?array $file_info, array $file_collisions, b
       case 'image/png':
       case 'image/gif':
       case 'image/tiff':
+      case 'image/webp':
         $exiftool_status = funcs_board_strip_metadata($file_path);
         if ($exiftool_status !== 0) {
           unlink($file_path);
           throw new AppException('funcs_board', 'execute_upload', "failed to strip metadata from file, exiftool status: {$exiftool_status}", SC_INTERNAL_ERROR);
         }
         break;
+      // NOTE: these are allowed to fail, not fully supported by exiftool
+      case 'image/bmp':
+      case 'image/x-ms-bmp':
       case 'video/mp4':
+      case 'video/webm':
         funcs_board_strip_metadata($file_path);
         break;
     }
@@ -499,6 +518,26 @@ function funcs_board_execute_upload(?array $file_info, array $file_collisions, b
     'audio_album'         => isset($album_file_name) ? $album_dir . $album_file_name : null,
     'embed'               => 0
   ];
+}
+
+/**
+ * - Auto-orients the image based on EXIF data
+ */
+function funcs_board_auto_orient(string $file_path): int {
+  // check if convert is available
+  $convert_output = '';
+  $convert_status = 1;
+  exec('convert -version', $convert_output, $convert_status);
+  if ($convert_status !== 0) {
+    throw new AppException('funcs_board', 'auto_orient', 'convert not installed', SC_INTERNAL_ERROR);
+  }
+
+  // execute convert to process the image
+  $convert_output = '';
+  $convert_status = 1;
+  exec('convert ' . escapeshellarg($file_path) . ' -auto-orient ' . escapeshellarg($file_path), $convert_output, $convert_status);
+
+  return $convert_status;
 }
 
 /**
