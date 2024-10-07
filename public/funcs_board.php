@@ -406,6 +406,7 @@ function funcs_board_execute_upload(?array $file_info, array $file_collisions, b
       case 'image/x-ms-bmp':
       case 'image/tiff':
       case 'image/webp':
+      case 'application/pdf':
         $generated_thumb = funcs_board_generate_thumbnail($file_path, $spoiler, false, 'png', $thumb_file_path, $max_w, $max_h);
         $image_width = $generated_thumb['image_width'];
         $image_height = $generated_thumb['image_height'];
@@ -564,13 +565,22 @@ function funcs_board_strip_metadata(string $file_path): int {
  * Generates a thumbnail from input file.
  */
 function funcs_board_generate_thumbnail(string $file_path, bool $spoiler, bool $player, string $thumb_ext, string $thumb_path, int $thumb_width, int $thumb_height): array {
-  $image = new Imagick($file_path . '[0-9]'); // NOTE: load frames 0-9 (10 frames max)
+  $file_ext_pathinfo = pathinfo($file_path, PATHINFO_EXTENSION);
+  
+  $image = null;
+  if ($file_ext_pathinfo === 'pdf') {
+    $image = new Imagick($file_path . '[0]'); // NOTE: load 1st page only
+    $image->setImageBackgroundColor('#FFFFFF');
+    $image->setImageAlphaChannel(Imagick::ALPHACHANNEL_REMOVE);
+  } else {
+    $image = new Imagick($file_path . '[0-9]'); // NOTE: load frames 0-9 (10 frames max)
 
-  if (str_contains(strtolower($file_path), '.gif')) {
-    $image = $image->coalesceImages();
-    if ($image->count() > 1) {
-      $image->next();
-      $image = $image->current();
+    if ($file_ext_pathinfo === 'gif') {
+      $image = $image->coalesceImages();
+      if ($image->count() > 1) {
+        $image->next();
+        $image = $image->current();
+      }
     }
   }
 

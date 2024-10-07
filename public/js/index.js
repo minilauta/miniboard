@@ -286,7 +286,7 @@ function listener_post_thumb_link_click(event) {
           player.volume = state.swf_volume;
         });
         break;
-      case 'embed':
+      case 'embed': {
         target.style.display = 'none';
 
         let embed = document.createElement('div');
@@ -302,7 +302,18 @@ function listener_post_thumb_link_click(event) {
         embed.firstElementChild.height = '100%';
 
         current.appendChild(embed);
-        break;
+      } break;
+      case 'pdf': {
+        target.style.display = 'none';
+
+        let embed = document.createElement('embed');
+        embed.type = 'application/pdf';
+        embed.src = finfo.file_href;
+        embed.style.width = '85vw';
+        embed.style.height = '85vh';
+
+        current.appendChild(embed);
+      } break;
       default:
         target.style.display = 'none';
 

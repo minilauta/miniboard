@@ -157,7 +157,8 @@ define('MB_BOARDS', [
       'audio/ogg'           => ['oga'],
       'audio/x-mod'         => ['mod', 'xm', 'it', 'med'],
       'audio/x-s3m'         => ['s3m'],
-      'application/x-shockwave-flash' => ['swf']
+      'application/x-shockwave-flash' => ['swf'],
+      'application/pdf'     => ['pdf']
     ],
     'embed_types'       => [
       'youtube.com'     => 'https://youtube.com/oembed?format=json&url=',
