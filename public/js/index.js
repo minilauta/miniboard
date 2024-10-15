@@ -184,6 +184,7 @@ function listener_post_thumb_link_click(event) {
       case 'mp3':
       case 'wav':
       case 'ogg':
+      case 'oga':
       case 'opus':
       case 'flac':
         target.style.minWidth = '270px';  
