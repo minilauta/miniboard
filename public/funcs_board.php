@@ -282,6 +282,16 @@ function funcs_board_validate_upload(UploadedFileInterface $input, bool $no_file
     $tmp_image->setImageFormat('png');
     $tmp_image->writeImage($tmp_file_path);
     $file_mime = 'image/png';
+  // convert mkv to mp4 (copy data only)
+  } else if ($file_mime === 'video/x-matroska') {
+    $new_file_path = funcs_board_video_copy_codec($tmp_file_path, 'mp4');
+    unlink($tmp_file_path);
+    if ($new_file_path != null) {
+      $tmp_file_path = $new_file_path;
+      $file_mime = 'video/mp4';
+    } else {
+      throw new AppException('funcs_board', 'validate_upload', "unable to copy video/audio codec data from matroska container to mp4 container", SC_BAD_REQUEST);
+    }
   }
 
   $file_exts = $mime_types[$file_mime];
@@ -522,7 +532,7 @@ function funcs_board_execute_upload(?array $file_info, array $file_collisions, b
 }
 
 /**
- * - Auto-orients the image based on EXIF data
+ * Auto-orients the image based on EXIF data
  */
 function funcs_board_auto_orient(string $file_path): int {
   // check if convert is available
@@ -638,8 +648,11 @@ function funcs_board_get_audio_album_art(string $file_path, string $output_path)
   $cmd = "ffmpeg -i " . escapeshellarg($file_path) . " -pix_fmt rgb8 -vf 'scale=300:-1' -an  " . escapeshellarg($output_path);
   $stdout = $res_code = null;
   exec($cmd, $stdout, $res_code);
-  
+
   if (!file_exists($output_path)) {
+    return null;
+  } else if ($res_code !== 0) {
+    unlink($output_path);
     return null;
   }
 
@@ -692,6 +705,34 @@ function funcs_board_get_mp3_album_art(string $file_path, string $output_path): 
     'ext' => $album_ext,
     'file_path' => $album_path,
   ];
+}
+
+/**
+ * Copies video container streams to a new container.
+ */
+function funcs_board_video_copy_codec(string $file_path, string $target_ext): ?string {
+  // check if ffmpeg is available
+  $ffmpeg_output = '';
+  $ffmpeg_status = 1;
+  exec('ffmpeg -version', $ffmpeg_output, $ffmpeg_status);
+  if ($ffmpeg_status !== 0) {
+    throw new AppException('funcs_board', 'video_copy_codec', 'ffmepg not installed', SC_INTERNAL_ERROR);
+  }
+
+  // execute ffmpeg to copy codec data
+  $output_path = $file_path . '.' . $target_ext;
+  $cmd = 'ffmpeg -i ' . escapeshellarg($file_path) . ' -codec copy ' . escapeshellarg($output_path);
+  $stdout = $res_code = null;
+  exec($cmd, $stdout, $res_code);
+  
+  if (!file_exists($output_path)) {
+    return null;
+  } else if ($res_code !== 0) {
+    unlink($output_path);
+    return null;
+  }
+
+  return $output_path;
 }
 
 function funcs_board_execute_embed(string $url, array $embed_types, int $max_w = 250, int $max_h = 250): ?array {

@@ -43,6 +43,7 @@ const FILE_EXTS_AUDIO = [
   'mp3',
   'wav',
   'ogg',
+  'oga',
   'opus',
   'flac',
 ];
@@ -117,6 +118,7 @@ function listener_post_thumb_link_click(event) {
       case 'mp3':
       case 'wav':
       case 'ogg':
+      case 'oga':
       case 'opus':
       case 'flac':
         target.style.minWidth = null;

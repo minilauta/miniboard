@@ -148,6 +148,7 @@ define('MB_BOARDS', [
       'image/avif'          => ['avif'], // NOTE: it's converted to png
       'video/mp4'           => ['mp4'],
       'video/webm'          => ['webm'],
+      'video/x-matroska'    => ['mkv'],
       'audio/mpeg'          => ['mp3'],
       'audio/wav'           => ['wav'],
       'audio/x-wav'         => ['wav'],

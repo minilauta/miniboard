@@ -687,10 +687,10 @@ $app->post('/{board_id}/', function (Request $request, Response $response, array
     $error_code = $ex->getCode();
     $error_message = $ex->getMessage();
   } catch (DbException $ex) {
-    $error_code = $ex->getCode();
+    $error_code = 500;
     $error_message = $ex->getMessage();
   } catch (Exception $ex) {
-    $error_code = $ex->getCode();
+    $error_code = 500;
     $error_message = $ex->getMessage();
   }
   
@@ -713,10 +713,10 @@ $app->post('/{board_id}/delete/', function (Request $request, Response $response
     $error_code = $ex->getCode();
     $error_message = $ex->getMessage();
   } catch (DbException $ex) {
-    $error_code = $ex->getCode();
+    $error_code = 500;
     $error_message = $ex->getMessage();
   } catch (Exception $ex) {
-    $error_code = $ex->getCode();
+    $error_code = 500;
     $error_message = $ex->getMessage();
   }
   
@@ -816,10 +816,10 @@ $app->post('/{board_id}/{thread_id}/', function (Request $request, Response $res
     $error_code = $ex->getCode();
     $error_message = $ex->getMessage();
   } catch (DbException $ex) {
-    $error_code = $ex->getCode();
+    $error_code = 500;
     $error_message = $ex->getMessage();
   } catch (Exception $ex) {
-    $error_code = $ex->getCode();
+    $error_code = 500;
     $error_message = $ex->getMessage();
   }
   
