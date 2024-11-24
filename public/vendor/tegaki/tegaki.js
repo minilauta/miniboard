@@ -1691,142 +1691,111 @@ var TegakiCursor = {
   
   points: null,
   
-  tmpCtx: null,
-  
   cursorCtx: null,
   
-  flatCtxAbove: null,
-  flatCtxBelow: null,
+  offsetX: 0,
+  offsetY: 0,
   
-  cached: false,
+  lastX: 0,
+  lastY: 0,
+  lastSize: 0,
   
   init: function(w, h) {
     var el;
     
-    this.tmpCtx = $T.el('canvas').getContext('2d');
-    
     el = $T.el('canvas');
     el.id = 'tegaki-cursor-layer';
-    el.width = w;
-    el.height = h;
-    Tegaki.layersCnt.appendChild(el);
+    [ el.width, el.height ] = TegakiCursor.getMaxCanvasSize();
+    
+    Tegaki.canvasCnt.appendChild(el);
+    
+    this.offsetX = el.offsetLeft;
+    this.offsetY = el.offsetTop;
     
     this.cursorCtx = el.getContext('2d');
-    
-    el = $T.el('canvas');
-    el.width = w;
-    el.height = h;
-    this.flatCtxAbove = el.getContext('2d');
-    
-    el = $T.el('canvas');
-    el.width = w;
-    el.height = h;
-    this.flatCtxBelow = el.getContext('2d');
   },
   
-  updateCanvasSize: function(w, h) {
-    this.cursorCtx.canvas.width = w;
-    this.cursorCtx.canvas.height = h;
-    
-    this.flatCtxAbove.canvas.width = w;
-    this.flatCtxAbove.canvas.height = h;
-    
-    this.flatCtxBelow.canvas.width = w;
-    this.flatCtxBelow.canvas.height = h;
+  getCanvas: function() {
+    if (this.cursorCtx) {
+      return this.cursorCtx.canvas;
+    }
+    else {
+      return null;
+    }
   },
   
-  render: function(x, y) {
-    var i, size, srcImg, srcData, destImg, destData, activeLayer;
+  getMaxCanvasSize: function() {
+    let w = Tegaki.canvasCnt.offsetWidth;
+    let h = Tegaki.canvasCnt.offsetHeight;
+    let [ sbwh, scbv ] = Tegaki.getScrollbarSizes();
+    return [ w - sbwh, h - scbv ];
+  },
+  
+  updateCanvasSize: function() {
+    let canvas = this.cursorCtx.canvas;
     
-    if (!this.cached) {
-      this.buildCache();
+    let [w, h] = this.getMaxCanvasSize();
+    
+    if (w !== canvas.width || h !== canvas.height) {
+      canvas.width = w;
+      canvas.height = h;
+      
+      this.offsetX = canvas.offsetLeft;
+      this.offsetY = canvas.offsetTop;
     }
+  },
+  
+  render: function(rawX, rawY) {
+    var x, y, i, destImg, destData;
     
-    size = this.size;
-    x = x - this.radius;
-    y = y - this.radius;
+    x = rawX - this.offsetX - this.radius;
+    y = rawY - this.offsetY - this.radius;
     
-    $T.clearCtx(this.cursorCtx);
-    $T.clearCtx(this.tmpCtx);
+    this.clear();
     
-    this.tmpCtx.drawImage(this.flatCtxBelow.canvas, x, y, size, size, 0, 0, size, size);
+    this.lastX = x;
+    this.lastY = y;
+    this.lastSize = this.size;
     
-    activeLayer = Tegaki.activeLayer;
-    
-    if (activeLayer.visible) {
-      if (activeLayer.alpha < 1.0) {
-        this.tmpCtx.globalAlpha = activeLayer.alpha;
-        this.tmpCtx.drawImage(Tegaki.activeLayer.canvas, x, y, size, size, 0, 0, size, size);
-        this.tmpCtx.globalAlpha = 1.0;
-      }
-      else {
-        this.tmpCtx.drawImage(Tegaki.activeLayer.canvas, x, y, size, size, 0, 0, size, size);
-      }
-    }
-    
-    this.tmpCtx.drawImage(this.flatCtxAbove.canvas, x, y, size, size, 0, 0, size, size);
-    
-    srcImg = this.tmpCtx.getImageData(0, 0, size, size);
-    srcData = new Uint32Array(srcImg.data.buffer);
-    
-    destImg = this.cursorCtx.createImageData(size, size);
+    destImg = this.cursorCtx.createImageData(this.size, this.size);
     destData = new Uint32Array(destImg.data.buffer);
     
-    for (i of this.points) {
-      destData[i] = srcData[i] ^ 0x00FFFF7F;
+    for (i = 0; i < this.points.length; ++i) {
+      destData[this.points[i]] = 0xFFFFFF7F;
     }
     
     this.cursorCtx.putImageData(destImg, x, y);
   },
   
-  buildCache: function() {
-    var i, layer, ctx, len, layerId;
-    
-    ctx = this.flatCtxBelow;
-    ctx.globalAlpha = 1.0;
-    $T.clearCtx(ctx);
-    
-    ctx.drawImage(Tegaki.canvas, 0, 0);
-    
-    layerId = Tegaki.activeLayer.id;
-    
-    for (i = 0, len = Tegaki.layers.length; i < len; ++i) {
-      layer = Tegaki.layers[i];
-      
-      if (!layer.visible) {
-        continue;
-      }
-      
-      if (layer.id === layerId) {
-        ctx = this.flatCtxAbove;
-        ctx.globalAlpha = 1.0;
-        $T.clearCtx(ctx);
-        continue;
-      }
-      
-      ctx.globalAlpha = layer.alpha;
-      ctx.drawImage(layer.canvas, 0, 0);
-    }
-    
-    this.cached = true;
+  clear: function() {
+    this.cursorCtx.clearRect(this.lastX, this.lastY, this.lastSize, this.lastSize);
   },
   
-  invalidateCache() {
-    this.cached = false;
+  clearAll: function() {
+    var canvas = this.cursorCtx.canvas;
+    this.cursorCtx.clearRect(0, 0, canvas.width, canvas.height);
   },
   
   destroy() {
     this.size = 0;
     this.radius = 0;
+    this.offsetX = 0;
+    this.offsetY = 0;
+    this.lastX = 0;
+    this.lastY = 0;
+    this.lastSize = 0;
     this.points = null;
-    this.tmpCtx = null;
     this.cursorCtx = null;
-    this.flatCtxAbove = null;
-    this.flatCtxBelow = null;
   },
   
   generate: function(size) {
     var e, x, y, c, r, rr, points;
+    
+    size = 0 | (size * Tegaki.zoomFactor);
+    
+    if (size < 2) {
+      return false;
+    }
     
     r = 0 | ((size) / 2);
     
@@ -1863,12 +1832,11 @@ var TegakiCursor = {
       }
     }
     
-    this.tmpCtx.canvas.width = size;
-    this.tmpCtx.canvas.height = size;
-    
     this.size = size;
     this.radius = r;
     this.points = points;
+    
+    return true;
   }
 };
 var TegakiHistory = {
@@ -2776,7 +2744,7 @@ var TegakiLayers = {
   }
 };
 var Tegaki = {
-  VERSION: '0.9.2',
+  VERSION: '0.9.3',
   
   startTimeStamp: 0,
   
@@ -2916,7 +2884,7 @@ var Tegaki = {
     
     self.createCanvas();
     
-    self.centerLayersCnt();
+    self.updateLayersCntSize();
     
     self.createBuffers();
     
@@ -2924,9 +2892,9 @@ var Tegaki = {
     
     self.resetLayers();
     
-    self.bindGlobalEvents();
-    
     TegakiCursor.init(self.baseWidth, self.baseHeight);
+    
+    self.bindGlobalEvents();
     
     TegakiUI.updateUndoRedo(0, 0);
     TegakiUI.updateZoomLevel();
@@ -3031,8 +2999,11 @@ var Tegaki = {
     var self = Tegaki;
     
     if (!self.replayMode) {
-      $T.on(self.canvasCnt, 'pointermove', self.onPointerMove);
-      $T.on(self.canvasCnt, 'pointerdown', self.onPointerDown);
+      let cursorNode = TegakiCursor.getCanvas();
+      $T.on(cursorNode, 'pointermove', self.onPointerMove);
+      $T.on(cursorNode, 'pointerdown', self.onPointerDown);
+      $T.on(cursorNode, 'pointerout', self.onPointerOut);
+      
       $T.on(document, 'pointerup', self.onPointerUp);
       $T.on(document, 'pointercancel', self.onPointerUp);
       
@@ -3045,7 +3016,7 @@ var Tegaki = {
     }
     
     $T.on(self.bg, 'contextmenu', self.onDummy);
-    $T.on(window, 'resize', self.updatePosOffset);
+    $T.on(window, 'resize', self.onWindowResized);
     $T.on(window, 'scroll', self.updatePosOffset);
   },
   
@@ -3053,8 +3024,11 @@ var Tegaki = {
     var self = Tegaki;
     
     if (!self.replayMode) {
-      $T.off(self.canvasCnt, 'pointermove', self.onPointerMove);
-      $T.off(self.canvasCnt, 'pointerdown', self.onPointerDown);
+      let cursorNode = TegakiCursor.getCanvas();
+      $T.off(cursorNode, 'pointermove', self.onPointerMove);
+      $T.off(cursorNode, 'pointerdown', self.onPointerDown);
+      $T.off(cursorNode, 'pointerout', self.onPointerOut);
+      
       $T.off(document, 'pointerup', self.onPointerUp);
       $T.off(document, 'pointercancel', self.onPointerUp);
       
@@ -3067,7 +3041,7 @@ var Tegaki = {
     }
     
     $T.off(self.bg, 'contextmenu', self.onDummy);
-    $T.off(window, 'resize', self.updatePosOffset);
+    $T.off(window, 'resize', self.onWindowResized);
     $T.off(window, 'scroll', self.updatePosOffset);
   },
   
@@ -3097,7 +3071,7 @@ var Tegaki = {
     ctx.imageSmoothingEnabled = false;
   },
   
-  centerLayersCnt: function() {
+  updateLayersCntSize: function() {
     var style = Tegaki.layersCnt.style;
     
     style.width = Tegaki.baseWidth + 'px';
@@ -3126,6 +3100,11 @@ var Tegaki = {
     }
   },
   
+  onWindowResized: function() {
+    Tegaki.updatePosOffset();
+    TegakiCursor.updateCanvasSize();
+  },
+  
   initKeybinds: function() {
     var cls, tool;
     
@@ -3148,7 +3127,7 @@ var Tegaki = {
     }
   },
   
-  getCursorPos: function(e, axis) {
+  getPointerPos: function(e, axis) {
     if (axis === 0) {
       return 0 | ((
         e.clientX
@@ -3175,8 +3154,9 @@ var Tegaki = {
     Tegaki.bg.classList.remove('tegaki-hidden');
     document.body.classList.add('tegaki-backdrop');
     Tegaki.setZoom(0);
-    Tegaki.centerLayersCnt();
+    Tegaki.updateLayersCntSize();
     Tegaki.updatePosOffset();
+    TegakiCursor.updateCanvasSize();
     Tegaki.bindGlobalEvents();
   },
   
@@ -3429,13 +3409,7 @@ var Tegaki = {
     Tegaki.layersCnt.style.width = Math.ceil(Tegaki.baseWidth * Tegaki.zoomFactor) + 'px';
     Tegaki.layersCnt.style.height = Math.ceil(Tegaki.baseHeight * Tegaki.zoomFactor) + 'px';
     
-    if (level < 0) {
-      Tegaki.layersCnt.classList.add('tegaki-smooth-layers');
-    }
-    else {
-      Tegaki.layersCnt.classList.remove('tegaki-smooth-layers');
-    }
-    
+    Tegaki.updateCursorStatus();
     Tegaki.updatePosOffset();
   },
   
@@ -3446,6 +3420,8 @@ var Tegaki = {
     else {
       Tegaki.setZoom(Tegaki.zoomLevel - 1);
     }
+    
+    TegakiCursor.updateCanvasSize();
   },
   
   onNewClick: function() {
@@ -3915,9 +3891,7 @@ var Tegaki = {
     Tegaki.updateCursorStatus();
   },
   
-  onLayerStackChanged: function() {
-    TegakiCursor.invalidateCache();
-  },
+  onLayerStackChanged: function() {},
   
   onOpenFileSelected: function() {
     var img;
@@ -3971,8 +3945,6 @@ var Tegaki = {
     Tegaki.canvas.width = width;
     Tegaki.canvas.height = height;
     
-    TegakiCursor.updateCanvasSize(width, height);
-    
     Tegaki.ctx.fillStyle = Tegaki.bgColor;
     Tegaki.ctx.fillRect(0, 0, width, height);
     
@@ -3980,8 +3952,9 @@ var Tegaki = {
     
     Tegaki.resetLayers();
     
-    Tegaki.centerLayersCnt();
+    Tegaki.updateLayersCntSize();
     Tegaki.updatePosOffset();
+    TegakiCursor.updateCanvasSize();
   },
   
   copyContextState: function(src, dest) {
@@ -3997,12 +3970,11 @@ var Tegaki = {
   
   updateCursorStatus: function() {
     if (!Tegaki.tool.noCursor && Tegaki.tool.size > 1) {
-      Tegaki.cursor = true;
-      TegakiCursor.generate(Tegaki.tool.size);
+      Tegaki.cursor = TegakiCursor.generate(Tegaki.tool.size);
     }
     else {
       Tegaki.cursor = false;
-      $T.clearCtx(TegakiCursor.cursorCtx);
+      TegakiCursor.clear();
     }
   },
   
@@ -4015,11 +3987,15 @@ var Tegaki = {
       + Tegaki.canvasCnt.scrollTop + Tegaki.layersCnt.scrollTop;
   },
   
+  getScrollbarSizes: function() {
+    return [
+      Tegaki.canvasCnt.offsetWidth - Tegaki.canvasCnt.clientWidth,
+      Tegaki.canvasCnt.offsetHeight - Tegaki.canvasCnt.clientHeight
+    ];
+  },
+  
   isScrollbarClick: function(e) {
-    var sbwh, scbv;
-    
-    sbwh = Tegaki.canvasCnt.offsetWidth - Tegaki.canvasCnt.clientWidth;
-    scbv = Tegaki.canvasCnt.offsetHeight - Tegaki.canvasCnt.clientHeight;
+    var [ sbwh, scbv ] = Tegaki.getScrollbarSizes();
 
     if (sbwh > 0
       && e.clientX >= Tegaki.canvasCnt.offsetLeft + Tegaki.canvasCnt.clientWidth
@@ -4040,6 +4016,10 @@ var Tegaki = {
   
   onPointerMove: function(e) {
     var events, x, y, tool, ts, p;
+    
+    if (Tegaki.cursor) {
+      TegakiCursor.render(e.clientX, e.clientY);
+    }
     
     if (e.mozInputSource !== undefined) {
       // Firefox thing where mouse events fire for no reason when the pointer is a pen
@@ -4064,8 +4044,8 @@ var Tegaki = {
         ts = e.timeStamp;
         
         for (e of events) {
-          x = Tegaki.getCursorPos(e, 0);
-          y = Tegaki.getCursorPos(e, 1);
+          x = Tegaki.getPointerPos(e, 0);
+          y = Tegaki.getPointerPos(e, 1);
           
           if (!tool.enabledDynamics()) {
             Tegaki.recordEvent(TegakiEventDrawNoP, ts, x, y);
@@ -4080,8 +4060,8 @@ var Tegaki = {
         }
       }
       else {
-        x = Tegaki.getCursorPos(e, 0);
-        y = Tegaki.getCursorPos(e, 1);
+        x = Tegaki.getPointerPos(e, 0);
+        y = Tegaki.getPointerPos(e, 1);
         p = TegakiPressure.toShort(e.pressure);
         Tegaki.recordEvent(TegakiEventDraw, e.timeStamp, x, y, p);
         TegakiPressure.push(p);
@@ -4089,17 +4069,17 @@ var Tegaki = {
       }
     }
     else {
-      x = Tegaki.getCursorPos(e, 0);
-      y = Tegaki.getCursorPos(e, 1);
-    }
-    
-    if (Tegaki.cursor) {
-      TegakiCursor.render(x, y);
+      x = Tegaki.getPointerPos(e, 0);
+      y = Tegaki.getPointerPos(e, 1);
     }
   },
   
   onPointerDown: function(e) {
     var x, y, tool, p;
+    
+    if (Tegaki.cursor) {
+      TegakiCursor.render(e.clientX, e.clientY);
+    }
     
     if (Tegaki.isScrollbarClick(e)) {
       return;
@@ -4125,8 +4105,8 @@ var Tegaki = {
       return;
     }
     
-    x = Tegaki.getCursorPos(e, 0);
-    y = Tegaki.getCursorPos(e, 1);
+    x = Tegaki.getPointerPos(e, 0);
+    y = Tegaki.getPointerPos(e, 1);
     
     if (e.button === 2 || e.altKey) {
       e.preventDefault();
@@ -4159,10 +4139,6 @@ var Tegaki = {
       
       tool.start(x, y);
     }
-    
-    if (Tegaki.cursor) {
-      TegakiCursor.render(x, y);
-    }
   },
   
   onPointerUp: function(e) {
@@ -4178,6 +4154,10 @@ var Tegaki = {
       TegakiHistory.push(TegakiHistory.pendingAction);
       Tegaki.isPainting = false;
     }
+  },
+  
+  onPointerOut: function(e) {
+    TegakiCursor.clearAll();
   },
   
   onDummy: function(e) {
@@ -4447,7 +4427,7 @@ class TegakiEventDrawNoP {
     x = r.readInt16();
     y = r.readInt16();
     
-    return new TegakiEventDraw(timeStamp, x, y);
+    return new TegakiEventDrawNoP(timeStamp, x, y);
   }
   
   dispatch() {
@@ -5105,10 +5085,10 @@ class TegakiReplayViewer {
     this.destroyed = false;
     
     this.speedIndex = 1;
-    this.speedList = [0.5, 1.0, 2.0, 5.0, 10.0];
+    this.speedList = [0.5, 1.0, 2.0, 5.0, 10.0, 25.0];
     this.speed = this.speedList[this.speedIndex];
     
-    this.maxEventsPerFrame = 25;
+    this.maxEventsPerFrame = 50;
     
     this.maxEventCount = 8640000;
     
@@ -6129,7 +6109,7 @@ var TegakiUI = {
     
     el = $T.el('input');
     el.id = 'tegaki-colorpicker';
-    !edge && el.classList.add('tegaki-hidden');
+    !edge && el.classList.add('tegaki-invis');
     el.value = color;
     el.type = 'color';
     $T.on(el, 'change', Tegaki.onColorPicked);
