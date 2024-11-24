@@ -35,6 +35,14 @@ window.RufflePlayer.config = {
 window.libopenmpt = {};
 
 // app constants
+const FILE_EXTS_IMAGE = [
+  'png',
+  'jpg',
+  'jpeg',
+  'bmp',
+  'gif',
+  'webp',
+];
 const FILE_EXTS_VIDEO = [
   'mp4',
   'webm',
@@ -73,6 +81,51 @@ var state = {
 };
 
 /**
+ * Tegaki events.
+ */
+
+function tegaki_on_done() {
+  console.log('tegaki: saving...');
+  
+  window.Tegaki.flatten().toBlob((blob) => {
+    const input_file = new File([blob], 'drawing.png');
+    const input_data = new DataTransfer();
+    input_data.items.add(input_file);
+
+    const postform_file = select_postform_element('form-file');
+    console.log(postform_file.files);
+    postform_file.files = input_data.files;
+  }, 'image/png');
+}
+
+function tegaki_on_cancel() {
+  console.log('tegaki: cancelling...');
+}
+
+/**
+ * Utility function, get file info from a post/reply element.
+ * @param {*} element 
+ * @returns 
+ */
+function get_finfo(element) {
+  let file_info = element.getElementsByClassName('file-info');
+  file_info = file_info.length > 0 ? file_info[0] : null;
+  let file_data = element.getElementsByClassName('file-data');
+  file_data = file_data.length > 0 ? file_data[0].innerHTML : null;
+  file_data = file_data.length > 0 ? file_data : null;
+  let file_href = element.getElementsByClassName('file-thumb-href');
+  file_href = file_href.length > 0 ? file_href[0].href : '';
+  let file_ext = file_data == null ? file_href.split('.').pop().toLowerCase() : 'embed';
+
+  return {
+    file_info,
+    file_data,
+    file_href,
+    file_ext,
+  };
+}
+
+/**
  * Event listener: click on post thumbnail anchor.
  * Expands/shrinks the content.
  * @param {*} event 
@@ -88,25 +141,8 @@ function listener_post_thumb_link_click(event) {
     return;
   }
 
-  const get_finfo = function(element) {
-    let file_info = element.parentElement.parentElement.getElementsByClassName('file-info');
-    file_info = file_info.length > 0 ? file_info[0] : null;
-    let file_data = element.parentElement.parentElement.getElementsByClassName('file-data');
-    file_data = file_data.length > 0 ? file_data[0].innerHTML : null;
-    file_data = file_data.length > 0 ? file_data : null;
-    const file_href = element.href;
-    let file_ext = file_data == null ? file_href.split('.').pop().toLowerCase() : 'embed';
-
-    return {
-      file_info,
-      file_data,
-      file_href,
-      file_ext,
-    };
-  };
-
   const shrink = function(target, current) {
-    const finfo = get_finfo(current);
+    const finfo = get_finfo(current.parentElement.parentElement);
 
     current.firstElementChild.style.display = null;
 
@@ -150,7 +186,7 @@ function listener_post_thumb_link_click(event) {
   };
 
   const expand = function(target, current) {
-    const finfo = get_finfo(current);
+    const finfo = get_finfo(current.parentElement.parentElement);
     
     // expand the selected element
     switch (finfo.file_ext) {
@@ -340,7 +376,7 @@ function listener_post_thumb_link_click(event) {
       // NOTE: this is because <video> is created inside the parent <div>
       //       because <video> inside <a> is glitchy
       const exts_video_audio = FILE_EXTS_VIDEO.concat(FILE_EXTS_AUDIO);
-      const exp_finfo = get_finfo(exp_element);
+      const exp_finfo = get_finfo(exp_element.parentElement.parentElement);
       const exp_container = exts_video_audio.includes(exp_finfo.file_ext) ?
         exp_element.parentElement :
         exp_element;
@@ -376,7 +412,7 @@ function listener_post_thumb_link_click(event) {
     expand(event_target, event_current);
   } else {
     // TODO: this is a hack, to prevent SWF from closing on click
-    const finfo = get_finfo(event_current);
+    const finfo = get_finfo(event_current.parentElement.parentElement);
     if (finfo.file_ext !== 'swf') {
       shrink(event_target, event_current);
     }
@@ -475,6 +511,21 @@ function listener_dropdown_menu_button_click(event) {
               cmd: 'search_thumb',
               cmd_data: {
                 url: 'https://tineye.com/search?url=',
+              },
+              board_id: data.board_id,
+              id: data.id
+            }
+          });
+        }
+        let file_info = get_finfo(document.getElementById(data.board_id + '-' + data.id));
+        if (FILE_EXTS_IMAGE.includes(file_info.file_ext)) {
+          lis.push({
+            type: 'li',
+            text: 'Tegaki: Open image',
+            data: {
+              cmd: 'tegaki_open',
+              cmd_data: {
+                url: file_info.file_href,
               },
               board_id: data.board_id,
               id: data.id
@@ -619,6 +670,18 @@ function listener_post_reference_link_mouseleave(event) {
       if (thumb != null) {
         ui_window.open_native(data.url + thumb.src, '_blank');
       }
+      break;
+    case 'tegaki_open':
+      window.Tegaki.open({
+        onDone: tegaki_on_done,
+        onCancel: tegaki_on_cancel,
+        width: 512,
+        height: 512,
+      });
+      let img = new Image();
+      img.onload = window.Tegaki.onOpenImageLoaded;
+      img.onerror = window.Tegaki.onOpenImageError;
+      img.src = data.url;
       break;
     case 'audio_album':
       ui_window.open_native(data.url, '_blank');
@@ -1457,20 +1520,8 @@ function init_postform_features(target_id_prefix) {
         console.log('tegaki: created');
   
         window.Tegaki.open({
-          onDone: () => {
-            window.Tegaki.flatten().toBlob((blob) => {
-              const input_file = new File([blob], 'drawing.png');
-              const input_data = new DataTransfer();
-              input_data.items.add(input_file);
-  
-              const postform_file = post_form.querySelector(`#${target_id_prefix}form-file`);
-              console.log(postform_file.files);
-              postform_file.files = input_data.files;
-            }, 'image/png');
-          },
-          onCancel: () => {
-            console.log('tegaki: canceling...');
-          },
+          onDone: tegaki_on_done,
+          onCancel: tegaki_on_cancel,
           width: 512,
           height: 512,
         });
