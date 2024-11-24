@@ -81,9 +81,8 @@ var state = {
 };
 
 /**
- * Tegaki events.
+ * Tegaki event: Finish drawing image.
  */
-
 function tegaki_on_done() {
   console.log('tegaki: saving...');
   
@@ -98,6 +97,9 @@ function tegaki_on_done() {
   }, 'image/png');
 }
 
+/**
+ * Tegaki event: Cancel drawing image.
+ */
 function tegaki_on_cancel() {
   console.log('tegaki: cancelling...');
 }
@@ -108,13 +110,17 @@ function tegaki_on_cancel() {
  * @returns 
  */
 function get_finfo(element) {
+  if (element == null) {
+    return null;
+  }
+
   let file_info = element.getElementsByClassName('file-info');
-  file_info = file_info.length > 0 ? file_info[0] : null;
+  file_info = file_info != null && file_info.length > 0 ? file_info[0] : null;
   let file_data = element.getElementsByClassName('file-data');
-  file_data = file_data.length > 0 ? file_data[0].innerHTML : null;
-  file_data = file_data.length > 0 ? file_data : null;
+  file_data = file_data != null && file_data.length > 0 ? file_data[0].innerHTML : null;
+  file_data = file_data != null && file_data.length > 0 ? file_data : null;
   let file_href = element.getElementsByClassName('file-thumb-href');
-  file_href = file_href.length > 0 ? file_href[0].href : '';
+  file_href = file_href != null && file_href.length > 0 ? file_href[0].href : '';
   let file_ext = file_data == null ? file_href.split('.').pop().toLowerCase() : 'embed';
 
   return {
@@ -518,7 +524,7 @@ function listener_dropdown_menu_button_click(event) {
           });
         }
         let file_info = get_finfo(document.getElementById(data.board_id + '-' + data.id));
-        if (FILE_EXTS_IMAGE.includes(file_info.file_ext)) {
+        if (file_info != null && FILE_EXTS_IMAGE.includes(file_info.file_ext)) {
           lis.push({
             type: 'li',
             text: 'Tegaki: Open image',
