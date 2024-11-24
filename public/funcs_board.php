@@ -158,7 +158,7 @@ function funcs_board_render_message(string $board_id, ?int $parent_id, string $i
   $message = funcs_common_clean_field($input);
 
   // break long words
-  $message = funcs_common_break_long_words($message, 79);
+  $message = funcs_common_break_long_words($message, max_len: 256);
 
   // preprocess message reference links (same board)
   $message = preg_replace_callback('/(&gt;&gt;)([0-9]{1,16})/m', function ($matches) use ($board_id, $parent_id) {

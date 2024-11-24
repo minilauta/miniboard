@@ -210,10 +210,13 @@ div.post-message .spoiler:hover {
 }
 
 .post-message pre {
-  max-width: 480px;
+  font-family: DejaVu Sans Mono, monospace;
+  display: inline-block;
+  max-height: 400px;
+  max-width: 960px;
   margin: 0px;
-  padding-bottom: 12px;
-  overflow-x: scroll;
+  padding: 5px;
+  overflow-x: auto;
   border: 1px dashed;
 }
 
@@ -399,8 +402,8 @@ div.h-captcha {
   margin: 0;
   min-width: 240px;
   min-height: 120px;
-  max-width: 480px;
-  max-height: 240px;
+  max-width: 960px;
+  max-height: 480px;
 }
 
 input,

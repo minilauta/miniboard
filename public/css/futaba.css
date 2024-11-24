@@ -76,6 +76,11 @@ div.post-message .spoiler {
   text-shadow: 0 0 10px #000000;
 }
 
+.post-message pre {
+  background: #FFFFFF;
+  color: #000000;
+}
+
 .post-message .banned {
   color: #FF0000;
 }

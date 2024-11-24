@@ -224,7 +224,7 @@ function funcs_common_break_long_words(string $input, int $max_len): string {
       return $val;
     }
 
-    return wordwrap($val, $max_len, PHP_EOL, true);
+    return wordwrap($val, $max_len, "\n", true);
   };
 
   return implode(' ', array_map($fn_wordwrap, explode(' ', $input)));

@@ -240,7 +240,7 @@ define('MB_BOARDS', [
       'name'      => ['required' => false,  'type' => 'string', 'max_len' => 75   ],
       'email'     => ['required' => false,  'type' => 'string', 'max_len' => 320  ],
       'subject'   => ['required' => false,  'type' => 'string', 'max_len' => 75   ],
-      'message'   => ['required' => true,   'type' => 'string', 'max_len' => 8192 ],
+      'message'   => ['required' => true,   'type' => 'string', 'max_len' => 2*8192 ],
       'password'  => ['required' => false,  'type' => 'string', 'max_len' => 64,  'min_len' => 8],
     ],
     'mime_ext_types'    => [],
