@@ -464,6 +464,47 @@ function listener_dropdown_menu_button_click(event) {
             }
           });
         }
+        let file_info = get_finfo(document.getElementById(data.board_id + '-' + data.id));
+        if (file_info != null && file_info.file_ext !== 'embed') {
+          lis.push({
+            type: 'li',
+            text: 'Download original',
+            data: {
+              cmd: 'file_download',
+              board_id: data.board_id,
+              id: data.id
+            }
+          });
+        }
+        if (file_info != null && FILE_EXTS_IMAGE.includes(file_info.file_ext)) {
+          lis.push({
+            type: 'li',
+            text: 'Tegaki: Open image',
+            data: {
+              cmd: 'tegaki_open',
+              cmd_data: {
+                url: file_info.file_href,
+              },
+              board_id: data.board_id,
+              id: data.id
+            }
+          });
+        }
+        let album_link = document.getElementById('album-' + data.board_id + '-' + data.id);
+        if (album_link != null && album_link.innerText.length > 0) {
+          lis.push({
+            type: 'li',
+            text: 'Audio: Album art',
+            data: {
+              cmd: 'audio_album',
+              cmd_data: {
+                url: album_link.innerText,
+              },
+              board_id: data.board_id,
+              id: data.id
+            }
+          });
+        }
         let thumb_img = document.getElementById('thumb-' + data.board_id + '-' + data.id);
         if (thumb_img != null && !thumb_img.src.includes('/static/')) {
           lis.push({
@@ -517,36 +558,6 @@ function listener_dropdown_menu_button_click(event) {
               cmd: 'search_thumb',
               cmd_data: {
                 url: 'https://tineye.com/search?url=',
-              },
-              board_id: data.board_id,
-              id: data.id
-            }
-          });
-        }
-        let file_info = get_finfo(document.getElementById(data.board_id + '-' + data.id));
-        if (file_info != null && FILE_EXTS_IMAGE.includes(file_info.file_ext)) {
-          lis.push({
-            type: 'li',
-            text: 'Tegaki: Open image',
-            data: {
-              cmd: 'tegaki_open',
-              cmd_data: {
-                url: file_info.file_href,
-              },
-              board_id: data.board_id,
-              id: data.id
-            }
-          });
-        }
-        let album_link = document.getElementById('album-' + data.board_id + '-' + data.id);
-        if (album_link != null && album_link.innerText.length > 0) {
-          lis.push({
-            type: 'li',
-            text: 'Audio: Album art',
-            data: {
-              cmd: 'audio_album',
-              cmd_data: {
-                url: album_link.innerText,
               },
               board_id: data.board_id,
               id: data.id
@@ -672,10 +683,8 @@ function listener_post_reference_link_mouseleave(event) {
       xhr.open('POST', '/' + data.board_id + '/' + data.id + '/hide', true);
       xhr.send();
       break;
-    case 'search_thumb':
-      if (thumb != null) {
-        ui_window.open_native(data.url + thumb.src, '_blank');
-      }
+    case 'file_download':
+      window.location.assign('/' + data.board_id + '/' + data.id + '/download');
       break;
     case 'tegaki_open':
       window.Tegaki.open({
@@ -691,6 +700,11 @@ function listener_post_reference_link_mouseleave(event) {
       break;
     case 'audio_album':
       ui_window.open_native(data.url, '_blank');
+      break;
+    case 'search_thumb':
+      if (thumb != null) {
+        ui_window.open_native(data.url + thumb.src, '_blank');
+      }
       break;
     default:
       console.error('listener_dropdown_menu_indice unhandled cmd: ' + data.cmd);

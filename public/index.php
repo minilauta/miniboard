@@ -385,6 +385,35 @@ $app->post('/manage/csam_scanner/cp/', function (Request $request, Response $res
   return $response;
 });
 
+$app->get('/{board_id}/{post_id}/download/', function (Request $request, Response $response, array $args) {
+  // get board config
+  $board_cfg = funcs_common_get_board_cfg($args['board_id']);
+
+  // check board access
+  if (!funcs_board_check_access($board_cfg, funcs_manage_get_role())) {
+    throw new AppException('index', 'route', 'access denied', SC_UNAUTHORIZED);
+  }
+
+  // get post
+  $post = select_post($board_cfg['id'], $args['post_id']);
+  if ($post == null) {
+    throw new AppException('index', 'route', "post with ID /{$board_cfg['id']}/{$args['post_id']} not found", SC_NOT_FOUND);
+  }
+
+  // check file exists
+  if (!file_exists(__DIR__ . $post['file'])) {
+    throw new AppException('index', 'route', "file with ID /{$board_cfg['id']}/{$args['post_id']} not found", SC_NOT_FOUND);
+  }
+
+  $handle = fopen(__DIR__ . $post['file'], 'rb');
+  $stream = \Nyholm\Psr7\Stream::create($handle);
+  $response = $response
+    ->withHeader('Content-Type', mime_content_type(__DIR__ . $post['file']))
+    ->withHeader('Content-Disposition', 'attachment; filename="' . $post['file_original'] . '"')
+    ->withBody( $stream);
+  return $response;
+});
+
 $app->get('/{board_id}/{post_id}/report/', function (Request $request, Response $response, array $args) {
   // get board config
   $board_cfg = funcs_common_get_board_cfg($args['board_id']);
