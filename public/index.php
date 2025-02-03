@@ -803,10 +803,14 @@ function handle_deleteform(Request $request, Response $response, array $args): R
     }
 
     // validate timeframe if post is a thread
-    if (MB_TIMEFRAME > 0 && $post['parent_id'] === 0) {
-      $timeframe_in_seconds = MB_TIMEFRAME;
-      if (time() - $post['timestamp'] > $timeframe_in_seconds) {
-        throw new AppException('index', 'route', "you cannot delete threads older than {$timeframe_in_seconds}s", SC_FORBIDDEN);
+    if ($post['parent_id'] === 0) {
+      $timeframe_reply_limit = MB_TIMEFRAME_REPLY_LIMIT;
+      $thread_replies_n = count_posts('NULL', $post['board_id'], $post['post_id'], false, false);
+      if (MB_TIMEFRAME > 0 && $thread_replies_n > $timeframe_reply_limit) {
+        $timeframe_in_seconds = MB_TIMEFRAME;
+        if (time() - $post['timestamp'] > $timeframe_in_seconds) {
+          throw new AppException('index', 'route', "you cannot delete threads older than {$timeframe_in_seconds}s with more than {$timeframe_reply_limit} replies", SC_FORBIDDEN);
+        }
       }
     }
 
