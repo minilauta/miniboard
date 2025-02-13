@@ -25,7 +25,7 @@ services:
       - ./public:/app/public:Z
       - app:/app/public/src
     ports:
-      - "127.0.0.1:80:80"
+      - "127.0.0.1:8080:80"
     environment:
       XDEBUG_MODE: profile
       PHP_POST_MAX_SIZE: ${PHP_POST_MAX_SIZE}
@@ -74,7 +74,7 @@ services:
     networks:
       - app
     ports:
-      - 127.0.0.1:8080:80
+      - 127.0.0.1:8082:80
     environment:
       PMA_HOST: mariadb
       PMA_USER: root
@@ -112,7 +112,7 @@ services:
     networks:
       - app
     ports:
-      - "127.0.0.1:8000:8000"
+      - "127.0.0.1:8090:8000"
     environment:
       DB_HOST: mariadb
       DB_NAME: ${DB_NAME}

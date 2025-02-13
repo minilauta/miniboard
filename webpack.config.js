@@ -37,7 +37,7 @@ module.exports = {
   target: ['development', 'none'].includes(env) ? ['web'] : ['web', 'es5'],
   devServer: {
     proxy: {
-      '/': 'http://127.0.0.1'
+      '/': 'http://127.0.0.1:8080'
     },
     watchFiles: [
       'public/**/*.php',
