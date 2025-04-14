@@ -76,8 +76,8 @@ function funcs_board_create_post(string $ip, ?string $country, array $board_cfg,
 
   // handle capcode flag
   $role = null;
-  if (funcs_manage_is_logged_in() && isset($input['capcode']) && $input['capcode'] == true || $board_cfg['req_role'] != null) {
-    $role = funcs_manage_get_role();
+  if (funcs_board_is_logged_in() && isset($input['capcode']) && $input['capcode'] == true || $board_cfg['req_role'] != null) {
+    $role = funcs_board_get_role();
   }
 
   // generate hashed ID
@@ -245,9 +245,9 @@ function funcs_board_render_message(string $board_id, ?int $parent_id, string $i
 /**
  * Validates an uploaded file for errors/abuse.
  */
-function funcs_board_validate_upload(UploadedFileInterface $input, bool $no_file_ok, bool $spoiler, array $mime_types, int $max_bytes): ?array {
+function funcs_board_validate_upload(array $input, bool $no_file_ok, bool $spoiler, array $mime_types, int $max_bytes): ?array {
   // check errors
-  $error = $input->getError();
+  $error = $input['error'];
   if ($error === UPLOAD_ERR_NO_FILE && $no_file_ok) {
     return null;
   } else if ($error !== UPLOAD_ERR_OK) {
@@ -255,8 +255,8 @@ function funcs_board_validate_upload(UploadedFileInterface $input, bool $no_file
   }
 
   // get temp file handle
-  $tmp_file = $input->getStream()->getMetadata('uri');
-  $cli_file = $input->getClientFilename();
+  $tmp_file = $input['tmp_name'];
+  $cli_file = $input['name'];
 
   // validate MIME type
   $finfo = finfo_open(FILEINFO_MIME);
@@ -264,7 +264,7 @@ function funcs_board_validate_upload(UploadedFileInterface $input, bool $no_file
   finfo_close($finfo);
 
   // NOTE: mp3 files are tricky! check for id3v1 and id3v2 tags if finfo_file fails...
-  $file_ext_pathinfo = pathinfo($input->getClientFilename(), PATHINFO_EXTENSION);
+  $file_ext_pathinfo = pathinfo($cli_file, PATHINFO_EXTENSION);
   if ($file_mime === 'application/octet-stream' && $file_ext_pathinfo === 'mp3') {
     $get_id3 = new getID3;
     $id3_info = $get_id3->analyze($tmp_file);
@@ -285,28 +285,21 @@ function funcs_board_validate_upload(UploadedFileInterface $input, bool $no_file
   if (!isset($mime_types[$file_mime])) {
     throw new AppException('funcs_board', 'validate_upload', "file mime type invalid: {$file_mime}", SC_BAD_REQUEST);
   }
-  
-  // save to tmp file, terminate stream
-  $tmp_file_name = time() . substr(microtime(), 2, 3);
-  $tmp_file_dir = sys_get_temp_dir() . '/';
-  $tmp_file_path = $tmp_file_dir . $tmp_file_name;
-  $input->moveTo($tmp_file_path);
 
   // calculate md5 hash
-  $file_md5 = ($spoiler === true ? 'spoiler/' : '') . md5_file($tmp_file_path);
+  $file_md5 = ($spoiler === true ? 'spoiler/' : '') . md5_file($tmp_file);
 
   // convert avif to png
   if ($file_mime === 'image/avif') {
-    $tmp_image = new Imagick($tmp_file_path);
+    $tmp_image = new Imagick($tmp_file);
     $tmp_image->setImageFormat('png');
-    $tmp_image->writeImage($tmp_file_path);
+    $tmp_image->writeImage($tmp_file);
     $file_mime = 'image/png';
   // convert mkv to mp4 (copy data only)
   } else if ($file_mime === 'video/x-matroska') {
-    $new_file_path = funcs_board_video_copy_codec($tmp_file_path, 'mp4');
-    unlink($tmp_file_path);
+    $new_file_path = funcs_board_video_copy_codec($tmp_file, 'mp4');
     if ($new_file_path != null) {
-      $tmp_file_path = $new_file_path;
+      rename($new_file_path, $tmp_file);
       $file_mime = 'video/mp4';
     } else {
       throw new AppException('funcs_board', 'validate_upload', "unable to copy video/audio codec data from matroska container to mp4 container", SC_BAD_REQUEST);
@@ -319,7 +312,6 @@ function funcs_board_validate_upload(UploadedFileInterface $input, bool $no_file
     $file_ext_idx = array_search(strtolower($file_ext_pathinfo), $file_exts);
 
     if ($file_ext_idx === false) {
-      unlink($tmp_file_path);
       throw new AppException('funcs_board', 'validate_upload', "file extension invalid: {$file_ext_pathinfo}", SC_BAD_REQUEST);
     }
 
@@ -329,14 +321,13 @@ function funcs_board_validate_upload(UploadedFileInterface $input, bool $no_file
   }
 
   // validate file size
-  $file_size = filesize($tmp_file_path);
+  $file_size = filesize($tmp_file);
   if ($file_size > $max_bytes) {
-    unlink($tmp_file_path);
     throw new AppException('funcs_board', 'validate_upload', "file size exceeds limit: {$file_size} bytes > {$max_bytes} bytes", SC_BAD_REQUEST);
   }
 
   return [
-    'tmp'            => $tmp_file_path,
+    'tmp'            => $tmp_file,
     'cli'            => $cli_file,
     'mime'           => $file_mime,
     'ext'            => $file_ext,
@@ -373,9 +364,8 @@ function funcs_board_execute_upload(?array $file_info, array $file_collisions, b
   if (empty($file_collisions)) {
     $file_name = time() . substr(microtime(), 2, 3) . '.' . $file_info['ext'];
     $file_dir = '/src/';
-    $file_path = __DIR__ . $file_dir . $file_name;
-    if (!rename($file_info['tmp'], $file_path)) {
-      unlink($file_info['tmp']);
+    $file_path = __PUBLIC__ . $file_dir . $file_name;
+    if (!move_uploaded_file($file_info['tmp'], $file_path)) {
       throw new AppException('funcs_board', 'execute_upload', "failed to move the uploaded tmp file to a persistent location", SC_INTERNAL_ERROR);
     }
     $file_hex = $file_info['md5'];
@@ -384,7 +374,7 @@ function funcs_board_execute_upload(?array $file_info, array $file_collisions, b
     $file_mime = $file_info['mime'];
     $thumb_file_name = 'thumb_' . $file_name . '.png';
     $thumb_dir = '/src/';
-    $thumb_file_path = __DIR__ . $thumb_dir . $thumb_file_name;
+    $thumb_file_path = __PUBLIC__ . $thumb_dir . $thumb_file_name;
     $album_file_name = null;
     $album_dir = '/src/';
 
@@ -468,7 +458,7 @@ function funcs_board_execute_upload(?array $file_info, array $file_collisions, b
       case 'audio/flac':
       case 'audio/opus':
       case 'audio/ogg':
-        $album_file_path = __DIR__ . $album_dir . 'album_' . $file_name;
+        $album_file_path = __PUBLIC__ . $album_dir . 'album_' . $file_name;
         $album_file_result = null;
         if ($file_info['mime'] === 'audio/mpeg') {
           $album_file_result = funcs_board_get_mp3_album_art($file_path, $album_file_path);
@@ -514,8 +504,6 @@ function funcs_board_execute_upload(?array $file_info, array $file_collisions, b
         throw new AppException('funcs_board', 'execute_upload', "file MIME type unsupported: {$file_info['mime']}", SC_INTERNAL_ERROR);
     }
   } else {
-    unlink($file_info['tmp']);
-    
     $file_name = $file_collisions[0]['file'];
     $file_dir = '';
     $file_hex = $file_collisions[0]['file_hex'];
@@ -628,13 +616,13 @@ function funcs_board_generate_thumbnail(string $file_path, bool $spoiler, bool $
   if ($spoiler) {
     $image->gaussianBlurImage(32, 16);
     $image->modulateImage(50.0, 50.0, 100.0);
-    $image_spoiler = new Imagick(__DIR__ . '/static/spoiler.png');
+    $image_spoiler = new Imagick(__PUBLIC__ . '/static/spoiler.png');
     $image_spoiler_x = 0.5 * ($thumb_width - $image_spoiler->getImageWidth());
     $image_spoiler_y = 0.5 * ($thumb_height - $image_spoiler->getImageHeight());
     $image->compositeImage($image_spoiler, Imagick::COMPOSITE_ATOP, (int) $image_spoiler_x, (int) $image_spoiler_y);
   }
   if ($player) {
-    $image_player = new Imagick(__DIR__ . '/static/player.png');
+    $image_player = new Imagick(__PUBLIC__ . '/static/player.png');
     $image_player_x = 0.5 * ($thumb_width - $image_player->getImageWidth());
     $image_player_y = 0.5 * ($thumb_height - $image_player->getImageHeight());
     $image->compositeImage($image_player, Imagick::COMPOSITE_ATOP, (int) $image_player_x, (int) $image_player_y);
@@ -782,7 +770,7 @@ function funcs_board_execute_embed(string $url, array $embed_types, int $max_w =
   // process thumbnail
   $thumb_file_name = 'thumb_' . $thumb_file_name_tmp . '.png';
   $thumb_dir = '/src/';
-  $thumb_file_path = __DIR__ . $thumb_dir . $thumb_file_name;
+  $thumb_file_path = __PUBLIC__ . $thumb_dir . $thumb_file_name;
   $generated_thumb = funcs_board_generate_thumbnail($thumb_file_path_tmp, false, true, 'png', $thumb_file_path, $max_w, $max_h);
   $image_width = $generated_thumb['image_width'];
   $image_height = $generated_thumb['image_height'];
@@ -809,7 +797,7 @@ function funcs_board_execute_embed(string $url, array $embed_types, int $max_w =
 
 function funcs_board_csam_scanner_check(array $file): ?array {
   // send file to CSAM-scanner microservice
-  $target_file_path = __DIR__ . $file['file'];
+  $target_file_path = __PUBLIC__ . $file['file'];
   $finfo = finfo_open(FILEINFO_MIME);
   $target_file_mime = explode(';', finfo_file($finfo, $target_file_path))[0];
   finfo_close($finfo);

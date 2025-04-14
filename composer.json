@@ -1,11 +1,6 @@
 {
     "require": {
-        "slim/slim": "4.*",
-        "nyholm/psr7": "^1.5",
-        "nyholm/psr7-server": "^1.0",
-        "slim/php-view": "^3.2",
-        "php-ffmpeg/php-ffmpeg": "^1.0",
-        "middlewares/trailing-slash": "^2.0",
+        "php-ffmpeg/php-ffmpeg": "^1.3",
         "james-heinrich/getid3": "^1.9"
     },
     "require-dev": {

@@ -410,19 +410,19 @@ function funcs_common_delete_post(string $board_id, int $post_id): array {
     // unlink file and thumb from filesystem
     if ($file_collisions_n === 1) {
       if ($post['embed'] === 0 && strlen($post['file']) > 0) {
-        if (!unlink(__DIR__ . $post['file'])) {
+        if (!unlink(__PUBLIC__ . $post['file'])) {
           $warnings[] = "Failed to delete file for post /{$post['board_id']}/{$post['post_id']}/ (maybe it didn't exist?)";
         }
       }
       
       if (!$static && strlen($post['thumb']) > 0) {
-        if (!unlink(__DIR__ . $post['thumb'])) {
+        if (!unlink(__PUBLIC__ . $post['thumb'])) {
           $warnings[] = "Failed to delete thumbnail for post /{$post['board_id']}/{$post['post_id']}/ (maybe it didn't exist?)";
         }
       }
 
       if (isset($post['audio_album']) && strlen($post['audio_album']) > 0) {
-        if (!unlink(__DIR__ . $post['audio_album'])) {
+        if (!unlink(__PUBLIC__ . $post['audio_album'])) {
           $warnings[] = "Failed to delete album art for post /{$post['board_id']}/{$post['post_id']}/ (maybe it didn't exist?)";
         }
       }
