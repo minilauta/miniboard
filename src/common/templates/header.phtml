@@ -1,0 +1,13 @@
+<div class="container-centered">
+  <div class="header">
+    <h1>
+      <?php
+        if (isset($h_logo)) {
+          echo "<img src='static/{$h_logo}' class='logo' width='128' height='128'>";
+        }
+      ?>
+      <?=$h_title?>
+    </h1>
+    <p><?=$h_subtitle?></p>
+  </div>
+</div>

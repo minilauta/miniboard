@@ -1,0 +1,48 @@
+<form id="form-rebuild" class="form-rebuild form" method="post" action="rebuild">
+  <fieldset id="form-rebuild-target-board">
+    <legend>Target board</legend>
+    <table>
+      <tbody>
+        <tr>
+          <td class="form-label">
+            <label for="board_id">BOARD id</label>
+          </td>
+          <td>
+            <?php
+              $options = '<option value=""></option>';
+              foreach (MB_BOARDS as $key => $val) {
+                if ($val['type'] === 'main') {
+                  continue;
+                }
+
+                $options .= "<option value='{$key}'>/{$key}/ - {$val['name']}</option>";
+              }
+
+              echo "<select id='board_id' name='board_id'>{$options}</select>";
+            ?>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+  </fieldset>
+  <table>
+    <tbody>
+      <tr>
+        <td class="form-label">
+          <label>STATUS</label>
+        </td>
+        <td>
+          <b><?=$status?></b>
+        </td>
+      </tr>
+      <tr>
+        <td class="form-label">
+          <label>Submit</label>
+        </td>
+        <td>
+	        <input type="submit" value="Rebuild">
+        </td>
+      </tr>
+    </tbody>
+  </table>
+</form>

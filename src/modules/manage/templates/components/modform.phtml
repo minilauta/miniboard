@@ -1,0 +1,71 @@
+<form id="modform" class="form-manage" method="post">
+  <table>
+    <tbody>
+      <tr>
+        <td class="form-label">
+          <label>STATUS</label>
+        </td>
+        <td>
+          <b><?=$status?></b>
+        </td>
+      </tr>
+      <tr>
+        <td class="form-label">
+          <label>Selected</label>
+        </td>
+        <td>
+	        <input type="submit" value="Delete (post)" formaction="delete?<?=http_build_query($_GET)?>">
+	        <input type="submit" value="Ban (ip)" formaction="ban?<?=http_build_query($_GET)?>">
+          <input type="number" name="duration" placeholder="Ban minutes">
+          <input type="text" name="reason" placeholder="Ban reason" autocomplete="off">
+	        <input type="submit" value="Mark as CSAM" formaction="csam_scanner/cp?<?=http_build_query($_GET)?>">
+	        <input type="submit" value="Lock/unlock (thread)" formaction="toggle_lock?<?=http_build_query($_GET)?>">
+	        <input type="submit" value="Sticky/unsticky (thread)" formaction="toggle_sticky?<?=http_build_query($_GET)?>">
+        </td>
+      </tr>
+    </tbody>
+  </table>
+  <table class="form-manage-table">
+    <thead>
+      <tr>
+        <th></th>
+        <th>id</th>
+        <th>post_id</th>
+        <th>parent_id</th>
+        <th>board_id</th>
+        <th>ip</th>
+        <th>deleted</th>
+        <th>imported</th>
+        <th>preview</th>
+      </tr>
+    </thead>
+    <tbody>
+      <?php
+        foreach ($posts as $post) {
+          $preview = '';
+          if ($post['parent_id'] === 0) {
+            $preview = $this->fetch('board/post_preview_op.phtml', ['post' => $post]);
+          } else {
+            $preview = $this->fetch('board/post_preview_reply.phtml', ['post' => $post]);
+          }
+
+          $deleted = $post['deleted'] === 1 ? '<b>TRUE</b>' : 'FALSE';
+          $imported = $post['imported'] === 1 ? '<b>TRUE</b>' : 'FALSE';
+          echo "
+            <tr>
+              <td><input type=\"checkbox\" name=\"select[]\" value=\"{$post['board_id']}/{$post['post_id']}\"></td>
+              <td>{$post['id']}</td>
+              <td>{$post['post_id']}</td>
+              <td>{$post['parent_id']}</td>
+              <td>/{$post['board_id']}/</td>
+              <td>{$post['ip_rendered']}</td>
+              <td>{$deleted}</td>
+              <td>{$imported}</td>
+              <td>{$preview}</td>
+            </tr>
+          ";
+        }
+      ?>
+    </tbody>
+  </table>
+</form>

@@ -1,0 +1,21 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <?=$this->fetch('common/meta.phtml')?>
+    <?=$this->fetch('common/styles.phtml')?>
+    <?=$this->fetch('common/scripts.phtml')?>
+    <title>Login</title>
+  </head>
+  <body>
+    <?=$this->fetch('board/menubar.phtml', ['board_id' => array_key_first(MB_BOARDS), 'thread_id' => null])?>
+    <?=$this->fetch('common/header.phtml', ['h_title' => 'Manage', 'h_subtitle' => 'Login'])?>
+    <hr>
+    <div class="container-centered">
+      <?=$this->fetch('manage/loginform.phtml')?>
+    </div>
+    <hr>
+    <div class="container-centered">
+      <?=$this->fetch('common/footer.phtml')?>
+    </div>
+  </body>
+</html>

@@ -1,0 +1,41 @@
+<?php
+  if (isset($post['file_rendered']) && !empty($post['file_rendered'])) {
+    $thumb_src = "{$post['thumb']}";
+    $thumb_width = $post['thumb_width'];
+    $thumb_height = $post['thumb_height'];
+    $thumb_id = $context !== 'preview' ? "id='thumb-{$post['board_id']}-{$post['post_id']}'" : '';
+
+    if ($post['embed'] === 0) {
+      $album_id = $context !== 'preview' && isset($post['audio_album']) ? "id='album-{$post['board_id']}-{$post['post_id']}'" : '';
+
+      echo "
+        <div class='file-info break-words'>
+          File: <a href='{$post['file_rendered']}' target='_blank'>{$post['file_rendered']}</a>
+          -
+          ({$post['file_size_formatted']}, {$post['image_width']}x{$post['image_height']}, {$post['file_original']})
+        </div>
+        <div class='file-thumb'>
+          <a class='file-thumb-href' href='{$post['file_rendered']}' target='_blank'>
+            <img {$thumb_id} class='file-thumb-img' src='{$thumb_src}' width='{$thumb_width}' height='{$thumb_height}' loading='lazy'>
+          </a>
+        </div>
+        <div class='file-data' style='display:none;'></div>
+        <div {$album_id} class='audio-album' style='display:none;'>{$post['audio_album']}</div>
+      ";
+    } else {
+      echo "
+        <div class='file-info break-words'>
+          Embed: <a href='{$post['file_hex']}' target='_blank'>{$post['file_original']}</a>
+          -
+          ({$post['image_width']}x{$post['image_height']}, Embedded URL)
+        </div>
+        <div class='file-thumb'>
+          <a class='file-thumb-href' href='{$post['file_hex']}' target='_blank'>
+            <img {$thumb_id} class='file-thumb-img' src='{$thumb_src}' width='{$thumb_width}' height='{$thumb_height}' loading='lazy'>
+          </a>
+        </div>
+        <div class='file-data' style='display:none;'>{$post['file_rendered']}</div>
+      ";
+    }
+  }
+?>

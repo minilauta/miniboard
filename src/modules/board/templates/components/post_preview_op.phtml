@@ -1,0 +1,26 @@
+<div class="post op">
+  <?=$this->render(__DIR__ . '/post_file.phtml', ['context' => 'preview', 'post' => $post])?>
+  <div class="post-info">
+    <label>
+      <input type="checkbox" disabled>
+      <span class="post-subject"><?=$post['subject']?></span>
+      <?=$post['nameblock']?>
+    </label>
+    <span class="post-id">
+      <a href="/<?=$post['board_id']?>/<?=$post['post_id']?>/#<?=$post['board_id']?>-<?=$post['post_id']?>">No.</a><a href="/<?=$post['board_id']?>/<?=$post['post_id']?>/#q<?=$post['post_id']?>"><?=$post['post_id']?></a>
+    </span>
+    <?php
+      if ($post['stickied'] === 1) {
+        echo "<img src='/static/sticky.png' alt='Stickied' title='Stickied' width='16' height='16'>";
+      }
+      if ($post['locked'] === 1) {
+        echo "<img src='/static/lock.png' alt='Locked' title='Locked' width='16' height='16'>";
+      }
+    ?>
+  </div>
+  <div class="post-message-wrapper">
+    <div class="post-message">
+      <?=$post['message_rendered']?>
+    </div>
+  </div>
+</div>

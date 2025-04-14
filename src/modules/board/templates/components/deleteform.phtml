@@ -1,0 +1,12 @@
+<form id="deleteform" class="deleteform" method="post" action="/<?=$board['id']?>/delete">
+  <?php
+    foreach ($threads as $thread) {
+      echo $this->render(__DIR__ . '/post_op.phtml', ['context' => $context, 'board' => $board, 'post' => $thread]) . '<hr>';
+    }
+  ?>
+  <div class="deleteform-group">
+    <label for="delete">Delete Post</label>
+    <input id="deleteform-password" type="password" name="password" placeholder="Password" size="8">
+    <input type="submit" value="Delete">
+  </div>
+</form>

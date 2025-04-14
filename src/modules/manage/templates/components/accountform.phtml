@@ -1,0 +1,31 @@
+<form id="accountform" class="form-manage" method="post">
+  <table class="form-manage-table">
+    <thead>
+      <tr>
+        <th>id</th>
+        <th>username</th>
+        <th>role</th>
+        <th>lastactive</th>
+        <th>imported</th>
+      </tr>
+    </thead>
+    <tbody>
+      <?php
+        foreach ($accounts as $account) {
+          $lastactive = date(MB_DATEFORMAT, $account['lastactive']);
+          $imported = $account['imported'] === 1 ? '<b>TRUE</b>' : 'FALSE';
+
+          echo "
+            <tr>
+              <td>{$account['id']}</td>
+              <td>{$account['username']}</td>
+              <td>{$account['role']}</td>
+              <td>{$lastactive}</td>
+              <td>{$imported}</td>
+            </tr>
+          ";
+        }
+      ?>
+    </tbody>
+  </table>
+</form>

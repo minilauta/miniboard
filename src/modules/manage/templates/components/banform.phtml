@@ -1,0 +1,33 @@
+<form id="banform" class="form-manage" method="post">
+  <table class="form-manage-table">
+    <thead>
+      <tr>
+        <th>id</th>
+        <th>ip</th>
+        <th>timestamp</th>
+        <th>expire</th>
+        <th>reason</th>
+        <th>imported</th>
+      </tr>
+    </thead>
+    <tbody>
+      <?php
+        foreach ($bans as $ban) {
+          $timestamp = date(MB_DATEFORMAT, $ban['timestamp']);
+          $expire = date(MB_DATEFORMAT, $ban['expire']);
+
+          echo "
+            <tr>
+              <td>{$ban['id']}</td>
+              <td>{$ban['ip_rendered']}</td>
+              <td>{$timestamp}</td>
+              <td>{$expire}</td>
+              <td>{$ban['reason']}</td>
+              <td>{$ban['imported']}</td>
+            </tr>
+          ";
+        }
+      ?>
+    </tbody>
+  </table>
+</form>

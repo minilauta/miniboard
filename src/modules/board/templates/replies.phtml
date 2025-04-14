@@ -1,0 +1,5 @@
+<?php
+  foreach ($posts as $reply) {
+    echo $this->render(__DIR__ . '/components/post_reply.phtml', ['context' => 'thread', 'post' => $reply]);
+  }
+?>

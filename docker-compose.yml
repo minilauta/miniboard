@@ -23,6 +23,7 @@ services:
       - app
     volumes:
       - ./public:/app/public:Z
+      - ./src:/app/src:Z
       - app:/app/public/src
     ports:
       - "127.0.0.1:8080:80"
@@ -40,16 +41,6 @@ services:
       CSAM_SCANNER_HOST: csam-scanner
     depends_on:
       - mariadb
-
-  test:
-    image: anonyymi/miniboard/app:latest
-    pull_policy: never
-    restart: on-failure
-    command: ['bash', '-c', 'XDEBUG_MODE=coverage ./vendor/bin/phpunit --coverage-text --coverage-clover coverage.xml --coverage-html ./coverage']
-    networks:
-      - test
-    volumes:
-      - ./tests/unit:/app/tests/unit:Z
 
   mariadb:
     image: mariadb:10.6
@@ -79,17 +70,6 @@ services:
       PMA_HOST: mariadb
       PMA_USER: root
       PMA_PASSWORD: ${DB_ROOT_PASS}
-
-  flyway:
-    image: flyway/flyway:9-alpine
-    restart: on-failure
-    networks:
-      - app
-    volumes:
-      - ./migrations:/flyway/sql:Z
-    command: -url=jdbc:mysql://mariadb -schemas=${DB_NAME} -user=root -password=${DB_ROOT_PASS} -connectRetries=60 migrate
-    depends_on:
-      - mariadb
 
   redis:
     image: redis:7.0-alpine

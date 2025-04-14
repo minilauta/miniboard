@@ -1,0 +1,49 @@
+<form id="form-report" class="form-report form" method="post">
+  <table>
+    <tbody>
+      <tr>
+        <td class="form-label">
+          <label>NOTICE</label>
+        </td>
+        <td>
+          Reporting post <strong><?=$post['post_id']?></strong> on board <strong>/<?=$post['board_id']?>/</strong>.
+          Submitting <strong>false</strong> or <strong>misclassified</strong> reports will result in a ban.
+        </td>
+      </tr>
+      <tr>
+        <td class="form-label">
+          <label for="type">Type</label>
+        </td>
+        <td>
+          <?php
+            $options = '<option value=""></option>';
+            foreach (MB_REPORT_TYPES as $key => $val) {
+              $options .= "<option value='{$key}'>{$val}</option>";
+            }
+
+            echo "
+              <select id='type' name='type'>{$options}</select>
+            ";
+          ?>
+          <button type="submit">Submit</button>
+        </td>
+      </tr>
+      <?php
+        if (MB_CAPTCHA_REPORT) {
+          $captcha = MB_CAPTCHA_HCAPTCHA_SITE;
+
+          echo "
+            <tr>
+              <td class='form-label'>
+                <label for='captcha'>CAPTCHA</label>
+              </td>
+              <td>
+                <div class='h-captcha' data-sitekey='{$captcha}'></div>
+              </td>
+            </tr>
+          ";
+        }
+      ?>
+    </tbody>
+  </table>
+</form>

@@ -1,0 +1,5 @@
+# resize column ´nameblock´ in posts table
+
+version: 1
+script: |
+  ALTER TABLE posts MODIFY COLUMN `nameblock` VARCHAR(1024);

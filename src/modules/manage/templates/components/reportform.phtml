@@ -1,0 +1,81 @@
+<form id="reportform" class="form-manage" method="post">
+  <table>
+    <tbody>
+      <tr>
+        <td class="form-label">
+          <label>STATUS</label>
+        </td>
+        <td>
+          <b><?=$status?></b>
+        </td>
+      </tr>
+      <tr>
+        <td class="form-label">
+          <label>Selected</label>
+        </td>
+        <td>
+	        <input type="submit" value="Delete (post)" formaction="delete?<?=http_build_query($_GET)?>">
+	        <input type="submit" value="Ban (ip)" formaction="ban?<?=http_build_query($_GET)?>">
+          <input type="number" name="duration" placeholder="Ban minutes">
+          <input type="text" name="reason" placeholder="Ban reason">
+	        <input type="submit" value="Mark as CSAM" formaction="csam_scanner/cp?<?=http_build_query($_GET)?>">
+	        <input type="submit" value="Lock/unlock (thread)" formaction="toggle_lock?<?=http_build_query($_GET)?>">
+	        <input type="submit" value="Sticky/unsticky (thread)" formaction="toggle_sticky?<?=http_build_query($_GET)?>">
+	        <input type="submit" value="Approve (report)" formaction="approve?<?=http_build_query($_GET)?>">
+        </td>
+      </tr>
+    </tbody>
+  </table>
+  <table class="form-manage-table">
+    <thead>
+      <tr>
+        <th></th>
+        <th>id</th>
+        <th>ip</th>
+        <th>timestamp</th>
+        <th>board_id</th>
+        <th>post_id</th>
+        <th>type</th>
+        <th>imported</th>
+        <th>post_ip</th>
+        <th>post_deleted</th>
+        <th>post_imported</th>
+        <th>preview</th>
+      </tr>
+    </thead>
+    <tbody>
+      <?php
+        foreach ($reports as $report) {
+          $preview = '';
+          if ($report['parent_id'] === 0) {
+            $preview = $this->fetch('board/post_preview_op.phtml', ['post' => $report]);
+          } else {
+            $preview = $this->fetch('board/post_preview_reply.phtml', ['post' => $report]);
+          }
+
+          $timestamp = date(MB_DATEFORMAT, $report['r_timestamp']);
+          $imported = $report['r_imported'] === 1 ? '<b>TRUE</b>' : 'FALSE';
+          $post_deleted = $report['deleted'] === 1 ? '<b>TRUE</b>' : 'FALSE';
+          $post_imported = $report['imported'] === 1 ? '<b>TRUE</b>' : 'FALSE';
+
+          echo "
+            <tr>
+              <td><input type=\"checkbox\" name=\"select[]\" value=\"{$report['board_id']}/{$report['post_id']}\"></td>
+              <td>{$report['r_id']}</td>
+              <td>{$report['r_ip_rendered']}</td>
+              <td>{$timestamp}</td>
+              <td>/{$report['r_board_id']}/</td>
+              <td>{$report['r_post_id']}</td>
+              <td>{$report['r_type']}</td>
+              <td>{$imported}</td>
+              <td>{$report['ip_rendered']}</td>
+              <td>{$post_deleted}</td>
+              <td>{$post_imported}</td>
+              <td>{$preview}</td>
+            </tr>
+          ";
+        }
+      ?>
+    </tbody>
+  </table>
+</form>

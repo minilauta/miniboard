@@ -43,7 +43,9 @@ module.exports = {
       'public/**/*.php',
       'public/**/*.phtml',
       'public/**/*.js',
-      'public/**/*.css'
+      'public/**/*.css',
+      'src/**/*.php',
+      'src/**/*.phtml',
     ],
     open: true,
     compress: true,

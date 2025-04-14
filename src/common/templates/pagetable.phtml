@@ -1,0 +1,43 @@
+<table class="pagetable">
+  <tbody>
+    <tr>
+      <td>
+        <?php
+          if ($page > 0) {
+            $page_prev = $page - 1;
+            $query = funcs_common_mutate_query($_GET, 'page', $page_prev);
+
+            echo "<a class='prev' href='?{$query}'>Previous</a>";
+          } else {
+            echo "<span class='prev'>Previous</span>";
+          }
+        ?>
+      </td>
+      <td>
+        <?php
+          for ($i = 0; $i < $page_n; $i++) {
+            if ($i !== $page) {
+              $query = funcs_common_mutate_query($_GET, 'page', $i);
+
+              echo "[<a href='?{$query}'>{$i}</a>]";
+            } else {
+              echo "[{$i}]";
+            }
+          }
+        ?>
+      </td>
+      <td>
+        <?php
+          if ($page < $page_n - 1) {
+            $page_next = $page + 1;
+            $query = funcs_common_mutate_query($_GET, 'page', $page_next);
+
+            echo "<a class='next' href='?{$query}'>Next</a>";
+          } else {
+            echo "<span class='next'>Next</span>";
+          }
+        ?>
+      </td>
+    </tr>
+  </tbody>
+</table>

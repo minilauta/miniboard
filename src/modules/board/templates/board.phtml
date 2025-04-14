@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <?=$this->render(__ROOT__ . '/common/templates/meta.phtml')?>
+    <?=$this->render(__ROOT__ . '/common/templates/styles.phtml')?>
+    <?=$this->render(__ROOT__ . '/common/templates/scripts.phtml')?>
+    <title>/<?=$board['id']?>/</title>
+  </head>
+  <body>
+    <?=$this->render(__DIR__ . '/components/menubar.phtml', ['board_id' => $board['id'], 'thread_id' => null])?>
+    <?=$this->render(__ROOT__ . '/common/templates/banner.phtml')?>
+    <hr>
+    <?=$this->render(__ROOT__ . '/common/templates/header.phtml', ['h_title' => "/{$board['id']}/ - {$board['name']}", 'h_subtitle' => $board['desc']])?>
+    <hr>
+    <div id="form-post-container" class="container-centered">
+      <?=$this->render(__DIR__ . '/components/postform.phtml', ['context' => 'board', 'board' => $board, 'action' => "/{$board['id']}"])?>
+    </div>
+    <hr>
+    <div id="navlinks-top" class="navlinks">
+      [<a id="navlinks-top-catalog" href="/<?=$board['id']?>/catalog/">Catalog</a>]
+      [<a id="navlinks-top-refresh" href="./">Refresh</a>]
+    </div>
+    <hr>
+    <?=$this->render(__DIR__ . '/components/deleteform.phtml', ['context' => 'board', 'board' => $board, 'threads' => $threads])?>
+    <?=$this->render(__ROOT__ . '/common/templates/pagetable.phtml', ['page' => $page, 'page_n' => $page_n])?>
+    <div class="container-centered">
+      <?=$this->render(__ROOT__ . '/common/templates/footer.phtml')?>
+    </div>
+  </body>
+</html>

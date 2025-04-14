@@ -1,0 +1,190 @@
+<form id="form-post" class="form-post form" method="post" action="<?=$action?>" enctype="multipart/form-data">
+  <table>
+    <tbody>
+      <tr>
+        <td class="form-label">
+          <label for="name">Name</label>
+        </td>
+        <td>
+          <input type="text" name="name">
+        </td>
+      </tr>
+      <tr>
+        <td class="form-label">
+          <label for="email">E-mail</label>
+        </td>
+        <td>
+          <input type="text" name="email" autocomplete="off">
+        </td>
+      </tr>
+      <?php
+        if (funcs_board_is_logged_in()) {
+          if ($board['req_role'] == null) {
+            echo "
+            <tr>
+              <td class='form-label'>
+                <label for='mod-options'>Mod options</label>
+              </td>
+              <td>
+                <label>
+                  <input type='checkbox' name='capcode' value='1'>
+                  Capcode
+                </label>
+              </td>
+            </tr>
+            ";
+          } else {
+            echo "
+            <tr>
+              <td class='form-label'>
+                <label for='mod-options'>Mod options</label>
+              </td>
+              <td>
+                <label>
+                  <input type='checkbox' name='capcode' value='1' checked disabled>
+                  Capcode
+                </label>
+              </td>
+            </tr>
+            ";
+          }
+        }
+      ?>
+      <tr>
+        <td class="form-label">
+          <label for="subject">Subject</label>
+        </td>
+        <td>
+          <input type="text" name="subject" autocomplete="off">
+          <input type="submit" name="submit" value="Submit">
+        </td>
+      </tr>
+      <tr>
+        <td class="form-label">
+          <label for="message">Message</label>
+        </td>
+        <td>
+          <button type="button" class="format-btn" data-format="b"><b>b</b></button><!--
+       --><button type="button" class="format-btn" data-format="i"><i>i</i></button><!--
+       --><button type="button" class="format-btn" data-format="u"><u>u</u></button><!--
+       --><button type="button" class="format-btn" data-format="s"><s>s</s></button><!--
+       --><button type="button" class="format-btn" data-format="sup">sup</button><!--
+       --><button type="button" class="format-btn" data-format="sub">sub</button><!--
+       --><button type="button" class="format-btn" data-format="code">code</button><!--
+       --><button type="button" class="format-btn" data-format="spoiler">spoiler</button>
+          <br>
+          <textarea id="form-post-message" class="form-post-message" name="message" autocomplete="off" maxlength="8192"></textarea>
+        </td>
+      </tr>
+      <?php
+        // captcha check
+        if (!funcs_board_is_logged_in()) {
+          if ($context === 'board' && MB_CAPTCHA_THREAD || $context === 'thread' && MB_CAPTCHA_REPLY) {
+            $captcha = MB_CAPTCHA_HCAPTCHA_SITE;
+
+            echo "
+              <tr>
+                <td class='form-label'>
+                  <label for='captcha'>CAPTCHA</label>
+                </td>
+                <td>
+                  <div id='form-post-captcha' class='h-captcha' data-sitekey='{$captcha}'></div>
+                </td>
+              </tr>
+            ";
+          }
+        }
+
+        // board select
+        if ($board['type'] === 'main') {
+          $options = '<option value=""></option>';
+          foreach (MB_BOARDS as $key => $val) {
+            if ($val['type'] === 'main') {
+              continue;
+            }
+            
+            $options .= "<option value='{$key}'>/{$key}/ - {$val['name']}</option>";
+          }
+
+          echo "
+            <tr>
+              <td class='form-label'>
+                <label for='board'>Board</label>
+              </td>
+              <td>
+                <select id='board' name='board'>{$options}</select>
+              </td>
+            </tr>
+          ";
+        }
+
+        // file
+        if (!isset($board['text']) || $board['text'] == false) {
+          echo "
+            <tr>
+              <td class='form-label'>
+                <label for='file'>File</label>
+              </td>
+              <td>
+                <input id='form-file' type='file' name='file' autocomplete='off' size='35'>
+                <button id='form-draw' type='button' name='draw'>Draw</button>
+              </td>
+            </tr>
+            <tr>
+              <td class='form-label'>
+                <label for='file-options'>File options</label>
+              </td>
+              <td>
+                <label>
+                  <input type='checkbox' name='spoiler' value='1'>
+                  Spoiler
+                </label>
+                <label>
+                  <input type='checkbox' name='anonfile' value='1'>
+                  No filename
+                </label>
+              </td>
+            </tr>
+            <tr>
+              <td class='form-label'>
+                <label for='embed'>Embed</label>
+              </td>
+              <td>
+                <input type='text' name='embed' autocomplete='off'>
+              </td>
+            </tr>
+          ";
+        }
+      ?>
+      <tr>
+        <td class="form-label">
+          <label for="password">Password</label>
+        </td>
+        <td>
+          <input id="form-post-password" type="password" name="password">
+        </td>
+      </tr>
+      <?php
+        if ($board['type'] !== 'main' && (!isset($board['text']) || $board['text'] == false)) {
+          $info_exts = strtoupper(implode(', ', array_unique(array_column($board['mime_ext_types'], 0))));
+          $info_embs = strtoupper(implode(', ', array_keys($board['embed_types'])));
+          $info_fsize = funcs_common_human_filesize($board['maxkb'] * 1000);
+          $info_msize = $board['max_width'] . 'x' . $board['max_height'];
+
+          echo "
+            <tr>
+              <td class='form-list' colspan='2'>
+                <ul>
+                  <li>Supported file types are {$info_exts}.</li>
+                  <li>Supported embed types are {$info_embs}.</li>
+                  <li>Maximum file size allowed is {$info_fsize}.</li>
+                  <li>Images greater than {$info_msize} will be thumbnailed.</li>
+                </ul>
+              </td>
+            </tr>
+          ";
+        }
+      ?>
+    </tbody>
+  </table>
+</form>
