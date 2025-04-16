@@ -4,8 +4,7 @@
   display: inline-block;
   width: 16px;
   height: 11px;
-  position: relative;
-  top: 1px;
+  position: static;
   background: url('/static/flags.png') no-repeat;
   image-rendering: pixelated;
 }
