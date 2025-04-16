@@ -1288,22 +1288,22 @@ function init_post_backreference_links() {
   Array.from(document.getElementsByClassName('backreference'))
     .forEach((x) => x.remove());
 
-  // get all post elements
-  let post_elements = document.getElementsByClassName('post');
+  // get all post elements, excluding previews
+  let post_elements = Array.from(document.querySelectorAll('.post:not(.preview)'));
 
   // create a lookup map of posts and array of {post, refs} objs
   let post_lookup = {};
   let post_ref_array = [];
-  Array.from(post_elements).forEach(e => {
+  post_elements.forEach(e => {
     // select the correct element from op|reply type of elements
-    let post = e.id !== '' ? e : e.getElementsByClassName('reply')[0];
+    let post = e.id !== '' ? e : e.querySelector('.reply:not(.preview)');
 
     // append post to the lookup map
     post_lookup[post.id] = post;
 
     // append to post_ref array (skip op post)
-    let post_msg_element = post.getElementsByClassName('post-message')[0];
-    let post_ref_elements = post_msg_element.getElementsByClassName('reference');
+    let post_msg_element = post.querySelector('.post-message');
+    let post_ref_elements = post_msg_element.querySelectorAll(':scope > .reference');
     if (post_ref_elements.length > 0) {
       post_ref_array.push({
         board_id: post.id.split('-')[0],
@@ -1611,8 +1611,12 @@ function init_thread_features() {
       target = document;
     }
 
-    const posts = Array.from(target.getElementsByClassName('post'));
-    return Math.max(...posts.map(x => parseInt(x.id.split('-')[1], 10)));
+    const posts = Array.from(target.querySelectorAll('.post:not(.preview)'));
+    return Math.max(
+      ...posts
+        .map(x => parseInt(x.id.split('-')[1], 10))
+        .filter(x => Number.isInteger(x))
+    );
   };
 
   if (state.thread_auto_update.enabled) {
