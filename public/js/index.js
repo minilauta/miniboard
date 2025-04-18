@@ -1402,7 +1402,7 @@ function init_location_hash_features() {
       insert_ref_to_message(post_id);
       
       // reset hash to allow ref again
-      history.replaceState(null, '', '#');
+      history.replaceState(null, '', './');
     } else if (hash.length > 1) {
       create_post_highlight(hash.substring(1));
     }
