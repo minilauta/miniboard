@@ -1634,8 +1634,9 @@ function init_thread_features() {
           let tmp_div = document.createElement('div');
           tmp_div.innerHTML = data;
 
-          // validate temp div contents
-          if (!Number.isInteger(get_last_post_id(tmp_div))) {
+          // validate temp div contents (caching issues could cause same response as before)
+          const tmp_div_last_post_id = get_last_post_id(tmp_div);
+          if (!Number.isInteger(tmp_div_last_post_id) || tmp_div_last_post_id <= state.thread_auto_update.post_id_after) {
             return;
           }
 
@@ -1667,7 +1668,7 @@ function init_thread_features() {
           init_post_backreference_links();
           console.timeEnd('init_post_backreference_links');
 
-          state.thread_auto_update.post_id_after = get_last_post_id();
+          state.thread_auto_update.post_id_after = tmp_div_last_post_id;
         });
     }, 10000);
   }
