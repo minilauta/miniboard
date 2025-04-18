@@ -1613,13 +1613,18 @@ function init_thread_features() {
     if (target == null) {
       target = document;
     }
+    
+    const thread_div = target.querySelector('.thread');
+    let last_post_div = null;
+    if (thread_div != null) {
+      last_post_div = thread_div.lastElementChild.querySelector('.post:not(.preview)');
+    } else {
+      last_post_div = Array.from(target.querySelectorAll('.post:not(.preview)')).pop();
+    }
 
-    const posts = Array.from(target.querySelectorAll('.post:not(.preview)'));
-    return Math.max(
-      ...posts
-        .map(x => parseInt(x.id.split('-')[1], 10))
-        .filter(x => Number.isInteger(x))
-    );
+    return last_post_div != null
+      ? parseInt(last_post_div.id.split('-')[1], 10)
+      : null;
   };
 
   if (state.thread_auto_update.enabled) {
