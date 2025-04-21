@@ -1288,22 +1288,22 @@ function init_post_backreference_links() {
   Array.from(document.getElementsByClassName('backreference'))
     .forEach((x) => x.remove());
 
-  // get all post elements
-  let post_elements = document.getElementsByClassName('post');
+  // get all post elements, excluding previews
+  let post_elements = Array.from(document.querySelectorAll('.post:not(.preview)'));
 
   // create a lookup map of posts and array of {post, refs} objs
   let post_lookup = {};
   let post_ref_array = [];
-  Array.from(post_elements).forEach(e => {
+  post_elements.forEach(e => {
     // select the correct element from op|reply type of elements
-    let post = e.id !== '' ? e : e.getElementsByClassName('reply')[0];
+    let post = e.id !== '' ? e : e.querySelector('.reply:not(.preview)');
 
     // append post to the lookup map
     post_lookup[post.id] = post;
 
     // append to post_ref array (skip op post)
-    let post_msg_element = post.getElementsByClassName('post-message')[0];
-    let post_ref_elements = post_msg_element.getElementsByClassName('reference');
+    let post_msg_element = post.querySelector('.post-message');
+    let post_ref_elements = post_msg_element.querySelectorAll(':scope > .reference');
     if (post_ref_elements.length > 0) {
       post_ref_array.push({
         board_id: post.id.split('-')[0],
@@ -1400,7 +1400,10 @@ function init_location_hash_features() {
       }
 
       insert_ref_to_message(post_id);
-    } else {
+      
+      // reset hash to allow ref again
+      history.replaceState(null, '', './');
+    } else if (hash.length > 1) {
       create_post_highlight(hash.substring(1));
     }
   }
@@ -1610,9 +1613,18 @@ function init_thread_features() {
     if (target == null) {
       target = document;
     }
+    
+    const thread_div = target.querySelector('.thread');
+    let last_post_div = null;
+    if (thread_div != null) {
+      last_post_div = thread_div.lastElementChild.querySelector('.post:not(.preview)');
+    } else {
+      last_post_div = Array.from(target.querySelectorAll('.post:not(.preview)')).pop();
+    }
 
-    const posts = Array.from(target.getElementsByClassName('post'));
-    return Math.max(...posts.map(x => parseInt(x.id.split('-')[1], 10)));
+    return last_post_div != null
+      ? parseInt(last_post_div.id.split('-')[1], 10)
+      : null;
   };
 
   if (state.thread_auto_update.enabled) {
@@ -1630,8 +1642,9 @@ function init_thread_features() {
           let tmp_div = document.createElement('div');
           tmp_div.innerHTML = data;
 
-          // validate temp div contents
-          if (!Number.isInteger(get_last_post_id(tmp_div))) {
+          // validate temp div contents (caching issues could cause same response as before)
+          const tmp_div_last_post_id = get_last_post_id(tmp_div);
+          if (!Number.isInteger(tmp_div_last_post_id) || tmp_div_last_post_id <= state.thread_auto_update.post_id_after) {
             return;
           }
 
@@ -1663,7 +1676,7 @@ function init_thread_features() {
           init_post_backreference_links();
           console.timeEnd('init_post_backreference_links');
 
-          state.thread_auto_update.post_id_after = get_last_post_id();
+          state.thread_auto_update.post_id_after = tmp_div_last_post_id;
         });
     }, 10000);
   }
