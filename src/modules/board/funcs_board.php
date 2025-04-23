@@ -6,25 +6,6 @@ require_once __ROOT__ . '/common/config.php';
 require_once __ROOT__ . '/common/exception.php';
 require_once __ROOT__ . '/common/shared.php';
 
-
-/**
- * Returns true if user is logged in by checking session vars.
- */
-function funcs_board_is_logged_in(): bool {
-  return isset($_SESSION['mb_username']) && isset($_SESSION['mb_role']);
-}
-
-/**
- * Gets user role from session if set.
- */
-function funcs_board_get_role(): int|null {
-  if (isset($_SESSION['mb_role'])) {
-    return $_SESSION['mb_role'];
-  }
-
-  return null;
-}
-
 /**
  * Validate user access to target board.
  */
@@ -76,8 +57,8 @@ function funcs_board_create_post(string $ip, ?string $country, array $board_cfg,
 
   // handle capcode flag
   $role = null;
-  if (funcs_board_is_logged_in() && isset($input['capcode']) && $input['capcode'] == true || $board_cfg['req_role'] != null) {
-    $role = funcs_board_get_role();
+  if (funcs_common_is_logged_in() && isset($input['capcode']) && $input['capcode'] == true || $board_cfg['req_role'] != null) {
+    $role = funcs_common_get_role();
   }
 
   // generate hashed ID
@@ -91,7 +72,7 @@ function funcs_board_create_post(string $ip, ?string $country, array $board_cfg,
 
   return [
     'board_id'            => $board_cfg['id'],
-    'parent_id'           => $parent_id != null ? $parent_id : 0,
+    'parent_id'           => $parent_id,
     'req_role'            => $board_cfg['req_role'],
     'role'                => $role,
     'name'                => $name_trip[0],

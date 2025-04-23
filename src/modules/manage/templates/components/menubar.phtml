@@ -1,7 +1,7 @@
 <div id="menubar" class="menubar">
   <div id="boardmenu" class="boardmenu">
     <?php
-      $user_role = funcs_manage_get_role();
+      $user_role = funcs_common_get_role();
       
       echo $user_role === MB_ROLE_SUPERADMIN ? "[<a href='?route=rebuild'>Rebuild</a>]\n"   : '';
       echo $user_role === MB_ROLE_SUPERADMIN ? "[<a href='?route=refresh'>Refresh</a>]\n"   : '';

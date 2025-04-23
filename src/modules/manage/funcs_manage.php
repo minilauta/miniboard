@@ -37,13 +37,6 @@ function funcs_manage_login(array $account, string $password): bool {
 }
 
 /**
- * Returns true if user is logged in by checking session vars.
- */
-function funcs_manage_is_logged_in(): bool {
-  return isset($_SESSION['mb_username']) && isset($_SESSION['mb_role']);
-}
-
-/**
  * Destroys user session variables.
  */
 function funcs_manage_logout(): bool {
@@ -51,17 +44,6 @@ function funcs_manage_logout(): bool {
 
   // destroy session variables and return success code
   return session_unset();
-}
-
-/**
- * Gets user role from session if set.
- */
-function funcs_manage_get_role(): int|null {
-  if (isset($_SESSION['mb_role'])) {
-    return $_SESSION['mb_role'];
-  }
-
-  return null;
 }
 
 /**

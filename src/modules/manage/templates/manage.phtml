@@ -13,28 +13,28 @@
     <?php
       switch ($route) {
         case 'import':
-          if (funcs_manage_get_role() !== MB_ROLE_SUPERADMIN) {
+          if (funcs_common_get_role() !== MB_ROLE_SUPERADMIN) {
             throw new AppException('manage.phtml', 'inline', 'insufficient permissions', SC_FORBIDDEN);
           }
 
           echo $this->fetch('manage/importform.phtml');
           break;
         case 'rebuild':
-          if (funcs_manage_get_role() !== MB_ROLE_SUPERADMIN) {
+          if (funcs_common_get_role() !== MB_ROLE_SUPERADMIN) {
             throw new AppException('manage.phtml', 'inline', 'insufficient permissions', SC_FORBIDDEN);
           }
 
           echo $this->fetch('manage/rebuildform.phtml');
           break;
         case 'refresh':
-          if (funcs_manage_get_role() !== MB_ROLE_SUPERADMIN) {
+          if (funcs_common_get_role() !== MB_ROLE_SUPERADMIN) {
             throw new AppException('manage.phtml', 'inline', 'insufficient permissions', SC_FORBIDDEN);
           }
 
           echo $this->fetch('manage/refreshform.phtml');
           break;
         case 'accounts':
-          if (funcs_manage_get_role() !== MB_ROLE_SUPERADMIN) {
+          if (funcs_common_get_role() !== MB_ROLE_SUPERADMIN) {
             throw new AppException('manage.phtml', 'inline', 'insufficient permissions', SC_FORBIDDEN);
           }
 
@@ -66,8 +66,8 @@
 
           // process logs
           foreach ($logs as $key => &$log) {
-            $log['ip_rendered'] = funcs_manage_get_role() === MB_ROLE_SUPERADMIN ? $log['ip_str'] : '<s>REDACTED</s>';
-            $log['username_rendered'] = funcs_manage_get_role() === MB_ROLE_SUPERADMIN ? $log['username'] : '<s>REDACTED</s>';
+            $log['ip_rendered'] = funcs_common_get_role() === MB_ROLE_SUPERADMIN ? $log['ip_str'] : '<s>REDACTED</s>';
+            $log['username_rendered'] = funcs_common_get_role() === MB_ROLE_SUPERADMIN ? $log['username'] : '<s>REDACTED</s>';
           }
 
           // get log count
@@ -92,7 +92,7 @@
 
           // process bans
           foreach ($bans as $key => &$ban) {
-            $ban['ip_rendered'] = funcs_manage_get_role() === MB_ROLE_SUPERADMIN ? $ban['ip_str'] : '<s>REDACTED</s>';
+            $ban['ip_rendered'] = funcs_common_get_role() === MB_ROLE_SUPERADMIN ? $ban['ip_str'] : '<s>REDACTED</s>';
           }
 
           // get ban count
@@ -143,7 +143,7 @@
 
           // process posts (if thread returned, set thread related values)
           foreach ($posts as $key => &$post) {
-            $post['ip_rendered'] = funcs_manage_get_role() === MB_ROLE_SUPERADMIN ? $post['ip_str'] : '<s>REDACTED</s>';
+            $post['ip_rendered'] = funcs_common_get_role() === MB_ROLE_SUPERADMIN ? $post['ip_str'] : '<s>REDACTED</s>';
 
             if ($post['parent_id'] !== 0) {
               continue;
@@ -175,7 +175,7 @@
 
           // process posts
           foreach ($posts as $key => &$post) {
-            $post['ip_rendered'] = funcs_manage_get_role() === MB_ROLE_SUPERADMIN ? $post['ip_str'] : '<s>REDACTED</s>';
+            $post['ip_rendered'] = funcs_common_get_role() === MB_ROLE_SUPERADMIN ? $post['ip_str'] : '<s>REDACTED</s>';
             $post['replies'] = [];
             $post['replies_n'] = count_posts('NULL', $post['board_id'], $post['post_id'], false, false);
           }
@@ -203,8 +203,8 @@
 
           // process reports (if thread returned, set thread related values)
           foreach ($reports as $key => &$report) {
-            $report['r_ip_rendered'] = funcs_manage_get_role() === MB_ROLE_SUPERADMIN ? $report['r_ip_str'] : '<s>REDACTED</s>';
-            $report['ip_rendered'] = funcs_manage_get_role() === MB_ROLE_SUPERADMIN ? $report['ip_str'] : '<s>REDACTED</s>';
+            $report['r_ip_rendered'] = funcs_common_get_role() === MB_ROLE_SUPERADMIN ? $report['r_ip_str'] : '<s>REDACTED</s>';
+            $report['ip_rendered'] = funcs_common_get_role() === MB_ROLE_SUPERADMIN ? $report['ip_str'] : '<s>REDACTED</s>';
 
             if ($report['parent_id'] !== 0) {
               continue;

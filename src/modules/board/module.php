@@ -45,26 +45,27 @@ class BoardModule implements core\Module
 			$board_posts_per_preview = $board_cfg['posts_per_preview'];
 
 			// check board access
-			$user_role = funcs_board_get_role();
+			$user_role = funcs_common_get_role();
 			if (!funcs_board_check_access($board_cfg, $user_role)) {
 				throw new \AppException('index', 'route', 'access denied', SC_UNAUTHORIZED);
 			}
+			$session_id = session_id();
 
 			// get query params
 			$query_params = funcs_common_parse_query_str($_SERVER);
 			$query_page = funcs_common_parse_input_int($query_params, 'page', 0, 0, 1000);
 
 			// get threads
-			$threads = select_posts(session_id(), $user_role, $board_query_id, 0, true, $board_threads_per_page * $query_page, $board_threads_per_page, false);
+			$threads = select_threads($session_id, $user_role, $board_query_id, true, $board_threads_per_page * $query_page, $board_threads_per_page, false);
 
 			// get replies
 			foreach ($threads as $key => $thread) {
-				$threads[$key]['replies'] = select_posts_preview('NULL', $thread['board_id'], $thread['post_id'], 0, $board_posts_per_preview);
-				$threads[$key]['replies_n'] = count_posts('NULL', $thread['board_id'], $thread['post_id'], false, false);
+				$threads[$key]['replies'] = select_replies_preview($session_id, $thread['board_id'], $thread['post_id'], 0, $board_posts_per_preview);
+				$threads[$key]['replies_n'] = count_posts('NULL', $thread['board_id'], $thread['post_id'], false);
 			}
 
 			// get thread count
-			$threads_n = count_posts(session_id(), $board_query_id, 0, false);
+			$threads_n = count_threads($session_id, $board_query_id, false);
 
 			echo $this->renderer->render(__DIR__ . '/templates/board.phtml', [
 				'board' => $board_cfg,
@@ -81,17 +82,18 @@ class BoardModule implements core\Module
 			$board_threads_per_catalog_page = $board_cfg['threads_per_catalog_page'];
 
 			// check board access
-			$user_role = funcs_board_get_role();
+			$user_role = funcs_common_get_role();
 			if (!funcs_board_check_access($board_cfg, $user_role)) {
 				throw new \AppException('index', 'route', 'access denied', SC_UNAUTHORIZED);
 			}
+			$session_id = session_id();
 
 			// get query params
 			$query_params = funcs_common_parse_query_str($_SERVER);
 			$query_page = funcs_common_parse_input_int($query_params, 'page', 0, 0, 1000);
 
 			// get threads
-			$threads = select_posts(session_id(), $user_role, $board_query_id, 0, true, $board_threads_per_catalog_page * $query_page, $board_threads_per_catalog_page, false);
+			$threads = select_threads($session_id, $user_role, $board_query_id, true, $board_threads_per_catalog_page * $query_page, $board_threads_per_catalog_page, false);
 
 			// get thread metadata
 			// TODO: file counts, etc...
@@ -100,7 +102,7 @@ class BoardModule implements core\Module
 			}
 
 			// get thread count
-			$threads_n = count_posts(session_id(), $board_query_id, 0, false);
+			$threads_n = count_threads($session_id, $board_query_id, false);
 
 			echo $this->renderer->render(__DIR__ . '/templates/catalog.phtml', [
 				'board' => $board_cfg,
@@ -117,26 +119,27 @@ class BoardModule implements core\Module
 			$board_threads_per_page = $board_cfg['threads_per_page'];
 
 			// check board access
-			$user_role = funcs_board_get_role();
+			$user_role = funcs_common_get_role();
 			if (!funcs_board_check_access($board_cfg, $user_role)) {
 				throw new \AppException('index', 'route', 'access denied', SC_UNAUTHORIZED);
 			}
+			$session_id = session_id();
 
 			// get query params
 			$query_params = funcs_common_parse_query_str($_SERVER);
 			$query_page = funcs_common_parse_input_int($query_params, 'page', 0, 0, 1000);
 
 			// get threads
-			$threads = select_posts(session_id(), $user_role, $board_query_id, 0, true, $board_threads_per_page * $query_page, $board_threads_per_page, true);
+			$threads = select_threads($session_id, $user_role, $board_query_id, true, $board_threads_per_page * $query_page, $board_threads_per_page, true);
 
 			// do not show replies for hidden threads
 			foreach ($threads as $key => $thread) {
 				$threads[$key]['replies'] = [];
-				$threads[$key]['replies_n'] = count_posts('NULL', $thread['board_id'], $thread['post_id'], false, false);
+				$threads[$key]['replies_n'] = count_posts('NULL', $thread['board_id'], $thread['post_id'], false);
 			}
 
 			// get thread count
-			$threads_n = count_posts(session_id(), $board_query_id, 0, true);
+			$threads_n = count_threads($session_id, $board_query_id, true);
 
 			echo $this->renderer->render(__DIR__ . '/templates/hidden.phtml', [
 				'board' => $board_cfg,
@@ -151,21 +154,22 @@ class BoardModule implements core\Module
 			$board_cfg = funcs_common_get_board_cfg($vars['board_id']);
 
 			// check board access
-			$user_role = funcs_board_get_role();
+			$user_role = funcs_common_get_role();
 			if (!funcs_board_check_access($board_cfg, $user_role)) {
 				throw new \AppException('index', 'route', 'access denied', SC_UNAUTHORIZED);
 			}
+			$session_id = session_id();
 
 			// get thread
 			$thread = select_post($board_cfg['id'], $vars['thread_id']);
 			if ($thread == null) {
 				throw new \AppException('index', 'route', "thread with ID /{$board_cfg['id']}/{$vars['thread_id']} not found", SC_NOT_FOUND);
-			} else if ($thread['parent_id'] !== 0) {
+			} else if ($thread['parent_id'] != null) {
 				throw new \AppException('index', 'route', 'not a valid thread', SC_BAD_REQUEST);
 			}
 
 			// get replies
-			$thread['replies'] = select_posts(session_id(), $user_role, $thread['board_id'], $thread['post_id'], false, 0, 9001, false);
+			$thread['replies'] = select_posts($session_id, $user_role, $thread['board_id'], $thread['post_id'], false, 0, 9001);
 
 			echo $this->renderer->render(__DIR__ . '/templates/thread.phtml', [
 				'board' => $board_cfg,
@@ -178,10 +182,11 @@ class BoardModule implements core\Module
 			$board_cfg = funcs_common_get_board_cfg($vars['board_id']);
 
 			// check board access
-			$user_role = funcs_board_get_role();
+			$user_role = funcs_common_get_role();
 			if (!funcs_board_check_access($board_cfg, $user_role)) {
 				throw new \AppException('index', 'route', 'access denied', SC_UNAUTHORIZED);
 			}
+			$session_id = session_id();
 
 			// get query params
 			$query_params = funcs_common_parse_query_str($_SERVER);
@@ -191,12 +196,12 @@ class BoardModule implements core\Module
 			$thread = select_post($board_cfg['id'], $vars['thread_id']);
 			if ($thread == null) {
 				throw new \AppException('index', 'route', "thread with ID /{$board_cfg['id']}/{$vars['thread_id']} not found", SC_NOT_FOUND);
-			} else if ($thread['parent_id'] !== 0) {
+			} else if ($thread['parent_id'] != null) {
 				throw new \AppException('index', 'route', 'not a valid thread', SC_BAD_REQUEST);
 			}
 
 			// get replies
-			$posts = select_replies_after($user_role, $thread['board_id'], $thread['post_id'], $query_post_id_after, false, 0, 9001, false);
+			$posts = select_replies_after($session_id, $user_role, $thread['board_id'], $thread['post_id'], $query_post_id_after, false, 0, 9001);
 
 			echo $this->renderer->render(__DIR__ . '/templates/replies.phtml', [
 				'board' => $board_cfg,
@@ -209,7 +214,7 @@ class BoardModule implements core\Module
 			$board_cfg = funcs_common_get_board_cfg($vars['board_id']);
 
 			// check board access
-			$user_role = funcs_board_get_role();
+			$user_role = funcs_common_get_role();
 			if (!funcs_board_check_access($board_cfg, $user_role)) {
 				throw new \AppException('index', 'route', 'access denied', SC_UNAUTHORIZED);
 			}
@@ -231,7 +236,7 @@ class BoardModule implements core\Module
 			$board_cfg = funcs_common_get_board_cfg($vars['board_id']);
 
 			// check board access
-			if (!funcs_board_check_access($board_cfg, funcs_board_get_role())) {
+			if (!funcs_board_check_access($board_cfg, funcs_common_get_role())) {
 				throw new \AppException('index', 'route', 'access denied', SC_UNAUTHORIZED);
 			}
 
@@ -341,14 +346,15 @@ class BoardModule implements core\Module
 			$board_cfg = funcs_common_get_board_cfg($vars['board_id']);
 
 			// check board access
-			if (!funcs_board_check_access($board_cfg, funcs_board_get_role())) {
+			if (!funcs_board_check_access($board_cfg, funcs_common_get_role())) {
 				throw new \AppException('index', 'route', 'access denied', SC_UNAUTHORIZED);
 			}
+			$session_id = session_id();
 
 			// toggle hide
-			$hide = select_hide(session_id(), $board_cfg['id'], $vars['post_id']);
+			$hide = select_hide($session_id, $board_cfg['id'], $vars['post_id']);
 			if ($hide == null) {
-				$hide = funcs_board_create_hide(session_id(), $board_cfg['id'], $vars['post_id']);
+				$hide = funcs_board_create_hide($session_id, $board_cfg['id'], $vars['post_id']);
 				insert_hide($hide);
 			} else {
 				delete_hide($hide);
@@ -362,7 +368,7 @@ class BoardModule implements core\Module
 			$board_cfg = funcs_common_get_board_cfg($vars['board_id']);
 
 			// check board access
-			if (!funcs_board_check_access($board_cfg, funcs_board_get_role())) {
+			if (!funcs_board_check_access($board_cfg, funcs_common_get_role())) {
 				throw new \AppException('index', 'route', 'access denied', SC_UNAUTHORIZED);
 			}
 
@@ -396,27 +402,27 @@ class BoardModule implements core\Module
 			$board_cfg = funcs_common_get_board_cfg($vars['board_id']);
 
 			// check board access
-			if (!funcs_board_check_access($board_cfg, funcs_board_get_role())) {
+			if (!funcs_board_check_access($board_cfg, funcs_common_get_role())) {
 				echo $this->renderer->render(__DIR__ . '/templates/components/post_preview_null.phtml', [
-				'error_code' => 401,
-				'error_title' => 'Unauthorized',
-				'message' => "post with ID /{$board_cfg['id']}/{$vars['thread_id']}/{$vars['post_id']} access denied"
+					'error_code' => 401,
+					'error_title' => 'Unauthorized',
+					'message' => "post with ID /{$board_cfg['id']}/{$vars['thread_id']}/{$vars['post_id']} access denied"
 				]);
 				return;
 			}
 
 			// get post
 			$post = select_post($board_cfg['id'], $vars['post_id']);
-			if ($post == null || ($post['parent_id'] !== 0 && $post['parent_id'] != $vars['thread_id'])) {
+			if ($post == null || ($post['parent_id'] != null && $post['parent_id'] != $vars['thread_id'])) {
 				echo $this->renderer->render(__DIR__ . '/templates/components/post_preview_null.phtml', [
-				'error_code' => 404,
-				'error_title' => 'Not Found',
-				'message' => "post with ID /{$board_cfg['id']}/{$vars['thread_id']}/{$vars['post_id']} not found"
+					'error_code' => 404,
+					'error_title' => 'Not Found',
+					'message' => "post with ID /{$board_cfg['id']}/{$vars['thread_id']}/{$vars['post_id']} not found"
 				]);
 				return;
 			}
 
-			echo $this->renderer->render(__DIR__ . '/templates/components/' . ($post['parent_id'] === 0 ? 'post_preview_op.phtml' : 'post_preview_reply.phtml'), [
+			echo $this->renderer->render(__DIR__ . '/templates/components/' . ($post['parent_id'] == null ? 'post_preview_op.phtml' : 'post_preview_reply.phtml'), [
 				'post' => $post
 			]);
 		});
@@ -433,7 +439,7 @@ class BoardModule implements core\Module
 		$board_cfg = funcs_common_get_board_cfg($vars['board_id']);
 	
 		// check board access
-		if (!funcs_board_check_access($board_cfg, funcs_board_get_role())) {
+		if (!funcs_board_check_access($board_cfg, funcs_common_get_role())) {
 			throw new \AppException('index', 'route', 'access denied', SC_UNAUTHORIZED);
 		}
 	
@@ -444,7 +450,7 @@ class BoardModule implements core\Module
 			$user_country = funcs_common_get_client_remote_country(MB_CLOUDFLARE, $_SERVER);
 		}
 		$user_last_post_by_ip = select_last_post_by_ip($user_ip);
-		$user_is_logged_in = funcs_board_is_logged_in();
+		$user_is_logged_in = funcs_common_is_logged_in();
 	
 		// clean some request fields (UNICODE icons)
 		$_POST['name'] = funcs_common_clean_unicode($_POST['name']);
@@ -499,7 +505,7 @@ class BoardModule implements core\Module
 		$thread_id = null;
 		if (isset($vars['thread_id'])) {
 			$parent = select_post($board_cfg['id'], $vars['thread_id']);
-			if ($parent != null && $parent['parent_id'] > 0) {
+			if ($parent != null && $parent['parent_id'] != null) {
 				throw new \AppException('index', 'route', "thread with ID /{$board_cfg['id']}/{$vars['thread_id']} not found", SC_NOT_FOUND);
 			} else if ($parent != null) {
 				if ($parent['locked'] !== 0 && !$user_is_logged_in) {
@@ -574,8 +580,8 @@ class BoardModule implements core\Module
 		// bump thread
 		$email_split = array_map(fn($val): string => strtolower($val), explode(' ', $post['email']));
 		$thread_bumped = false;
-		if ($post['parent_id'] !== 0 && !in_array('sage', $email_split)) {
-			$thread_replies_n = count_posts('NULL', $post['board_id'], $post['parent_id'], false, false);
+		if ($post['parent_id'] != null && !in_array('sage', $email_split)) {
+			$thread_replies_n = count_posts('NULL', $post['board_id'], $post['parent_id'], false);
 			if ($thread_replies_n <= $board_cfg['max_replies']) {
 				$thread_bumped = bump_thread($post['board_id'], $post['parent_id']);
 			}
@@ -614,14 +620,14 @@ class BoardModule implements core\Module
 				insert_log('127.0.0.1', time(), 'CSAM-scanner', $csam_match_log_msg);
 		
 				// hide the post automatically
-				delete_post($board_cfg['id'], $inserted_post_id, false);
+				delete_post($board_cfg['id'], $inserted_post_id);
 			}
 		}
 	
 		// handle noko
 		$redirect_url = '/' . $board_cfg['id'] . '/';
 		if (in_array('noko', $email_split) || $board_cfg['alwaysnoko']) {
-			$redirect_url .= ($post['parent_id'] === 0 ? $inserted_post_id : $post['parent_id']) . '/#' . $post['board_id'] . '-' . $inserted_post_id;
+			$redirect_url .= ($post['parent_id'] == null ? $inserted_post_id : $post['parent_id']) . '/#' . $post['board_id'] . '-' . $inserted_post_id;
 		}
 
 		return [
@@ -638,7 +644,7 @@ class BoardModule implements core\Module
 		$board_cfg = funcs_common_get_board_cfg($vars['board_id']);
 
 		// check board access
-		if (!funcs_board_check_access($board_cfg, funcs_board_get_role())) {
+		if (!funcs_board_check_access($board_cfg, funcs_common_get_role())) {
 			throw new \AppException('index', 'route', 'access denied', SC_UNAUTHORIZED);
 		}
 
@@ -659,7 +665,7 @@ class BoardModule implements core\Module
 			$board_cfg = funcs_common_get_board_cfg($delete_board_id);
 
 			// check board access
-			if (!funcs_board_check_access($board_cfg, funcs_board_get_role())) {
+			if (!funcs_board_check_access($board_cfg, funcs_common_get_role())) {
 				throw new \AppException('index', 'route', 'access denied', SC_UNAUTHORIZED);
 			}
 
@@ -675,9 +681,9 @@ class BoardModule implements core\Module
 			}
 
 			// validate timeframe if post is a thread
-			if ($post['parent_id'] === 0) {
+			if ($post['parent_id'] == null) {
 				$timeframe_reply_limit = MB_TIMEFRAME_REPLY_LIMIT;
-				$thread_replies_n = count_posts('NULL', $post['board_id'], $post['post_id'], false, false);
+				$thread_replies_n = count_posts('NULL', $post['board_id'], $post['post_id'], false);
 				if (MB_TIMEFRAME > 0 && $thread_replies_n > $timeframe_reply_limit) {
 					$timeframe_in_seconds = MB_TIMEFRAME;
 					if (time() - $post['timestamp'] > $timeframe_in_seconds) {
@@ -694,8 +700,8 @@ class BoardModule implements core\Module
 
 			// debump if deleted post was a reply
 			$thread_bumped = false;
-			if ($post['parent_id'] > 0) {
-				$thread_replies_n = count_posts('NULL', $post['board_id'], $post['parent_id'], false, false);
+			if ($post['parent_id'] != null) {
+				$thread_replies_n = count_posts('NULL', $post['board_id'], $post['parent_id'], false);
 				if ($thread_replies_n <= $board_cfg['max_replies']) {
 					$thread_bumped = bump_thread($post['board_id'], $post['parent_id']);
 				}

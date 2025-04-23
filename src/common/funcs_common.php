@@ -27,6 +27,24 @@ function funcs_common_get_board_cfg(string $board_id): array {
 }
 
 /**
+ * Returns true if user is logged in by checking session vars.
+ */
+function funcs_common_is_logged_in(): bool {
+  return isset($_SESSION['mb_username']) && isset($_SESSION['mb_role']);
+}
+
+/**
+ * Gets user role from session if set.
+ */
+function funcs_common_get_role(): int|null {
+  if (isset($_SESSION['mb_role'])) {
+    return $_SESSION['mb_role'];
+  }
+
+  return null;
+}
+
+/**
  * Validates form fields based on a set of simple validation rules, throws on errors.
  */
 function funcs_common_validate_fields(array $input, array $fields) {
@@ -435,7 +453,7 @@ function funcs_common_delete_post(string $board_id, int $post_id): array {
 
     // debump if deleted post was a reply
     $thread_bumped = false;
-    if ($post['parent_id'] > 0) {
+    if ($post['parent_id'] != null) {
       $thread_replies_n = count_posts('NULL', $post['board_id'], $post['parent_id'], false, false);
       if ($thread_replies_n <= $board_cfg['max_replies']) {
         $thread_bumped = bump_thread($post['board_id'], $post['parent_id']);

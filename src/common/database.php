@@ -130,7 +130,7 @@ function cleanup_bans(): int {
 // POST related functions below
 // ----------------------------
 
-function init_post_auto_increment(string $board_id) {
+function init_post_auto_increment(string $board_id): void {
   $dbh = get_db_handle();
   $tbl = 'posts_' . $board_id . '_serial';
   $sth = $dbh->prepare('
@@ -163,7 +163,7 @@ function generate_post_auto_increment(string $board_id): int {
   return intval($dbh->lastInsertId());
 }
 
-function refresh_post_auto_increment(string $board_id) {
+function refresh_post_auto_increment(string $board_id): void {
   $dbh = get_db_handle();
 
   // get next auto_increment id
@@ -184,13 +184,12 @@ function refresh_post_auto_increment(string $board_id) {
   }
 }
 
-function select_post(string $board_id, int $post_id, bool $deleted = false): array|bool {
+function select_post(string $board_id, int $post_id): array|bool {
   $dbh = get_db_handle();
-  $sth = $dbh->prepare('SELECT * FROM posts WHERE board_id = :board_id AND post_id = :post_id AND deleted = :deleted');
+  $sth = $dbh->prepare('SELECT * FROM posts WHERE board_id = :board_id AND post_id = :post_id');
   $sth->execute([
     'board_id' => $board_id,
     'post_id' => $post_id,
-    'deleted' => $deleted ? 1 : 0
   ]);
   return $sth->fetch();
 }
@@ -207,26 +206,22 @@ function select_last_post_by_ip(string $ip): array|bool {
   return $sth->fetch();
 }
 
-function select_posts(string $session_id, ?int $user_role, ?string $board_id, int $parent_id = 0, bool $desc = true, int $offset = 0, int $limit = 10, bool $hidden = false, bool $deleted = false): array|bool {
+function select_threads(string $session_id, ?int $user_role, ?string $board_id, bool $desc = true, int $offset = 0, int $limit = 10, bool $hidden = false): array|bool {
   $dbh = get_db_handle();
   $sth = null;
   if ($board_id != null) {
     $sth = $dbh->prepare('
       SELECT * FROM posts
-      WHERE board_id = :board_id AND parent_id = :parent_id AND post_id ' . ($hidden === true ? '' : 'NOT') . ' IN (
+      WHERE board_id = :board_id AND parent_id IS NULL AND post_id ' . ($hidden === true ? '' : 'NOT') . ' IN (
         SELECT post_id FROM hides WHERE session_id = :session_id AND board_id = posts.board_id
-      ) AND deleted = :deleted
-      AND (
-        req_role IS NULL OR (:user_role_1 IS NOT NULL AND :user_role_2 <= req_role)
       )
+      AND (req_role IS NULL OR (:user_role_1 IS NOT NULL AND :user_role_2 <= req_role))
       ORDER BY stickied DESC, bumped ' . ($desc === true ? 'DESC' : 'ASC') . '
       LIMIT :limit OFFSET :offset
     ');
     $sth->execute([
       'session_id' => $session_id,
       'board_id' => $board_id,
-      'parent_id' => $parent_id,
-      'deleted' => $deleted ? 1 : 0,
       'user_role_1' => $user_role,
       'user_role_2' => $user_role,
       'limit' => $limit,
@@ -235,19 +230,15 @@ function select_posts(string $session_id, ?int $user_role, ?string $board_id, in
   } else {
     $sth = $dbh->prepare('
       SELECT * FROM posts
-      WHERE parent_id = :parent_id AND post_id ' . ($hidden === true ? '' : 'NOT') . ' IN (
+      WHERE parent_id IS NULL AND post_id ' . ($hidden === true ? '' : 'NOT') . ' IN (
         SELECT post_id FROM hides WHERE session_id = :session_id AND board_id = posts.board_id
-      ) AND deleted = :deleted
-      AND (
-        req_role IS NULL OR (:user_role_1 IS NOT NULL AND :user_role_2 <= req_role)
       )
+      AND (req_role IS NULL OR (:user_role_1 IS NOT NULL AND :user_role_2 <= req_role))
       ORDER BY bumped ' . ($desc === true ? 'DESC' : 'ASC') . '
       LIMIT :limit OFFSET :offset
     ');
     $sth->execute([
       'session_id' => $session_id,
-      'parent_id' => $parent_id,
-      'deleted' => $deleted ? 1 : 0,
       'user_role_1' => $user_role,
       'user_role_2' => $user_role,
       'limit' => $limit,
@@ -257,23 +248,23 @@ function select_posts(string $session_id, ?int $user_role, ?string $board_id, in
   return $sth->fetchAll();
 }
 
-function select_replies_after(?int $user_role, string $board_id, int $parent_id, int $post_id, bool $desc = true, int $offset = 0, int $limit = 10, bool $deleted = false): array|bool {
+function select_posts(string $session_id, ?int $user_role, string $board_id, int $parent_id, bool $desc = true, int $offset = 0, int $limit = 10): array|bool {
   $dbh = get_db_handle();
-  $sth = null;
   $sth = $dbh->prepare('
-    SELECT * FROM posts
-    WHERE board_id = :board_id AND parent_id = :parent_id AND post_id > :post_id AND deleted = :deleted
-    AND (
-      req_role IS NULL OR (:user_role_1 IS NOT NULL AND :user_role_2 <= req_role)
-    )
-    ORDER BY stickied DESC, bumped ' . ($desc === true ? 'DESC' : 'ASC') . '
+    SELECT
+      p.*,
+      h.post_id IS NOT NULL AS hidden
+    FROM posts AS p
+    LEFT JOIN hides AS h ON h.session_id = :session_id AND h.board_id = p.board_id AND h.post_id = p.post_id
+    WHERE p.board_id = :board_id AND p.parent_id = :parent_id
+    AND (p.req_role IS NULL OR (:user_role_1 IS NOT NULL AND :user_role_2 <= p.req_role))
+    ORDER BY p.stickied DESC, p.bumped ' . ($desc === true ? 'DESC' : 'ASC') . '
     LIMIT :limit OFFSET :offset
   ');
   $sth->execute([
+    'session_id' => $session_id,
     'board_id' => $board_id,
     'parent_id' => $parent_id,
-    'post_id' => $post_id,
-    'deleted' => $deleted ? 1 : 0,
     'user_role_1' => $user_role,
     'user_role_2' => $user_role,
     'limit' => $limit,
@@ -282,31 +273,86 @@ function select_replies_after(?int $user_role, string $board_id, int $parent_id,
   return $sth->fetchAll();
 }
 
-function select_posts_preview(string $session_id, string $board_id, int $parent_id = 0, int $offset = 0, int $limit = 10, bool $deleted = false): array|bool {
+function select_replies_after(string $session_id, ?int $user_role, string $board_id, int $parent_id, int $post_id, bool $desc = true, int $offset = 0, int $limit = 10): array|bool {
   $dbh = get_db_handle();
   $sth = $dbh->prepare('
-    SELECT t.* FROM (
-      SELECT * FROM posts
-      WHERE board_id = :board_id AND parent_id = :parent_id AND post_id NOT IN (
-        SELECT post_id FROM hides WHERE session_id = :session_id AND board_id = posts.board_id
-      ) AND deleted = :deleted
-      ORDER BY bumped DESC
-      LIMIT :limit OFFSET :offset
-    ) AS t
-    ORDER BY bumped ASC
+    SELECT
+      p.*,
+      h.post_id IS NOT NULL AS hidden
+    FROM posts AS p
+    LEFT JOIN hides AS h ON h.session_id = :session_id AND h.board_id = p.board_id AND h.post_id = p.post_id
+    WHERE p.board_id = :board_id AND p.parent_id = :parent_id AND p.post_id > :post_id
+    AND (p.req_role IS NULL OR (:user_role_1 IS NOT NULL AND :user_role_2 <= p.req_role))
+    ORDER BY p.stickied DESC, p.bumped ' . ($desc === true ? 'DESC' : 'ASC') . '
+    LIMIT :limit OFFSET :offset
   ');
   $sth->execute([
     'session_id' => $session_id,
     'board_id' => $board_id,
     'parent_id' => $parent_id,
-    'deleted' => $deleted ? 1 : 0,
+    'post_id' => $post_id,
+    'user_role_1' => $user_role,
+    'user_role_2' => $user_role,
     'limit' => $limit,
     'offset' => $offset
   ]);
   return $sth->fetchAll();
 }
 
-function count_posts(string $session_id, ?string $board_id, int $parent_id, bool $hidden = false, bool $deleted = false): int|bool {
+function select_replies_preview(string $session_id, string $board_id, ?int $parent_id, int $offset = 0, int $limit = 10): array|bool {
+  $dbh = get_db_handle();
+  $sth = $dbh->prepare('
+    SELECT t.* FROM (
+      SELECT
+        p.*,
+        h.post_id IS NOT NULL AS hidden
+      FROM posts AS p
+      LEFT JOIN hides AS h ON h.session_id = :session_id AND h.board_id = p.board_id AND h.post_id = p.post_id
+      WHERE p.board_id = :board_id AND p.parent_id = :parent_id
+      ORDER BY p.bumped DESC
+      LIMIT :limit OFFSET :offset
+    ) AS t
+    ORDER BY t.bumped ASC
+  ');
+  $sth->execute([
+    'session_id' => $session_id,
+    'board_id' => $board_id,
+    'parent_id' => $parent_id,
+    'limit' => $limit,
+    'offset' => $offset
+  ]);
+  return $sth->fetchAll();
+}
+
+function count_threads(string $session_id, ?string $board_id, bool $hidden = false): int|bool {
+  $dbh = get_db_handle();
+  $sth = null;
+  if ($board_id != null) {
+    $sth = $dbh->prepare('
+      SELECT COUNT(*) FROM posts
+      WHERE board_id = :board_id AND parent_id IS NULL AND post_id ' . ($hidden === true ? '' : 'NOT') . ' IN (
+        SELECT post_id FROM hides WHERE session_id = :session_id AND board_id = posts.board_id
+      )
+    ');
+    $sth->execute([
+      'board_id' => $board_id,
+      'session_id' => $session_id,
+    ]);
+  } else {
+    $sth = $dbh->prepare('
+      SELECT COUNT(*) FROM posts
+      WHERE parent_id IS NULL AND post_id ' . ($hidden === true ? '' : 'NOT') . ' IN (
+        SELECT post_id FROM hides WHERE session_id = :session_id AND board_id = posts.board_id
+      )
+    ');
+    $sth->execute([
+      'session_id' => $session_id,
+    ]);
+  }
+  return $sth->fetchColumn();
+}
+
+function count_posts(string $session_id, ?string $board_id, int $parent_id, bool $hidden = false): int|bool {
   $dbh = get_db_handle();
   $sth = null;
   if ($board_id != null) {
@@ -314,25 +360,23 @@ function count_posts(string $session_id, ?string $board_id, int $parent_id, bool
       SELECT COUNT(*) FROM posts
       WHERE board_id = :board_id AND parent_id = :parent_id AND post_id ' . ($hidden === true ? '' : 'NOT') . ' IN (
         SELECT post_id FROM hides WHERE session_id = :session_id AND board_id = posts.board_id
-      ) AND deleted = :deleted
+      )
     ');
     $sth->execute([
-      'session_id' => $session_id,
       'board_id' => $board_id,
       'parent_id' => $parent_id,
-      'deleted' => $deleted ? 1 : 0
+      'session_id' => $session_id,
     ]);
   } else {
     $sth = $dbh->prepare('
       SELECT COUNT(*) FROM posts
       WHERE parent_id = :parent_id AND post_id ' . ($hidden === true ? '' : 'NOT') . ' IN (
         SELECT post_id FROM hides WHERE session_id = :session_id AND board_id = posts.board_id
-      ) AND deleted = :deleted
+      )
     ');
     $sth->execute([
-      'session_id' => $session_id,
       'parent_id' => $parent_id,
-      'deleted' => $deleted ? 1 : 0
+      'session_id' => $session_id,
     ]);
   }
   return $sth->fetchColumn();
@@ -422,20 +466,16 @@ function insert_post($post): int|bool {
   return $sth->fetchColumn();
 }
 
-function delete_post(string $board_id, int $post_id, bool $delete = false): bool {
+function delete_post(string $board_id, int $post_id): bool {
   $dbh = get_db_handle();
-  $sth = null;
-  if ($delete) {
-    $sth = $dbh->prepare('DELETE FROM posts WHERE board_id = :board_id AND post_id = :post_id');
-  } else {
-    $sth = $dbh->prepare('UPDATE posts SET deleted = 1 WHERE board_id = :board_id AND post_id = :post_id');
-  }
+  $sth = $dbh->prepare('DELETE FROM posts WHERE board_id = :board_id AND post_id = :post_id');
   return $sth->execute([
     'board_id' => $board_id,
     'post_id' => $post_id
   ]);
 }
 
+// TODO: improve this, shit query, was I drunk??
 function bump_thread(string $board_id, int $post_id): bool {
   $dbh = get_db_handle();
   $sth = $dbh->prepare('
@@ -448,13 +488,13 @@ function bump_thread(string $board_id, int $post_id): bool {
         (
           p.board_id = :board_id_1 AND p.parent_id = :post_id_1
           OR
-          p.board_id = :board_id_2 AND p.post_id = :post_id_2 AND p.parent_id = 0
+          p.board_id = :board_id_2 AND p.post_id = :post_id_2 AND p.parent_id IS NULL
         )
         AND p.deleted = 0
       ORDER BY p.timestamp DESC
       LIMIT 1
     )
-    WHERE t.board_id = :board_id_3 AND t.post_id = :post_id_3 AND t.parent_id = 0
+    WHERE t.board_id = :board_id_3 AND t.post_id = :post_id_3 AND t.parent_id IS NULL
   ');
   return $sth->execute([
     'board_id_1' => $board_id,
@@ -502,7 +542,7 @@ function select_threads_past_offset(string $board_id, int $offset = 100, int $li
       board_id
     FROM posts
     WHERE
-      board_id = :board_id AND parent_id = 0
+      board_id = :board_id AND parent_id IS NULL
     ORDER BY stickied DESC, bumped DESC
     LIMIT :limit OFFSET :offset
   ');
@@ -722,7 +762,7 @@ function select_all_posts(bool $desc = true, int $offset = 0, int $limit = 10): 
       *,
       INET6_NTOA(ip) AS ip_str
     FROM posts
-    WHERE parent_id != 0
+    WHERE parent_id IS NOT NULL
     ORDER BY timestamp ' . ($desc === true ? 'DESC' : 'ASC') . '
     LIMIT :limit OFFSET :offset
   ');
@@ -735,7 +775,7 @@ function select_all_posts(bool $desc = true, int $offset = 0, int $limit = 10): 
 
 function count_all_posts() : int|bool {
   $dbh = get_db_handle();
-  $sth = $dbh->prepare('SELECT COUNT(*) FROM posts');
+  $sth = $dbh->prepare('SELECT COUNT(*) FROM posts WHERE parent_id IS NOT NULL');
   $sth->execute();
   return $sth->fetchColumn();
 }
@@ -747,7 +787,7 @@ function select_all_threads(bool $desc = true, int $offset = 0, int $limit = 10)
       *,
       INET6_NTOA(ip) AS ip_str
     FROM posts
-    WHERE parent_id = 0
+    WHERE parent_id IS NULL
     ORDER BY timestamp ' . ($desc === true ? 'DESC' : 'ASC') . '
     LIMIT :limit OFFSET :offset
   ');
@@ -760,7 +800,7 @@ function select_all_threads(bool $desc = true, int $offset = 0, int $limit = 10)
 
 function count_all_threads(): int|bool {
   $dbh = get_db_handle();
-  $sth = $dbh->prepare('SELECT COUNT(*) FROM posts WHERE parent_id = 0');
+  $sth = $dbh->prepare('SELECT COUNT(*) FROM posts WHERE parent_id IS NULL');
   $sth->execute();
   return $sth->fetchColumn();
 }
@@ -882,7 +922,7 @@ function toggle_post_locked(string $board_id, int $post_id): int {
     UPDATE posts
     SET
       locked = !locked
-    WHERE board_id = :board_id AND post_id = :post_id AND parent_id = 0
+    WHERE board_id = :board_id AND post_id = :post_id AND parent_id IS NULL
   ');
   $sth->execute([
     'board_id' => $board_id,
@@ -897,7 +937,7 @@ function toggle_post_stickied(string $board_id, int $post_id): int {
     UPDATE posts
     SET
       stickied = !stickied
-    WHERE board_id = :board_id AND post_id = :post_id AND parent_id = 0
+    WHERE board_id = :board_id AND post_id = :post_id
   ');
   $sth->execute([
     'board_id' => $board_id,

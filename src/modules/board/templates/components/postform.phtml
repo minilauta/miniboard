@@ -18,7 +18,7 @@
         </td>
       </tr>
       <?php
-        if (funcs_board_is_logged_in()) {
+        if (funcs_common_is_logged_in()) {
           if ($board['req_role'] == null) {
             echo "
             <tr>
@@ -78,7 +78,7 @@
       </tr>
       <?php
         // captcha check
-        if (!funcs_board_is_logged_in()) {
+        if (!funcs_common_is_logged_in()) {
           if ($context === 'board' && MB_CAPTCHA_THREAD || $context === 'thread' && MB_CAPTCHA_REPLY) {
             $captcha = MB_CAPTCHA_HCAPTCHA_SITE;
 
