@@ -1283,78 +1283,72 @@ function init_post_reference_links(target) {
  * Initializes all post backreference links, cleans up existing first.
  * @param {*} target 
  */
-function init_post_backreference_links() {
-  // clear existing backreference links
-  Array.from(document.getElementsByClassName('backreference'))
-    .forEach((x) => x.remove());
-
-  // get all post elements, excluding previews
-  let post_elements = Array.from(document.querySelectorAll('.post:not(.preview)'));
-
-  // create a lookup map of posts and array of {post, refs} objs
-  let post_lookup = {};
-  let post_ref_array = [];
-  post_elements.forEach(e => {
-    // select the correct element from op|reply type of elements
-    let post = e.id !== '' ? e : e.querySelector('.reply:not(.preview)');
-
-    // append post to the lookup map
-    post_lookup[post.id] = post;
-
-    // append to post_ref array (skip op post)
-    let post_msg_element = post.querySelector('.post-message');
-    let post_ref_elements = post_msg_element.querySelectorAll(':scope > .reference');
-    if (post_ref_elements.length > 0) {
-      post_ref_array.push({
-        board_id: post.id.split('-')[0],
-        parent_id: post.dataset.parent_id,
-        post_id: post.id.split('-')[1],
-        refs: post_ref_elements
-      });
+function init_post_backreference_links(newPosts) {
+  console.time("** find post ids whose backreferences to modify");
+  // find post ids with new links to them
+  let target_to_sources = {}; // "int-12345" -> {id, ref}[]
+  for (let np of newPosts || [document]) {
+    for (let ql of np.querySelectorAll('.post:not(.preview) a.reference')) {
+      // .board_id is board being linked to
+      // .parent_id is the target thread id (if not OP)
+      // .id is the postnum being linked to
+      let sourceId = ql.closest('.post').id;
+      let targetId = ql.dataset.board_id + "-" + ql.dataset.id;
+      let sources = (target_to_sources[targetId] = (target_to_sources[targetId] || []));
+      if (!sources.find((s) => s.id === sourceId))
+        sources.push({
+          id: sourceId,
+          ref: ql,
+        });
     }
-  });
+  }
+  console.timeEnd("** find post ids whose backreferences to modify");
 
-  // insert backreference links to posts
-  for (let i = 0; i < post_ref_array.length; i++) {
-    const post_ref_obj = post_ref_array[i];
+  let num_notfound = 0;
+  let num_added = 0;
+  console.time("** add backreferences");
+  for (let targetId in target_to_sources) {
+    let target = document.getElementById(targetId);
+    if (!target) {
+      num_notfound++;
+      continue;
+    }
 
-    for (let j = 0; j < post_ref_obj.refs.length; j++) {
-      // get ref (skip circular refs)
-      const ref = post_ref_obj.refs[j];
-      if (post_ref_obj.post_id == ref.dataset.id) {
-        continue;
-      }
-      
-      // get target post to append backref to (skip if not found)
-      let backref_post = post_lookup[ref.dataset.board_id + '-' + ref.dataset.id];
-      if (backref_post == null) {
-        continue;
-      }
+    // append to post-info section
+    let target_post_info = target.querySelector('.post-info');
+
+    for (let source of target_to_sources[targetId]) {
+      // work out some variables
+      let board_id = source.ref.dataset.board_id;
+      let parent_id = source.ref.dataset.parent_id;
+      let post_id = source.id.split('-')[1];
 
       // construct the backreference element
       let backreference = document.createElement('a');
       backreference.classList.add('backreference');
-      if (post_ref_obj.parent_id == null) {
-        backreference.href = '/' + post_ref_obj.board_id + '/' + post_ref_obj.post_id + '/';
-        backreference.dataset.board_id = post_ref_obj.board_id;
-        backreference.dataset.parent_id = post_ref_obj.post_id;
-        backreference.dataset.id = post_ref_obj.post_id;
+      if (parent_id == null) {
+        backreference.href = '/' + board_id + '/' + post_id + '/';
+        backreference.dataset.board_id = board_id;
+        backreference.dataset.parent_id = post_id;
+        backreference.dataset.id = post_id;
       } else {
-        backreference.href = '/' + post_ref_obj.board_id + '/' + post_ref_obj.parent_id + '/#' + post_ref_obj.board_id + '-' + post_ref_obj.post_id;
-        backreference.dataset.board_id = post_ref_obj.board_id;
-        backreference.dataset.parent_id = post_ref_obj.parent_id;
-        backreference.dataset.id = post_ref_obj.post_id;
+        backreference.href = '/' + board_id + '/' + parent_id + '/#' + board_id + '-' + post_id;
+        backreference.dataset.board_id = board_id;
+        backreference.dataset.parent_id = parent_id;
+        backreference.dataset.id = post_id;
       }
-      backreference.innerHTML = '>>' + post_ref_obj.post_id;
+      backreference.textContent = '>>' + post_id;
       backreference.addEventListener('mouseenter', listener_post_reference_link_mouseenter);
       backreference.addEventListener('mouseleave', listener_post_reference_link_mouseleave);
 
-      // append to post-info section
-      let backref_post_info = backref_post.getElementsByClassName('post-info')[0];
-      backref_post_info.appendChild(backreference);
-      backref_post_info.insertAdjacentHTML('beforeend', ' ');
+      target_post_info.appendChild(new Text(' '));
+      target_post_info.appendChild(backreference);
+      num_added++;
     }
   }
+  console.timeEnd("** add backreferences");
+  console.log("num_added", num_added);
+  console.log("num_notfound", num_notfound);
 }
 
 /**
@@ -1666,14 +1660,15 @@ function init_thread_features() {
           console.timeEnd('init_post_hashid_features');
 
           // move the new post elements from temp div to thread div
-          const thread_div = document.getElementsByClassName('thread')[0];
+          const thread_div = document.querySelector('.thread');
           thread_div.appendChild(document.createElement('hr'));
-          Array.from(tmp_div.children).forEach((child) => {
+          let new_posts = Array.from(tmp_div.children);
+          new_posts.forEach((child) => {
             thread_div.appendChild(child);
           });
 
           console.time('init_post_backreference_links');
-          init_post_backreference_links();
+          init_post_backreference_links(new_posts);
           console.timeEnd('init_post_backreference_links');
 
           state.thread_auto_update.post_id_after = tmp_div_last_post_id;
@@ -1781,7 +1776,7 @@ document.addEventListener('DOMContentLoaded', function(event) {
     console.timeEnd('init_post_reference_links');
 
     console.time('init_post_backreference_links');
-    init_post_backreference_links();
+    init_post_backreference_links(null);
     console.timeEnd('init_post_backreference_links');
 
     console.time('init_location_hash_features');
