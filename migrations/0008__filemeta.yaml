@@ -1,6 +1,6 @@
 # add few columns for file metadata to posts table
 
-version: 1
+version: 8
 script: |
   ALTER TABLE posts ADD COLUMN IF NOT EXISTS `file_mime` varchar(256) NULL AFTER `file_size_formatted`,
                     ADD INDEX (`file_mime`);

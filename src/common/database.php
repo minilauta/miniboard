@@ -230,7 +230,7 @@ function select_threads(string $session_id, ?int $user_role, ?string $board_id, 
   } else {
     $sth = $dbh->prepare('
       SELECT * FROM posts
-      WHERE parent_id IS NULL AND post_id ' . ($hidden === true ? '' : 'NOT') . ' IN (
+      WHERE board_id IS NOT NULL AND parent_id IS NULL AND post_id ' . ($hidden === true ? '' : 'NOT') . ' IN (
         SELECT post_id FROM hides WHERE session_id = :session_id AND board_id = posts.board_id
       )
       AND (req_role IS NULL OR (:user_role_1 IS NOT NULL AND :user_role_2 <= req_role))

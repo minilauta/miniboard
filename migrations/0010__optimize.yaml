@@ -1,12 +1,24 @@
-version: 1
+version: 10
 script: |
   ALTER TABLE posts MODIFY `board_id` varchar(8) NULL;
   UPDATE posts SET `board_id` = NULL WHERE `board_id` = '';
   ALTER TABLE posts MODIFY `parent_id` int unsigned NULL;
   UPDATE posts SET `parent_id` = NULL WHERE `parent_id` = 0;
+
   ALTER TABLE posts
-      ADD CONSTRAINT
-      FOREIGN KEY (`board_id`, `parent_id`)
+      ADD CONSTRAINT `posts_fk_boardid_parentid` FOREIGN KEY IF NOT EXISTS (`board_id`, `parent_id`)
       REFERENCES posts (`board_id`, `post_id`)
       ON DELETE SET NULL
       ON UPDATE RESTRICT;
+
+  ALTER TABLE hides
+    ADD CONSTRAINT `hides_fk_boardid_postid` FOREIGN KEY IF NOT EXISTS (`board_id`, `post_id`)
+    REFERENCES posts (`board_id`, `post_id`)
+    ON DELETE CASCADE
+    ON UPDATE CASCADE;
+  
+  ALTER TABLE reports
+    ADD CONSTRAINT `reports_fk_boardid_postid` FOREIGN KEY IF NOT EXISTS (`board_id`, `post_id`)
+    REFERENCES posts (`board_id`, `post_id`)
+    ON DELETE CASCADE
+    ON UPDATE CASCADE;

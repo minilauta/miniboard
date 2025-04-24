@@ -1,7 +1,7 @@
 # add table `csam_scanner` to database
 # used to identify potential csam material by perceptual hashing
 
-version: 1
+version: 5
 script: |
   CREATE TABLE IF NOT EXISTS csam_scanner (
     `id` int unsigned NOT NULL auto_increment,

@@ -165,7 +165,7 @@ function funcs_board_render_message(string $board_id, ?int $parent_id, string $i
     $post = select_post($board_id, intval($matches[2]));
 
     if ($post) {
-      $post_parent_id = ($post['parent_id'] === 0) ? $post['post_id'] : $post['parent_id'];
+      $post_parent_id = ($post['parent_id'] == null) ? $post['post_id'] : $post['parent_id'];
       $post_text_suffix = ($post_parent_id !== $parent_id) ? ' (Cross-thread)' : '';
       
       $data_fields = "data-board_id='{$post['board_id']}' data-parent_id='{$post_parent_id}' data-id='{$post['post_id']}'";
@@ -180,7 +180,7 @@ function funcs_board_render_message(string $board_id, ?int $parent_id, string $i
     $post = select_post($matches[2], intval($matches[3]));
 
     if ($post) {
-      $post_parent_id = ($post['parent_id'] === 0) ? $post['post_id'] : $post['parent_id'];
+      $post_parent_id = ($post['parent_id'] == null) ? $post['post_id'] : $post['parent_id'];
 
       $data_fields = "data-board_id='{$post['board_id']}' data-parent_id='{$post_parent_id}' data-id='{$post['post_id']}'";
       return "<a class='reference' {$data_fields} href='/{$post['board_id']}/{$post_parent_id}/#{$post['board_id']}-{$post['post_id']}'>{$matches[0]}</a>";

@@ -14,6 +14,7 @@ class DbConnection
 			\PDO::ATTR_PERSISTENT => true,
 			\PDO::ATTR_EMULATE_PREPARES => false,
 			\PDO::ATTR_ERRMODE => \PDO::ERRMODE_EXCEPTION,
+			\PDO::ATTR_AUTOCOMMIT => 0, // NOTE: does not apply to implicit commits of DDL statements!
 		]);
 	}
 
@@ -36,16 +37,28 @@ class DbConnection
 
 	private function begin(): bool
 	{
+		if ($this->pdo->inTransaction()) {
+			$this->rollback();
+		}
+		
 		return $this->pdo->beginTransaction();
 	}
 
 	private function commit(): bool
 	{
+		if (!$this->pdo->inTransaction()) {
+			return false;
+		}
+
 		return $this->pdo->commit();
 	}
 
 	private function rollback(): bool
 	{
+		if (!$this->pdo->inTransaction()) {
+			return false;
+		}
+
 		return $this->pdo->rollBack();
 	}
 }

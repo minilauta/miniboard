@@ -447,14 +447,14 @@ function funcs_common_delete_post(string $board_id, int $post_id): array {
     }
 
     // delete post from db
-    if (!delete_post($post['board_id'], $post['post_id'], true)) {
+    if (!delete_post($post['board_id'], $post['post_id'])) {
       $warnings[] = "Failed to delete post /{$post['board_id']}/{$post['post_id']}/ from db";
     }
 
     // debump if deleted post was a reply
     $thread_bumped = false;
     if ($post['parent_id'] != null) {
-      $thread_replies_n = count_posts('NULL', $post['board_id'], $post['parent_id'], false, false);
+      $thread_replies_n = count_posts('NULL', $post['board_id'], $post['parent_id'], false);
       if ($thread_replies_n <= $board_cfg['max_replies']) {
         $thread_bumped = bump_thread($post['board_id'], $post['parent_id']);
       }

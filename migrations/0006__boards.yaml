@@ -1,7 +1,7 @@
 # add table `boards` to database
 # used to configure board specific settings on database side
 
-version: 1
+version: 6
 script: |
   CREATE TABLE IF NOT EXISTS boards (
     `id` varchar(8) NOT NULL,
