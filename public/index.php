@@ -883,10 +883,7 @@ function handle_postform(Request $request, Response $response, array $args, stri
 
   // get user info
   $user_ip = funcs_common_get_client_remote_address(MB_CLOUDFLARE, $_SERVER);
-  $user_country = null;
-  if ($board_cfg['flags'] == true) {
-    $user_country = funcs_common_get_client_remote_country(MB_CLOUDFLARE, $_SERVER);
-  }
+  $user_country = funcs_common_get_client_remote_country(MB_CLOUDFLARE, $_SERVER);
   $user_last_post_by_ip = select_last_post_by_ip($user_ip);
   $user_is_logged_in = funcs_manage_is_logged_in();
 

@@ -141,14 +141,15 @@ function funcs_manage_rebuild(array $params): string {
       $hashid = funcs_common_generate_hashid($board_cfg['id'], $post['parent_id'], $post['ip_str'], $board_cfg['hashid_salt']);
     }
 
-    // set country code if flags enabled
-    $country = null;
-    if ($board_cfg['flags'] == true) {
-      $country = $post['country'];
+    // set nameblock country code if flags enabled OR country code is T1
+    $country = $post['country'];
+    $country_nb = null;
+    if ($board_cfg['flags'] == true || $country == 't1') {
+      $country_nb = $country;
     }
 
     // render nameblock and message
-    $nameblock = funcs_board_render_nameblock($name, $post['tripcode'], $email, $hashid, $country, $post['role'], $post['timestamp']);
+    $nameblock = funcs_board_render_nameblock($name, $post['tripcode'], $email, $hashid, $country_nb, $post['role'], $post['timestamp']);
     $message = funcs_board_render_message($params['board_id'], $post['parent_id'], $message, $board_cfg['truncate']);
 
     // render file
