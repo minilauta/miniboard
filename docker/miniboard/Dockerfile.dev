@@ -6,8 +6,8 @@ RUN mv $PHP_INI_DIR/php.ini-development $PHP_INI_DIR/php.ini
 ADD https://github.com/mlocati/docker-php-extension-installer/releases/latest/download/install-php-extensions /usr/local/bin/
 RUN chmod +x /usr/local/bin/install-php-extensions && \
     sync && \
-    install-php-extensions @composer imagick pdo pdo_mysql xdebug redis && \
-    docker-php-ext-enable imagick pdo_mysql xdebug redis
+    install-php-extensions @composer imagick pdo pdo_mysql yaml redis xdebug && \
+    docker-php-ext-enable imagick pdo_mysql yaml redis xdebug
 COPY docker/miniboard/php/conf.d/miniboard.ini $PHP_INI_DIR/conf.d/
 COPY docker/miniboard/php/conf.d/xdebug.ini $PHP_INI_DIR/conf.d/
 
@@ -19,10 +19,14 @@ RUN composer install --no-interaction
 COPY public /app/public/
 COPY tests /app/tests/
 COPY scripts /app/scripts/
+COPY migrations /app/migrations/
 RUN chown www-data:www-data -R public
 
 # runtime setup
 EXPOSE 80
 ENV MB_ENV dev
 
-CMD [ "php", "-S", "0.0.0.0:80", "-t", "public" ]
+COPY docker/miniboard/entrypoint.sh /app/
+RUN chmod +x /app/entrypoint.sh
+
+CMD [ "sh", "/app/entrypoint.sh" ]
