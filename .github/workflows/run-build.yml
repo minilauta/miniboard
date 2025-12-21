@@ -19,7 +19,7 @@ jobs:
         image:
           - name: app
             folder: docker/miniboard
-            dockerfile: Dockerfile.prod
+            dockerfile: Dockerfile
           - name: nginx
             folder: docker/nginx
             dockerfile: Dockerfile

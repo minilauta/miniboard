@@ -1,12 +1,11 @@
-version: '3.8'
-
 services:
   app:
     image: anonyymi/miniboard/app:latest
     pull_policy: build
     build:
       context: .
-      dockerfile: docker/miniboard/Dockerfile.dev
+      dockerfile: docker/miniboard/Dockerfile
+      target: dev
     deploy:
       resources:
         limits:
@@ -22,9 +21,7 @@ services:
     networks:
       - app
     volumes:
-      - ./public:/app/public:Z
       - ./src:/app/src:Z
-      - app:/app/public/src
     ports:
       - "127.0.0.1:8080:80"
     environment:
