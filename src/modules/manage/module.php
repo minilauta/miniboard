@@ -128,7 +128,7 @@ class ManageModule implements core\Module
 			http_response_code(303);
 		}
 
-		$router->add_route(HTTP_POST, '/manage/rebuild/', function ($vars) {
+		$router->add_route(HTTP_POST, '/manage/rebuild', function ($vars) {
 			if (!funcs_common_is_logged_in()) {
 				throw new \AppException('index', 'route', 'access denied', SC_UNAUTHORIZED);
 			}
@@ -153,7 +153,7 @@ class ManageModule implements core\Module
 			http_response_code(303);
 		}
 
-		$router->add_route(HTTP_POST, '/manage/refresh/', function ($vars) {
+		$router->add_route(HTTP_POST, '/manage/refresh', function ($vars) {
 			if (!funcs_common_is_logged_in()) {
 				throw new \AppException('index', 'route', 'access denied', SC_UNAUTHORIZED);
 			}
@@ -178,7 +178,7 @@ class ManageModule implements core\Module
 			http_response_code(303);
 		}
 
-		$router->add_route(HTTP_POST, '/manage/delete/', function ($vars) {
+		$router->add_route(HTTP_POST, '/manage/delete', function ($vars) {
 			if (!funcs_common_is_logged_in()) {
 				throw new \AppException('index', 'route', 'access denied', SC_UNAUTHORIZED);
 			}
@@ -202,7 +202,7 @@ class ManageModule implements core\Module
 			http_response_code(303);
 		}
 
-		$router->add_route(HTTP_POST, '/manage/ban/', function ($vars) {
+		$router->add_route(HTTP_POST, '/manage/ban', function ($vars) {
 			if (!funcs_common_is_logged_in()) {
 				throw new \AppException('index', 'route', 'access denied', SC_UNAUTHORIZED);
 			}
@@ -234,7 +234,7 @@ class ManageModule implements core\Module
 			http_response_code(303);
 		}
 
-		$router->add_route(HTTP_POST, '/manage/approve/', function ($vars) {
+		$router->add_route(HTTP_POST, '/manage/approve', function ($vars) {
 			if (!funcs_common_is_logged_in()) {
 				throw new \AppException('index', 'route', 'access denied', SC_UNAUTHORIZED);
 			}
@@ -258,7 +258,7 @@ class ManageModule implements core\Module
 			http_response_code(303);
 		}
 
-		$router->add_route(HTTP_POST, '/manage/toggle_lock/', function ($vars) {
+		$router->add_route(HTTP_POST, '/manage/toggle_lock', function ($vars) {
 			if (!funcs_common_is_logged_in()) {
 				throw new \AppException('index', 'route', 'access denied', SC_UNAUTHORIZED);
 			}
@@ -282,7 +282,7 @@ class ManageModule implements core\Module
 			http_response_code(303);
 		}
 
-		$router->add_route(HTTP_POST, '/manage/toggle_sticky/', function ($vars) {
+		$router->add_route(HTTP_POST, '/manage/toggle_sticky', function ($vars) {
 			if (!funcs_common_is_logged_in()) {
 				throw new \AppException('index', 'route', 'access denied', SC_UNAUTHORIZED);
 			}
@@ -306,7 +306,7 @@ class ManageModule implements core\Module
 			http_response_code(303);
 		}
 
-		$router->add_route(HTTP_POST, '/manage/csam_scanner/cp/', function ($vars) {
+		$router->add_route(HTTP_POST, '/manage/csam_scanner/cp', function ($vars) {
 			if (!funcs_common_is_logged_in()) {
 				throw new \AppException('index', 'route', 'access denied', SC_UNAUTHORIZED);
 			}
