@@ -8,7 +8,7 @@
   </head>
   <body>
     <?=$this->render(__DIR__ . '/components/menubar.phtml')?>
-    <?=$this->render(__ROOT__ . '/common/templates/header.phtml', ['h_title' => 'Manage', 'h_subtitle' => 'Login'])?>
+    <?=$this->render(__ROOT__ . '/common/templates/header.phtml', ['h_title' => 'Manage', 'h_subtitle' => "Management interface :: <b>$route</b>"])?>
     <hr>
     <?php
       switch ($route) {

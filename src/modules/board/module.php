@@ -165,7 +165,7 @@ class BoardModule implements core\Module
 			if ($thread == null) {
 				throw new \AppException('index', 'route', "thread with ID /{$board_cfg['id']}/{$vars['thread_id']} not found", SC_NOT_FOUND);
 			} else if ($thread['parent_id'] != null) {
-				throw new \AppException('index', 'route', 'not a valid thread', SC_BAD_REQUEST);
+				throw new \AppException('index', 'route', 'not a valid thread', SC_NOT_FOUND);
 			}
 
 			// get replies
@@ -197,7 +197,7 @@ class BoardModule implements core\Module
 			if ($thread == null) {
 				throw new \AppException('index', 'route', "thread with ID /{$board_cfg['id']}/{$vars['thread_id']} not found", SC_NOT_FOUND);
 			} else if ($thread['parent_id'] != null) {
-				throw new \AppException('index', 'route', 'not a valid thread', SC_BAD_REQUEST);
+				throw new \AppException('index', 'route', 'not a valid thread', SC_NOT_FOUND);
 			}
 
 			// get replies

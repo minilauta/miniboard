@@ -23,10 +23,8 @@ services:
     volumes:
       - app:/app/public/src
       - ./src:/app/src:Z
-      - ./public/js:/app/public/js:Z
-      - ./public/css:/app/public/css:Z
+      - ./public:/app/public:Z
     ports:
-      - "127.0.0.1:8080:80"
       - "127.0.0.1:9000:9000"
     environment:
       XDEBUG_MODE: profile
