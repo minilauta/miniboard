@@ -10,7 +10,7 @@ services:
       resources:
         limits:
           cpus: "0.5"
-          memory: "256M"
+          memory: "1G"
     restart: always
     healthcheck:
       test: ['CMD', 'curl', '-fs', 'http://localhost:80']
@@ -21,6 +21,7 @@ services:
     networks:
       - app
     volumes:
+      - app:/app/public/src
       - ./src:/app/src:Z
       - ./public/js:/app/public/js:Z
       - ./public/css:/app/public/css:Z
