@@ -36,5 +36,6 @@ switch ($argv[1]) {
 	default: {
 		printf("cli: invalid command\n");
 		print_help();
+		exit(1);
 	} break;
 }
