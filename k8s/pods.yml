@@ -1,13 +1,13 @@
 apiVersion: v1
 kind: Pod
 metadata:
-  name: pod-miniboard-flyway
+  name: pod-miniboard-migrate
 spec: # spec for pod
   containers:
-  - name: miniboard-flyway
-    image: ghcr.io/anonyymi/miniboard/flyway:latest
+  - name: miniboard-migrate
+    image: ghcr.io/anonyymi/miniboard/app:latest
     imagePullPolicy: Always
-    args: ["-url=jdbc:mysql://miniboard-mariadb", "-schemas=$(DB_NAME)", "-user=root", "-password=$(DB_ROOT_PASS)", "-connectRetries=60", "migrate"]
+    args: ["php", "src/cli.php", "migrate"]
     resources:
       requests:
         cpu: 250m
@@ -15,11 +15,20 @@ spec: # spec for pod
       limits:
         memory: 256Mi
     env:
-    - name: DB_NAME
+    - name: MB_TIMEZONE
+      value: Europe/Helsinki
+    - name: MB_DB_HOST
+      value: miniboard-mariadb
+    - name: MB_DB_NAME
       value: miniboard_db
-    - name: DB_ROOT_PASS
+    - name: MB_DB_USER
       valueFrom:
         secretKeyRef:
-          name: miniboard-mariadb-root
+          name: miniboard-mariadb-user
+          key: USER
+    - name: MB_DB_PASS
+      valueFrom:
+        secretKeyRef:
+          name: miniboard-mariadb-user
           key: PASSWORD
   restartPolicy: OnFailure

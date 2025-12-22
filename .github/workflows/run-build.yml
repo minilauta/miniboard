@@ -23,9 +23,6 @@ jobs:
           - name: nginx
             folder: docker/nginx
             dockerfile: Dockerfile
-          - name: flyway
-            folder: docker/flyway
-            dockerfile: Dockerfile
           - name: csam-scanner
             folder: docker/csam-scanner
             dockerfile: Dockerfile
