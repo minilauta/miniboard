@@ -43,10 +43,10 @@
       <?php
         foreach ($posts as $post) {
           $preview = '';
-          if ($post['parent_id'] === 0) {
-            $preview = $this->fetch('board/post_preview_op.phtml', ['post' => $post]);
+          if ($post['parent_id'] == 0) {
+            $preview = $this->render(__DIR__ . '/post_preview_op.phtml', ['post' => $post]);
           } else {
-            $preview = $this->fetch('board/post_preview_reply.phtml', ['post' => $post]);
+            $preview = $this->render(__DIR__ . '/post_preview_reply.phtml', ['post' => $post]);
           }
 
           $deleted = $post['deleted'] === 1 ? '<b>TRUE</b>' : 'FALSE';

@@ -47,10 +47,10 @@
       <?php
         foreach ($reports as $report) {
           $preview = '';
-          if ($report['parent_id'] === 0) {
-            $preview = $this->fetch('board/post_preview_op.phtml', ['post' => $report]);
+          if ($report['parent_id'] == 0) {
+            $preview = $this->render(__DIR__ . '/post_preview_op.phtml', ['post' => $report]);
           } else {
-            $preview = $this->fetch('board/post_preview_reply.phtml', ['post' => $report]);
+            $preview = $this->render(__DIR__ . '/post_preview_reply.phtml', ['post' => $report]);
           }
 
           $timestamp = date(MB_DATEFORMAT, $report['r_timestamp']);

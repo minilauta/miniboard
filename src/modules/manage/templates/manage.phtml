@@ -1,41 +1,41 @@
 <!DOCTYPE html>
 <html>
   <head>
-    <?=$this->fetch('common/meta.phtml')?>
-    <?=$this->fetch('common/styles.phtml')?>
-    <?=$this->fetch('common/scripts.phtml')?>
+    <?=$this->render(__ROOT__ . '/common/templates/meta.phtml')?>
+    <?=$this->render(__ROOT__ . '/common/templates/styles.phtml')?>
+    <?=$this->render(__ROOT__ . '/common/templates/scripts.phtml')?>
     <title>Manage</title>
   </head>
   <body>
-    <?=$this->fetch('manage/menubar.phtml', ['board_id' => array_key_first(MB_BOARDS), 'thread_id' => null])?>
-    <?=$this->fetch('common/header.phtml', ['h_title' => 'Manage', 'h_subtitle' => 'Management interface'])?>
+    <?=$this->render(__DIR__ . '/components/menubar.phtml')?>
+    <?=$this->render(__ROOT__ . '/common/templates/header.phtml', ['h_title' => 'Manage', 'h_subtitle' => 'Login'])?>
     <hr>
     <?php
       switch ($route) {
         case 'import':
           if (funcs_common_get_role() !== MB_ROLE_SUPERADMIN) {
-            throw new AppException('manage.phtml', 'inline', 'insufficient permissions', SC_FORBIDDEN);
+            throw new \AppException('manage.phtml', 'inline', 'insufficient permissions', SC_FORBIDDEN);
           }
 
-          echo $this->fetch('manage/importform.phtml');
+          echo $this->render(__DIR__ . '/components/importform.phtml', ['status' => $status]);
           break;
         case 'rebuild':
           if (funcs_common_get_role() !== MB_ROLE_SUPERADMIN) {
-            throw new AppException('manage.phtml', 'inline', 'insufficient permissions', SC_FORBIDDEN);
+            throw new \AppException('manage.phtml', 'inline', 'insufficient permissions', SC_FORBIDDEN);
           }
 
-          echo $this->fetch('manage/rebuildform.phtml');
+          echo $this->render(__DIR__ . '/components/rebuildform.phtml', ['status' => $status]);
           break;
         case 'refresh':
           if (funcs_common_get_role() !== MB_ROLE_SUPERADMIN) {
-            throw new AppException('manage.phtml', 'inline', 'insufficient permissions', SC_FORBIDDEN);
+            throw new \AppException('manage.phtml', 'inline', 'insufficient permissions', SC_FORBIDDEN);
           }
 
-          echo $this->fetch('manage/refreshform.phtml');
+          echo $this->render(__DIR__ . '/components/refreshform.phtml', ['status' => $status]);
           break;
         case 'accounts':
           if (funcs_common_get_role() !== MB_ROLE_SUPERADMIN) {
-            throw new AppException('manage.phtml', 'inline', 'insufficient permissions', SC_FORBIDDEN);
+            throw new \AppException('manage.phtml', 'inline', 'insufficient permissions', SC_FORBIDDEN);
           }
 
           // set constants
@@ -50,12 +50,13 @@
           // calculate page count
           $page_n = ceil($accounts_n / $accounts_per_page);
 
-          echo $this->fetch('manage/accountform.phtml', [
+          echo $this->render(__DIR__ . '/components/accountform.phtml', [
             'accounts' => $accounts,
             'page' => $page,
-            'page_n' => $page_n
+            'page_n' => $page_n,
+            'status' => $status,
           ]);
-          echo $this->fetch('common/pagetable.phtml', ['page' => $page, 'page_n' => $page_n]);
+          echo $this->render(__ROOT__ . '/common/templates/pagetable.phtml', ['page' => $page, 'page_n' => $page_n]);
           break;
         case 'logs':
           // set constants
@@ -76,12 +77,13 @@
           // calculate page count
           $page_n = ceil($logs_n / $logs_per_page);
 
-          echo $this->fetch('manage/logform.phtml', [
+          echo $this->render(__DIR__ . '/components/logform.phtml', [
             'logs' => $logs,
             'page' => $page,
-            'page_n' => $page_n
+            'page_n' => $page_n,
+            'status' => $status,
           ]);
-          echo $this->fetch('common/pagetable.phtml', ['page' => $page, 'page_n' => $page_n]);
+          echo $this->render(__ROOT__ . '/common/templates/pagetable.phtml', ['page' => $page, 'page_n' => $page_n]);
           break;
         case 'bans':
           // set constants
@@ -101,12 +103,13 @@
           // calculate page count
           $page_n = ceil($bans_n / $bans_per_page);
 
-          echo $this->fetch('manage/banform.phtml', [
+          echo $this->render(__DIR__ . '/components/banform.phtml', [
             'bans' => $bans,
             'page' => $page,
-            'page_n' => $page_n
+            'page_n' => $page_n,
+            'status' => $status,
           ]);
-          echo $this->fetch('common/pagetable.phtml', ['page' => $page, 'page_n' => $page_n]);
+          echo $this->render(__ROOT__ . '/common/templates/pagetable.phtml', ['page' => $page, 'page_n' => $page_n]);
           break;
         case 'csam_hashes':
           // set constants
@@ -127,12 +130,13 @@
           // calculate page count
           $page_n = ceil($rows_n / $rows_per_page);
 
-          echo $this->fetch('manage/csamhashform.phtml', [
+          echo $this->render(__DIR__ . '/components/csamhashform.phtml', [
             'rows' => $rows,
             'page' => $page,
-            'page_n' => $page_n
+            'page_n' => $page_n,
+            'status' => $status,
           ]);
-          echo $this->fetch('common/pagetable.phtml', ['page' => $page, 'page_n' => $page_n]);
+          echo $this->render(__ROOT__ . '/common/templates/pagetable.phtml', ['page' => $page, 'page_n' => $page_n]);
           break;
         case 'posts':
           // set constants
@@ -145,7 +149,7 @@
           foreach ($posts as $key => &$post) {
             $post['ip_rendered'] = funcs_common_get_role() === MB_ROLE_SUPERADMIN ? $post['ip_str'] : '<s>REDACTED</s>';
 
-            if ($post['parent_id'] !== 0) {
+            if ($post['parent_id'] != 0) {
               continue;
             }
 
@@ -159,12 +163,13 @@
           // calculate page count
           $page_n = ceil($posts_n / $posts_per_page);
 
-          echo $this->fetch('manage/modform.phtml', [
+          echo $this->render(__DIR__ . '/components/modform.phtml', [
             'posts' => $posts,
             'page' => $page,
-            'page_n' => $page_n
+            'page_n' => $page_n,
+            'status' => $status,
           ]);
-          echo $this->fetch('common/pagetable.phtml', ['page' => $page, 'page_n' => $page_n]);
+          echo $this->render(__ROOT__ . '/common/templates/pagetable.phtml', ['page' => $page, 'page_n' => $page_n]);
           break;
         case 'threads':
           // set constants
@@ -186,12 +191,13 @@
           // calculate page count
           $page_n = ceil($posts_n / $posts_per_page);
 
-          echo $this->fetch('manage/modform.phtml', [
+          echo $this->render(__DIR__ . '/components/modform.phtml', [
             'posts' => $posts,
             'page' => $page,
-            'page_n' => $page_n
+            'page_n' => $page_n,
+            'status' => $status,
           ]);
-          echo $this->fetch('common/pagetable.phtml', ['page' => $page, 'page_n' => $page_n]);
+          echo $this->render(__ROOT__ . '/common/templates/pagetable.phtml', ['page' => $page, 'page_n' => $page_n]);
           break;
         case 'reports':
         default:
@@ -206,7 +212,7 @@
             $report['r_ip_rendered'] = funcs_common_get_role() === MB_ROLE_SUPERADMIN ? $report['r_ip_str'] : '<s>REDACTED</s>';
             $report['ip_rendered'] = funcs_common_get_role() === MB_ROLE_SUPERADMIN ? $report['ip_str'] : '<s>REDACTED</s>';
 
-            if ($report['parent_id'] !== 0) {
+            if ($report['parent_id'] != 0) {
               continue;
             }
 
@@ -220,18 +226,19 @@
           // calculate page count
           $page_n = ceil($reports_n / $reports_per_page);
 
-          echo $this->fetch('manage/reportform.phtml', [
+          echo $this->render(__DIR__ . '/components/reportform.phtml', [
             'reports' => $reports,
             'page' => $page,
-            'page_n' => $page_n
+            'page_n' => $page_n,
+            'status' => $status,
           ]);
-          echo $this->fetch('common/pagetable.phtml', ['page' => $page, 'page_n' => $page_n]);
+          echo $this->render(__ROOT__ . '/common/templates/pagetable.phtml', ['page' => $page, 'page_n' => $page_n]);
           break;
       }
     ?>
     <hr>
     <div class="container-centered">
-      <?=$this->fetch('common/footer.phtml')?>
+      <?=$this->render(__ROOT__ . '/common/templates/footer.phtml')?>
     </div>
   </body>
 </html>

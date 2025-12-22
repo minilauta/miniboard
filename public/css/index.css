@@ -379,6 +379,11 @@ div.post-preview > div.post.reply > div.reply  {
   vertical-align: top;
 }
 
+.form-refresh fieldset {
+  display: inline-block;
+  vertical-align: top;
+}
+
 .form-list {
   font-family: sans-serif;
   font-size: x-small;

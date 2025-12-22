@@ -7,10 +7,7 @@
     <title><?=$error_type?></title>
   </head>
   <body>
-    <?=$this->fetch("{$context}/menubar.phtml", ['board_id' => array_key_first(MB_BOARDS), 'thread_id' => null])?>
-    <?=$this->fetch('common/banner.phtml')?>
-    <hr>
-    <?=$this->fetch('common/header.phtml', ['h_title' => $error_type, 'h_subtitle' => $error_message])?>
+    <?=$this->render(__ROOT__ . '/common/templates/header.phtml', ['h_title' => $error_type, 'h_subtitle' => $error_message])?>
     <hr>
     <?php
       if (isset($error_image) && !empty($error_image)) {
@@ -21,7 +18,7 @@
     ?>
     <hr>
     <div class="container-centered">
-      <?=$this->fetch('common/footer.phtml')?>
+      <?=$this->render(__ROOT__ . '/common/templates/footer.phtml')?>
     </div>
   </body>
 </html>
