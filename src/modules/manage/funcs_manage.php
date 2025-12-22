@@ -1,8 +1,8 @@
 <?php
 
-require_once __DIR__ . '/config.php';
-require_once __DIR__ . '/exception.php';
-require_once __DIR__ . '/funcs_common.php';
+require_once __ROOT__ . '/common/config.php';
+require_once __ROOT__ . '/common/exception.php';
+require_once __ROOT__ . '/common/funcs_common.php';
 
 /**
  * Inserts a message to the management log.

@@ -10,7 +10,7 @@ require __VENDOR__ . '/autoload.php';
 require __ROOT__ . '/common/version.php';
 require __ROOT__ . '/core/app.php';
 
-$app = new core\App(['home', 'board'], []);
+$app = new core\App(['home', 'manage', 'board'], []);
 $app->get_router()->add_middleware(function () {
 	session_set_cookie_params([
 		'lifetime' => 315360000,
