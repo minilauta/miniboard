@@ -36,7 +36,7 @@ COPY package.json webpack.config.js /app/
 RUN yarn
 RUN yarn run build
 
-CMD [ "/bin/sh", "-c", "php src/cli.php migrate && php -S 0.0.0.0:80 -t public" ]
+CMD [ "/bin/sh", "-c", "php src/cli.php migrate && (php -S 0.0.0.0:80 -t public & yarn start)" ]
 
 
 FROM build AS prod

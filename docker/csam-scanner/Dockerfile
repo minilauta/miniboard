@@ -1,4 +1,4 @@
-FROM python:3.11-slim AS build
+FROM python:3.12-slim AS build
 
 # install buildtime pkgs
 RUN apt-get update && apt-get -y install build-essential
@@ -10,7 +10,7 @@ RUN python -m venv /opt/venv && \
     pip install --no-cache-dir --no-input -r requirements.txt && \
     pip install --no-cache-dir uvicorn
 
-FROM python:3.11-slim
+FROM python:3.12-slim
 
 # install runtime pkgs
 RUN apt-get update && apt-get -y install libgl1 libglib2.0-0

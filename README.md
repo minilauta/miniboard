@@ -1,20 +1,21 @@
 # miniboard
 
-Minimalistic imageboard software, written in PHP 8 with the help of Slim 4 micro framework.
+Minimalistic but modular imageboard software, written in PHP 8.x.
 
 # Dev commands
 
-## Install deps
-`$ yarn`  
-`$ composer install`
-
 ## Develop locally
-`$ docker compose up --build -d && yarn start`
+`$ docker compose up --build`
 
-## Run tests
-`$ docker compose build && docker compose run test`
+|addr|port|desc|
+|-|-|-|
+|localhost|9000|webpack dev server|
+|localhost|8082|phpmyadmin|
+|localhost|3306|mariadb|
 
 # K8s scripts
+
+The files under `./k8s/` provide an example for running this software in production. You don't have to run this within a k8s cluster, that's simply what I prefer to do because k8s is convenient and mostly autonomous.
 
 ## Deploy
 `$ ./scripts/k8s/apply.sh`
