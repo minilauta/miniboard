@@ -1,7 +1,7 @@
 # add column ´salt´ to posts table
 # used to assign unique random salt to posts in a specific thread
 
-version: 9
+version: 11
 script: |
   ALTER TABLE posts ADD COLUMN IF NOT EXISTS `salt` binary(32) NULL AFTER `parent_id`,
                     ADD INDEX (`salt`);

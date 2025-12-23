@@ -58,7 +58,7 @@ spec: # spec for deployment
         - name: miniboard-app-pv
           mountPath: /app/public/src
         - name: miniboard-app-config
-          mountPath: /app/public/config.php
+          mountPath: /app/src/common/config.php
           subPath: config.php
       volumes:
       - name: miniboard-app-pv
