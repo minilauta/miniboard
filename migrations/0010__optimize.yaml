@@ -5,17 +5,33 @@ script: |
   ALTER TABLE posts MODIFY `parent_id` int unsigned NULL;
   UPDATE posts SET `parent_id` = NULL WHERE `parent_id` = 0;
 
+  DELETE FROM posts
+  WHERE id IN (
+    SELECT
+      p1.id
+    FROM posts p1
+    LEFT JOIN posts p2 ON p2.board_id = p1.board_id AND p2.post_id = p1.parent_id
+    WHERE
+      p1.parent_id IS NOT NULL
+    AND
+      p2.post_id IS NULL
+  );
+
   ALTER TABLE posts
       ADD CONSTRAINT `posts_fk_boardid_parentid` FOREIGN KEY IF NOT EXISTS (`board_id`, `parent_id`)
       REFERENCES posts (`board_id`, `post_id`)
       ON DELETE SET NULL
       ON UPDATE RESTRICT;
+  
+  DELETE FROM hides;
 
   ALTER TABLE hides
     ADD CONSTRAINT `hides_fk_boardid_postid` FOREIGN KEY IF NOT EXISTS (`board_id`, `post_id`)
     REFERENCES posts (`board_id`, `post_id`)
     ON DELETE CASCADE
     ON UPDATE CASCADE;
+
+  DELETE FROM reports;
   
   ALTER TABLE reports
     ADD CONSTRAINT `reports_fk_boardid_postid` FOREIGN KEY IF NOT EXISTS (`board_id`, `post_id`)
