@@ -67,8 +67,14 @@ function funcs_board_create_post(string $ip, ?string $country, array $board_cfg,
     $hashid = funcs_common_generate_hashid($salt, $ip, $board_cfg['hashid_salt']);
   }
 
+  // set nameblock country code if flags enabled OR country code is T1
+  $country_nb = null;
+  if ($board_cfg['flags'] == true || $country == 't1') {
+    $country_nb = $country;
+  }
+
   // render nameblock
-  $nameblock = funcs_board_render_nameblock($name_trip[0], $name_trip[1], $email, $hashid, $country, $role, $timestamp);
+  $nameblock = funcs_board_render_nameblock($name_trip[0], $name_trip[1], $email, $hashid, $country_nb, $role, $timestamp);
 
   return [
     'board_id'            => $board_cfg['id'],
