@@ -15,6 +15,7 @@ require __ROOT__ . '/common/version.php';
 require __ROOT__ . '/common/config.php';
 require __ROOT__ . '/core/db_connection.php';
 require __ROOT__ . '/core/migrator.php';
+require __ROOT__ . '/core/cleaner.php';
 
 function print_help(): void {
 	printf("cli: available commands: [migrate]\n");
@@ -32,6 +33,12 @@ switch ($argv[1]) {
 		$migrator = new core\Migrator($connection);
 		$migrator->init();
 		$migrator->migrate();
+	} break;
+	case 'cleanup': {
+		$connection = new core\DbConnection(MB_DB_HOST, MB_DB_NAME, MB_DB_USER, MB_DB_PASS);
+		$cleaner = new core\Cleaner($connection);
+		$cleaner->clean_posts();
+		$cleaner->clean_files();
 	} break;
 	default: {
 		printf("cli: invalid command\n");
