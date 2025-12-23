@@ -568,7 +568,7 @@ class BoardModule implements core\Module
 		}
 	
 		// create post
-		$post = funcs_board_create_post($user_ip, $user_country, $board_cfg, $thread_id, $file_info, $file, $_POST);
+		$post = funcs_board_create_post($user_ip, $user_country, $board_cfg, $thread_id, $parent['salt'], $file_info, $file, $_POST);
 	
 		// generate unique post_id on current board
 		init_post_auto_increment($post['board_id']);

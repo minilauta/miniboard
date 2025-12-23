@@ -384,11 +384,16 @@ function count_posts(string $session_id, ?string $board_id, int $parent_id, bool
 
 function insert_post($post): int|bool {
   $dbh = get_db_handle();
+  $post_copy = $post;
+  $post_copy['parent_id_ref1'] = $post_copy['parent_id'];
+  $post_copy['board_id_ref1'] = $post_copy['board_id'];
+  $post_copy['parent_id_ref2'] = $post_copy['parent_id'];
   $sth = $dbh->prepare('
     INSERT INTO posts (
       post_id,
       board_id,
       parent_id,
+      salt,
       req_role,
       ip,
       timestamp,
@@ -423,6 +428,11 @@ function insert_post($post): int|bool {
       :post_id,
       :board_id,
       :parent_id,
+      IF(
+        :parent_id_ref1 IS NULL,
+        MD5(\'' . random_bytes(32) . '\'),
+        (SELECT p.salt FROM posts p WHERE p.board_id = :board_id_ref1 AND p.post_id = :parent_id_ref2)
+      ),
       :req_role,
       INET6_ATON(:ip),
       :timestamp,
@@ -454,7 +464,7 @@ function insert_post($post): int|bool {
       :country
     )
   ');
-  if ($sth->execute($post) !== TRUE) {
+  if ($sth->execute($post_copy) !== TRUE) {
     return false;
   }
 
@@ -1136,6 +1146,7 @@ function select_rebuild_posts(string $board_id): array|bool {
       post_id,
       parent_id,
       board_id,
+      salt,
       INET6_NTOA(ip) AS ip_str,
       timestamp,
       role,

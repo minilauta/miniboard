@@ -33,7 +33,7 @@ function funcs_board_check_access(array $board_cfg, ?int $user_role): bool {
 /**
  * Creates a new post object.
  */
-function funcs_board_create_post(string $ip, ?string $country, array $board_cfg, ?int $parent_id, ?array $file_info, array $file, array $input): array {
+function funcs_board_create_post(string $ip, ?string $country, array $board_cfg, ?int $parent_id, ?string $salt, ?array $file_info, array $file, array $input): array {
   // handle anonfile flag
   if ($file_info != null && isset($input['anonfile']) && $input['anonfile'] == true) {
     $file['file_original'] = substr(str_shuffle('0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ'), 1, 8) . '.' . $file_info['ext'];
@@ -64,7 +64,7 @@ function funcs_board_create_post(string $ip, ?string $country, array $board_cfg,
   // generate hashed ID
   $hashid = null;
   if (isset($board_cfg['hashid_salt']) && strlen($board_cfg['hashid_salt']) >= 2 && $parent_id > 0) {
-    $hashid = funcs_common_generate_hashid($board_cfg['id'], $parent_id, $ip, $board_cfg['hashid_salt']);
+    $hashid = funcs_common_generate_hashid($salt, $ip, $board_cfg['hashid_salt']);
   }
 
   // render nameblock
