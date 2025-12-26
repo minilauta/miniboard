@@ -40,8 +40,8 @@ jobs:
         run: echo "SHORT_SHA=`git rev-parse --short HEAD`" >> $GITHUB_ENV
       - name: Set version stub
         run: |
-          sed -i "s/_MB_VERSION_STUB_/${SHORT_SHA}/g" public/version.php
-          cat public/version.php
+          sed -i "s/_MB_VERSION_STUB_/${SHORT_SHA}/g" src/common/version.php
+          cat src/common/version.php
       - name: Build & push ${{ matrix.image.name }}
         uses: docker/build-push-action@v4
         with:
