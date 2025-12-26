@@ -14,7 +14,7 @@ try {
 	$app = new core\App(['home', 'manage', 'board'], []);
 	$app->get_router()->add_middleware(function () {
 		session_set_cookie_params([
-			'lifetime' => 315360000,
+			'lifetime' => 31560000,
 			'path' => '/',
 			'domain' => '',
 			'secure' => false,
