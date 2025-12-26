@@ -1,0 +1,143 @@
+services:
+  app:
+    image: anonyymi/miniboard/app:latest
+    pull_policy: build
+    build:
+      context: .
+      dockerfile: docker/miniboard/Dockerfile
+      target: prod
+    deploy:
+      resources:
+        limits:
+          cpus: "0.5"
+          memory: "1G"
+    restart: always
+    healthcheck:
+      test: ['CMD', 'curl', '-fs', 'http://localhost:80']
+      interval: 5s
+      timeout: 1s
+      retries: 2
+      start_period: 10s
+    networks:
+      - app
+    volumes:
+      - app:/app/public/src
+    expose:
+      - 9000
+    environment:
+      PHP_POST_MAX_SIZE: ${PHP_POST_MAX_SIZE}
+      PHP_UPLOAD_MAX_FILESIZE: ${PHP_UPLOAD_MAX_FILESIZE}
+      MB_TIMEZONE: Europe/Helsinki
+      MB_DB_HOST: mariadb
+      MB_DB_NAME: ${DB_NAME}
+      MB_DB_USER: ${DB_USER}
+      MB_DB_PASS: ${DB_PASS}
+      REDIS_HOST: redis
+      REDIS_PASS: ${REDIS_PASS}
+      CSAM_SCANNER_HOST: csam-scanner
+    depends_on:
+      - mariadb
+  
+  nginx:
+    image: anonyymi/miniboard/nginx:latest
+    pull_policy: build
+    build:
+      context: .
+      dockerfile: docker/nginx/Dockerfile
+    deploy:
+      resources:
+        limits:
+          cpus: "0.5"
+          memory: "256M"
+    restart: always
+    healthcheck:
+      test: ['CMD', 'curl', '-fs', 'http://localhost:80']
+      interval: 5s
+      timeout: 1s
+      retries: 2
+      start_period: 10s
+    networks:
+      - app
+    volumes:
+      - app:/app/public/src
+    ports:
+      - 127.0.0.1:443:443
+      - 127.0.0.1:80:80
+    environment:
+      NGINX_CLIENT_MAX_BODY_SIZE: ${NGINX_CLIENT_MAX_BODY_SIZE}
+      NGINX_REAL_IP_HEADER: ${NGINX_REAL_IP_HEADER}
+      NGINX_REAL_IP_VAR: ${NGINX_REAL_IP_VAR}
+      APP_HOST: app
+      APP_PORT: 9000
+    depends_on:
+      - app
+
+  mariadb:
+    image: mariadb:10.6
+    restart: always
+    networks:
+      - app
+    volumes:
+      - mariadb:/var/lib/mysql
+    expose:
+      - 3306
+    environment:
+      MYSQL_CHARSET: 'utf8'
+      MYSQL_COLLATION: 'utf8mb4_unicode_ci'
+      MYSQL_ROOT_PASSWORD: ${DB_ROOT_PASS}
+      MYSQL_DATABASE: ${DB_NAME}
+      MYSQL_USER: ${DB_USER}
+      MYSQL_PASSWORD: ${DB_PASS}
+
+  phpmyadmin:
+    image: phpmyadmin:latest
+    restart: unless-stopped
+    networks:
+      - app
+    ports:
+      - 127.0.0.1:8082:80
+    environment:
+      PMA_HOST: mariadb
+      PMA_USER: root
+      PMA_PASSWORD: ${DB_ROOT_PASS}
+
+  redis:
+    image: redis:7.0-alpine
+    restart: always
+    command: '--save 60 1 --loglevel verbose --requirepass ${REDIS_PASS}'
+    networks:
+      - app
+    volumes:
+      - redis:/data
+    expose:
+      - 6379
+  
+  csam-scanner:
+    image: anonyymi/miniboard/csam-scanner:latest
+    pull_policy: build
+    build:
+      context: .
+      dockerfile: docker/csam-scanner/Dockerfile
+    restart: always
+    networks:
+      - app
+    expose:
+      - 8000
+    environment:
+      DB_HOST: mariadb
+      DB_NAME: ${DB_NAME}
+      DB_USER: ${DB_USER}
+      DB_PASS: ${DB_PASS}
+      ORIGINATOR: localhost
+      TOLERANCE: 0.95
+    depends_on:
+      - mariadb
+
+networks:
+  app:
+    driver: bridge
+
+volumes:
+  app:
+  mariadb:
+  redis:

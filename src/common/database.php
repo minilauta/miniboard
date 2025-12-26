@@ -430,7 +430,7 @@ function insert_post($post): int|bool {
       :parent_id,
       IF(
         :parent_id_ref1 IS NULL,
-        MD5(\'' . random_bytes(32) . '\'),
+        \'' . md5(random_bytes(32)) . '\',
         (SELECT p.salt FROM posts p WHERE p.board_id = :board_id_ref1 AND p.post_id = :parent_id_ref2)
       ),
       :req_role,
@@ -858,6 +858,7 @@ function select_post_with_replies(string $board_id, int $post_id): array|bool {
       p.board_id = :board_id_1 AND p.post_id = :post_id_1
       OR
       p.board_id = :board_id_2 AND p.parent_id = :post_id_2
+    ORDER BY p.post_id DESC
   ');
   $sth->execute([
     'board_id_1' => $board_id,

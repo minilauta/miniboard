@@ -302,7 +302,7 @@ function funcs_manage_csam_scanner_cp(array $select): string {
     $target_post = select_post($selected_board_id, $selected_post_id, false);
 
     // send file to CSAM-scanner microservice
-    $target_file_path = __DIR__ . $target_post['file'];
+    $target_file_path = __PUBLIC__ . $target_post['file'];
     $finfo = finfo_open(FILEINFO_MIME);
     $target_file_mime = explode(';', finfo_file($finfo, $target_file_path))[0];
     finfo_close($finfo);

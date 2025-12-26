@@ -1,4 +1,4 @@
-FROM node:18-alpine AS build
+FROM node:24-alpine AS build
 
 RUN apk add --no-cache openssl
 RUN openssl req -x509 -nodes -days 365 \
@@ -16,7 +16,7 @@ COPY public /app/public/
 RUN yarn run build
 
 
-FROM nginx:1.25.2-alpine
+FROM nginx:stable-alpine
 
 # copy self signed ssl certs (OK for local and cloudflare/behind ssl-terminated proxy)
 COPY --from=build /etc/ssl/private/nginx-selfsigned.key /etc/ssl/private/nginx-selfsigned.key

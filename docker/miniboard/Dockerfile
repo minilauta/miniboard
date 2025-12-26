@@ -12,10 +12,10 @@ RUN mkdir -p /app
 WORKDIR /app
 COPY composer.json phpunit.xml /app/
 RUN composer install --no-interaction --no-dev
-COPY public /app/public/
+COPY src /app/src/
 COPY tests /app/tests/
-COPY scripts /app/scripts/
 COPY migrations /app/migrations/
+COPY public /app/public/
 RUN chown www-data:www-data -R public
 
 EXPOSE 80

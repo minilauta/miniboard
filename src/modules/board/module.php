@@ -568,7 +568,7 @@ class BoardModule implements core\Module
 		}
 	
 		// create post
-		$post = funcs_board_create_post($user_ip, $user_country, $board_cfg, $thread_id, $parent['salt'], $file_info, $file, $_POST);
+		$post = funcs_board_create_post($user_ip, $user_country, $board_cfg, $thread_id, isset($parent) ? $parent['salt'] : null, $file_info, $file, $_POST);
 	
 		// generate unique post_id on current board
 		init_post_auto_increment($post['board_id']);
@@ -619,7 +619,7 @@ class BoardModule implements core\Module
 				]);
 				insert_log('127.0.0.1', time(), 'CSAM-scanner', $csam_match_log_msg);
 		
-				// hide the post automatically
+				// delete the post automatically
 				delete_post($board_cfg['id'], $inserted_post_id);
 			}
 		}
