@@ -43,7 +43,8 @@ class Cleaner
 				->get_pdo()
 				->prepare('SELECT id FROM posts WHERE file = :file OR thumb = :thumb LIMIT 1');
 			$sth->execute(['file' => "/src/$file", 'thumb' => "/src/$file",]);
-			if (empty($sth->fetch())) {
+			$result = $sth->fetch();
+			if ($result !== FALSE && empty($result)) {
 				printf("cleaner: file '%s' not referenced in db, cleaning...\n", $file);
 				if (!unlink(__PUBLIC__ . '/src/' . $file)) {
 					printf("cleaner: warning, failed to clean file '%s'!\n", $file);
