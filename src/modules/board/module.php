@@ -35,9 +35,9 @@ class BoardModule implements core\Module
 		
 	}
 
-	public function register_routes(core\Router &$router): void
+	public function register_routes(): void
 	{
-		$router->add_route(HTTP_GET, '/:board_id', function ($vars) {
+		core\App::get_instance()->get_router()->add_route(HTTP_GET, '/:board_id', function ($vars) {
 			// get board config
 			$board_cfg = funcs_common_get_board_cfg($vars['board_id']);
 			$board_query_id = $board_cfg['type'] !== 'main' ? $board_cfg['id'] : null;
@@ -75,7 +75,7 @@ class BoardModule implements core\Module
 			]);
 		});
 
-		$router->add_route(HTTP_GET, '/:board_id/catalog', function ($vars) {
+		core\App::get_instance()->get_router()->add_route(HTTP_GET, '/:board_id/catalog', function ($vars) {
 			// get board config
 			$board_cfg = funcs_common_get_board_cfg($vars['board_id']);
 			$board_query_id = $board_cfg['type'] !== 'main' ? $board_cfg['id'] : null;
@@ -112,7 +112,7 @@ class BoardModule implements core\Module
 			]);
 		});
 
-		$router->add_route(HTTP_GET, '/:board_id/hidden', function ($vars) {
+		core\App::get_instance()->get_router()->add_route(HTTP_GET, '/:board_id/hidden', function ($vars) {
 			// get board config
 			$board_cfg = funcs_common_get_board_cfg($vars['board_id']);
 			$board_query_id = $board_cfg['type'] !== 'main' ? $board_cfg['id'] : null;
@@ -149,7 +149,7 @@ class BoardModule implements core\Module
 			]);
 		});
 
-		$router->add_route(HTTP_GET, '/:board_id/:thread_id', function ($vars) {
+		core\App::get_instance()->get_router()->add_route(HTTP_GET, '/:board_id/:thread_id', function ($vars) {
 			// get board config
 			$board_cfg = funcs_common_get_board_cfg($vars['board_id']);
 
@@ -177,7 +177,7 @@ class BoardModule implements core\Module
 			]);
 		});
 
-		$router->add_route(HTTP_GET, '/:board_id/:thread_id/replies', function ($vars) {
+		core\App::get_instance()->get_router()->add_route(HTTP_GET, '/:board_id/:thread_id/replies', function ($vars) {
 			// get board config
 			$board_cfg = funcs_common_get_board_cfg($vars['board_id']);
 
@@ -209,7 +209,7 @@ class BoardModule implements core\Module
 			]);
 		});
 
-		$router->add_route(HTTP_GET, '/:board_id/:post_id/report', function ($vars) {
+		core\App::get_instance()->get_router()->add_route(HTTP_GET, '/:board_id/:post_id/report', function ($vars) {
 			// get board config
 			$board_cfg = funcs_common_get_board_cfg($vars['board_id']);
 
@@ -231,7 +231,7 @@ class BoardModule implements core\Module
 			]);
 		});
 
-		$router->add_route(HTTP_GET, '/:board_id/:post_id/download', function ($vars) {
+		core\App::get_instance()->get_router()->add_route(HTTP_GET, '/:board_id/:post_id/download', function ($vars) {
 			// get board config
 			$board_cfg = funcs_common_get_board_cfg($vars['board_id']);
 
@@ -257,7 +257,7 @@ class BoardModule implements core\Module
 			readfile($file_path);
 		});
 
-		$router->add_route(HTTP_POST, '/:board_id', function ($vars) {
+		core\App::get_instance()->get_router()->add_route(HTTP_POST, '/:board_id', function ($vars) {
 			$error_code = null;
 			$error_message = null;
 			
@@ -285,7 +285,7 @@ class BoardModule implements core\Module
 			echo json_encode(['error_message' => $error_message]);
 		});
 
-		$router->add_route(HTTP_POST, '/:board_id/delete', function ($vars) {
+		core\App::get_instance()->get_router()->add_route(HTTP_POST, '/:board_id/delete', function ($vars) {
 			$error_code = null;
 			$error_message = null;
 			
@@ -313,7 +313,7 @@ class BoardModule implements core\Module
 			echo json_encode(['error_message' => $error_message]);
 		});
 
-		$router->add_route(HTTP_POST, '/:board_id/:thread_id', function ($vars) {
+		core\App::get_instance()->get_router()->add_route(HTTP_POST, '/:board_id/:thread_id', function ($vars) {
 			$error_code = null;
 			$error_message = null;
 			
@@ -341,7 +341,7 @@ class BoardModule implements core\Module
 			echo json_encode(['error_message' => $error_message]);
 		});
 
-		$router->add_route(HTTP_POST, '/:board_id/:post_id/hide', function ($vars) {
+		core\App::get_instance()->get_router()->add_route(HTTP_POST, '/:board_id/:post_id/hide', function ($vars) {
 			// get board config
 			$board_cfg = funcs_common_get_board_cfg($vars['board_id']);
 
@@ -363,7 +363,7 @@ class BoardModule implements core\Module
 			http_response_code(200);
 		});
 
-		$router->add_route(HTTP_POST, '/:board_id/:post_id/report', function ($vars) {
+		core\App::get_instance()->get_router()->add_route(HTTP_POST, '/:board_id/:post_id/report', function ($vars) {
 			// get board config
 			$board_cfg = funcs_common_get_board_cfg($vars['board_id']);
 
@@ -397,7 +397,7 @@ class BoardModule implements core\Module
 			echo "Post reported, report ID: {$inserted_report_id}";
 		});
 
-		$router->add_route(HTTP_GET, '/:board_id/:thread_id/:post_id', function ($vars) {
+		core\App::get_instance()->get_router()->add_route(HTTP_GET, '/:board_id/:thread_id/:post_id', function ($vars) {
 			// get board config
 			$board_cfg = funcs_common_get_board_cfg($vars['board_id']);
 

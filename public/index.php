@@ -8,11 +8,11 @@ define('__VENDOR__', __DIR__ . '/../vendor');
 
 require __VENDOR__ . '/autoload.php';
 require __ROOT__ . '/common/version.php';
+require __ROOT__ . '/common/config.php';
 require __ROOT__ . '/core/app.php';
 
 try {
-	$app = new core\App(['home', 'manage', 'board'], []);
-	$app->get_router()->add_middleware(function () {
+	core\App::get_instance()->get_router()->add_middleware(function () {
 		session_set_cookie_params([
 			'lifetime' => 31560000,
 			'path' => '/',
@@ -23,9 +23,8 @@ try {
 		]);
 		session_start();
 	});
-	$app->process_request($_SERVER['REQUEST_METHOD'], parse_url($_SERVER['REQUEST_URI'], PHP_URL_PATH));
+	core\App::get_instance()->process_request($_SERVER['REQUEST_METHOD'], parse_url($_SERVER['REQUEST_URI'], PHP_URL_PATH));
 } catch (\Exception $ex) {
-	require_once __ROOT__ . '/common/config.php';
 	require_once __ROOT__ . '/core/renderer.php';
 	$renderer = new core\HtmlRenderer();
 	$err_code = $ex->getCode();

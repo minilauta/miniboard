@@ -8,3 +8,5 @@
     echo '<script src="https://js.hcaptcha.com/1/api.js" async defer></script>';
   }
 ?>
+
+<?= minichan\core\App::get_instance()->run_hooks('common.scripts'); ?>

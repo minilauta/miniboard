@@ -14,3 +14,5 @@
 ?>
 <link rel="stylesheet" type="text/css" href="/css/flags.css?mb_version=<?=MB_VERSION?>">
 <link rel="stylesheet" type="text/css" href="/dist/tegaki/tegaki.css?mb_version=<?=MB_VERSION?>">
+
+<?= minichan\core\App::get_instance()->run_hooks('common.styles'); ?>

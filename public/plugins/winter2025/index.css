@@ -1,0 +1,11 @@
+div.box-title {
+	background-image: url("wintitledecor.png");
+	background-position: 0 -12px;
+	background-repeat: repeat-x;
+}
+
+td.form-label, input[type="text"], textarea {
+	background-image: url("wintitledecor.png") !important;
+	background-position: 0 -15px !important;
+	background-repeat: repeat-x !important;
+}
