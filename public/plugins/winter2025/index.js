@@ -1,5 +1,6 @@
 (function() {
     const lemmings = [];
+    const LEMMING_S = 2;
     let TIME = 0.0;
 
     function spawn_lemming() {
@@ -10,16 +11,16 @@
             const target_rect = target.getBoundingClientRect();
 
             let img = document.createElement('img');
-            img.width = 6;
-            img.height = 10;
+            img.width = 0;
+            img.height = 0;
             img.style.imageRendering = 'pixelated';
             img.style.width = '100%';
             img.style.height = '100%';
 
             let div = document.createElement('div');
             div.style.position = 'absolute';
-            div.style.width = '12px';
-            div.style.height = '20px';
+            div.style.width = '0px';
+            div.style.height = '0px';
             div.style.bottom = 'auto';
             div.style.right = 'auto';
 
@@ -30,7 +31,7 @@
                 s: 'walk',
                 d: Math.random() > 0.5 ? 'right' : 'left',
                 x: Math.random() * target_rect.width,
-                y: -20,
+                y: LEMMING_S * -10,
                 tx: target_rect.left + window.scrollX,
                 ty: target_rect.top + window.scrollY,
                 tw: target_rect.width,
@@ -57,25 +58,25 @@
                 lemming.th = target_rect.height;
 
                 if (lemming.d === 'right') {
-                    lemming.x += 0.25;
+                    lemming.x += LEMMING_S * 0.125;
                     if (lemming.x > lemming.tw) lemming.s = 'openchute';
                 } else {
-                    lemming.x -= 0.25;
-                    if (lemming.x < -6) lemming.s = 'openchute';
+                    lemming.x -= LEMMING_S * 0.125;
+                    if (lemming.x < LEMMING_S * -6) lemming.s = 'openchute';
                 }
             } break;
             case 'openchute': {
                 if (lemming.y > 0) lemming.s = 'fall';
-                lemming.y += 0.25;
+                lemming.y += LEMMING_S * 0.125;
             } break;
             case 'fall': {
                 if (lemming.y > 0) {
                     lemming.x += Math.cos(lemming.r + TIME) * 0.5;
                 }
-                lemming.y += 0.5;
+                lemming.y += LEMMING_S * 0.25;
                 if (lemming.t > lemming.l ||
-                    (lemming.ty + lemming.y + 20) >= document.body.scrollHeight + 32 ||
-                    (lemming.tx + lemming.x + 12) >= document.body.scrollWidth + 32 ||
+                    (lemming.ty + lemming.y + LEMMING_S * 10) >= document.body.scrollHeight + 32 ||
+                    (lemming.tx + lemming.x + LEMMING_S * 6) >= document.body.scrollWidth + 32 ||
                     (lemming.tx + lemming.x) <= -32
                 ) {
                     lemming.cnt.removeChild(lemming.div);
@@ -86,27 +87,37 @@
         }
     }
 
-    function set_lemming_sprite(lemming, sprite) {
+    function set_lemming_sprite(lemming, sprite, w, h) {
+        let changed = false;
         if (!lemming.img.src.endsWith(sprite)) {
             lemming.img.src = '/plugins/winter2025/' + sprite;
+            changed = true;
         }
         if (lemming.d === 'left' && !lemming.img.style.transform) {
             lemming.img.style.transform = 'scaleX(-1)';
+            changed = true;
         } else if (lemming.d === 'right' && lemming.img.style.transform) {
             lemming.img.style.transform = '';
+            changed = true;
+        }
+        if (changed) {
+            lemming.img.width = w;
+            lemming.img.height = h;
+            lemming.div.style.width = (LEMMING_S * w) + 'px';
+            lemming.div.style.height = (LEMMING_S * h) + 'px';
         }
     }
 
     function draw_lemming(lemming, index, array) {
         switch (lemming.s) {
             case 'walk': {
-                set_lemming_sprite(lemming, 'lemmingwalk.gif');
+                set_lemming_sprite(lemming, 'lemmingwalk.gif', 6, 10);
             } break;
             case 'openchute': {
-                set_lemming_sprite(lemming, 'lemmingopenchute.gif');
+                set_lemming_sprite(lemming, 'lemmingopenchute.gif', 9, 15);
             } break;
             case 'fall': {
-                set_lemming_sprite(lemming, 'lemmingfallchute.gif');
+                set_lemming_sprite(lemming, 'lemmingfallchute.gif', 9, 16);
             } break;
         }
 
