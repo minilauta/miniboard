@@ -133,10 +133,13 @@
         container.style.top = '0px';
         container.style.left = '0px';
         container.style.width = '100%';
-        container.style.height = '100%';
+        container.style.height = document.body.scrollHeight + 'px';
         container.style.overflow = 'hidden';
         document.body.appendChild(container);
 
+        window.addEventListener('resize', (e) => {
+            container.style.height = document.body.scrollHeight + 'px';
+        });
         setInterval(() => {
             spawn_lemming(container);
         }, 1000);
