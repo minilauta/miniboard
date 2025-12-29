@@ -10,7 +10,6 @@
             const target_rect = target.getBoundingClientRect();
 
             let img = document.createElement('img');
-            img.src = '/plugins/winter2025/lemmingwalk.gif';
             img.width = 6;
             img.height = 10;
             img.style.imageRendering = 'pixelated';
@@ -24,14 +23,12 @@
             div.style.bottom = 'auto';
             div.style.right = 'auto';
 
-            const lemming_dir = Math.random() > 0.5 ? 'right' : 'left';
-            if (lemming_dir === 'left') img.style.transform = 'scaleX(-1)';
-
             div.appendChild(img);
 
             lemmings.push({
+                id: target.id,
                 s: 'walk',
-                d: lemming_dir,
+                d: Math.random() > 0.5 ? 'right' : 'left',
                 x: Math.random() * target_rect.width,
                 y: -20,
                 tx: target_rect.left + window.scrollX,
@@ -49,67 +46,98 @@
         }
     }
 
-    function process_lemmings(container) {
-        lemmings.forEach((lemming, index, object) => {
-            const target_rect = lemming.target.getBoundingClientRect();
+    function update_lemming(lemming, index, array) {
+        const target_rect = lemming.target.getBoundingClientRect();
 
-            switch (lemming.s) {
-                case 'walk': {
-                    lemming.tx = target_rect.left + window.scrollX;
-                    lemming.ty = target_rect.top + window.scrollY;
-                    lemming.tw = target_rect.width;
-                    lemming.th = target_rect.height;
+        switch (lemming.s) {
+            case 'walk': {
+                lemming.tx = target_rect.left + window.scrollX;
+                lemming.ty = target_rect.top + window.scrollY;
+                lemming.tw = target_rect.width;
+                lemming.th = target_rect.height;
 
-                    if (lemming.d === 'right') {
-                        lemming.x += 0.25;
-                        if (lemming.x > lemming.tw) lemming.s = 'fall';
-                    } else {
-                        lemming.x -= 0.25;
-                        if (lemming.x < -6) lemming.s = 'fall';
-                    }
-                } break;
-                case 'fall': {
-                    if (lemming.y > 0) {
-                        lemming.x += Math.cos(lemming.r + TIME) * 0.5;
-                        if (!lemming.img.src.endsWith('lemmingfallchute.gif')) {
-                            lemming.img.src = '/plugins/winter2025/lemmingfallchute.gif';
-                        }
-                    } else if (!lemming.img.src.endsWith('lemmingopenchute.gif')) {
-                        lemming.img.src = '/plugins/winter2025/lemmingopenchute.gif';
-                    }
-                    lemming.y += 0.5;
-                    if (lemming.t > lemming.l ||
-                        (lemming.ty + lemming.y + 20) > document.body.scrollHeight ||
-                        (lemming.tx + lemming.x + 12) > document.body.scrollWidth ||
-                        (lemming.tx + lemming.x) <= 0
-                    ) {
-                        container.removeChild(lemming.div);
-                        object.splice(index, 1);
-                    }
-                    lemming.t += 1.0 / 60;
-                } break;
-            }
+                if (lemming.d === 'right') {
+                    lemming.x += 0.25;
+                    if (lemming.x > lemming.tw) lemming.s = 'openchute';
+                } else {
+                    lemming.x -= 0.25;
+                    if (lemming.x < -6) lemming.s = 'openchute';
+                }
+            } break;
+            case 'openchute': {
+                if (lemming.y > 0) lemming.s = 'fall';
+                lemming.y += 0.25;
+            } break;
+            case 'fall': {
+                if (lemming.y > 0) {
+                    lemming.x += Math.cos(lemming.r + TIME) * 0.5;
+                }
+                lemming.y += 0.5;
+                if (lemming.t > lemming.l ||
+                    (lemming.ty + lemming.y + 20) >= document.body.scrollHeight + 32 ||
+                    (lemming.tx + lemming.x + 12) >= document.body.scrollWidth + 32 ||
+                    (lemming.tx + lemming.x) <= -32
+                ) {
+                    lemming.cnt.removeChild(lemming.div);
+                    array.splice(index, 1);
+                }
+                lemming.t += 1.0 / 60;
+            } break;
+        }
+    }
 
-            lemming.div.style.top = lemming.ty + lemming.y + 'px';
-            lemming.div.style.left = lemming.tx + lemming.x + 'px';
+    function set_lemming_sprite(lemming, sprite) {
+        if (!lemming.img.src.endsWith(sprite)) {
+            lemming.img.src = '/plugins/winter2025/' + sprite;
+        }
+        if (lemming.d === 'left' && !lemming.img.style.transform) {
+            lemming.img.style.transform = 'scaleX(-1)';
+        } else if (lemming.d === 'right' && lemming.img.style.transform) {
+            lemming.img.style.transform = '';
+        }
+    }
 
-            if (lemming.cnt == null) {
-                container.appendChild(lemming.div);
-                lemming.cnt = container;
-            }
-        });
+    function draw_lemming(lemming, index, array) {
+        switch (lemming.s) {
+            case 'walk': {
+                set_lemming_sprite(lemming, 'lemmingwalk.gif');
+            } break;
+            case 'openchute': {
+                set_lemming_sprite(lemming, 'lemmingopenchute.gif');
+            } break;
+            case 'fall': {
+                set_lemming_sprite(lemming, 'lemmingfallchute.gif');
+            } break;
+        }
+
+        lemming.div.style.top = lemming.ty + lemming.y + 'px';
+        lemming.div.style.left = lemming.tx + lemming.x + 'px';
     }
 
     document.addEventListener('DOMContentLoaded', function(event) {
         const container = document.createElement('div');
         container.id = 'winter2025';
+        container.style.pointerEvents = 'none';
+        container.style.position = 'absolute';
+        container.style.top = '0px';
+        container.style.left = '0px';
+        container.style.width = '100%';
+        container.style.height = '100%';
+        container.style.overflow = 'hidden';
         document.body.appendChild(container);
 
         setInterval(() => {
             spawn_lemming(container);
         }, 1000);
         setInterval(() => {
-            process_lemmings(container);
+            lemmings.forEach((lemming, index, array) => {
+                update_lemming(lemming, index, array);
+                draw_lemming(lemming, index, array);
+                if (lemming.cnt == null) {
+                    container.appendChild(lemming.div);
+                    lemming.cnt = container;
+                }
+            });
             TIME += 1.0 / 60;
         }, 16);
     });
