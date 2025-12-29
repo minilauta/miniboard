@@ -59,17 +59,23 @@
 
                 if (lemming.d === 'right') {
                     lemming.x += LEMMING_S * 0.125;
-                    if (lemming.x > lemming.tw) lemming.s = 'openchute';
+                    if (lemming.x > lemming.tw) {
+                        if (Math.random() > 0.25) lemming.s = 'openchute';
+                        else lemming.s = 'fall';
+                    }
                 } else {
                     lemming.x -= LEMMING_S * 0.125;
-                    if (lemming.x < LEMMING_S * -6) lemming.s = 'openchute';
+                    if (lemming.x < LEMMING_S * -6) {
+                        if (Math.random() > 0.25) lemming.s = 'openchute';
+                        else lemming.s = 'fall';
+                    }
                 }
             } break;
             case 'openchute': {
-                if (lemming.y > 0) lemming.s = 'fall';
+                if (lemming.y > 0) lemming.s = 'fallchute';
                 lemming.y += LEMMING_S * 0.125;
             } break;
-            case 'fall': {
+            case 'fallchute': {
                 if (lemming.y > 0) {
                     lemming.x += Math.cos(lemming.r + TIME) * 0.5;
                 }
@@ -84,6 +90,18 @@
                 }
                 lemming.t += 1.0 / 60;
             } break;
+            case 'fall': {
+                lemming.y += LEMMING_S * 0.5;
+                if (lemming.t > lemming.l ||
+                    (lemming.ty + lemming.y + LEMMING_S * 10) >= document.body.scrollHeight + 32 ||
+                    (lemming.tx + lemming.x + LEMMING_S * 6) >= document.body.scrollWidth + 32 ||
+                    (lemming.tx + lemming.x) <= -32
+                ) {
+                    lemming.cnt.removeChild(lemming.div);
+                    array.splice(index, 1);
+                }
+                lemming.t += 1.0 / 60;
+            }
         }
     }
 
@@ -116,8 +134,11 @@
             case 'openchute': {
                 set_lemming_sprite(lemming, 'lemmingopenchute.gif', 9, 15);
             } break;
-            case 'fall': {
+            case 'fallchute': {
                 set_lemming_sprite(lemming, 'lemmingfallchute.gif', 9, 16);
+            } break;
+            case 'fall': {
+                set_lemming_sprite(lemming, 'lemmingfall.gif', 6, 10);
             } break;
         }
 
