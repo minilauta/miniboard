@@ -12,16 +12,9 @@ class Cleaner
 	 */
 	private DbConnection $connection;
 
-	/**
-	 * Summary of files
-	 * @var array
-	 */
-	private array $files;
-
 	public function __construct(DbConnection $connection)
 	{
 		$this->connection = $connection;
-		$this->files = array_slice(scandir(__PUBLIC__ . '/src', SCANDIR_SORT_ASCENDING), 2);
 	}
 
 	public function clean_posts(): void
@@ -36,20 +29,27 @@ class Cleaner
 
 	public function clean_files(): void
 	{
-		printf("cleaner: total files: %d\n", count($this->files));
+		$files_disk = array_slice(scandir(__PUBLIC__ . '/src', SCANDIR_SORT_ASCENDING), 2);
+		array_walk($files_disk, function (string &$file, int $idx) { $file = '/src/' . $file; });
+		$files_disk_n = count($files_disk);
+		$files_db = $this->connection
+			->get_pdo()
+			->query('SELECT DISTINCT file as file FROM posts UNION SELECT DISTINCT thumb as file FROM posts')
+			->fetchAll(\PDO::FETCH_COLUMN);
+		$files_db_n = count($files_db);
+		printf("cleaner: files on disk: %d, files in database: %d\n", $files_disk_n, $files_db_n);
+		if ($files_disk_n === 0) {
+			printf("cleaner: no files to clean, exiting early ...\n");
+			return;
+		}
+		$files_diff = array_diff($files_disk, $files_db);
+		$files_diff_n = count($files_diff);
+		printf("cleaner: files on disk that are not in database: %d\n", $files_diff_n);
 		$cleaned_n = 0;
-		foreach ($this->files as $file) {
-			$sth = $this->connection
-				->get_pdo()
-				->prepare('SELECT id FROM posts WHERE file = :file OR thumb = :thumb LIMIT 1');
-			$sth->execute(['file' => "/src/$file", 'thumb' => "/src/$file",]);
-			if (empty($sth->fetch())) {
-				printf("cleaner: file '%s' not referenced in db, cleaning...\n", $file);
-				if (!unlink(__PUBLIC__ . '/src/' . $file)) {
-					printf("cleaner: warning, failed to clean file '%s'!\n", $file);
-				}
-				$cleaned_n++;
-			}
+		foreach ($files_diff as $file) {
+			printf("cleaner: cleaning file '%s'...\n", $file);
+			if (unlink(__PUBLIC__ . $file)) $cleaned_n++;
+			else printf("cleaner: warning, failed to clean file '%s'!\n", $file);
 		}
 		printf("cleaner: cleaned files: %d\n", $cleaned_n);
 	}
