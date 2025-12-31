@@ -34,7 +34,16 @@ class Cleaner
 		$files_disk_n = count($files_disk);
 		$files_db = $this->connection
 			->get_pdo()
-			->query('SELECT DISTINCT file as file FROM posts UNION SELECT DISTINCT thumb as file FROM posts')
+			->query('
+				SELECT DISTINCT file AS file FROM posts
+				WHERE LEFT(file, 5) = \'/src/\'
+				UNION
+				SELECT DISTINCT thumb AS file FROM posts
+				WHERE LEFT(thumb, 5) = \'/src/\'
+				UNION
+				SELECT DISTINCT audio_album AS file FROM posts
+				WHERE LEFT(audio_album, 5) = \'/src/\'
+			')
 			->fetchAll(\PDO::FETCH_COLUMN);
 		$files_db_n = count($files_db);
 		printf("cleaner: files on disk: %d, files in database: %d\n", $files_disk_n, $files_db_n);
