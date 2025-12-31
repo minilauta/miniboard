@@ -10,6 +10,8 @@ spec:
   controller: k8s.io/ingress-nginx
 ---
 
+# NOTE: if you uncommented certs.yml - uncomment the commented lines here
+
 apiVersion: networking.k8s.io/v1
 kind: Ingress
 metadata:
@@ -17,11 +19,18 @@ metadata:
   annotations:
     nginx.ingress.kubernetes.io/rewrite-target: /
     nginx.ingress.kubernetes.io/ssl-redirect: "false"
-    nginx.ingress.kubernetes.io/ssl-passthrough: "true"
+    nginx.ingress.kubernetes.io/ssl-passthrough: "true" # NOTE: delete if you uncommented certs.yml
     nginx.ingress.kubernetes.io/proxy-body-size: 256m
+    # cert-manager.io/issuer: miniboard-cert-ca-issuer
 spec:
   ingressClassName: miniboard-nginx-ingress-class
+  # tls:
+  # - hosts:
+  #   - example.org
+  #   - www.example.org
+  #   secretName: miniboard-nginx-ingress-cert
   rules:
+  # NOTE: delete the rule below if you uncommented certs.yml
   - http:
       paths:
       - path: /
@@ -38,3 +47,38 @@ spec:
             name: miniboard-nginx
             port:
               number: 443
+  # NOTE: use the rules below if you uncommented certs.yml
+  # - host: example.org
+  #   http:
+  #     paths:
+  #     - path: /
+  #       pathType: Prefix
+  #       backend:
+  #         service:
+  #           name: miniboard-nginx
+  #           port:
+  #             number: 80
+  #     - path: /
+  #       pathType: Prefix
+  #       backend:
+  #         service:
+  #           name: miniboard-nginx
+  #           port:
+  #             number: 443
+  # - host: www.example.org
+  #   http:
+  #     paths:
+  #     - path: /
+  #       pathType: Prefix
+  #       backend:
+  #         service:
+  #           name: miniboard-nginx
+  #           port:
+  #             number: 80
+  #     - path: /
+  #       pathType: Prefix
+  #       backend:
+  #         service:
+  #           name: miniboard-nginx
+  #           port:
+  #             number: 443

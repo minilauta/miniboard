@@ -1,0 +1,13 @@
+# NOTE: setup storage classes specifically for your environment
+# NOTE: the example below uses microk8s persistent volumes,
+#       i can't recommend that for production ...
+
+# kind: StorageClass
+# apiVersion: storage.k8s.io/v1
+# metadata:
+#   name: ssd-hostpath
+# provisioner: microk8s.io/hostpath
+# reclaimPolicy: Retain
+# parameters:
+#   pvDir: /mnt/minilauta-data
+# volumeBindingMode: WaitForFirstConsumer

@@ -5,8 +5,9 @@ metadata:
   labels:
     run: miniboard-app
 spec:
+  # storageClassName: ssd-hostpath
   accessModes:
     - ReadWriteOnce
   resources:
     requests:
-      storage: 1024M
+      storage: 1G

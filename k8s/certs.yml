@@ -1,0 +1,38 @@
+# NOTE: i recommend using cert manager for internal TLS
+# NOTE: you need to manually create the following secrets:
+# - miniboard-cert-ca-root-secret
+
+# apiVersion: cert-manager.io/v1
+# kind: Issuer
+# metadata:
+#   name: miniboard-cert-selfsigned-issuer
+# spec:
+#   selfSigned: {}
+
+# ---
+# apiVersion: cert-manager.io/v1
+# kind: Certificate
+# metadata:
+#   name: miniboard-cert-selfsigned-ca
+# spec:
+#   isCA: true
+#   duration: 87660h
+#   renewBefore: 360h
+#   commonName: "Your Custom CA"
+#   secretName: miniboard-cert-ca-root-secret
+#   privateKey:
+#     algorithm: ECDSA
+#     size: 256
+#   issuerRef:
+#     name: miniboard-cert-selfsigned-issuer
+#     kind: Issuer
+#     group: cert-manager.io
+
+# ---
+# apiVersion: cert-manager.io/v1
+# kind: Issuer
+# metadata:
+#   name: miniboard-cert-ca-issuer
+# spec:
+#   ca:
+#     secretName: miniboard-cert-ca-root-secret

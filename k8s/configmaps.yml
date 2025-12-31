@@ -71,7 +71,13 @@ data:
     define('MB_ANONYMIZE_AFTER', 3600 * 24 * 15);
     define('MB_ERROR_IMAGES', [
       404 => [
-        'nazrin1.png'
+        'mini1.jpg',
+        'mini2.png',
+        'mini3.png',
+        'eitoimi404.png',
+        'mini404.png',
+        'kello404.png',
+        'mingu404.png',
       ]
     ]);
     define('MB_BANNER_IMAGES', [
@@ -93,7 +99,7 @@ data:
         'req_role'          => null,
         'alwaysnoko'        => true,
         'threads_per_page'  => 10,
-        'threads_per_catalog_page' => 50,
+        'threads_per_catalog_page' => 100,
         'posts_per_preview' => 4,
         'truncate'          => 15,
         'anonymous'         => 'Anonymous',
@@ -128,11 +134,11 @@ data:
         'req_role'          => null,
         'alwaysnoko'        => true,
         'threads_per_page'  => 10,
-        'threads_per_catalog_page' => 50,
+        'threads_per_catalog_page' => 100,
         'posts_per_preview' => 4,
         'truncate'          => 15,
         'anonymous'         => 'Anonymous',
-        'hashid_salt'       => '_J9..salt', // CRYPT_EXT_DES, _.... = iteration count, followed by 4 char salt
+        'hashid_salt'       => null,
         'max_threads'       => 100,
         'max_replies'       => 100,
         'fields_post'       => [
@@ -149,16 +155,28 @@ data:
           'image/png'           => ['png'],
           'image/gif'           => ['gif'],
           'image/bmp'           => ['bmp'],
+          'image/x-ms-bmp'      => ['bmp'],
           'image/webp'          => ['webp'],
+          'image/avif'          => ['avif'],
           'video/mp4'           => ['mp4'],
           'video/webm'          => ['webm'],
+          'video/x-matroska'    => ['mkv'],
           'audio/mpeg'          => ['mp3'],
-          'application/x-shockwave-flash' => ['swf']
+          'audio/wav'           => ['wav'],
+          'audio/x-wav'         => ['wav'],
+          'audio/vnd.wave'      => ['wav'],
+          'audio/flac'          => ['flac'],
+          'audio/opus'          => ['opus'],
+          'audio/ogg'           => ['oga'],
+          'audio/x-mod'         => ['mod', 'xm', 'it', 'med'],
+          'audio/x-s3m'         => ['s3m'],
+          'application/x-shockwave-flash' => ['swf'],
         ],
         'embed_types'       => [
           'youtube.com'     => 'https://youtube.com/oembed?format=json&url=',
           'www.youtube.com' => 'https://youtube.com/oembed?format=json&url=',
-          'soundcloud.com'  => 'https://soundcloud.com/oembed?format=json&url='
+          'youtu.be'        => 'https://youtube.com/oembed?format=json&url=',
+          'soundcloud.com'  => 'https://soundcloud.com/oembed?format=json&url=',
         ],
         'maxkb'             => 24000,
         'nofileok'          => false,

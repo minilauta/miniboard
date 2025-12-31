@@ -21,9 +21,10 @@ spec: # spec for stateful set
         resources:
           requests:
             cpu: 250m
-            memory: 128Mi
-          limits:
-            memory: 1024Mi
+            memory: 512Mi
+          # NOTE: adjust limits specifically for your environment
+          # limits:
+          #   memory: 8192Mi
         env:
         - name: MYSQL_CHARSET
           value: utf8
@@ -57,11 +58,12 @@ spec: # spec for stateful set
   - metadata:
       name: miniboard-mariadb-pv
     spec:
+      # storageClassName: ssd-hostpath
       accessModes:
         - ReadWriteOnce
       resources:
         requests:
-          storage: 512M
+          storage: 128M
 
 ---
 apiVersion: apps/v1
@@ -108,8 +110,9 @@ spec: # spec for stateful set
   - metadata:
       name: miniboard-redis-pv
     spec:
+      # storageClassName: ssd-hostpath
       accessModes:
         - ReadWriteOnce
       resources:
         requests:
-          storage: 256M
+          storage: 128M

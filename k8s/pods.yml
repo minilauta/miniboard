@@ -5,16 +5,22 @@ metadata:
 spec: # spec for pod
   containers:
   - name: miniboard-migrate
-    image: ghcr.io/anonyymi/miniboard/app:latest
+    image: ghcr.io/minilauta/miniboard/app:latest
     imagePullPolicy: Always
+    workingDir: /app
     args: ["php", "src/cli.php", "migrate"]
     resources:
       requests:
         cpu: 250m
         memory: 128Mi
-      limits:
-        memory: 256Mi
+      # NOTE: adjust limits specifically for your environment
+      # limits:
+      #   memory: 256Mi
     env:
+    - name: PHP_POST_MAX_SIZE
+      value: 100M
+    - name: PHP_UPLOAD_MAX_FILESIZE
+      value: 128M
     - name: MB_TIMEZONE
       value: Europe/Helsinki
     - name: MB_DB_HOST
@@ -31,4 +37,61 @@ spec: # spec for pod
         secretKeyRef:
           name: miniboard-mariadb-user
           key: PASSWORD
+    - name: REDIS_HOST
+      value: miniboard-redis
+    - name: REDIS_PASS
+      valueFrom:
+        secretKeyRef:
+          name: miniboard-redis-auth
+          key: PASSWORD
+    - name: CSAM_SCANNER_HOST
+      value: miniboard-csam-scanner
+  restartPolicy: OnFailure
+
+---
+apiVersion: v1
+kind: Pod
+metadata:
+  name: pod-miniboard-cleanup
+spec: # spec for pod
+  containers:
+  - name: miniboard-cleanup
+    image: ghcr.io/minilauta/miniboard/app:latest
+    imagePullPolicy: Always
+    workingDir: /app
+    args: ["php", "src/cli.php", "cleanup"]
+    resources:
+      requests:
+        cpu: 250m
+        memory: 128Mi
+    env:
+    - name: PHP_POST_MAX_SIZE
+      value: 100M
+    - name: PHP_UPLOAD_MAX_FILESIZE
+      value: 128M
+    - name: MB_TIMEZONE
+      value: Europe/Helsinki
+    - name: MB_DB_HOST
+      value: miniboard-mariadb
+    - name: MB_DB_NAME
+      value: miniboard_db
+    - name: MB_DB_USER
+      valueFrom:
+        secretKeyRef:
+          name: miniboard-mariadb-user
+          key: USER
+    - name: MB_DB_PASS
+      valueFrom:
+        secretKeyRef:
+          name: miniboard-mariadb-user
+          key: PASSWORD
+    - name: REDIS_HOST
+      value: miniboard-redis
+    - name: REDIS_PASS
+      valueFrom:
+        secretKeyRef:
+          name: miniboard-redis-auth
+          key: PASSWORD
+    - name: CSAM_SCANNER_HOST
+      value: miniboard-csam-scanner
   restartPolicy: OnFailure
