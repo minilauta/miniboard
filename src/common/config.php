@@ -5,7 +5,7 @@ date_default_timezone_set(getenv('MB_TIMEZONE'));
 // defines
 define('MB_ENV', getenv('MB_ENV'));
 define('MB_MODULES', ['home', 'manage', 'board']);
-define('MB_PLUGINS', ['winter2025']);
+define('MB_PLUGINS', []);
 define('MB_DB_HOST', getenv('MB_DB_HOST'));
 define('MB_DB_NAME', getenv('MB_DB_NAME'));
 define('MB_DB_USER', getenv('MB_DB_USER'));
