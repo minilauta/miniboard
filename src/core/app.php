@@ -12,12 +12,6 @@ require_once __DIR__ . '/plugin.php';
 class App
 {
 	/**
-	 * Singleton instance
-	 * @var App
-	 */
-	private static App $instance;
-
-	/**
 	 * Summary of router
 	 * @var Router
 	 */
@@ -41,36 +35,26 @@ class App
 	 */
 	private array $plugins;
 
-	private final function __construct() {}
-
-	public final function init(): void
+	public function __construct($modules, $plugins)
 	{
 		$this->router = new Router();
 		$this->hooks = [];
 		$this->modules = [];
-		foreach (MB_MODULES as $module_name)
+		foreach ($modules as $module_name)
 		{
 			$module = require __ROOT__ . "/modules/{$module_name}/module.php";
-			$module->register_routes($this);
+			$module->init($this);
+			$module->register_routes($this->router);
 			$this->modules[] = $module;
 		}
 		$this->plugins = [];
-		foreach (MB_PLUGINS as $plugin_name)
+		foreach ($plugins as $plugin_name)
 		{
 			$plugin = require __ROOT__ . "/plugins/{$plugin_name}/plugin.php";
+			$plugin->init($this);
 			$plugin->register_hooks($this);
 			$this->plugins[] = $plugin;
 		}
-	}
-
-	public static function get_instance(): App
-	{
-		if (!isset(self::$instance)) {
-			self::$instance = new App;
-			self::$instance->init();
-		}
-
-		return self::$instance;
 	}
 
 	public function process_request(string $req_method, string $req_uri)
@@ -80,9 +64,8 @@ class App
 
 	public function add_hook(string $name, Closure $hook): void
 	{
-		if (!isset($this->hooks[$name])) {
+		if (!isset($this->hooks[$name]))
 			$this->hooks[$name] = [];
-		}
 
 		$this->hooks[$name][] = $hook;
 	}
@@ -90,9 +73,9 @@ class App
 	public function run_hooks(string $name): void
 	{
 		if (!isset($this->hooks[$name])) return;
-		foreach ($this->hooks[$name] as $hook) {
+
+		foreach ($this->hooks[$name] as $hook)
 			call_user_func($hook);
-		}
 	}
 
 	public function get_router(): Router

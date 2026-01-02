@@ -20,19 +20,18 @@ class ManageModule implements core\Module
 		$this->renderer = new core\HtmlRenderer();
 	}
 
-	public function __destruct()
-	{
+	public function __destruct() {}
 
+	public function init(core\App &$app): void
+	{
+		$this->renderer->set_var('app', $app);
 	}
 
-	public function register_middleware(Closure $handler): void
-	{
-		
-	}
+	public function register_middleware(core\Router &$router, Closure $handler): void {}
 
-	public function register_routes(): void
+	public function register_routes(core\Router &$router): void
 	{
-		core\App::get_instance()->get_router()->add_route(HTTP_GET, '/manage', function ($vars) {
+		$router->add_route(HTTP_GET, '/manage', function ($vars) {
 			if (!funcs_common_is_logged_in()) {
 				echo $this->renderer->render(__DIR__ . '/templates/login.phtml');
 				return;
@@ -51,7 +50,7 @@ class ManageModule implements core\Module
 			]);
 		});
 
-		core\App::get_instance()->get_router()->add_route(HTTP_GET, '/manage/logout', function ($vars) {
+		$router->add_route(HTTP_GET, '/manage/logout', function ($vars) {
 			if (!funcs_manage_logout()) {
 				throw new \AppException('index', 'route', "logout failed to clear PHP session", SC_INTERNAL_ERROR);
 			}
@@ -60,7 +59,7 @@ class ManageModule implements core\Module
 			http_response_code(303);
 		});
 
-		core\App::get_instance()->get_router()->add_route(HTTP_POST, '/manage/login', function ($vars) {
+		$router->add_route(HTTP_POST, '/manage/login', function ($vars) {
 			return handle_loginform($vars);
 		});
 
@@ -98,7 +97,7 @@ class ManageModule implements core\Module
 			http_response_code(303);
 		}
 
-		core\App::get_instance()->get_router()->add_route(HTTP_POST, '/manage/import', function ($vars) {
+		$router->add_route(HTTP_POST, '/manage/import', function ($vars) {
 			if (!funcs_common_is_logged_in()) {
 				throw new \AppException('index', 'route', 'access denied', SC_UNAUTHORIZED);
 			}
@@ -128,7 +127,7 @@ class ManageModule implements core\Module
 			http_response_code(303);
 		}
 
-		core\App::get_instance()->get_router()->add_route(HTTP_POST, '/manage/rebuild', function ($vars) {
+		$router->add_route(HTTP_POST, '/manage/rebuild', function ($vars) {
 			if (!funcs_common_is_logged_in()) {
 				throw new \AppException('index', 'route', 'access denied', SC_UNAUTHORIZED);
 			}
@@ -153,7 +152,7 @@ class ManageModule implements core\Module
 			http_response_code(303);
 		}
 
-		core\App::get_instance()->get_router()->add_route(HTTP_POST, '/manage/refresh', function ($vars) {
+		$router->add_route(HTTP_POST, '/manage/refresh', function ($vars) {
 			if (!funcs_common_is_logged_in()) {
 				throw new \AppException('index', 'route', 'access denied', SC_UNAUTHORIZED);
 			}
@@ -178,7 +177,7 @@ class ManageModule implements core\Module
 			http_response_code(303);
 		}
 
-		core\App::get_instance()->get_router()->add_route(HTTP_POST, '/manage/delete', function ($vars) {
+		$router->add_route(HTTP_POST, '/manage/delete', function ($vars) {
 			if (!funcs_common_is_logged_in()) {
 				throw new \AppException('index', 'route', 'access denied', SC_UNAUTHORIZED);
 			}
@@ -202,7 +201,7 @@ class ManageModule implements core\Module
 			http_response_code(303);
 		}
 
-		core\App::get_instance()->get_router()->add_route(HTTP_POST, '/manage/ban', function ($vars) {
+		$router->add_route(HTTP_POST, '/manage/ban', function ($vars) {
 			if (!funcs_common_is_logged_in()) {
 				throw new \AppException('index', 'route', 'access denied', SC_UNAUTHORIZED);
 			}
@@ -234,7 +233,7 @@ class ManageModule implements core\Module
 			http_response_code(303);
 		}
 
-		core\App::get_instance()->get_router()->add_route(HTTP_POST, '/manage/approve', function ($vars) {
+		$router->add_route(HTTP_POST, '/manage/approve', function ($vars) {
 			if (!funcs_common_is_logged_in()) {
 				throw new \AppException('index', 'route', 'access denied', SC_UNAUTHORIZED);
 			}
@@ -258,7 +257,7 @@ class ManageModule implements core\Module
 			http_response_code(303);
 		}
 
-		core\App::get_instance()->get_router()->add_route(HTTP_POST, '/manage/toggle_lock', function ($vars) {
+		$router->add_route(HTTP_POST, '/manage/toggle_lock', function ($vars) {
 			if (!funcs_common_is_logged_in()) {
 				throw new \AppException('index', 'route', 'access denied', SC_UNAUTHORIZED);
 			}
@@ -282,7 +281,7 @@ class ManageModule implements core\Module
 			http_response_code(303);
 		}
 
-		core\App::get_instance()->get_router()->add_route(HTTP_POST, '/manage/toggle_sticky', function ($vars) {
+		$router->add_route(HTTP_POST, '/manage/toggle_sticky', function ($vars) {
 			if (!funcs_common_is_logged_in()) {
 				throw new \AppException('index', 'route', 'access denied', SC_UNAUTHORIZED);
 			}
@@ -306,7 +305,7 @@ class ManageModule implements core\Module
 			http_response_code(303);
 		}
 
-		core\App::get_instance()->get_router()->add_route(HTTP_POST, '/manage/csam_scanner/cp', function ($vars) {
+		$router->add_route(HTTP_POST, '/manage/csam_scanner/cp', function ($vars) {
 			if (!funcs_common_is_logged_in()) {
 				throw new \AppException('index', 'route', 'access denied', SC_UNAUTHORIZED);
 			}

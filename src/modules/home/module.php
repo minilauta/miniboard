@@ -20,19 +20,18 @@ class HomeModule implements core\Module
 		$this->renderer = new core\HtmlRenderer();
 	}
 
-	public function __destruct()
-	{
+	public function __destruct() {}
 
+	public function init(core\App &$app): void
+	{
+		$this->renderer->set_var('app', $app);
 	}
 
-	public function register_middleware(Closure $handler): void
-	{
+	public function register_middleware(core\Router &$router, Closure $handler): void {}
 
-	}
-
-	public function register_routes(): void
+	public function register_routes(core\Router &$router): void
 	{
-		core\App::get_instance()->get_router()->add_route(HTTP_GET, '/', function ($vars) {
+		$router->add_route(HTTP_GET, '/', function ($vars) {
 			echo $this->renderer->render(__DIR__ . '/templates/root.phtml', [
 				'site_name' => MB_SITE_NAME,
 				'site_desc' => MB_SITE_DESC,

@@ -28,4 +28,9 @@ class HtmlRenderer implements Renderer
         include $filename;
         return ob_get_clean();
     }
+
+    public function set_var(string $key, mixed $val): void
+    {
+        $this->vars[$key] = $val;
+    }
 }
