@@ -19,9 +19,9 @@ function session_mw_update_session_id_refs(string $old_session_id, string $new_s
     ]);
 }
 
-function session_mw(int $session_lifetime): Closure
+function session_mw(int $session_lifetime, int $recreate_after): Closure
 {
-    return function() use ($session_lifetime) {
+    return function() use ($session_lifetime, $recreate_after) {
         session_set_cookie_params([
             'lifetime' => $session_lifetime,
             'path' => '/',
@@ -37,7 +37,7 @@ function session_mw(int $session_lifetime): Closure
             $_SESSION['timestamp'] = $timestamp;
         }
         $s_duration = $timestamp - $_SESSION['timestamp'];
-        if ($s_duration <= $session_lifetime && $s_duration > $session_lifetime / 10)
+        if ($s_duration <= $session_lifetime && $s_duration > $recreate_after)
         {
             $s_id_old = session_id();
             $s_vars = $_SESSION;

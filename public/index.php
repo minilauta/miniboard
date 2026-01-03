@@ -15,7 +15,7 @@ require __ROOT__ . '/middlewares/session_mw.php';
 $app = null;
 try {
 	$app = new core\App(MB_MODULES, MB_PLUGINS);
-	$app->get_router()->add_middleware(middlewares\session_mw(MB_SESSION_LIFETIME));
+	$app->get_router()->add_middleware(middlewares\session_mw(MB_SESSION_LIFETIME, MB_SESSION_LIFETIME / 2));
 	$app->process_request($_SERVER['REQUEST_METHOD'], parse_url($_SERVER['REQUEST_URI'], PHP_URL_PATH));
 } catch (\Exception $ex) {
 	require_once __ROOT__ . '/core/renderer.php';
