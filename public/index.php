@@ -6,46 +6,16 @@ define('__ROOT__', __DIR__ . '/../src');
 define('__PUBLIC__', __DIR__);
 define('__VENDOR__', __DIR__ . '/../vendor');
 
-define('MB_SESSION_LIFETIME', 432000); // 5 days
-
 require __VENDOR__ . '/autoload.php';
 require __ROOT__ . '/common/version.php';
 require __ROOT__ . '/common/config.php';
 require __ROOT__ . '/core/app.php';
+require __ROOT__ . '/middlewares/session_mw.php';
 
 $app = null;
 try {
 	$app = new core\App(MB_MODULES, MB_PLUGINS);
-	$app->get_router()->add_middleware(function () {
-		session_set_cookie_params([
-			'lifetime' => MB_SESSION_LIFETIME,
-			'path' => '/',
-			'domain' => '',
-			'secure' => false,
-			'httponly' => false,
-			'samesite' => 'Lax'
-		]);
-		session_start();
-		$timestamp = time();
-		if (!isset($_SESSION['timestamp'])) {
-			$_SESSION['timestamp'] = $timestamp;
-		}
-		$s_duration = $timestamp - $_SESSION['timestamp'];
-		if ($s_duration <= MB_SESSION_LIFETIME && $s_duration > MB_SESSION_LIFETIME / 10) {
-			$s_id = session_id();
-			$s_vars = $_SESSION;
-			session_destroy();
-			session_id($s_id);
-			session_start();
-			$_SESSION = $s_vars;
-			$_SESSION['timestamp'] = $timestamp;
-		}
-		else if ($s_duration > MB_SESSION_LIFETIME) {
-			session_destroy();
-			session_start();
-			$_SESSION['timestamp'] = $timestamp;
-		}
-	});
+	$app->get_router()->add_middleware(middlewares\session_mw(MB_SESSION_LIFETIME));
 	$app->process_request($_SERVER['REQUEST_METHOD'], parse_url($_SERVER['REQUEST_URI'], PHP_URL_PATH));
 } catch (\Exception $ex) {
 	require_once __ROOT__ . '/core/renderer.php';
