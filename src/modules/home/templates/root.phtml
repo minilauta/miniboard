@@ -9,6 +9,12 @@
   <body>
     <div id="menubar" class="menubar">
 			<div id="boardmenu" class="boardmenu">
+        [<a href="/">Home</a>]
+        <?php
+          if (in_array('bans', MB_MODULES)) {
+            echo '[<a href="/bans/">Bans</a>]';
+          }
+        ?>
         [<a href="/manage/">Manage</a>]
 			</div>
     </div>
