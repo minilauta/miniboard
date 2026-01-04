@@ -2,8 +2,6 @@
 
 namespace minichan\core;
 
-use Exception;
-
 class Cleaner
 {
 	/**

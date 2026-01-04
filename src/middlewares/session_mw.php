@@ -49,7 +49,6 @@ function session_mw(int $session_lifetime, int $recreate_after): Closure
         }
         else if ($s_duration > $session_lifetime)
         {
-            $s_id_old = session_id();
             session_destroy();
             session_start();
             $_SESSION['timestamp'] = $timestamp;

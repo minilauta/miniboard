@@ -34,10 +34,14 @@ switch ($argv[1]) {
 		$migrator->init();
 		$migrator->migrate();
 	} break;
-	case 'cleanup': {
+	case 'clean:posts': {
 		$connection = new core\DbConnection(MB_DB_HOST, MB_DB_NAME, MB_DB_USER, MB_DB_PASS);
 		$cleaner = new core\Cleaner($connection);
 		$cleaner->clean_posts();
+	} break;
+	case 'clean:files': {
+		$connection = new core\DbConnection(MB_DB_HOST, MB_DB_NAME, MB_DB_USER, MB_DB_PASS);
+		$cleaner = new core\Cleaner($connection);
 		$cleaner->clean_files();
 	} break;
 	default: {
