@@ -30,4 +30,10 @@ class Ban
 	public function fmt_expire(): string {
 		return date(MB_DATEFORMAT, $this->expire);
 	}
+
+	public function fmt_reason(int $len): string {
+		if (strlen($this->reason) <= $len) return $this->reason;
+
+		return substr($this->reason, 0, $len) . ' ...';
+	}
 }

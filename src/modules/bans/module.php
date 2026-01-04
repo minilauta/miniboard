@@ -48,7 +48,6 @@ class BansModule implements core\Module
 					FROM bans
 					WHERE timestamp > :time
 					ORDER BY id DESC
-					LIMIT 10
 				');
 			$bans = [];
 			if ($sth->execute(['time' => time() - 15 * 86400]) == true) {
