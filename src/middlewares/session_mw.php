@@ -28,7 +28,7 @@ function session_mw(int $session_lifetime, int $recreate_after): Closure
             'domain' => '',
             'secure' => false,
             'httponly' => false,
-            'samesite' => 'Lax'
+            'samesite' => 'Strict'
         ]);
         session_start();
         $timestamp = time();
