@@ -341,7 +341,7 @@ class ManageModule implements core\Module
 
 	public function get_index(): string
 	{
-		return '/manage';
+		return '/manage/';
 	}
 }
 

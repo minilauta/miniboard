@@ -65,7 +65,7 @@ class BansModule implements core\Module
 
 	public function get_index(): string
 	{
-		return '/bans';
+		return '/bans/';
 	}
 }
 

@@ -62,7 +62,7 @@ class LogsModule implements core\Module
 
 	public function get_index(): string
 	{
-		return '/logs';
+		return '/logs/';
 	}
 }
 
