@@ -44,6 +44,11 @@ class HomeModule implements core\Module
 	{
 		return 'home';
 	}
+
+	public function get_index(): string
+	{
+		return '/';
+	}
 }
 
 return new HomeModule();

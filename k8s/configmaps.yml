@@ -11,7 +11,7 @@ data:
     // defines
     define('MB_ENV', getenv('MB_ENV'));
     define('MB_SESSION_LIFETIME', 432000); // 5 days
-    define('MB_MODULES', ['home', 'manage', 'board']);
+    define('MB_MODULES', ['home', 'manage', 'logs', 'bans', 'board']);
     define('MB_PLUGINS', []);
     define('MB_DB_HOST', getenv('MB_DB_HOST'));
     define('MB_DB_NAME', getenv('MB_DB_NAME'));

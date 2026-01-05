@@ -9,13 +9,7 @@
   <body>
     <div id="menubar" class="menubar">
 			<div id="boardmenu" class="boardmenu">
-        [<a href="/">Home</a>]
-        <?php
-          if (in_array('bans', MB_MODULES)) {
-            echo '[<a href="/bans/">Bans</a>]';
-          }
-        ?>
-        [<a href="/manage/">Manage</a>]
+        <?=$this->render(__ROOT__ . '/common/templates/modmenu.phtml')?>
 			</div>
     </div>
     <?=$this->render(__ROOT__ . '/common/templates/header.phtml', ['h_title' => "{$site_name}", 'h_subtitle' => '', 'h_logo' => 'logo.png'])?>

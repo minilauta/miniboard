@@ -717,6 +717,11 @@ class BoardModule implements core\Module
 	{
 		return 'board';
 	}
+
+	public function get_index(): string
+	{
+		return '';
+	}
 }
 
 return new BoardModule();

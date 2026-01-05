@@ -338,6 +338,11 @@ class ManageModule implements core\Module
 	{
 		return 'manage';
 	}
+
+	public function get_index(): string
+	{
+		return '/manage';
+	}
 }
 
 return new ManageModule();

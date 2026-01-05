@@ -4,7 +4,7 @@
     <?=$this->render(__ROOT__ . '/common/templates/meta.phtml')?>
     <?=$this->render(__ROOT__ . '/common/templates/styles.phtml')?>
     <?=$this->render(__ROOT__ . '/common/templates/scripts.phtml')?>
-    <title>Bans</title>
+    <title>Logs</title>
   </head>
   <body>
     <div id="menubar" class="menubar">
@@ -12,33 +12,29 @@
         <?=$this->render(__ROOT__ . '/common/templates/modmenu.phtml')?>
 			</div>
     </div>
-    <?=$this->render(__ROOT__ . '/common/templates/header.phtml', ['h_title' => 'Bans', 'h_subtitle' => 'Public list of latest bans'])?>
+    <?=$this->render(__ROOT__ . '/common/templates/header.phtml', ['h_title' => 'Logs', 'h_subtitle' => 'Public list of latest logs'])?>
 
     <div class="page-root container-centered">
       <div class="box-container">
         <div class="box">
-          <div class="box-title">Bans (last 2 weeks)</div>
+          <div class="box-title">Logs (last 2 weeks)</div>
           <div class="box-content">
             <table>
               <thead>
                 <tr>
                   <th>id</th>
-                  <th>ip</th>
                   <th>timestamp</th>
-                  <th>expire</th>
-                  <th>reason</th>
+                  <th>message</th>
                 </tr>
               </thead>
               <tbody>
                 <?php
-                  foreach ($bans as $ban) {
+                  foreach ($logs as $log) {
                     echo "
                       <tr>
-                        <td>{$ban->id}</td>
-                        <td>{$ban->redact_ip()}</td>
-                        <td>{$ban->fmt_timestamp()}</td>
-                        <td>{$ban->fmt_expire()}</td>
-                        <td>{$ban->fmt_reason(16)}</td>
+                        <td>{$log->id}</td>
+                        <td>{$log->fmt_timestamp()}</td>
+                        <td>{$log->fmt_message(32)}</td>
                       </tr>
                     ";
                   }
