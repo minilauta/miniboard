@@ -126,7 +126,7 @@ function funcs_manage_rebuild(array $params): string {
     // set nameblock country code if flags enabled OR country code is T1
     $country = $post['country'];
     $country_nb = null;
-    if ($board_cfg['flags'] == true || $country == 't1') {
+    if ($board_cfg['flags'] == true || $country == 't1' || $country == 'vpn') {
       $country_nb = $country;
     }
 

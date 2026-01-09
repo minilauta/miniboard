@@ -268,4 +268,5 @@
 .flag-za { background-position: 0 -176px }
 .flag-zm { background-position: -16px -176px }
 .flag-zw { background-position: -32px -176px }
-.flag-t1 { background-position: -240px -176px } /* cloudflare TOR */
+.flag-t1 { background-position: -240px -176px } /* TOR detection */
+.flag-vpn { background-position: -224px -176px } /* VPN detection */
