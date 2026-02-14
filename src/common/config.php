@@ -6,7 +6,13 @@ date_default_timezone_set(getenv('MB_TIMEZONE'));
 define('MB_ENV', getenv('MB_ENV'));
 define('MB_SESSION_LIFETIME', 432000); // 5 days
 define('MB_MODULES', ['home', 'manage', 'logs', 'bans', 'board']);
-define('MB_PLUGINS', []);
+define('MB_PLUGINS', ['friends']);
+define('MB_PLUGIN_FRIENDS_CONTENT', '
+  <ul>
+    <li><a target="_blank" href="https://minilauta.org">Minilauta</a></li>
+    <li><a target="_blank" href="https://lainchan.org">Lainchan</a></li>
+  </ul>
+');
 define('MB_DB_HOST', getenv('MB_DB_HOST'));
 define('MB_DB_NAME', getenv('MB_DB_NAME'));
 define('MB_DB_USER', getenv('MB_DB_USER'));
