@@ -41,7 +41,7 @@ jobs:
           threshold_warning: 50
           threshold_metric: lines
       - name: Coverage/Upload
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v6
         with:
           name: code-coverage-report
           path: coverage
