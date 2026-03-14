@@ -1748,8 +1748,8 @@ var TegakiCursor = {
   render: function(rawX, rawY) {
     var x, y, i, destImg, destData;
     
-    x = rawX - this.offsetX - this.radius;
-    y = rawY - this.offsetY - this.radius;
+    x = 0 | (rawX - this.offsetX - this.radius);
+    y = 0 | (rawY - this.offsetY - this.radius);
     
     this.clear();
     
@@ -2744,7 +2744,7 @@ var TegakiLayers = {
   }
 };
 var Tegaki = {
-  VERSION: '0.9.3',
+  VERSION: '0.9.4',
   
   startTimeStamp: 0,
   
