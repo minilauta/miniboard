@@ -83,18 +83,22 @@ var state = {
 /**
  * Tegaki event: Finish drawing image.
  */
-function tegaki_on_done() {
+async function tegaki_on_done() {
   console.log('tegaki: saving...');
-  
-  window.Tegaki.flatten().toBlob((blob) => {
-    const input_file = new File([blob], 'drawing.png');
-    const input_data = new DataTransfer();
-    input_data.items.add(input_file);
 
-    const postform_file = select_postform_element('form-file');
-    console.log(postform_file.files);
-    postform_file.files = input_data.files;
-  }, 'image/png');
+  let input_file = null;
+  if (window.Tegaki.replayRecorder) {
+    const file_blob = window.Tegaki.replayRecorder.toBlob();
+    input_file = new File([file_blob], 'drawing.tgk');
+  } else {
+    const file_blob = await new Promise(r => window.Tegaki.flatten().toBlob(r, 'image/png'));
+    input_file = new File([file_blob], 'drawing.png');
+  }
+  const input_data = new DataTransfer();
+  input_data.items.add(input_file);
+  
+  const postform_file = select_postform_element('form-file');
+  postform_file.files = input_data.files;
 }
 
 /**
@@ -359,6 +363,14 @@ function listener_post_thumb_link_click(event) {
 
         current.appendChild(embed);
       } break;
+      case 'tgk': {
+        window.Tegaki.open({
+          onDone: tegaki_on_done,
+          onCancel: tegaki_on_cancel,
+          replayMode: true,
+          replayURL: finfo.file_href,
+        });
+      } return; // NOTE: tgk does not actually embed anything
       default:
         target.style.display = 'none';
 
@@ -692,6 +704,8 @@ function listener_post_reference_link_mouseleave(event) {
         onCancel: tegaki_on_cancel,
         width: 512,
         height: 512,
+        saveReplay: false,
+        replayMode: false,
       });
       let img = new Image();
       img.onload = window.Tegaki.onOpenImageLoaded;
@@ -1541,6 +1555,8 @@ function init_postform_features(target_id_prefix) {
           onCancel: tegaki_on_cancel,
           width: 512,
           height: 512,
+          saveReplay: true,
+          replayMode: false,
         });
       });
     }

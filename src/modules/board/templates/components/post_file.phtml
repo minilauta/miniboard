@@ -7,12 +7,24 @@
 
     if ($post['embed'] === 0) {
       $album_id = $context !== 'preview' && isset($post['audio_album']) ? "id='album-{$post['board_id']}-{$post['post_id']}'" : '';
+      $file_meta = '';
+      if (isset($post['file_mime']) && $post['file_mime'] === 'application/x-tegaki' && isset($post['file_meta'])) {
+        $fmjson = json_decode($post['file_meta'], true);
+        $duration = $fmjson['end_timestamp'] - $fmjson['start_timestamp'];
+        $file_meta = "{$post['file_size_formatted']}, ".
+          "Tool: Tegaki {$fmjson['tegaki_version_major']}.{$fmjson['tegaki_version_minor']}.{$fmjson['tegaki_version_patch']}, ".
+          "Duration: {$duration}s, ".
+          "{$fmjson['canvas_width']}x{$fmjson['canvas_height']}, ".
+          "{$post['file_original']}";
+      } else {
+        $file_meta = "{$post['file_size_formatted']}, {$post['image_width']}x{$post['image_height']}, {$post['file_original']}";
+      }
 
       echo "
         <div class='file-info break-words'>
           File: <a href='{$post['file_rendered']}' target='_blank'>{$post['file_rendered']}</a>
           -
-          ({$post['file_size_formatted']}, {$post['image_width']}x{$post['image_height']}, {$post['file_original']})
+          ({$file_meta})
         </div>
         <div class='file-thumb'>
           <a class='file-thumb-href' href='{$post['file_rendered']}' target='_blank'>

@@ -97,6 +97,7 @@ function funcs_board_create_post(string $ip, ?string $country, array $board_cfg,
     'file_size'           => $file['file_size'],
     'file_size_formatted' => $file['file_size_formatted'],
     'file_mime'           => $file['file_mime'],
+    'file_meta'           => $file['file_meta'],
     'image_width'         => $file['image_width'],
     'image_height'        => $file['image_height'],
     'thumb'               => $file['thumb'],
@@ -268,6 +269,15 @@ function funcs_board_validate_upload(array $input, bool $no_file_ok, bool $spoil
       $file_mime = 'audio/x-mod';
     }
   }
+  // NOTE: tegaki replays do not contain mime-type in magic.mgc database (obviously)
+  else if ($file_mime === 'application/octet-stream' && $file_ext_pathinfo === 'tgk') {
+    $file_handle = fopen($tmp_file, 'rb');
+    $tgk_id = fread($file_handle, 3);
+    fclose($file_handle);
+    if ($tgk_id != false && $tgk_id === (chr(0x54) . chr(0x47) . chr(0x4B))) {
+      $file_mime = 'application/x-tegaki'; // made-up mime for .tgk
+    }
+  }
   
   if (!isset($mime_types[$file_mime])) {
     throw new AppException('funcs_board', 'validate_upload', "file mime type invalid: {$file_mime}", SC_BAD_REQUEST);
@@ -337,6 +347,7 @@ function funcs_board_execute_upload(?array $file_info, array $file_collisions, b
       'file_size'           => 0,
       'file_size_formatted' => '',
       'file_mime'           => null,
+      'file_meta'           => null,
       'image_width'         => 0,
       'image_height'        => 0,
       'thumb'               => '',
@@ -486,6 +497,16 @@ function funcs_board_execute_upload(?array $file_info, array $file_collisions, b
         $thumb_width = 250;
         $thumb_height = 250;
         break;
+      case 'application/x-tegaki':
+        $tgk_info = funcs_board_read_tgk_header_meta($file_path);
+        $thumb_file_name = 'spoiler.png';
+        $thumb_dir = '/static/';
+        $image_width = (int) $tgk_info['canvas_width'];
+        $image_height = (int) $tgk_info['canvas_height'];
+        $thumb_width = 250;
+        $thumb_height = 250;
+        $file_meta = json_encode($tgk_info);
+        break;
       default:
         unlink($file_path);
         throw new AppException('funcs_board', 'execute_upload', "file MIME type unsupported: {$file_info['mime']}", SC_INTERNAL_ERROR);
@@ -497,6 +518,7 @@ function funcs_board_execute_upload(?array $file_info, array $file_collisions, b
     $file_size = $file_collisions[0]['file_size'];
     $file_size_formatted = $file_collisions[0]['file_size_formatted'];
     $file_mime = $file_collisions[0]['file_mime'];
+    $file_meta = $file_collisions[0]['file_meta'];
     $image_width = $file_collisions[0]['image_width'];
     $image_height = $file_collisions[0]['image_height'];
     $thumb_file_name = $file_collisions[0]['thumb'];
@@ -515,6 +537,7 @@ function funcs_board_execute_upload(?array $file_info, array $file_collisions, b
     'file_size'           => $file_size,
     'file_size_formatted' => $file_size_formatted,
     'file_mime'           => $file_mime,
+    'file_meta'           => $file_meta,
     'image_width'         => $image_width,
     'image_height'        => $image_height,
     'thumb'               => $thumb_dir . $thumb_file_name,
@@ -523,6 +546,49 @@ function funcs_board_execute_upload(?array $file_info, array $file_collisions, b
     'audio_album'         => isset($album_file_name) ? $album_dir . $album_file_name : null,
     'embed'               => 0
   ];
+}
+
+function funcs_board_read_tgk_header_meta(string $file_path): array {
+  // read meta
+  $file_handle = fopen($file_path, 'rb');
+  if ($file_handle == false) {
+    throw new AppException('funcs_board', 'funcs_board_read_tgk_header_meta', "file {$file_path} fopen failed", SC_INTERNAL_ERROR);
+  }
+  $tgk_header = fread($file_handle, 12);
+  $tgk_meta = fread($file_handle, 21);
+  fclose($file_handle);
+
+  return array_merge(
+    unpack(
+      "A3magic/".
+      "Ccompressed/".
+      "Ndata_size/".
+      "Ctegaki_version_major/".
+      "Ctegaki_version_minor/".
+      "Ctegaki_version_patch/".
+      "Ctegaki_format_version/"
+      ,
+      $tgk_header,
+      0
+    ),
+    unpack(
+      "nmeta_size/".
+      "Nstart_timestamp/".
+      "Nend_timestamp/".
+      "ncanvas_width/".
+      "ncanvas_height/".
+      "Cbg_color0/".
+      "Cbg_color1/".
+      "Cbg_color2/".
+      "Ctool_color0/".
+      "Ctool_color1/".
+      "Ctool_color2/".
+      "Ctool_id/"
+      ,
+      $tgk_meta,
+      0
+    ),
+  );
 }
 
 /**
@@ -746,13 +812,13 @@ function funcs_board_execute_embed(string $url, array $embed_types, int $max_w =
   curl_setopt($curl, CURLOPT_RETURNTRANSFER, true);
   $response = curl_exec($curl);
   curl_close($curl);
-  $response = json_decode($response, true);
+  $response_json = json_decode($response, true);
 
   // save thumbnail
   $thumb_file_name_tmp = time() . substr(microtime(), 2, 3);
   $thumb_dir_tmp = sys_get_temp_dir() . '/';
   $thumb_file_path_tmp = $thumb_dir_tmp . $thumb_file_name_tmp;
-  file_put_contents($thumb_file_path_tmp, funcs_common_url_get_contents($response['thumbnail_url']));
+  file_put_contents($thumb_file_path_tmp, funcs_common_url_get_contents($response_json['thumbnail_url']));
 
   // process thumbnail
   $thumb_file_name = 'thumb_' . $thumb_file_name_tmp . '.png';
@@ -765,13 +831,14 @@ function funcs_board_execute_embed(string $url, array $embed_types, int $max_w =
   $thumb_height = $generated_thumb['thumb_height'];
 
   return [
-    'file'                => $response['html'],
-    'file_rendered'       => rawurlencode($response['html']),
+    'file'                => $response_json['html'],
+    'file_rendered'       => rawurlencode($response_json['html']),
     'file_hex'            => funcs_common_clean_field($url),
-    'file_original'       => funcs_common_clean_field($response['title']),
+    'file_original'       => funcs_common_clean_field($response_json['title']),
     'file_size'           => null,
     'file_size_formatted' => null,
     'file_mime'           => null,
+    'file_meta'           => $response,
     'image_width'         => $image_width,
     'image_height'        => $image_height,
     'thumb'               => $thumb_dir . $thumb_file_name,

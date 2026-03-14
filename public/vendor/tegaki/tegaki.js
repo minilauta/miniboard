@@ -4817,7 +4817,7 @@ class TegakiReplayRecorder {
   constructor() {
     this.formatVersion = 1;
     
-    this.compressed = true;
+    this.compressed = false;
     
     this.tegakiVersion = Tegaki.VERSION.split('.').map((v) => +v);
     
@@ -5029,8 +5029,8 @@ class TegakiReplayRecorder {
     
     this.writeEventStack(w);
     
-    compData = this.compressData(w);
-    //compData = new Uint8Array(data.slice(0));
+    // compData = this.compressData(w);
+    compData = new Uint8Array(data.slice(0));
     
     w = new TegakiBinWriter(new ArrayBuffer(headerSize + compData.length));
     
@@ -5057,7 +5057,7 @@ class TegakiReplayViewer {
   constructor() {
     this.formatVersion = 1;
     
-    this.compressed = true;
+    this.compressed = false;
     
     this.tegakiVersion = [0, 0, 0];
     
@@ -5447,9 +5447,9 @@ class TegakiReplayViewer {
     
     this.readHeader(r);
     
-    data = this.decompressData(r);
+    // data = this.decompressData(r);
     
-    r = new TegakiBinReader(data.buffer);
+    // r = new TegakiBinReader(data.buffer);
     
     this.readMeta(r);
     

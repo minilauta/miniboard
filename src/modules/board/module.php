@@ -552,6 +552,7 @@ class BoardModule implements core\Module
 				'file_size'           => 0,
 				'file_size_formatted' => '',
 				'file_mime'           => null,
+				'file_meta'			  => null,
 				'image_width'         => 0,
 				'image_height'        => 0,
 				'thumb'               => '',

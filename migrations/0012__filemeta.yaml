@@ -1,0 +1,6 @@
+# add column for JSON file metadata
+
+version: 12
+script: |
+  ALTER TABLE posts ADD COLUMN IF NOT EXISTS `file_meta` JSON NULL AFTER `file_mime`, ADD INDEX (`file_meta`);
+  ALTER TABLE posts ADD CONSTRAINT `posts_file_meta_json_validate` CHECK(JSON_VALID(`file_meta`));
