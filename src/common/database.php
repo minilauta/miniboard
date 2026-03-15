@@ -131,6 +131,9 @@ function cleanup_bans(): int {
 // ----------------------------
 
 function init_post_auto_increment(string $board_id): void {
+  if (!preg_match('/^[a-z0-9_]+$/', $board_id)) {
+    throw new DbException('init_post_auto_increment: invalid board_id');
+  }
   $dbh = get_db_handle();
   $tbl = 'posts_' . $board_id . '_serial';
   $sth = $dbh->prepare('
@@ -147,6 +150,9 @@ function init_post_auto_increment(string $board_id): void {
 }
 
 function generate_post_auto_increment(string $board_id): int {
+  if (!preg_match('/^[a-z0-9_]+$/', $board_id)) {
+    throw new DbException('generate_post_auto_increment: invalid board_id');
+  }
   $dbh = get_db_handle();
   $tbl = 'posts_' . $board_id . '_serial';
   $sth = $dbh->prepare('
@@ -164,6 +170,9 @@ function generate_post_auto_increment(string $board_id): int {
 }
 
 function refresh_post_auto_increment(string $board_id): void {
+  if (!preg_match('/^[a-z0-9_]+$/', $board_id)) {
+    throw new DbException('refresh_post_auto_increment: invalid board_id');
+  }
   $dbh = get_db_handle();
 
   // get next auto_increment id
@@ -530,6 +539,7 @@ function select_files_by_md5(string $file_md5): array|bool {
       file_size,
       file_size_formatted,
       file_mime,
+      file_meta,
       image_width,
       image_height,
       thumb,

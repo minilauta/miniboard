@@ -361,7 +361,7 @@ function funcs_common_generate_tripcode(string $input, string $secure_salt): arr
 
   // generate secure tripcode
   if (strlen($secure_pass) > 0) {
-    $tripcode .= ($normal_pass != "" ? "!!" : "!") . substr(md5($secure_pass . $secure_salt), 2, 10);
+    $tripcode .= ($normal_pass != "" ? "!!" : "!") . substr(hash('sha256', $secure_pass . $secure_salt), 2, 10);
   }
 
   // return name if empty passwords given
@@ -417,7 +417,7 @@ function funcs_common_url_get_contents($url): ?string {
 
 	$curl = curl_init();
 	curl_setopt($curl, CURLOPT_URL, $url);
-	curl_setopt($curl, CURLOPT_FOLLOWLOCATION, true);
+	curl_setopt($curl, CURLOPT_FOLLOWLOCATION, false);
 	curl_setopt($curl, CURLOPT_RETURNTRANSFER, true);
 	$result = curl_exec($curl);
 	$code = curl_getinfo($curl, CURLINFO_HTTP_CODE);

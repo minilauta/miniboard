@@ -698,7 +698,12 @@ function listener_post_reference_link_mouseleave(event) {
         }
       };
       xhr.open('POST', '/' + data.board_id + '/' + data.id + '/hide', true);
-      xhr.send();
+      let csrf_input = document.querySelector('input[name="csrf_token"]');
+      let hide_body = new FormData();
+      if (csrf_input) {
+        hide_body.append('csrf_token', csrf_input.value);
+      }
+      xhr.send(hide_body);
       break;
     case 'file_download':
       window.location.assign('/' + data.board_id + '/' + data.id + '/download');

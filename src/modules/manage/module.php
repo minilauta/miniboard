@@ -40,7 +40,7 @@ class ManageModule implements core\Module
 			// get query params
 			$query_params = funcs_common_parse_query_str($_SERVER);
 			$query_route = funcs_common_parse_input_str($query_params, 'route', '');
-			$query_status = funcs_common_parse_input_str($query_params, 'status', '');
+			$query_status = htmlspecialchars(funcs_common_parse_input_str($query_params, 'status', ''), ENT_QUOTES, 'UTF-8');
 			$query_page = funcs_common_parse_input_int($query_params, 'page', 0, 0, 1000);
 
 			echo $this->renderer->render(__DIR__ . '/templates/manage.phtml', [
@@ -129,7 +129,7 @@ class ManageModule implements core\Module
 			// execute import
 			$status = funcs_manage_import($_POST);
 
-			header("Location: /manage/?route=import&status={$status}");
+			header("Location: /manage/?route=import&status=" . urlencode($status));
 			http_response_code(303);
 		}
 
@@ -157,7 +157,7 @@ class ManageModule implements core\Module
 			// execute rebuild
 			$status = funcs_manage_rebuild($_POST);
 
-			header("Location: /manage/?route=rebuild&status={$status}");
+			header("Location: /manage/?route=rebuild&status=" . urlencode($status));
 			http_response_code(303);
 		}
 
@@ -185,7 +185,7 @@ class ManageModule implements core\Module
 			// execute refresh
 			$status = funcs_manage_refresh($_POST);
 
-			header("Location: /manage/?route=refresh&status={$status}");
+			header("Location: /manage/?route=refresh&status=" . urlencode($status));
 			http_response_code(303);
 		}
 

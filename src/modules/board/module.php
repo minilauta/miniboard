@@ -339,6 +339,9 @@ class BoardModule implements core\Module
 		});
 
 		$router->add_route(HTTP_POST, '/:board_id/:post_id/hide', function ($vars) {
+			// validate CSRF token
+			funcs_common_validate_csrf($_POST);
+
 			// get board config
 			$board_cfg = funcs_common_get_board_cfg($vars['board_id']);
 
