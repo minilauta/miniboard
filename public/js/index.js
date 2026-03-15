@@ -86,16 +86,15 @@ var state = {
 async function tegaki_on_done() {
   console.log('tegaki: saving...');
 
-  let input_file = null;
-  if (window.Tegaki.replayRecorder) {
-    const file_blob = window.Tegaki.replayRecorder.toBlob();
-    input_file = new File([file_blob], 'drawing.tgk');
-  } else {
-    const file_blob = await new Promise(r => window.Tegaki.flatten().toBlob(r, 'image/png'));
-    input_file = new File([file_blob], 'drawing.png');
-  }
   const input_data = new DataTransfer();
-  input_data.items.add(input_file);
+  if (window.Tegaki.replayRecorder) {
+    const tgk_blob = window.Tegaki.replayRecorder.toBlob();
+    const tgk_file = new File([tgk_blob], 'drawing.tgkr');
+    input_data.items.add(tgk_file);
+  }
+  const png_blob = await new Promise(r => window.Tegaki.flatten().toBlob(r, 'image/png'));
+  const png_file = new File([png_blob], 'drawing.png');
+  input_data.items.add(png_file);
   
   const postform_file = select_postform_element('form-file');
   postform_file.files = input_data.files;
@@ -363,14 +362,14 @@ function listener_post_thumb_link_click(event) {
 
         current.appendChild(embed);
       } break;
-      case 'tgk': {
+      case 'tgkr': {
         window.Tegaki.open({
           onDone: tegaki_on_done,
           onCancel: tegaki_on_cancel,
           replayMode: true,
           replayURL: finfo.file_href,
         });
-      } return; // NOTE: tgk does not actually embed anything
+      } return; // NOTE: tgkr does not actually embed anything
       default:
         target.style.display = 'none';
 

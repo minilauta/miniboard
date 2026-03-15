@@ -426,10 +426,7 @@ class BoardModule implements core\Module
 
 	private function handle_postform(array $vars, string $context) {
 		// parse request body
-		$file = null;
-		if (isset($_FILES['file'])) {
-			$file = $_FILES['file'];
-		}
+		$files = funcs_common_map_files($_FILES['file']);
 	
 		// get board config
 		$board_cfg = funcs_common_get_board_cfg($vars['board_id']);
@@ -517,7 +514,7 @@ class BoardModule implements core\Module
 			$embed = strlen(trim($_POST['embed'])) > 0;
 			$spoiler = isset($_POST['spoiler']) && $_POST['spoiler'] == true ? true : false;
 			$no_file_ok = ($thread_id != null || $embed) ? true : $board_cfg['nofileok'];
-			$file_info = funcs_board_validate_upload($file, $no_file_ok, $spoiler, $board_cfg['mime_ext_types'], $board_cfg['maxkb'] * 1000);
+			$file_info = funcs_board_validate_upload($files[0], $no_file_ok, $spoiler, $board_cfg['mime_ext_types'], $board_cfg['maxkb'] * 1000);
 			$is_file_or_embed = $embed || $file_info != null;
 		
 			// validate request message + file or embed
@@ -533,6 +530,11 @@ class BoardModule implements core\Module
 		
 			// upload file or embed url
 			if (!$embed) {
+				// handle .tgkr png and thumb
+				if (isset($file_info) && $file_info['mime'] === 'application/x-tegaki') {
+					$file_info_tgk_png = funcs_board_validate_upload($files[1], false, $spoiler, ['image/png' => ['png']], $board_cfg['maxkb'] * 1000);
+					$file_info['tgk_png_info'] = $file_info_tgk_png;
+				}
 				$file = funcs_board_execute_upload($file_info, $file_collisions, $spoiler, $board_cfg['max_width'], $board_cfg['max_height']);
 			} else {
 				$file = funcs_board_execute_embed($_POST['embed'], $board_cfg['embed_types'], $board_cfg['max_width'], $board_cfg['max_height']);

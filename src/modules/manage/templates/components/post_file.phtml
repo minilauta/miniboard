@@ -15,7 +15,8 @@
           "Tool: Tegaki {$fmjson['tegaki_version_major']}.{$fmjson['tegaki_version_minor']}.{$fmjson['tegaki_version_patch']}, ".
           "Duration: {$duration}s, ".
           "{$fmjson['canvas_width']}x{$fmjson['canvas_height']}, ".
-          "{$post['file_original']}";
+          "{$post['file_original']}, ".
+          "<a href='{$fmjson['tgk_png_file_rendered']}' target='_blank'>PNG</a>";
       } else {
         $file_meta = "{$post['file_size_formatted']}, {$post['image_width']}x{$post['image_height']}, {$post['file_original']}";
       }

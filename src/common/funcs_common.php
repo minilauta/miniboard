@@ -443,6 +443,15 @@ function funcs_common_delete_post(string $board_id, int $post_id): array {
           $warnings[] = "Failed to delete album art for post /{$post['board_id']}/{$post['post_id']}/ (maybe it didn't exist?)";
         }
       }
+
+      if (isset($post['file_meta']) && strlen($post['file_meta']) > 0) {
+        $file_meta = json_decode($post['file_meta'], true);
+        if (isset($file_meta) && isset($file_meta['tgk_png_file']) && strlen($file_meta['tgk_png_file']) > 0) {
+          if (!unlink(__PUBLIC__ . $file_meta['tgk_png_file'])) {
+            $warnings[] = "Failed to delete tgk png for post /{$post['board_id']}/{$post['post_id']}/ (maybe it didn't exist?)";
+          }
+        }
+      }
     }
 
     // delete post from db
@@ -461,4 +470,19 @@ function funcs_common_delete_post(string $board_id, int $post_id): array {
   }
 
   return $warnings;
+}
+
+function funcs_common_map_files(array $files): array {
+  if (!isset($files) || empty($files)) return [];
+
+  return array_reduce(array_keys($files), function ($carry, $key) use ($files) {
+    $item = $files[$key];
+    foreach ($item as $idx => $val) {
+      if (!isset($carry[$idx])) {
+        $carry[$idx] = [];
+      }
+      $carry[$idx][$key] = $val;
+    }
+    return $carry;
+  }, []);
 }

@@ -233,8 +233,11 @@ function funcs_board_render_message(string $board_id, ?int $parent_id, string $i
 /**
  * Validates an uploaded file for errors/abuse.
  */
-function funcs_board_validate_upload(array $input, bool $no_file_ok, bool $spoiler, array $mime_types, int $max_bytes): ?array {
+function funcs_board_validate_upload(?array $input, bool $no_file_ok, bool $spoiler, array $mime_types, int $max_bytes): ?array {
   // check errors
+  if (!isset($input)) {
+    throw new AppException('funcs_board', 'validate_upload', "file upload error: input NULL", SC_BAD_REQUEST);
+  }
   $error = $input['error'];
   if ($error === UPLOAD_ERR_NO_FILE && $no_file_ok) {
     return null;
@@ -270,12 +273,12 @@ function funcs_board_validate_upload(array $input, bool $no_file_ok, bool $spoil
     }
   }
   // NOTE: tegaki replays do not contain mime-type in magic.mgc database (obviously)
-  else if ($file_mime === 'application/octet-stream' && $file_ext_pathinfo === 'tgk') {
+  else if ($file_mime === 'application/octet-stream' && $file_ext_pathinfo === 'tgkr') {
     $file_handle = fopen($tmp_file, 'rb');
     $tgk_id = fread($file_handle, 3);
     fclose($file_handle);
     if ($tgk_id != false && $tgk_id === (chr(0x54) . chr(0x47) . chr(0x4B))) {
-      $file_mime = 'application/x-tegaki'; // made-up mime for .tgk
+      $file_mime = 'application/x-tegaki'; // made-up mime for .tgkr
     }
   }
   
@@ -499,13 +502,19 @@ function funcs_board_execute_upload(?array $file_info, array $file_collisions, b
         break;
       case 'application/x-tegaki':
         $tgk_info = funcs_board_read_tgk_header_meta($file_path);
-        $thumb_file_name = 'spoiler.png';
-        $thumb_dir = '/static/';
+        $tgk_png_file_name = 'tgk_' . $file_name . '.png';
+        $tgk_png_file_path = __PUBLIC__ . $file_dir . $tgk_png_file_name;
+        if (!move_uploaded_file($file_info['tgk_png_info']['tmp'], $tgk_png_file_path)) {
+          throw new AppException('funcs_board', 'execute_upload', "failed to move the uploaded tmp file to a persistent location", SC_INTERNAL_ERROR);
+        }
+        $tgk_info['tgk_png_file'] = $file_dir . $tgk_png_file_name;
+        $tgk_info['tgk_png_file_rendered'] = $file_dir . $tgk_png_file_name;
+        $file_meta = json_encode($tgk_info);
         $image_width = (int) $tgk_info['canvas_width'];
         $image_height = (int) $tgk_info['canvas_height'];
-        $thumb_width = 250;
-        $thumb_height = 250;
-        $file_meta = json_encode($tgk_info);
+        $generated_thumb = funcs_board_generate_thumbnail($tgk_png_file_path, $spoiler, false, 'png', $thumb_file_path, $max_w, $max_h);
+        $thumb_width = $generated_thumb['thumb_width'];
+        $thumb_height = $generated_thumb['thumb_height'];
         break;
       default:
         unlink($file_path);
@@ -537,7 +546,7 @@ function funcs_board_execute_upload(?array $file_info, array $file_collisions, b
     'file_size'           => $file_size,
     'file_size_formatted' => $file_size_formatted,
     'file_mime'           => $file_mime,
-    'file_meta'           => $file_meta,
+    'file_meta'           => isset($file_meta) ? $file_meta : null,
     'image_width'         => $image_width,
     'image_height'        => $image_height,
     'thumb'               => $thumb_dir . $thumb_file_name,
