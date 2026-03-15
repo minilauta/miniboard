@@ -472,7 +472,7 @@ function funcs_common_delete_post(string $board_id, int $post_id): array {
   return $warnings;
 }
 
-function funcs_common_map_files(array $files): array {
+function funcs_common_map_files(?array $files): array {
   if (!isset($files) || empty($files)) return [];
 
   return array_reduce(array_keys($files), function ($carry, $key) use ($files) {

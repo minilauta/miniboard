@@ -85,9 +85,15 @@ var state = {
  */
 async function tegaki_on_done() {
   console.log('tegaki: saving...');
+  const supported_exts = document.getElementById('form-post-info-exts')
+    ?.innerText
+    .split(',')
+    .map(x => x.trim().toLowerCase())
+    ?? [];
+  console.log('tegaki: supported exts: ' + supported_exts);
 
   const input_data = new DataTransfer();
-  if (window.Tegaki.replayRecorder) {
+  if (window.Tegaki.replayRecorder && supported_exts.includes('tgkr')) {
     const tgk_blob = window.Tegaki.replayRecorder.toBlob();
     const tgk_file = new File([tgk_blob], 'drawing.tgkr');
     input_data.items.add(tgk_file);

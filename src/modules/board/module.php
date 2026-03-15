@@ -426,7 +426,11 @@ class BoardModule implements core\Module
 
 	private function handle_postform(array $vars, string $context) {
 		// parse request body
-		$files = funcs_common_map_files($_FILES['file']);
+		if (isset($_FILES['file'])) {
+			$files = funcs_common_map_files($_FILES['file']);
+		} else {
+			$files = [];
+		}
 	
 		// get board config
 		$board_cfg = funcs_common_get_board_cfg($vars['board_id']);
