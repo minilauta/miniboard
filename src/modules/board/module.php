@@ -198,10 +198,12 @@ class BoardModule implements core\Module
 
 			// get replies
 			$posts = select_replies_after($session_id, $user_role, $thread['board_id'], $thread['post_id'], $query_post_id_after, false, 0, 9001);
+			$reply_offset = count_posts('NULL', $board_cfg['id'], $thread['post_id'], false) - count($posts);
 
 			echo $this->renderer->render(__DIR__ . '/templates/replies.phtml', [
 				'board' => $board_cfg,
-				'posts' => $posts
+				'posts' => $posts,
+				'reply_offset' => $reply_offset
 			]);
 		});
 

@@ -54,8 +54,9 @@
     }
   ?>
   <?php
-    foreach ($post['replies'] as $reply) {
-      echo $this->render(__DIR__ . '/post_reply.phtml', ['context' => $context, 'post' => $reply]);
+    $reply_offset = ($context === 'board') ? $post['replies_n'] - count($post['replies']) : 0;
+    foreach ($post['replies'] as $key => $reply) {
+      echo $this->render(__DIR__ . '/post_reply.phtml', ['context' => $context, 'post' => $reply, 'reply_number' => $reply_offset + $key + 1]);
     }
   ?>
 </div>

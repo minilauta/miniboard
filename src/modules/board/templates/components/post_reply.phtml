@@ -3,6 +3,7 @@
 <?php if (!empty($post['hidden'])): ?>
   <div class="post reply post-stub" id="<?=$post['board_id']?>-<?=$post['post_id']?>" data-parent_id="<?=$post['parent_id']?>">
     <div class="post-info">
+      <span class="post-number"><?=$reply_number?></span>
       <span class="post-id">
         No.<?=$post['post_id']?>
       </span>
@@ -14,6 +15,7 @@
   <div class="post reply" id="<?=$post['board_id']?>-<?=$post['post_id']?>" data-parent_id="<?=$post['parent_id']?>">
     <div class="post-info">
       <label>
+        <span class="post-number"><?=$reply_number?></span>
         <input type="checkbox" name="delete[]" value="<?=$post['board_id']?>/<?=$post['post_id']?>">
         <span class="post-subject"><?=$post['subject']?></span>
         <?=$post['nameblock']?>

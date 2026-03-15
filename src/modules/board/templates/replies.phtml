@@ -1,5 +1,5 @@
 <?php
-  foreach ($posts as $reply) {
-    echo $this->render(__DIR__ . '/components/post_reply.phtml', ['context' => 'thread', 'post' => $reply]);
+  foreach ($posts as $key => $reply) {
+    echo $this->render(__DIR__ . '/components/post_reply.phtml', ['context' => 'thread', 'post' => $reply, 'reply_number' => $reply_offset + $key + 1]);
   }
 ?>

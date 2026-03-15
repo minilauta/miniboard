@@ -709,9 +709,12 @@ function listener_post_reference_link_mouseleave(event) {
             // replace full reply with stub
             rc.classList.add('reply-hidden');
             let post = rc.querySelector('.post.reply');
+            let postNumber = post.querySelector('.post-number');
+            let postNumberHtml = postNumber ? postNumber.outerHTML + ' ' : '';
             post.className = 'post reply post-stub';
             post.innerHTML =
               '<div class="post-info">' +
+                postNumberHtml +
                 '<span class="post-id">No.' + data.id + '</span> ' +
                 '<span class="post-hidden-label">Post hidden</span> ' +
                 '<a href="#" class="dd-menu-btn" data-board_id="' + data.board_id + '" data-parent_id="' + data.parent_id + '" data-id="' + data.id + '" data-cmd="post-menu">▶</a>' +
