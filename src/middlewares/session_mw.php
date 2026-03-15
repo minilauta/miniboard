@@ -27,7 +27,7 @@ function session_mw(int $session_lifetime, int $recreate_after): Closure
             'path' => '/',
             'domain' => '',
             'secure' => false,
-            'httponly' => false,
+            'httponly' => true,
             'samesite' => 'Strict'
         ]);
         session_start();

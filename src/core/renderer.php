@@ -20,10 +20,10 @@ class HtmlRenderer implements Renderer
     {
         ob_start();
         if (!empty($this->vars)) {
-            extract($this->vars);
+            extract($this->vars, EXTR_SKIP);
         }
         if (!empty($vars)) {
-            extract($vars);
+            extract($vars, EXTR_SKIP);
         }
         include $filename;
         return ob_get_clean();

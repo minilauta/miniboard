@@ -249,7 +249,8 @@ class BoardModule implements core\Module
 			}
 
 			header('Content-Type:' . mime_content_type($file_path));
-			header('Content-Disposition: attachment; filename="' . $post['file_original'] . '"');
+			$safe_filename = str_replace(['"', "\r", "\n", "\0"], '', $post['file_original']);
+			header('Content-Disposition: attachment; filename="' . $safe_filename . '"');
 			readfile($file_path);
 		});
 
@@ -360,6 +361,9 @@ class BoardModule implements core\Module
 		});
 
 		$router->add_route(HTTP_POST, '/:board_id/:post_id/report', function ($vars) {
+			// validate CSRF token
+			funcs_common_validate_csrf($_POST);
+
 			// get board config
 			$board_cfg = funcs_common_get_board_cfg($vars['board_id']);
 
@@ -425,6 +429,9 @@ class BoardModule implements core\Module
 	}
 
 	private function handle_postform(array $vars, string $context) {
+		// validate CSRF token
+		funcs_common_validate_csrf($_POST);
+
 		// parse request body
 		if (isset($_FILES['file'])) {
 			$files = funcs_common_map_files($_FILES['file']);
@@ -643,6 +650,9 @@ class BoardModule implements core\Module
 	}
 
 	private function handle_deleteform(array $vars) {
+		// validate CSRF token
+		funcs_common_validate_csrf($_POST);
+
 		// get board config
 		$board_cfg = funcs_common_get_board_cfg($vars['board_id']);
 

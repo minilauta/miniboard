@@ -1026,6 +1026,9 @@ function get_db_handle_import(array $db_creds): PDO {
 }
 
 function insert_import_accounts_tinyib(array $db_creds, string $table_name): int {
+  if (!preg_match('/^[a-zA-Z0-9_]+$/', $table_name)) {
+    throw new DbException('insert_import_accounts_tinyib: invalid table name');
+  }
   $dbh = get_db_handle_import($db_creds);
   $sth = $dbh->prepare('
     INSERT INTO ' . MB_DB_NAME . '.accounts (
@@ -1047,6 +1050,9 @@ function insert_import_accounts_tinyib(array $db_creds, string $table_name): int
 }
 
 function insert_import_posts_tinyib(array $db_creds, string $table_name, string $board_id): int {
+  if (!preg_match('/^[a-zA-Z0-9_]+$/', $table_name)) {
+    throw new DbException('insert_import_posts_tinyib: invalid table name');
+  }
   $dbh = get_db_handle_import($db_creds);
   $sth = $dbh->prepare('
     INSERT INTO ' . MB_DB_NAME . '.posts (

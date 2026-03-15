@@ -64,6 +64,9 @@ class ManageModule implements core\Module
 		});
 
 		function handle_loginform($vars) {
+			// validate CSRF token
+			funcs_common_validate_csrf($_POST);
+
 			// validate request fields
 			funcs_common_validate_fields($_POST, [
 				'username'  => ['required' => true, 'type' => 'string', 'min_len' => 2, 'max_len' => 75],
@@ -110,6 +113,9 @@ class ManageModule implements core\Module
 		});
 
 		function handle_importform($vars) {
+			// validate CSRF token
+			funcs_common_validate_csrf($_POST);
+
 			// validate request fields
 			funcs_common_validate_fields($_POST, [
 				'db_name'    => ['required' => true, 'type' => 'string'],
@@ -140,6 +146,9 @@ class ManageModule implements core\Module
 		});
 
 		function handle_rebuildform($vars) {
+			// validate CSRF token
+			funcs_common_validate_csrf($_POST);
+
 			// validate request fields
 			funcs_common_validate_fields($_POST, [
 				'board_id'   => ['required' => true, 'type' => 'string']
@@ -165,6 +174,9 @@ class ManageModule implements core\Module
 		});
 
 		function handle_refreshform($vars) {
+			// validate CSRF token
+			funcs_common_validate_csrf($_POST);
+
 			// validate request fields
 			funcs_common_validate_fields($_POST, [
 				'board_id'   => ['required' => true, 'type' => 'string']
@@ -186,6 +198,9 @@ class ManageModule implements core\Module
 		});
 
 		function handle_manage_deleteform($vars) {
+			// validate CSRF token
+			funcs_common_validate_csrf($_POST);
+
 			// validate request fields
 			funcs_common_validate_fields($_POST, [
 				'select'   => ['required' => true, 'type' => 'array']
@@ -210,6 +225,9 @@ class ManageModule implements core\Module
 		});
 
 		function handle_manage_banform($vars) {
+			// validate CSRF token
+			funcs_common_validate_csrf($_POST);
+
 			// validate request fields
 			funcs_common_validate_fields($_POST, [
 				'select'   => ['required' => true, 'type' => 'array'],
@@ -242,6 +260,9 @@ class ManageModule implements core\Module
 		});
 
 		function handle_manage_approveform($vars) {
+			// validate CSRF token
+			funcs_common_validate_csrf($_POST);
+
 			// validate request fields
 			funcs_common_validate_fields($_POST, [
 				'select'   => ['required' => true, 'type' => 'array']
@@ -266,6 +287,9 @@ class ManageModule implements core\Module
 		});
 
 		function handle_manage_togglelockform($vars) {
+			// validate CSRF token
+			funcs_common_validate_csrf($_POST);
+
 			// validate request fields
 			funcs_common_validate_fields($_POST, [
 				'select'   => ['required' => true, 'type' => 'array']
@@ -290,6 +314,9 @@ class ManageModule implements core\Module
 		});
 
 		function handle_manage_togglestickyform($vars) {
+			// validate CSRF token
+			funcs_common_validate_csrf($_POST);
+
 			// validate request fields
 			funcs_common_validate_fields($_POST, [
 				'select'   => ['required' => true, 'type' => 'array']
@@ -309,6 +336,9 @@ class ManageModule implements core\Module
 			if (!funcs_common_is_logged_in()) {
 				throw new \AppException('index', 'route', 'access denied', SC_UNAUTHORIZED);
 			}
+
+			// validate CSRF token
+			funcs_common_validate_csrf($_POST);
 
 			// validate request fields
 			funcs_common_validate_fields($_POST, [

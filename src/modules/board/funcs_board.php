@@ -823,11 +823,20 @@ function funcs_board_execute_embed(string $url, array $embed_types, int $max_w =
   curl_close($curl);
   $response_json = json_decode($response, true);
 
-  // save thumbnail
+  // validate and save thumbnail
+  $thumb_url = $response_json['thumbnail_url'] ?? null;
+  if ($thumb_url !== null) {
+    $thumb_url_parsed = parse_url($thumb_url);
+    $thumb_host = $thumb_url_parsed['host'] ?? '';
+    $thumb_ip = gethostbyname($thumb_host);
+    if (filter_var($thumb_ip, FILTER_VALIDATE_IP, FILTER_FLAG_NO_PRIV_RANGE | FILTER_FLAG_NO_RES_RANGE) === false) {
+      throw new AppException('funcs_board', 'execute_embed', "embed thumbnail url resolves to a private or reserved IP address", SC_BAD_REQUEST);
+    }
+  }
   $thumb_file_name_tmp = time() . substr(microtime(), 2, 3);
   $thumb_dir_tmp = sys_get_temp_dir() . '/';
   $thumb_file_path_tmp = $thumb_dir_tmp . $thumb_file_name_tmp;
-  file_put_contents($thumb_file_path_tmp, funcs_common_url_get_contents($response_json['thumbnail_url']));
+  file_put_contents($thumb_file_path_tmp, funcs_common_url_get_contents($thumb_url));
 
   // process thumbnail
   $thumb_file_name = 'thumb_' . $thumb_file_name_tmp . '.png';
