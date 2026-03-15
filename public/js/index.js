@@ -480,6 +480,19 @@ function listener_dropdown_menu_button_click(event) {
               id: data.id
             }
           });
+        } else {
+          let rc = document.getElementById('rc_' + data.board_id + '-' + data.id);
+          let isHidden = rc != null && rc.classList.contains('reply-hidden');
+          lis.push({
+            type: 'li',
+            text: isHidden ? 'Unhide post' : 'Hide post',
+            data: {
+              cmd: 'hide',
+              board_id: data.board_id,
+              id: data.id,
+              parent_id: data.parent_id
+            }
+          });
         }
         let file_info = get_finfo(document.getElementById(data.board_id + '-' + data.id));
         if (file_info != null && file_info.file_ext !== 'embed') {
@@ -687,14 +700,37 @@ function listener_post_reference_link_mouseleave(event) {
           return;
         }
 
-        let thread = document.getElementById('thread_' + data.board_id + '-' + data.id);
-        if (thread != null) {
-          let divider = thread.nextElementSibling;
-          if (divider != null && divider.nodeName === 'HR') {
-            divider.remove();
+        if (data.parent_id != null) {
+          // reply hide/unhide: toggle stub
+          let rc = document.getElementById('rc_' + data.board_id + '-' + data.id);
+          if (rc == null) return;
+          let isHidden = rc.classList.contains('reply-hidden');
+          if (!isHidden) {
+            // replace full reply with stub
+            rc.classList.add('reply-hidden');
+            let post = rc.querySelector('.post.reply');
+            post.className = 'post reply post-stub';
+            post.innerHTML =
+              '<div class="post-info">' +
+                '<span class="post-id">No.' + data.id + '</span> ' +
+                '<span class="post-hidden-label">Post hidden</span> ' +
+                '<a href="#" class="dd-menu-btn" data-board_id="' + data.board_id + '" data-parent_id="' + data.parent_id + '" data-id="' + data.id + '" data-cmd="post-menu">▶</a>' +
+              '</div>';
+            init_dropdown_menu_buttons(rc);
+          } else {
+            // unhide: reload page to restore full post
+            location.reload();
           }
-
-          thread.remove();
+        } else {
+          // thread hide: remove from DOM
+          let thread = document.getElementById('thread_' + data.board_id + '-' + data.id);
+          if (thread != null) {
+            let divider = thread.nextElementSibling;
+            if (divider != null && divider.nodeName === 'HR') {
+              divider.remove();
+            }
+            thread.remove();
+          }
         }
       };
       xhr.open('POST', '/' + data.board_id + '/' + data.id + '/hide', true);
@@ -775,6 +811,9 @@ function create_dropdown_menu(target, board_id, parent_id, id, rect, indices) {
         }
         li.dataset.board_id = indice.data.board_id;
         li.dataset.id = indice.data.id;
+        if (indice.data.parent_id != null) {
+          li.dataset.parent_id = indice.data.parent_id;
+        }
         li.innerHTML = indice.text;
         
         li.addEventListener('click', listener_dropdown_menu_indice);

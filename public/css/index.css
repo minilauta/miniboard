@@ -139,10 +139,14 @@ div.mode {
   margin-bottom: 2px;
 }
 
+.post-hidden-label {
+  color: #707070;
+  font-style: italic;
+}
+
 div.post-dash {
   float: left;
-  font-weight: bolder;
-  font-size: 1.75em;
+  padding-right: 2px;
 }
 
 span.post-board {

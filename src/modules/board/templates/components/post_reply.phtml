@@ -1,5 +1,16 @@
-<div class="post-container reply-container" id="rc_<?=$post['board_id']?>-<?=$post['post_id']?>">
-  <div class="post-dash">¨</div>
+<div class="post-container reply-container<?=!empty($post['hidden']) ? ' reply-hidden' : ''?>" id="rc_<?=$post['board_id']?>-<?=$post['post_id']?>">
+  <div class="post-dash">>></div>
+<?php if (!empty($post['hidden'])): ?>
+  <div class="post reply post-stub" id="<?=$post['board_id']?>-<?=$post['post_id']?>" data-parent_id="<?=$post['parent_id']?>">
+    <div class="post-info">
+      <span class="post-id">
+        No.<?=$post['post_id']?>
+      </span>
+      <span class="post-hidden-label">Post hidden</span>
+      <a href="#" class="dd-menu-btn" data-board_id="<?=$post['board_id']?>" data-parent_id="<?=$post['parent_id']?>" data-id="<?=$post['post_id']?>" data-cmd="post-menu">▶</a>
+    </div>
+  </div>
+<?php else: ?>
   <div class="post reply" id="<?=$post['board_id']?>-<?=$post['post_id']?>" data-parent_id="<?=$post['parent_id']?>">
     <div class="post-info">
       <label>
@@ -26,4 +37,5 @@
       </div>
     </div>
   </div>
+<?php endif; ?>
 </div>
