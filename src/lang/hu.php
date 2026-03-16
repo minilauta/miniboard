@@ -1,0 +1,157 @@
+<?php
+
+return [
+	// Navigation
+	'nav.home'                  => 'Kezdőlap',
+	'nav.return'                => 'Vissza',
+	'nav.catalog'               => 'Katalógus',
+	'nav.refresh'               => 'Frissítés',
+	'nav.bottom'                => 'Aljára',
+	'nav.top'                   => 'Tetejére',
+	'nav.hidden'                => 'Rejtett',
+	'nav.gallery'               => 'Galéria',
+	'nav.settings'              => 'Beállítások',
+	'nav.manage'                => 'Kezelés',
+	'nav.previous'              => 'Előző',
+	'nav.next'                  => 'Következő',
+
+	// Post form
+	'form.name'                 => 'Név',
+	'form.email'                => 'E-mail',
+	'form.mod_options'          => 'Moderátori opciók',
+	'form.capcode'              => 'Capcode',
+	'form.subject'              => 'Tárgy',
+	'form.submit'               => 'Küldés',
+	'form.message'              => 'Üzenet',
+	'form.captcha'              => 'CAPTCHA',
+	'form.board'                => 'Fórum',
+	'form.file'                 => 'Fájl',
+	'form.draw'                 => 'Rajzolás',
+	'form.file_options'         => 'Fájl opciók',
+	'form.spoiler'              => 'Spoiler',
+	'form.no_filename'          => 'Nincs fájlnév',
+	'form.embed'                => 'Beágyazás',
+	'form.password'             => 'Jelszó',
+	'form.supported_files'      => 'Támogatott fájltípusok: :types.',
+	'form.supported_embeds'     => 'Támogatott beágyazási típusok: :types.',
+	'form.max_filesize'         => 'Maximális fájlméret: :size.',
+	'form.thumb_info'           => 'A :size-nál nagyobb képek kicsinyítve lesznek.',
+
+	// Thread / Posts
+	'post.posting_mode'         => 'Hozzászólás mód:',
+	'post.reply'                => 'Válasz',
+	'post.truncated'            => 'Hozzászólás rövidítve. Kattints a válaszra a megtekintéshez.',
+	'post.replies_omitted'      => ':count válasz kihagyva. Kattints a válaszra a megtekintéshez.',
+	'post.hidden'               => 'Hozzászólás elrejtve',
+	'post.stickied'             => 'Kitűzve',
+	'post.locked'               => 'Zárolva',
+
+	// Delete form
+	'delete.title'              => 'Hozzászólás törlése',
+	'delete.password'           => 'Jelszó',
+	'delete.submit'             => 'Törlés',
+
+	// Report form
+	'report.notice'             => 'FIGYELEM',
+	'report.info'               => ':post_id számú hozzászólás jelentése a /:board_id/ fórumon.',
+	'report.warning'            => 'Hamis vagy rosszul besorolt jelentések küldése kitiltást von maga után.',
+	'report.type'               => 'Típus',
+
+	// Board filter
+	'filter.toggle'             => 'Fórumok szűrése',
+	'filter.apply'              => 'Alkalmaz',
+	'filter.reset'              => 'Visszaállítás',
+
+	// Home page
+	'home.boards'               => 'Fórumok',
+	'home.stats'                => 'Statisztikák',
+	'home.rules'                => 'Szabályzat',
+	'home.total_posts'          => 'Összes hozzászólás:',
+	'home.current_posts'        => 'Jelenlegi hozzászólások:',
+	'home.unique_posters'       => 'Egyedi felhasználók:',
+	'home.imported_posts'       => 'Importált hozzászólások:',
+	'home.current_files'        => 'Jelenlegi fájlok:',
+	'home.active_content'       => 'Aktív tartalom:',
+
+	// Manage
+	'manage.title'              => 'Kezelés',
+	'manage.login'              => 'Bejelentkezés',
+	'manage.log_in'             => 'Bejelentkezés',
+	'manage.username'           => 'Felhasználónév',
+	'manage.password'           => 'Jelszó',
+	'manage.rebuild'            => 'Újraépítés',
+	'manage.refresh'            => 'Frissítés',
+	'manage.import'             => 'Importálás',
+	'manage.accounts'           => 'Fiókok',
+	'manage.logs'               => 'Naplók',
+	'manage.csam_hashes'        => 'CSAM hashek',
+	'manage.bans'               => 'Kitiltások',
+	'manage.posts'              => 'Hozzászólások',
+	'manage.threads'            => 'Témák',
+	'manage.reports'            => 'Jelentések',
+	'manage.logout'             => 'Kijelentkezés',
+	'manage.return'             => 'Vissza',
+	'manage.status'             => 'ÁLLAPOT',
+	'manage.selected'           => 'Kijelölt',
+	'manage.delete_post'        => 'Törlés (hozzászólás)',
+	'manage.ban_ip'             => 'Kitiltás (ip)',
+	'manage.ban_minutes'        => 'Kitiltás percei',
+	'manage.ban_reason'         => 'Kitiltás oka',
+	'manage.mark_csam'          => 'Megjelölés CSAM-ként',
+	'manage.toggle_lock'        => 'Zárolás/feloldás (téma)',
+	'manage.toggle_sticky'      => 'Kitűzés/levétel (téma)',
+	'manage.management_iface'   => 'Kezelőfelület',
+	'manage.approve_report'     => 'Jóváhagyás (jelentés)',
+	'manage.source_db'          => 'Forrás adatbázis',
+	'manage.source_table'       => 'Forrás tábla',
+	'manage.target_board'       => 'Cél fórum',
+	'manage.db_name'            => 'AB név',
+	'manage.db_user'            => 'AB felhasználó',
+	'manage.db_pass'            => 'AB jelszó',
+	'manage.table_name'         => 'TÁBLA név',
+	'manage.table_type'         => 'TÁBLA típus',
+	'manage.board_id'           => 'FÓRUM id',
+
+	// Manage table headers
+	'manage.th.id'              => 'id',
+	'manage.th.post_id'         => 'hozzászólás_id',
+	'manage.th.parent_id'       => 'szülő_id',
+	'manage.th.board_id'        => 'fórum_id',
+	'manage.th.ip'              => 'ip',
+	'manage.th.deleted'         => 'törölt',
+	'manage.th.imported'        => 'importált',
+	'manage.th.preview'         => 'előnézet',
+	'manage.th.timestamp'       => 'időbélyeg',
+	'manage.th.expire'          => 'lejárat',
+	'manage.th.reason'          => 'ok',
+	'manage.th.message'         => 'üzenet',
+	'manage.th.username'        => 'felhasználónév',
+	'manage.th.role'            => 'szerep',
+	'manage.th.lastactive'      => 'utoljára aktív',
+	'manage.th.type'            => 'típus',
+	'manage.th.post_ip'         => 'hozzászólás_ip',
+	'manage.th.post_deleted'    => 'hozzászólás_törölt',
+	'manage.th.post_imported'   => 'hozzászólás_importált',
+
+	// Bans page
+	'bans.title'                => 'Kitiltások',
+	'bans.subtitle'             => 'Legutóbbi kitiltások nyilvános listája',
+	'bans.heading'              => 'Kitiltások (utolsó 2 hét)',
+
+	// Logs page
+	'logs.title'                => 'Naplók',
+	'logs.subtitle'             => 'Legutóbbi naplók nyilvános listája',
+	'logs.heading'              => 'Naplók (utolsó 2 hét)',
+
+	// Error page
+	'error.title'               => 'Hiba',
+	'error.fallback'            => 'valami hiba történt...',
+
+	// File info
+	'file.file'                 => 'Fájl:',
+	'file.embed'                => 'Beágyazás:',
+	'file.embedded_url'         => 'Beágyazott URL',
+
+	// Style picker
+	'style.label'               => 'Stílus',
+];

@@ -1,10 +1,14 @@
 import en from './lang/en';
 import fi from './lang/fi';
+import hu from './lang/hu';
+import pl from './lang/pl';
 import storage from './storage';
 
 const languages = {
   en,
   fi,
+  hu,
+  pl,
 };
 
 const current_lang = storage.get_cookie('lang') || 'en';
