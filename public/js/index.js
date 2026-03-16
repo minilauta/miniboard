@@ -303,11 +303,7 @@ function listener_post_thumb_link_click(event) {
           let mod_meta_scroll = document.createElement('div');
           mod_meta_scroll.style.display = 'inline-block';
           mod_meta_scroll.style.animation = 'marquee 10s linear infinite';
-          mod_meta_scroll.innerHTML += 'TITLE: ' + metadata.title;
-          mod_meta_scroll.innerHTML += ', ';
-          mod_meta_scroll.innerHTML += 'TRACKER: ' + metadata.tracker;
-          mod_meta_scroll.innerHTML += ', ';
-          mod_meta_scroll.innerHTML += 'TYPE: ' + metadata.type_long;
+          mod_meta_scroll.textContent = 'TITLE: ' + metadata.title + ', TRACKER: ' + metadata.tracker + ', TYPE: ' + metadata.type_long;
           mod_meta.appendChild(mod_meta_scroll);
 
           mod_pos.setAttribute('min', '0');

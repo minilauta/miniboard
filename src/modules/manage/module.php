@@ -39,7 +39,7 @@ class ManageModule implements core\Module
 			
 			// get query params
 			$query_params = funcs_common_parse_query_str($_SERVER);
-			$query_route = funcs_common_parse_input_str($query_params, 'route', '');
+			$query_route = htmlspecialchars(funcs_common_parse_input_str($query_params, 'route', ''), ENT_QUOTES, 'UTF-8');
 			$query_status = htmlspecialchars(funcs_common_parse_input_str($query_params, 'status', ''), ENT_QUOTES, 'UTF-8');
 			$query_page = funcs_common_parse_input_int($query_params, 'page', 0, 0, 1000);
 
