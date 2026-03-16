@@ -17,16 +17,19 @@
           <a href="/<?=$post['board_id']?>/<?=$post['post_id']?>/#<?=$post['board_id']?>-<?=$post['post_id']?>">No.</a><a href="/<?=$post['board_id']?>/<?=$post['post_id']?>/#q<?=$post['post_id']?>"><?=$post['post_id']?></a>
         </span>
         <?php
+          $t_stickied = __('post.stickied');
+          $t_locked = __('post.locked');
           if ($post['stickied'] === 1) {
-            echo "<img src='/static/sticky.png' alt='Stickied' title='Stickied' width='16' height='16'>";
+            echo "<img src='/static/sticky.png' alt='{$t_stickied}' title='{$t_stickied}' width='16' height='16'>";
           }
           if ($post['locked'] === 1) {
-            echo "<img src='/static/lock.png' alt='Locked' title='Locked' width='16' height='16'>";
+            echo "<img src='/static/lock.png' alt='{$t_locked}' title='{$t_locked}' width='16' height='16'>";
           }
         ?>
         <?php
           if ($context === 'board') {
-            echo "[<a class='post-reply-link' href='/{$post['board_id']}/{$post['post_id']}/'>Reply</a>]";
+            $t_reply = __('post.reply');
+            echo "[<a class='post-reply-link' href='/{$post['board_id']}/{$post['post_id']}/'>{$t_reply}</a>]";
           }
         ?>
         <a href="#" class="dd-menu-btn" data-board_id="<?=$post['board_id']?>" data-id="<?=$post['post_id']?>" data-cmd="post-menu">▶</a>
@@ -38,7 +41,7 @@
               echo $post['message_rendered'];
             } else {
               echo $post['message_truncated'];
-              echo '<br><br><span class="truncated">Post truncated. Click reply to view.</span>';
+              echo '<br><br><span class="truncated">' . __('post.truncated') . '</span>';
             }
           ?>
         </div>
@@ -49,7 +52,7 @@
     if ($context === 'board') {
       $replies_omitted = $post['replies_n'] - count($post['replies']);
       if ($replies_omitted > 0) {
-        echo "<span class='omitted'>{$replies_omitted} replies omitted. Click reply to view.</span>";
+        echo "<span class='omitted'>" . __('post.replies_omitted', ['count' => $replies_omitted]) . "</span>";
       }
     }
   ?>

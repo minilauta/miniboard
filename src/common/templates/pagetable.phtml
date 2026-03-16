@@ -7,9 +7,9 @@
             $page_prev = $page - 1;
             $query = funcs_common_mutate_query($_GET, 'page', $page_prev);
 
-            echo "<a class='prev' href='?{$query}'>Previous</a>";
+            echo "<a class='prev' href='?{$query}'>" . __('nav.previous') . "</a>";
           } else {
-            echo "<span class='prev'>Previous</span>";
+            echo "<span class='prev'>" . __('nav.previous') . "</span>";
           }
         ?>
       </td>
@@ -32,9 +32,9 @@
             $page_next = $page + 1;
             $query = funcs_common_mutate_query($_GET, 'page', $page_next);
 
-            echo "<a class='next' href='?{$query}'>Next</a>";
+            echo "<a class='next' href='?{$query}'>" . __('nav.next') . "</a>";
           } else {
-            echo "<span class='next'>Next</span>";
+            echo "<span class='next'>" . __('nav.next') . "</span>";
           }
         ?>
       </td>

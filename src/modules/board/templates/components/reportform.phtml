@@ -4,16 +4,16 @@
     <tbody>
       <tr>
         <td class="form-label">
-          <label>NOTICE</label>
+          <label><?=__('report.notice')?></label>
         </td>
         <td>
-          Reporting post <strong><?=$post['post_id']?></strong> on board <strong>/<?=$post['board_id']?>/</strong>.
-          Submitting <strong>false</strong> or <strong>misclassified</strong> reports will result in a ban.
+          <?=__('report.info', ['post_id' => $post['post_id'], 'board_id' => $post['board_id']])?>
+          <?=__('report.warning')?>
         </td>
       </tr>
       <tr>
         <td class="form-label">
-          <label for="type">Type</label>
+          <label for="type"><?=__('report.type')?></label>
         </td>
         <td>
           <?php
@@ -26,17 +26,18 @@
               <select id='type' name='type'>{$options}</select>
             ";
           ?>
-          <button type="submit">Submit</button>
+          <button type="submit"><?=__('form.submit')?></button>
         </td>
       </tr>
       <?php
         if (MB_CAPTCHA_REPORT) {
           $captcha = MB_CAPTCHA_HCAPTCHA_SITE;
+          $t_captcha = __('form.captcha');
 
           echo "
             <tr>
               <td class='form-label'>
-                <label for='captcha'>CAPTCHA</label>
+                <label for='captcha'>{$t_captcha}</label>
               </td>
               <td>
                 <div class='h-captcha' data-sitekey='{$captcha}'></div>

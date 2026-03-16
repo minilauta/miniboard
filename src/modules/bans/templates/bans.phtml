@@ -4,7 +4,7 @@
     <?=$this->render(__ROOT__ . '/common/templates/meta.phtml')?>
     <?=$this->render(__ROOT__ . '/common/templates/styles.phtml')?>
     <?=$this->render(__ROOT__ . '/common/templates/scripts.phtml')?>
-    <title>Bans</title>
+    <title><?=__('bans.title')?></title>
   </head>
   <body>
     <div id="menubar" class="menubar">
@@ -12,21 +12,21 @@
         <?=$this->render(__ROOT__ . '/common/templates/modmenu.phtml')?>
 			</div>
     </div>
-    <?=$this->render(__ROOT__ . '/common/templates/header.phtml', ['h_title' => 'Bans', 'h_subtitle' => 'Public list of latest bans'])?>
+    <?=$this->render(__ROOT__ . '/common/templates/header.phtml', ['h_title' => __('bans.title'), 'h_subtitle' => __('bans.subtitle')])?>
 
     <div class="page-root container-centered">
       <div class="box-container">
         <div class="box">
-          <div class="box-title">Bans (last 2 weeks)</div>
+          <div class="box-title"><?=__('bans.heading')?></div>
           <div class="box-content">
             <table>
               <thead>
                 <tr>
-                  <th>id</th>
-                  <th>ip</th>
-                  <th>timestamp</th>
-                  <th>expire</th>
-                  <th>reason</th>
+                  <th><?=__('manage.th.id')?></th>
+                  <th><?=__('manage.th.ip')?></th>
+                  <th><?=__('manage.th.timestamp')?></th>
+                  <th><?=__('manage.th.expire')?></th>
+                  <th><?=__('manage.th.reason')?></th>
                 </tr>
               </thead>
               <tbody>

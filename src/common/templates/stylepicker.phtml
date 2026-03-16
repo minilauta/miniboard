@@ -1,9 +1,10 @@
 <?php
-  $options = '<option value="">Style</option>';
+  $t_style = __('style.label');
+  $options = "<option value=''>{$t_style}</option>";
   foreach (MB_STYLES as $key => $val) {
     $options .= "<option value='{$val}'>{$val}</option>";
   }
-  
+
   echo "
     <select id='stylepicker' style='display:none;'>{$options}</select>
   ";

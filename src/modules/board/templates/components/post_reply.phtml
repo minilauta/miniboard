@@ -7,7 +7,7 @@
       <span class="post-id">
         No.<?=$post['post_id']?>
       </span>
-      <span class="post-hidden-label">Post hidden</span>
+      <span class="post-hidden-label"><?=__('post.hidden')?></span>
       <a href="#" class="dd-menu-btn" data-board_id="<?=$post['board_id']?>" data-parent_id="<?=$post['parent_id']?>" data-id="<?=$post['post_id']?>" data-cmd="post-menu">▶</a>
     </div>
   </div>
@@ -33,7 +33,7 @@
             echo $post['message_rendered'];
           } else {
             echo $post['message_truncated'];
-            echo '<br><br><span class="truncated">Post truncated. Click reply to view.</span>';
+            echo '<br><br><span class="truncated">' . __('post.truncated') . '</span>';
           }
         ?>
       </div>

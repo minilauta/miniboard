@@ -4,10 +4,10 @@
     <?=$this->render(__ROOT__ . '/common/templates/meta.phtml')?>
     <?=$this->render(__ROOT__ . '/common/templates/styles.phtml')?>
     <?=$this->render(__ROOT__ . '/common/templates/scripts.phtml')?>
-    <title>Login</title>
+    <title><?=__('manage.title')?></title>
   </head>
   <body>
-    <?=$this->render(__ROOT__ . '/common/templates/header.phtml', ['h_title' => 'Manage', 'h_subtitle' => 'Login'])?>
+    <?=$this->render(__ROOT__ . '/common/templates/header.phtml', ['h_title' => __('manage.title'), 'h_subtitle' => __('manage.login')])?>
     <hr>
     <div class="container-centered">
       <?=$this->render(__DIR__ . '/components/loginform.phtml')?>

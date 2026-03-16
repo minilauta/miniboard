@@ -2,19 +2,19 @@
   <div id="boardmenu" class="boardmenu">
     <?php
       $user_role = funcs_common_get_role();
-      
-      echo $user_role === MB_ROLE_SUPERADMIN ? "[<a href='?route=rebuild'>Rebuild</a>]\n"   : '';
-      echo $user_role === MB_ROLE_SUPERADMIN ? "[<a href='?route=refresh'>Refresh</a>]\n"   : '';
-      echo $user_role === MB_ROLE_SUPERADMIN ? "[<a href='?route=import'>Import</a>]\n"     : '';
-      echo $user_role === MB_ROLE_SUPERADMIN ? "[<a href='?route=accounts'>Accounts</a>]\n" : '';
+
+      echo $user_role === MB_ROLE_SUPERADMIN ? "[<a href='?route=rebuild'>" . __('manage.rebuild') . "</a>]\n"   : '';
+      echo $user_role === MB_ROLE_SUPERADMIN ? "[<a href='?route=refresh'>" . __('manage.refresh') . "</a>]\n"   : '';
+      echo $user_role === MB_ROLE_SUPERADMIN ? "[<a href='?route=import'>" . __('manage.import') . "</a>]\n"     : '';
+      echo $user_role === MB_ROLE_SUPERADMIN ? "[<a href='?route=accounts'>" . __('manage.accounts') . "</a>]\n" : '';
     ?>
-    [<a href="?route=logs">Logs</a>]
-    [<a href="?route=csam_hashes">CSAM Hashes</a>]
-    [<a href="?route=bans">Bans</a>]
-    [<a href="?route=posts">Posts</a>]
-    [<a href="?route=threads">Threads</a>]
-    [<a href="?route=reports">Reports</a>]
-    [<a href="logout">Log out</a>]
-    [<a href="/">Return</a>]
+    [<a href="?route=logs"><?=__('manage.logs')?></a>]
+    [<a href="?route=csam_hashes"><?=__('manage.csam_hashes')?></a>]
+    [<a href="?route=bans"><?=__('manage.bans')?></a>]
+    [<a href="?route=posts"><?=__('manage.posts')?></a>]
+    [<a href="?route=threads"><?=__('manage.threads')?></a>]
+    [<a href="?route=reports"><?=__('manage.reports')?></a>]
+    [<a href="logout"><?=__('manage.logout')?></a>]
+    [<a href="/"><?=__('manage.return')?></a>]
   </div>
 </div>

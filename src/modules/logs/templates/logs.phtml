@@ -4,7 +4,7 @@
     <?=$this->render(__ROOT__ . '/common/templates/meta.phtml')?>
     <?=$this->render(__ROOT__ . '/common/templates/styles.phtml')?>
     <?=$this->render(__ROOT__ . '/common/templates/scripts.phtml')?>
-    <title>Logs</title>
+    <title><?=__('logs.title')?></title>
   </head>
   <body>
     <div id="menubar" class="menubar">
@@ -12,19 +12,19 @@
         <?=$this->render(__ROOT__ . '/common/templates/modmenu.phtml')?>
 			</div>
     </div>
-    <?=$this->render(__ROOT__ . '/common/templates/header.phtml', ['h_title' => 'Logs', 'h_subtitle' => 'Public list of latest logs'])?>
+    <?=$this->render(__ROOT__ . '/common/templates/header.phtml', ['h_title' => __('logs.title'), 'h_subtitle' => __('logs.subtitle')])?>
 
     <div class="page-root container-centered">
       <div class="box-container">
         <div class="box">
-          <div class="box-title">Logs (last 2 weeks)</div>
+          <div class="box-title"><?=__('logs.heading')?></div>
           <div class="box-content">
             <table>
               <thead>
                 <tr>
-                  <th>id</th>
-                  <th>timestamp</th>
-                  <th>message</th>
+                  <th><?=__('manage.th.id')?></th>
+                  <th><?=__('manage.th.timestamp')?></th>
+                  <th><?=__('manage.th.message')?></th>
                 </tr>
               </thead>
               <tbody>

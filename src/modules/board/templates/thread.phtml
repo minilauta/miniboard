@@ -21,22 +21,22 @@
     <hr>
     <?=$this->render(__ROOT__ . '/common/templates/header.phtml', ['h_title' => "/{$board['id']}/ - {$board['name']}", 'h_subtitle' => $board['desc']])?>
     <hr>
-    <div class="mode">Posting mode: <span id="mode">Reply</span></div>
+    <div class="mode"><?=__('post.posting_mode')?> <span id="mode" data-mode="reply"><?=__('post.reply')?></span></div>
     <div id="form-post-container" class="container-centered">
       <?=$this->render(__DIR__ . '/components/postform.phtml', ['context' => 'thread', 'board' => $board, 'action' => "/{$board['id']}/{$thread['post_id']}"])?>
     </div>
     <hr>
     <div id="navlinks-top" class="navlinks">
-      [<a id="navlinks-top-index" href="/<?=$board['id']?>/">Return</a>]
-      [<a id="navlinks-top-catalog" href="/<?=$board['id']?>/catalog/">Catalog</a>]
-      [<a id="navlinks-top-bottom" href="#bottom">Bottom</a>]
+      [<a id="navlinks-top-index" href="/<?=$board['id']?>/"><?=__('nav.return')?></a>]
+      [<a id="navlinks-top-catalog" href="/<?=$board['id']?>/catalog/"><?=__('nav.catalog')?></a>]
+      [<a id="navlinks-top-bottom" href="#bottom"><?=__('nav.bottom')?></a>]
     </div>
     <hr>
     <?=$this->render(__DIR__ . '/components/deleteform.phtml', ['context' => 'thread', 'board' => $board, 'threads' => [$thread]])?>
     <div id="navlinks-bottom" class="navlinks">
-      [<a id="navlinks-bottom-index" href="/<?=$board['id']?>/">Return</a>]
-      [<a id="navlinks-bottom-catalog" href="/<?=$board['id']?>/catalog/">Catalog</a>]
-      [<a id="navlinks-bottom-top" href="#top">Top</a>]
+      [<a id="navlinks-bottom-index" href="/<?=$board['id']?>/"><?=__('nav.return')?></a>]
+      [<a id="navlinks-bottom-catalog" href="/<?=$board['id']?>/catalog/"><?=__('nav.catalog')?></a>]
+      [<a id="navlinks-bottom-top" href="#top"><?=__('nav.top')?></a>]
     </div>
     <div id="bottom"></div>
     <div class="container-centered">

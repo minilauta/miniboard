@@ -1,12 +1,12 @@
 <form id="form-import" class="form-import form" method="post" action="import">
   <?=funcs_common_csrf_field()?>
   <fieldset id="form-import-source-db">
-    <legend>Source database</legend>
+    <legend><?=__('manage.source_db')?></legend>
     <table>
       <tbody>
         <tr>
           <td class="form-label">
-            <label for="db_name">DB name</label>
+            <label for="db_name"><?=__('manage.db_name')?></label>
           </td>
           <td>
             <input type="text" name="db_name">
@@ -14,7 +14,7 @@
         </tr>
         <tr>
           <td class="form-label">
-            <label for="db_user">DB user</label>
+            <label for="db_user"><?=__('manage.db_user')?></label>
           </td>
           <td>
             <input type="text" name="db_user">
@@ -22,7 +22,7 @@
         </tr>
         <tr>
           <td class="form-label">
-            <label for="db_pass">DB pass</label>
+            <label for="db_pass"><?=__('manage.db_pass')?></label>
           </td>
           <td>
             <input type="password" name="db_pass">
@@ -32,12 +32,12 @@
     </table>
   </fieldset>
   <fieldset id="form-import-source-table">
-    <legend>Source table</legend>
+    <legend><?=__('manage.source_table')?></legend>
     <table>
       <tbody>
         <tr>
           <td class="form-label">
-            <label for="table_name">TABLE name</label>
+            <label for="table_name"><?=__('manage.table_name')?></label>
           </td>
           <td>
             <input type="text" name="table_name">
@@ -45,7 +45,7 @@
         </tr>
         <tr>
           <td class="form-label">
-            <label for="table_type">TABLE type</label>
+            <label for="table_type"><?=__('manage.table_type')?></label>
           </td>
           <td>
             <?php
@@ -62,12 +62,12 @@
     </table>
   </fieldset>
   <fieldset id="form-import-target-board">
-    <legend>Target board</legend>
+    <legend><?=__('manage.target_board')?></legend>
     <table>
       <tbody>
         <tr>
           <td class="form-label">
-            <label for="board_id">BOARD id</label>
+            <label for="board_id"><?=__('manage.board_id')?></label>
           </td>
           <td>
             <?php
@@ -91,7 +91,7 @@
     <tbody>
       <tr>
         <td class="form-label">
-          <label>STATUS</label>
+          <label><?=__('manage.status')?></label>
         </td>
         <td>
           <b><?=$status?></b>
@@ -99,10 +99,10 @@
       </tr>
       <tr>
         <td class="form-label">
-          <label>Submit</label>
+          <label><?=__('form.submit')?></label>
         </td>
         <td>
-	        <input type="submit" value="Import">
+	        <input type="submit" value="<?=__('manage.import')?>">
         </td>
       </tr>
     </tbody>

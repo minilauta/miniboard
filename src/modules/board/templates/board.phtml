@@ -21,8 +21,8 @@
     </div>
     <hr>
     <div id="navlinks-top" class="navlinks">
-      [<a id="navlinks-top-catalog" href="/<?=$board['id']?>/catalog/">Catalog</a>]
-      [<a id="navlinks-top-refresh" href="./">Refresh</a>]
+      [<a id="navlinks-top-catalog" href="/<?=$board['id']?>/catalog/"><?=__('nav.catalog')?></a>]
+      [<a id="navlinks-top-refresh" href="./"><?=__('nav.refresh')?></a>]
     </div>
     <hr>
     <?=$this->render(__DIR__ . '/components/deleteform.phtml', ['context' => 'board', 'board' => $board, 'threads' => $threads])?>

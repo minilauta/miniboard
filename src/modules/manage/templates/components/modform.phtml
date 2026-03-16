@@ -4,7 +4,7 @@
     <tbody>
       <tr>
         <td class="form-label">
-          <label>STATUS</label>
+          <label><?=__('manage.status')?></label>
         </td>
         <td>
           <b><?=$status?></b>
@@ -12,16 +12,16 @@
       </tr>
       <tr>
         <td class="form-label">
-          <label>Selected</label>
+          <label><?=__('manage.selected')?></label>
         </td>
         <td>
-	        <input type="submit" value="Delete (post)" formaction="delete?<?=http_build_query($_GET)?>">
-	        <input type="submit" value="Ban (ip)" formaction="ban?<?=http_build_query($_GET)?>">
-          <input type="number" name="duration" placeholder="Ban minutes">
-          <input type="text" name="reason" placeholder="Ban reason" autocomplete="off">
-	        <input type="submit" value="Mark as CSAM" formaction="csam_scanner/cp?<?=http_build_query($_GET)?>">
-	        <input type="submit" value="Lock/unlock (thread)" formaction="toggle_lock?<?=http_build_query($_GET)?>">
-	        <input type="submit" value="Sticky/unsticky (thread)" formaction="toggle_sticky?<?=http_build_query($_GET)?>">
+	        <input type="submit" value="<?=__('manage.delete_post')?>" formaction="delete?<?=http_build_query($_GET)?>">
+	        <input type="submit" value="<?=__('manage.ban_ip')?>" formaction="ban?<?=http_build_query($_GET)?>">
+          <input type="number" name="duration" placeholder="<?=__('manage.ban_minutes')?>">
+          <input type="text" name="reason" placeholder="<?=__('manage.ban_reason')?>" autocomplete="off">
+	        <input type="submit" value="<?=__('manage.mark_csam')?>" formaction="csam_scanner/cp?<?=http_build_query($_GET)?>">
+	        <input type="submit" value="<?=__('manage.toggle_lock')?>" formaction="toggle_lock?<?=http_build_query($_GET)?>">
+	        <input type="submit" value="<?=__('manage.toggle_sticky')?>" formaction="toggle_sticky?<?=http_build_query($_GET)?>">
         </td>
       </tr>
     </tbody>
@@ -30,14 +30,14 @@
     <thead>
       <tr>
         <th></th>
-        <th>id</th>
-        <th>post_id</th>
-        <th>parent_id</th>
-        <th>board_id</th>
-        <th>ip</th>
-        <th>deleted</th>
-        <th>imported</th>
-        <th>preview</th>
+        <th><?=__('manage.th.id')?></th>
+        <th><?=__('manage.th.post_id')?></th>
+        <th><?=__('manage.th.parent_id')?></th>
+        <th><?=__('manage.th.board_id')?></th>
+        <th><?=__('manage.th.ip')?></th>
+        <th><?=__('manage.th.deleted')?></th>
+        <th><?=__('manage.th.imported')?></th>
+        <th><?=__('manage.th.preview')?></th>
       </tr>
     </thead>
     <tbody>

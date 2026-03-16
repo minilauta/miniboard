@@ -33,13 +33,15 @@
       </a>
     ";
 
+    $t_stickied = __('post.stickied');
+    $t_locked = __('post.locked');
     $stickied = '';
     if ($post['stickied'] === 1) {
-      $stickied = "<img src='/static/sticky.png' alt='Stickied' title='Stickied' width='16' height='16'>";
+      $stickied = "<img src='/static/sticky.png' alt='{$t_stickied}' title='{$t_stickied}' width='16' height='16'>";
     }
     $locked = '';
     if ($post['locked'] === 1) {
-      $locked = "<img src='/static/lock.png' alt='Locked' title='Locked' width='16' height='16'>";
+      $locked = "<img src='/static/lock.png' alt='{$t_locked}' title='{$t_locked}' width='16' height='16'>";
     }
 
     // TODO: create specific function for this

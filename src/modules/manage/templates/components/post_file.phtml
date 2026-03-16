@@ -21,9 +21,10 @@
         $file_meta = "{$post['file_size_formatted']}, {$post['image_width']}x{$post['image_height']}, {$post['file_original']}";
       }
 
+      $t_file = __('file.file');
       echo "
         <div class='file-info break-words'>
-          File: <a href='{$post['file_rendered']}' target='_blank'>{$post['file_rendered']}</a>
+          {$t_file} <a href='{$post['file_rendered']}' target='_blank'>{$post['file_rendered']}</a>
           -
           ({$file_meta})
         </div>
@@ -36,11 +37,13 @@
         <div {$album_id} class='audio-album' style='display:none;'>{$post['audio_album']}</div>
       ";
     } else {
+      $t_embed = __('file.embed');
+      $t_embedded_url = __('file.embedded_url');
       echo "
         <div class='file-info break-words'>
-          Embed: <a href='{$post['file_hex']}' target='_blank'>{$post['file_original']}</a>
+          {$t_embed} <a href='{$post['file_hex']}' target='_blank'>{$post['file_original']}</a>
           -
-          ({$post['image_width']}x{$post['image_height']}, Embedded URL)
+          ({$post['image_width']}x{$post['image_height']}, {$t_embedded_url})
         </div>
         <div class='file-thumb'>
           <a class='file-thumb-href' href='{$post['file_hex']}' target='_blank'>

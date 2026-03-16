@@ -9,8 +9,11 @@ define('__VENDOR__', __DIR__ . '/../vendor');
 require __VENDOR__ . '/autoload.php';
 require __ROOT__ . '/common/version.php';
 require __ROOT__ . '/common/config.php';
+require __ROOT__ . '/core/translator.php';
 require __ROOT__ . '/core/app.php';
 require __ROOT__ . '/middlewares/session_mw.php';
+
+$translator = new core\Translator(__ROOT__ . '/lang', 'en');
 
 $app = null;
 try {

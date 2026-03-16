@@ -4,7 +4,7 @@
     <tbody>
       <tr>
         <td class="form-label">
-          <label for="username">Username</label>
+          <label for="username"><?=__('manage.username')?></label>
         </td>
         <td>
           <input type="text" name="username">
@@ -12,21 +12,22 @@
       </tr>
       <tr>
         <td class="form-label">
-          <label for="password">Password</label>
+          <label for="password"><?=__('manage.password')?></label>
         </td>
         <td>
           <input type="password" name="password">
-		      <input type="submit" value="Log In">
+		      <input type="submit" value="<?=__('manage.log_in')?>">
         </td>
       </tr>
       <?php
         if (MB_CAPTCHA_LOGIN) {
           $captcha = MB_CAPTCHA_HCAPTCHA_SITE;
+          $t_captcha = __('form.captcha');
 
           echo "
             <tr>
               <td class='form-label'>
-                <label for='captcha'>CAPTCHA</label>
+                <label for='captcha'>{$t_captcha}</label>
               </td>
               <td>
                 <div class='h-captcha' data-sitekey='{$captcha}'></div>

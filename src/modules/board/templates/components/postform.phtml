@@ -4,7 +4,7 @@
     <tbody>
       <tr>
         <td class="form-label">
-          <label for="name">Name</label>
+          <label for="name"><?=__('form.name')?></label>
         </td>
         <td>
           <input type="text" name="name">
@@ -12,7 +12,7 @@
       </tr>
       <tr>
         <td class="form-label">
-          <label for="email">E-mail</label>
+          <label for="email"><?=__('form.email')?></label>
         </td>
         <td>
           <input type="text" name="email" autocomplete="off">
@@ -20,16 +20,18 @@
       </tr>
       <?php
         if (funcs_common_is_logged_in()) {
+          $t_mod_options = __('form.mod_options');
+          $t_capcode = __('form.capcode');
           if ($board['req_role'] == null) {
             echo "
             <tr>
               <td class='form-label'>
-                <label for='mod-options'>Mod options</label>
+                <label for='mod-options'>{$t_mod_options}</label>
               </td>
               <td>
                 <label>
                   <input type='checkbox' name='capcode' value='1'>
-                  Capcode
+                  {$t_capcode}
                 </label>
               </td>
             </tr>
@@ -38,12 +40,12 @@
             echo "
             <tr>
               <td class='form-label'>
-                <label for='mod-options'>Mod options</label>
+                <label for='mod-options'>{$t_mod_options}</label>
               </td>
               <td>
                 <label>
                   <input type='checkbox' name='capcode' value='1' checked disabled>
-                  Capcode
+                  {$t_capcode}
                 </label>
               </td>
             </tr>
@@ -53,16 +55,16 @@
       ?>
       <tr>
         <td class="form-label">
-          <label for="subject">Subject</label>
+          <label for="subject"><?=__('form.subject')?></label>
         </td>
         <td>
           <input type="text" name="subject" autocomplete="off">
-          <input type="submit" name="submit" value="Submit">
+          <input type="submit" name="submit" value="<?=__('form.submit')?>">
         </td>
       </tr>
       <tr>
         <td class="form-label">
-          <label for="message">Message</label>
+          <label for="message"><?=__('form.message')?></label>
         </td>
         <td>
           <button type="button" class="format-btn" data-format="b"><b>b</b></button><!--
@@ -82,11 +84,12 @@
         if (!funcs_common_is_logged_in()) {
           if ($context === 'board' && MB_CAPTCHA_THREAD || $context === 'thread' && MB_CAPTCHA_REPLY) {
             $captcha = MB_CAPTCHA_HCAPTCHA_SITE;
+            $t_captcha = __('form.captcha');
 
             echo "
               <tr>
                 <td class='form-label'>
-                  <label for='captcha'>CAPTCHA</label>
+                  <label for='captcha'>{$t_captcha}</label>
                 </td>
                 <td>
                   <div id='form-post-captcha' class='h-captcha' data-sitekey='{$captcha}'></div>
@@ -103,14 +106,15 @@
             if ($val['type'] === 'main') {
               continue;
             }
-            
+
             $options .= "<option value='{$key}'>/{$key}/ - {$val['name']}</option>";
           }
 
+          $t_board = __('form.board');
           echo "
             <tr>
               <td class='form-label'>
-                <label for='board'>Board</label>
+                <label for='board'>{$t_board}</label>
               </td>
               <td>
                 <select id='board' name='board'>{$options}</select>
@@ -121,34 +125,40 @@
 
         // file
         if (!isset($board['text']) || $board['text'] == false) {
+          $t_file = __('form.file');
+          $t_draw = __('form.draw');
+          $t_file_options = __('form.file_options');
+          $t_spoiler = __('form.spoiler');
+          $t_no_filename = __('form.no_filename');
+          $t_embed = __('form.embed');
           echo "
             <tr>
               <td class='form-label'>
-                <label for='file'>File</label>
+                <label for='file'>{$t_file}</label>
               </td>
               <td>
                 <input id='form-file' type='file' name='file[]' autocomplete='off' size='35'>
-                <button id='form-draw' type='button' name='draw'>Draw</button>
+                <button id='form-draw' type='button' name='draw'>{$t_draw}</button>
               </td>
             </tr>
             <tr>
               <td class='form-label'>
-                <label for='file-options'>File options</label>
+                <label for='file-options'>{$t_file_options}</label>
               </td>
               <td>
                 <label>
                   <input type='checkbox' name='spoiler' value='1'>
-                  Spoiler
+                  {$t_spoiler}
                 </label>
                 <label>
                   <input type='checkbox' name='anonfile' value='1'>
-                  No filename
+                  {$t_no_filename}
                 </label>
               </td>
             </tr>
             <tr>
               <td class='form-label'>
-                <label for='embed'>Embed</label>
+                <label for='embed'>{$t_embed}</label>
               </td>
               <td>
                 <input type='text' name='embed' autocomplete='off'>
@@ -159,7 +169,7 @@
       ?>
       <tr>
         <td class="form-label">
-          <label for="password">Password</label>
+          <label for="password"><?=__('form.password')?></label>
         </td>
         <td>
           <input id="form-post-password" type="password" name="password">
@@ -172,14 +182,19 @@
           $info_fsize = funcs_common_human_filesize($board['maxkb'] * 1000);
           $info_msize = $board['max_width'] . 'x' . $board['max_height'];
 
+          $t_supported_files = __('form.supported_files', ['types' => "<span id='form-post-info-exts'>{$info_exts}</span>"]);
+          $t_supported_embeds = __('form.supported_embeds', ['types' => "<span id='form-post-info-embeds'>{$info_embs}</span>"]);
+          $t_max_filesize = __('form.max_filesize', ['size' => "<span id='form-post-info-fsize'>{$info_fsize}</span>"]);
+          $t_thumb_info = __('form.thumb_info', ['size' => "<span id='form-post-info-msize'>{$info_msize}</span>"]);
+
           echo "
             <tr>
               <td class='form-list' colspan='2'>
                 <ul>
-                  <li>Supported file types are <span id='form-post-info-exts'>{$info_exts}</span>.</li>
-                  <li>Supported embed types are <span id='form-post-info-embeds'>{$info_embs}</span>.</li>
-                  <li>Maximum file size allowed is <span id='form-post-info-fsize'>{$info_fsize}</span>.</li>
-                  <li>Images greater than <span id='form-post-info-msize'>{$info_msize}</span> will be thumbnailed.</li>
+                  <li>{$t_supported_files}</li>
+                  <li>{$t_supported_embeds}</li>
+                  <li>{$t_max_filesize}</li>
+                  <li>{$t_thumb_info}</li>
                 </ul>
               </td>
             </tr>

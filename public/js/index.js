@@ -3,6 +3,7 @@ import utils from './utils';
 import storage from './storage';
 import ui_window from './ui_window';
 import gallery from './gallery';
+import t, { available_languages, current_lang } from './i18n';
 
 // ruffle player
 window.RufflePlayer = window.RufflePlayer || {};
@@ -303,7 +304,7 @@ function listener_post_thumb_link_click(event) {
           let mod_meta_scroll = document.createElement('div');
           mod_meta_scroll.style.display = 'inline-block';
           mod_meta_scroll.style.animation = 'marquee 10s linear infinite';
-          mod_meta_scroll.textContent = 'TITLE: ' + metadata.title + ', TRACKER: ' + metadata.tracker + ', TYPE: ' + metadata.type_long;
+          mod_meta_scroll.textContent = t('mod.title') + ': ' + metadata.title + ', ' + t('mod.tracker') + ': ' + metadata.tracker + ', ' + t('mod.type') + ': ' + metadata.type_long;
           mod_meta.appendChild(mod_meta_scroll);
 
           mod_pos.setAttribute('min', '0');
@@ -459,7 +460,7 @@ function listener_dropdown_menu_button_click(event) {
         let lis = [];
         lis.push({
           type: 'li',
-          text: 'Report post',
+          text: t('menu.report_post'),
           data: {
             cmd: 'report',
             board_id: data.board_id,
@@ -469,7 +470,7 @@ function listener_dropdown_menu_button_click(event) {
         if (data.parent_id == null) {
           lis.push({
             type: 'li',
-            text: !location.pathname.includes('/hidden/') ? 'Hide thread' : 'Unhide thread',
+            text: !location.pathname.includes('/hidden/') ? t('menu.hide_thread') : t('menu.unhide_thread'),
             data: {
               cmd: 'hide',
               board_id: data.board_id,
@@ -481,7 +482,7 @@ function listener_dropdown_menu_button_click(event) {
           let isHidden = rc != null && rc.classList.contains('reply-hidden');
           lis.push({
             type: 'li',
-            text: isHidden ? 'Unhide post' : 'Hide post',
+            text: isHidden ? t('menu.unhide_post') : t('menu.hide_post'),
             data: {
               cmd: 'hide',
               board_id: data.board_id,
@@ -494,7 +495,7 @@ function listener_dropdown_menu_button_click(event) {
         if (file_info != null && file_info.file_ext !== 'embed') {
           lis.push({
             type: 'li',
-            text: 'Download original',
+            text: t('menu.download_original'),
             data: {
               cmd: 'file_download',
               board_id: data.board_id,
@@ -505,7 +506,7 @@ function listener_dropdown_menu_button_click(event) {
         if (file_info != null && FILE_EXTS_IMAGE.includes(file_info.file_ext)) {
           lis.push({
             type: 'li',
-            text: 'Tegaki: Open image',
+            text: t('menu.tegaki_open'),
             data: {
               cmd: 'tegaki_open',
               cmd_data: {
@@ -520,7 +521,7 @@ function listener_dropdown_menu_button_click(event) {
         if (album_link != null && album_link.innerText.length > 0) {
           lis.push({
             type: 'li',
-            text: 'Audio: Album art',
+            text: t('menu.audio_album'),
             data: {
               cmd: 'audio_album',
               cmd_data: {
@@ -535,7 +536,7 @@ function listener_dropdown_menu_button_click(event) {
         if (thumb_img != null && !thumb_img.src.includes('/static/')) {
           lis.push({
             type: 'li',
-            text: 'Search: SauceNAO',
+            text: t('menu.search_saucenao'),
             data: {
               cmd: 'search_thumb',
               cmd_data: {
@@ -546,7 +547,7 @@ function listener_dropdown_menu_button_click(event) {
             }
           }, {
             type: 'li',
-            text: 'Search: IQDB',
+            text: t('menu.search_iqdb'),
             data: {
               cmd: 'search_thumb',
               cmd_data: {
@@ -557,7 +558,7 @@ function listener_dropdown_menu_button_click(event) {
             }
           }, {
             type: 'li',
-            text: 'Search: IQDB 3D',
+            text: t('menu.search_iqdb3d'),
             data: {
               cmd: 'search_thumb',
               cmd_data: {
@@ -568,7 +569,7 @@ function listener_dropdown_menu_button_click(event) {
             }
           }, {
             type: 'li',
-            text: 'Search: ASCII2D',
+            text: t('menu.search_ascii2d'),
             data: {
               cmd: 'search_thumb',
               cmd_data: {
@@ -579,7 +580,7 @@ function listener_dropdown_menu_button_click(event) {
             }
           }, {
             type: 'li',
-            text: 'Search: TinEye',
+            text: t('menu.search_tineye'),
             data: {
               cmd: 'search_thumb',
               cmd_data: {
@@ -712,7 +713,7 @@ function listener_post_reference_link_mouseleave(event) {
               '<div class="post-info">' +
                 postNumberHtml +
                 '<span class="post-id">No.' + data.id + '</span> ' +
-                '<span class="post-hidden-label">Post hidden</span> ' +
+                '<span class="post-hidden-label">' + t('post.hidden') + '</span> ' +
                 '<a href="#" class="dd-menu-btn" data-board_id="' + data.board_id + '" data-parent_id="' + data.parent_id + '" data-id="' + data.id + '" data-cmd="post-menu">▶</a>' +
               '</div>';
             init_dropdown_menu_buttons(rc);
@@ -1018,6 +1019,19 @@ function create_settings_window(variables) {
         div_var_value_data.step = variable.step;
         div_var_value_data.value = storage.get_lsvar(variable.key, variable.def);
         break;
+      case 'select':
+        div_var_value_data = document.createElement('select');
+        variable.options.forEach(opt => {
+          const option = document.createElement('option');
+          option.value = opt.value;
+          option.textContent = opt.label;
+          if (opt.value === variable.def) option.selected = true;
+          div_var_value_data.appendChild(option);
+        });
+        if (variable.callback != null) {
+          variable.callback(div_var_value_data);
+        }
+        break;
       case 'element':
         div_var_value_data = document.getElementById(variable.id)?.cloneNode(true);
         if (div_var_value_data != null) {
@@ -1050,7 +1064,7 @@ function create_settings_window(variables) {
 
   const btn_apply = document.createElement('button');
   btn_apply.type = 'button';
-  btn_apply.innerHTML = 'Apply';
+  btn_apply.innerHTML = t('settings.apply');
   btn_apply.addEventListener('click', (event) => {
     apply_settings();
   });
@@ -1058,7 +1072,7 @@ function create_settings_window(variables) {
   
   const div_fixed_window = ui_window.open(
     'settingswindow',
-    'Settings',
+    t('settings.title'),
     0,
     0,
     null,
@@ -1126,7 +1140,7 @@ function create_quickreply_window(target) {
   const target_rect = target.getBoundingClientRect();
   const div_fixed_window = ui_window.open(
     'quickreplywindow',
-    'Quick Reply',
+    t('window.quick_reply'),
     target_rect.right,
     target_rect.bottom + 4,
     null,
@@ -1478,7 +1492,7 @@ function create_error_window(content) {
   div_content.innerHTML = content;
   const fixed_window = ui_window.open(
     'errorwindow',
-    'Error',
+    t('window.error'),
     0,
     0,
     null,
@@ -1663,7 +1677,7 @@ function init_deleteform_features() {
  */
 function init_thread_features() {
   const mode = document.getElementById('mode');
-  if (mode == null || mode.innerText != 'Reply') {
+  if (mode == null || mode.dataset.mode !== 'reply') {
     return;
   }
 
@@ -1771,7 +1785,15 @@ function init_settings_features() {
       existing_element.remove();
     } else {
       create_settings_window([
-        { name: 'Set style', id: 'stylepicker', type: 'element', callback: (target) => {
+        { name: t('settings.set_language'), type: 'select', options: available_languages, def: current_lang, callback: (target) => {
+          let lang_expires = new Date();
+          lang_expires.setFullYear(lang_expires.getFullYear() + 10);
+          target.addEventListener('change', (event) => {
+            storage.set_cookie('lang', event.target.value, 'Strict', lang_expires);
+            location.reload();
+          });
+        } },
+        { name: t('settings.set_style'), id: 'stylepicker', type: 'element', callback: (target) => {
           let style_expires = new Date();
           style_expires.setFullYear(style_expires.getFullYear() + 10);
           target.addEventListener('change', (event) => {
@@ -1779,19 +1801,19 @@ function init_settings_features() {
             location.reload();
           });
         } },
-        { name: 'Menubar: detach', key: 'menubar_detach', type: 'bool', def: state.menubar_detach },
-        { name: 'Thread: quick reply', key: 'thread_quickreply', type: 'bool', def: state.thread_quickreply },
-        { name: 'Thread: auto update', key: 'thread_auto_update', type: 'bool', def: state.thread_auto_update },
-        { name: 'Audio: loop', key: 'audio_loop', type: 'bool', def: state.audio_loop },
-        { name: 'Video: loop', key: 'video_loop', type: 'bool', def: state.video_loop },
-        { name: 'Audio: autoclose', key: 'audio_autoclose', type: 'bool', def: state.audio_autoclose },
-        { name: 'Video: autoclose', key: 'video_autoclose', type: 'bool', def: state.video_autoclose },
-        { name: 'Audio: volume', key: 'audio_volume', type: 'float_slider', min: 0, max: 1, step: 0.1, def: state.audio_volume },
-        { name: 'Video: volume', key: 'video_volume', type: 'float_slider', min: 0, max: 1, step: 0.1, def: state.video_volume },
-        { name: 'Flash: volume', key: 'swf_volume', type: 'float_slider', min: 0, max: 1, step: 0.1, def: state.swf_volume },
-        { name: 'MOD: stereo', key: 'mod_stereo', type: 'float_slider', min: 0, max: 1, step: 0.1, def: state.mod_stereo },
-        { name: 'CSS: override', key: 'css_override', type: 'string_multiline', def: '' },
-        { name: 'JS: override', key: 'js_override', type: 'string_multiline', def: '' },
+        { name: t('settings.menubar_detach'), key: 'menubar_detach', type: 'bool', def: state.menubar_detach },
+        { name: t('settings.thread_quickreply'), key: 'thread_quickreply', type: 'bool', def: state.thread_quickreply },
+        { name: t('settings.thread_auto_update'), key: 'thread_auto_update', type: 'bool', def: state.thread_auto_update },
+        { name: t('settings.audio_loop'), key: 'audio_loop', type: 'bool', def: state.audio_loop },
+        { name: t('settings.video_loop'), key: 'video_loop', type: 'bool', def: state.video_loop },
+        { name: t('settings.audio_autoclose'), key: 'audio_autoclose', type: 'bool', def: state.audio_autoclose },
+        { name: t('settings.video_autoclose'), key: 'video_autoclose', type: 'bool', def: state.video_autoclose },
+        { name: t('settings.audio_volume'), key: 'audio_volume', type: 'float_slider', min: 0, max: 1, step: 0.1, def: state.audio_volume },
+        { name: t('settings.video_volume'), key: 'video_volume', type: 'float_slider', min: 0, max: 1, step: 0.1, def: state.video_volume },
+        { name: t('settings.flash_volume'), key: 'swf_volume', type: 'float_slider', min: 0, max: 1, step: 0.1, def: state.swf_volume },
+        { name: t('settings.mod_stereo'), key: 'mod_stereo', type: 'float_slider', min: 0, max: 1, step: 0.1, def: state.mod_stereo },
+        { name: t('settings.css_override'), key: 'css_override', type: 'string_multiline', def: '' },
+        { name: t('settings.js_override'), key: 'js_override', type: 'string_multiline', def: '' },
       ]);
     }
   };
@@ -1854,7 +1876,7 @@ function init_gallery_features() {
     const div_gallery_container = gallery.create();
     const div_fixed_window = ui_window.open(
       'gallerywindow',
-      'Gallery (lctrl + scroll to resize)',
+      t('window.gallery'),
       0,
       0,
       null,

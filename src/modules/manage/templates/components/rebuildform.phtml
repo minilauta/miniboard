@@ -1,12 +1,12 @@
 <form id="form-rebuild" class="form-rebuild form" method="post" action="rebuild">
   <?=funcs_common_csrf_field()?>
   <fieldset id="form-rebuild-target-board">
-    <legend>Target board</legend>
+    <legend><?=__('manage.target_board')?></legend>
     <table>
       <tbody>
         <tr>
           <td class="form-label">
-            <label for="board_id">BOARD id</label>
+            <label for="board_id"><?=__('manage.board_id')?></label>
           </td>
           <td>
             <?php
@@ -30,7 +30,7 @@
     <tbody>
       <tr>
         <td class="form-label">
-          <label>STATUS</label>
+          <label><?=__('manage.status')?></label>
         </td>
         <td>
           <b><?=$status?></b>
@@ -38,10 +38,10 @@
       </tr>
       <tr>
         <td class="form-label">
-          <label>Submit</label>
+          <label><?=__('form.submit')?></label>
         </td>
         <td>
-	        <input type="submit" value="Rebuild">
+	        <input type="submit" value="<?=__('manage.rebuild')?>">
         </td>
       </tr>
     </tbody>

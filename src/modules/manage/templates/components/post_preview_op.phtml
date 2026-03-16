@@ -10,11 +10,13 @@
       <a href="/<?=$post['board_id']?>/<?=$post['post_id']?>/#<?=$post['board_id']?>-<?=$post['post_id']?>">No.</a><a href="/<?=$post['board_id']?>/<?=$post['post_id']?>/#q<?=$post['post_id']?>"><?=$post['post_id']?></a>
     </span>
     <?php
+      $t_stickied = __('post.stickied');
+      $t_locked = __('post.locked');
       if ($post['stickied'] === 1) {
-        echo "<img src='/static/sticky.png' alt='Stickied' title='Stickied' width='16' height='16'>";
+        echo "<img src='/static/sticky.png' alt='{$t_stickied}' title='{$t_stickied}' width='16' height='16'>";
       }
       if ($post['locked'] === 1) {
-        echo "<img src='/static/lock.png' alt='Locked' title='Locked' width='16' height='16'>";
+        echo "<img src='/static/lock.png' alt='{$t_locked}' title='{$t_locked}' width='16' height='16'>";
       }
     ?>
   </div>

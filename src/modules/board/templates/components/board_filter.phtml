@@ -1,5 +1,5 @@
 <div id="board-filter" class="board-filter">
-  <a id="board-filter-toggle" href="#">Filter boards</a>
+  <a id="board-filter-toggle" href="#"><?=__('filter.toggle')?></a>
   <form id="board-filter-form" class="board-filter-form" method="post" action="/<?=$board['id']?>/filter" style="display:none;">
     <?=funcs_common_csrf_field()?>
     <div class="board-filter-options">
@@ -14,7 +14,7 @@
         }
       ?>
     </div>
-    <button type="submit">Apply</button>
-    <button id="board-filter-reset" type="button">Reset</button>
+    <button type="submit"><?=__('filter.apply')?></button>
+    <button id="board-filter-reset" type="button"><?=__('filter.reset')?></button>
   </form>
 </div>
