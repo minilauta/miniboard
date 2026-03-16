@@ -47,6 +47,9 @@ class BoardModule implements core\Module
 			}
 			$session_id = session_id();
 
+			// get board filters for main-type boards
+			$board_filters = $board_cfg['type'] === 'main' ? select_board_filters($session_id) : [];
+
 			// get query params
 			$query_params = funcs_common_parse_query_str($_SERVER);
 			$query_page = funcs_common_parse_input_int($query_params, 'page', 0, 0, 1000);
@@ -67,7 +70,8 @@ class BoardModule implements core\Module
 				'board' => $board_cfg,
 				'threads' => $threads,
 				'page' => $query_page,
-				'page_n' => ceil($threads_n / $board_threads_per_page)
+				'page_n' => ceil($threads_n / $board_threads_per_page),
+				'board_filters' => $board_filters
 			]);
 		});
 
@@ -83,6 +87,9 @@ class BoardModule implements core\Module
 				throw new \AppException('index', 'route', 'access denied', SC_UNAUTHORIZED);
 			}
 			$session_id = session_id();
+
+			// get board filters for main-type boards
+			$board_filters = $board_cfg['type'] === 'main' ? select_board_filters($session_id) : [];
 
 			// get query params
 			$query_params = funcs_common_parse_query_str($_SERVER);
@@ -104,7 +111,8 @@ class BoardModule implements core\Module
 				'board' => $board_cfg,
 				'threads' => $threads,
 				'page' => $query_page,
-				'page_n' => ceil($threads_n / $board_threads_per_catalog_page)
+				'page_n' => ceil($threads_n / $board_threads_per_catalog_page),
+				'board_filters' => $board_filters
 			]);
 		});
 
@@ -120,6 +128,9 @@ class BoardModule implements core\Module
 				throw new \AppException('index', 'route', 'access denied', SC_UNAUTHORIZED);
 			}
 			$session_id = session_id();
+
+			// get board filters for main-type boards
+			$board_filters = $board_cfg['type'] === 'main' ? select_board_filters($session_id) : [];
 
 			// get query params
 			$query_params = funcs_common_parse_query_str($_SERVER);
@@ -141,7 +152,8 @@ class BoardModule implements core\Module
 				'board' => $board_cfg,
 				'threads' => $threads,
 				'page' => $query_page,
-				'page_n' => ceil($threads_n / $board_threads_per_page)
+				'page_n' => ceil($threads_n / $board_threads_per_page),
+				'board_filters' => $board_filters
 			]);
 		});
 
@@ -360,6 +372,39 @@ class BoardModule implements core\Module
 			header('Content-Type:application/json');
 			http_response_code($error_code);
 			echo json_encode(['error_message' => $error_message]);
+		});
+
+		$router->add_route(HTTP_POST, '/:board_id/filter', function ($vars) {
+			// validate CSRF token
+			funcs_common_validate_csrf($_POST);
+
+			// get board config
+			$board_cfg = funcs_common_get_board_cfg($vars['board_id']);
+
+			// only main-type boards support filtering
+			if ($board_cfg['type'] !== 'main') {
+				throw new \AppException('board', 'filter', 'board filtering is only supported on main-type boards', SC_BAD_REQUEST);
+			}
+
+			// check board access
+			if (!funcs_board_check_access($board_cfg, funcs_common_get_role())) {
+				throw new \AppException('index', 'route', 'access denied', SC_UNAUTHORIZED);
+			}
+
+			$session_id = session_id();
+
+			// validate and collect selected board IDs
+			$selected = isset($_POST['boards']) && is_array($_POST['boards']) ? $_POST['boards'] : [];
+			$valid_board_ids = [];
+			foreach ($selected as $bid) {
+				if (isset(MB_BOARDS[$bid]) && MB_BOARDS[$bid]['type'] !== 'main') {
+					$valid_board_ids[] = $bid;
+				}
+			}
+
+			replace_board_filters($session_id, $valid_board_ids);
+
+			http_response_code(200);
 		});
 
 		$router->add_route(HTTP_POST, '/:board_id/:thread_id', function ($vars) {

@@ -1,0 +1,20 @@
+<div id="board-filter" class="board-filter">
+  <a id="board-filter-toggle" href="#">Filter boards</a>
+  <form id="board-filter-form" class="board-filter-form" method="post" action="/<?=$board['id']?>/filter" style="display:none;">
+    <?=funcs_common_csrf_field()?>
+    <div class="board-filter-options">
+      <?php
+        foreach (MB_BOARDS as $key => $val) {
+          if ($val['type'] === 'main' || (isset($val['hidden']) && $val['hidden'] == true) || !funcs_board_check_access($val, funcs_common_get_role())) {
+            continue;
+          }
+
+          $checked = empty($board_filters) || in_array($key, $board_filters) ? ' checked' : '';
+          echo "<label><input type='checkbox' name='boards[]' value='{$key}'{$checked}>/{$key}/ - {$val['name']}</label> ";
+        }
+      ?>
+    </div>
+    <button type="submit">Apply</button>
+    <button id="board-filter-reset" type="button">Reset</button>
+  </form>
+</div>

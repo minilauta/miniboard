@@ -1,0 +1,10 @@
+# per-session board filter for main-type boards
+
+version: 13
+script: |
+  CREATE TABLE IF NOT EXISTS board_filters (
+    `session_id` varchar(64) NOT NULL,
+    `board_id` varchar(8) NOT NULL,
+    PRIMARY KEY (`session_id`, `board_id`)
+  ) ENGINE=InnoDB
+  CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;

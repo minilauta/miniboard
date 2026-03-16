@@ -1803,6 +1803,49 @@ function init_settings_features() {
   anchors.forEach((x) => x.addEventListener('click', settings_anchor_click_handler));
 }
 
+/**
+ * Initializes features related to the board filter on main-type boards.
+ */
+function init_board_filter_features() {
+  const toggle = document.getElementById('board-filter-toggle');
+  const form = document.getElementById('board-filter-form');
+  if (toggle == null || form == null) {
+    return;
+  }
+
+  toggle.addEventListener('click', (event) => {
+    event.preventDefault();
+    form.style.display = form.style.display === 'none' ? '' : 'none';
+  });
+
+  const reset_btn = document.getElementById('board-filter-reset');
+  if (reset_btn != null) {
+    reset_btn.addEventListener('click', (event) => {
+      form.querySelectorAll('input[type=checkbox]').forEach((cb) => { cb.checked = false; });
+      form.requestSubmit();
+    });
+  }
+
+  form.addEventListener('submit', (event) => {
+    event.preventDefault();
+    const submit_btn = form.querySelector('button[type=submit]');
+    submit_btn.disabled = true;
+
+    fetch(form.action, {
+      method: 'POST',
+      body: new FormData(form)
+    }).then((data) => {
+      if (data.status === 200) {
+        window.location.reload();
+      } else {
+        submit_btn.disabled = false;
+      }
+    }).catch(() => {
+      submit_btn.disabled = false;
+    });
+  });
+}
+
 function init_gallery_features() {
   const anchors = document.querySelectorAll('#boardmenu-desktop-gallery,#boardmenu-mobile-gallery');
   if (anchors.length === 0) {
@@ -1875,6 +1918,10 @@ document.addEventListener('DOMContentLoaded', function(event) {
   console.time('init_boardselect_mobile_features');
   init_boardselect_mobile_features();
   console.timeEnd('init_boardselect_mobile_features');
+
+  console.time('init_board_filter_features');
+  init_board_filter_features();
+  console.timeEnd('init_board_filter_features');
 
   console.time('init_gallery_features');
   init_gallery_features();

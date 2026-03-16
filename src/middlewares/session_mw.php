@@ -10,9 +10,13 @@ require __ROOT__ . '/core/db_connection.php';
 function session_mw_update_session_id_refs(string $old_session_id, string $new_session_id): bool
 {
     $connection = new core\DbConnection(MB_DB_HOST, MB_DB_NAME, MB_DB_USER, MB_DB_PASS);
-    $sth = $connection
-        ->get_pdo()
-        ->prepare('UPDATE hides SET session_id = :s_id_new WHERE session_id = :s_id_old');
+    $pdo = $connection->get_pdo();
+    $sth = $pdo->prepare('UPDATE hides SET session_id = :s_id_new WHERE session_id = :s_id_old');
+    $sth->execute([
+        's_id_new' => $new_session_id,
+        's_id_old' => $old_session_id,
+    ]);
+    $sth = $pdo->prepare('UPDATE board_filters SET session_id = :s_id_new WHERE session_id = :s_id_old');
     return $sth->execute([
         's_id_new' => $new_session_id,
         's_id_old' => $old_session_id,

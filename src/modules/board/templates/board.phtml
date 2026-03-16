@@ -12,6 +12,10 @@
     <hr>
     <?=$this->render(__ROOT__ . '/common/templates/header.phtml', ['h_title' => "/{$board['id']}/ - {$board['name']}", 'h_subtitle' => $board['desc']])?>
     <hr>
+    <?php if ($board['type'] === 'main') { ?>
+      <?=$this->render(__DIR__ . '/components/board_filter.phtml', ['board' => $board, 'board_filters' => $board_filters])?>
+      <hr>
+    <?php } ?>
     <div id="form-post-container" class="container-centered">
       <?=$this->render(__DIR__ . '/components/postform.phtml', ['context' => 'board', 'board' => $board, 'action' => "/{$board['id']}"])?>
     </div>

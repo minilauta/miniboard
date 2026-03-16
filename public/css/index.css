@@ -274,6 +274,25 @@ span.post-catalog-subject {
   box-shadow: 0 0 5px rgba(0, 0, 0, .25);
 }
 
+/* board-filter */
+.board-filter {
+  text-align: center;
+  margin: 4px 0;
+}
+
+.board-filter-form {
+  margin-top: 4px;
+}
+
+.board-filter-options {
+  display: inline;
+}
+
+.board-filter-options label {
+  margin-right: 8px;
+  white-space: nowrap;
+}
+
 /* deleteform */
 div.deleteform-group {
   float: right;
