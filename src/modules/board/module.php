@@ -145,6 +145,56 @@ class BoardModule implements core\Module
 			]);
 		});
 
+		$router->add_route(HTTP_GET, '/:board_id/rss', function ($vars) {
+			// get board config
+			$board_cfg = funcs_common_get_board_cfg($vars['board_id']);
+			$board_query_id = $board_cfg['type'] !== 'main' ? $board_cfg['id'] : null;
+
+			// RSS feeds are public only
+			if ($board_cfg['req_role'] !== null) {
+				throw new \AppException('board', 'rss', 'access denied', SC_UNAUTHORIZED);
+			}
+
+			// get recent threads (no session-based filtering for RSS)
+			$threads = select_threads('', null, $board_query_id, true, 0, 20, false);
+
+			// build base URL
+			$scheme = (!empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off') ? 'https' : 'http';
+			$base_url = $scheme . '://' . $_SERVER['HTTP_HOST'];
+			$board_url = $base_url . '/' . $board_cfg['id'] . '/';
+
+			// build RSS 2.0 XML
+			$xml = '<?xml version="1.0" encoding="UTF-8"?>' . "\n";
+			$xml .= '<rss version="2.0">' . "\n";
+			$xml .= '<channel>' . "\n";
+			$xml .= '<title>' . htmlspecialchars('/' . $board_cfg['id'] . '/ - ' . $board_cfg['name'], ENT_XML1, 'UTF-8') . '</title>' . "\n";
+			$xml .= '<link>' . htmlspecialchars($board_url, ENT_XML1, 'UTF-8') . '</link>' . "\n";
+			$xml .= '<description>' . htmlspecialchars($board_cfg['desc'], ENT_XML1, 'UTF-8') . '</description>' . "\n";
+
+			if (!empty($threads)) {
+				$xml .= '<lastBuildDate>' . date(DATE_RSS, $threads[0]['bumped']) . '</lastBuildDate>' . "\n";
+			}
+
+			foreach ($threads as $thread) {
+				$thread_url = $base_url . '/' . $thread['board_id'] . '/' . $thread['post_id'] . '/';
+				$title = !empty($thread['subject']) ? $thread['subject'] : 'No.' . $thread['post_id'];
+
+				$xml .= '<item>' . "\n";
+				$xml .= '<title>' . htmlspecialchars($title, ENT_XML1, 'UTF-8') . '</title>' . "\n";
+				$xml .= '<link>' . htmlspecialchars($thread_url, ENT_XML1, 'UTF-8') . '</link>' . "\n";
+				$xml .= '<description><![CDATA[' . str_replace(']]>', ']]]]><![CDATA[>', $thread['message_rendered']) . ']]></description>' . "\n";
+				$xml .= '<pubDate>' . date(DATE_RSS, $thread['timestamp']) . '</pubDate>' . "\n";
+				$xml .= '<guid>' . htmlspecialchars($thread_url, ENT_XML1, 'UTF-8') . '</guid>' . "\n";
+				$xml .= '</item>' . "\n";
+			}
+
+			$xml .= '</channel>' . "\n";
+			$xml .= '</rss>';
+
+			header('Content-Type: application/rss+xml; charset=UTF-8');
+			echo $xml;
+		});
+
 		$router->add_route(HTTP_GET, '/:board_id/:thread_id', function ($vars) {
 			// get board config
 			$board_cfg = funcs_common_get_board_cfg($vars['board_id']);
