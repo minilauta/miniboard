@@ -3,7 +3,7 @@
   <head>
     <?=$this->render(__ROOT__ . '/common/templates/meta.phtml')?>
     <?=$this->render(__ROOT__ . '/common/templates/styles.phtml')?>
-    <?=$this->render(__ROOT__ . '/common/templates/scripts.phtml')?>
+    <?=$this->render(__ROOT__ . '/common/templates/scripts.phtml', ['hcaptcha' => MB_CAPTCHA_REPLY])?>
     <?php
       $title = "/{$board['id']}/ - ";
       if (strlen($thread['subject']) > 0) {
