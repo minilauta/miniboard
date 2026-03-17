@@ -1605,6 +1605,24 @@ function init_postform_features(target_id_prefix) {
     });
   }
 
+  // init board info fetching (main boards only)
+  const board_select = post_form.querySelector(`#${target_id_prefix}board`);
+  const board_info_container = document.getElementById('board-info-container');
+  if (board_select != null && board_info_container != null) {
+    board_select.addEventListener('change', (event) => {
+      const board_id = event.target.value;
+      if (board_id === '') {
+        board_info_container.innerHTML = '';
+        return;
+      }
+      fetch(`/${board_id}/info`)
+        .then((response) => response.text())
+        .then((html) => {
+          board_info_container.innerHTML = html;
+        });
+    });
+  }
+
   // init file drawing (Tegaki)
   if (window.Tegaki != null && post_form != null) {
     const postform_draw = post_form.querySelector(`#${target_id_prefix}form-draw`);

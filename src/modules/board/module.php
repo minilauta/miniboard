@@ -207,6 +207,20 @@ class BoardModule implements core\Module
 			echo $xml;
 		});
 
+		$router->add_route(HTTP_GET, '/:board_id/info', function ($vars) {
+			// get board config
+			$board_cfg = funcs_common_get_board_cfg($vars['board_id']);
+
+			// check board access
+			if (!funcs_board_check_access($board_cfg, funcs_common_get_role())) {
+				throw new \AppException('index', 'route', 'access denied', SC_UNAUTHORIZED);
+			}
+
+			echo $this->renderer->render(__DIR__ . '/templates/components/board_info.phtml', [
+				'board' => $board_cfg
+			]);
+		});
+
 		$router->add_route(HTTP_GET, '/:board_id/:thread_id', function ($vars) {
 			// get board config
 			$board_cfg = funcs_common_get_board_cfg($vars['board_id']);

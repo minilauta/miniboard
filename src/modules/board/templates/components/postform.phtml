@@ -175,32 +175,20 @@
           <input id="form-post-password" type="password" name="password">
         </td>
       </tr>
-      <?php
-        if ($board['type'] !== 'main' && (!isset($board['text']) || $board['text'] == false)) {
-          $info_exts = strtoupper(implode(', ', array_unique(array_column($board['mime_ext_types'], 0))));
-          $info_embs = strtoupper(implode(', ', array_keys($board['embed_types'])));
-          $info_fsize = funcs_common_human_filesize($board['maxkb'] * 1000);
-          $info_msize = $board['max_width'] . 'x' . $board['max_height'];
-
-          $t_supported_files = __('form.supported_files', ['types' => "<span id='form-post-info-exts'>{$info_exts}</span>"]);
-          $t_supported_embeds = __('form.supported_embeds', ['types' => "<span id='form-post-info-embeds'>{$info_embs}</span>"]);
-          $t_max_filesize = __('form.max_filesize', ['size' => "<span id='form-post-info-fsize'>{$info_fsize}</span>"]);
-          $t_thumb_info = __('form.thumb_info', ['size' => "<span id='form-post-info-msize'>{$info_msize}</span>"]);
-
-          echo "
-            <tr>
-              <td class='form-list' colspan='2'>
-                <ul>
-                  <li>{$t_supported_files}</li>
-                  <li>{$t_supported_embeds}</li>
-                  <li>{$t_max_filesize}</li>
-                  <li>{$t_thumb_info}</li>
-                </ul>
-              </td>
-            </tr>
-          ";
-        }
-      ?>
+      <?php if ($board['type'] !== 'main' && (!isset($board['text']) || $board['text'] == false)): ?>
+      <tr>
+        <td class="form-list" colspan="2">
+          <?=$this->render(__DIR__ . '/board_info.phtml', ['board' => $board])?>
+        </td>
+      </tr>
+      <?php endif; ?>
+      <?php if ($board['type'] === 'main'): ?>
+      <tr>
+        <td class="form-list" colspan="2">
+          <div id="board-info-container"></div>
+        </td>
+      </tr>
+      <?php endif; ?>
     </tbody>
   </table>
 </form>

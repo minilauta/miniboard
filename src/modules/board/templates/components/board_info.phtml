@@ -1,0 +1,6 @@
+<ul id="board-info">
+  <li><?=__('form.supported_files', ['types' => "<span id='form-post-info-exts'>" . strtoupper(implode(', ', array_unique(array_column($board['mime_ext_types'], 0)))) . "</span>"])?></li>
+  <li><?=__('form.supported_embeds', ['types' => "<span id='form-post-info-embeds'>" . strtoupper(implode(', ', array_keys($board['embed_types']))) . "</span>"])?></li>
+  <li><?=__('form.max_filesize', ['size' => "<span id='form-post-info-fsize'>" . funcs_common_human_filesize($board['maxkb'] * 1000) . "</span>"])?></li>
+  <li><?=__('form.thumb_info', ['size' => "<span id='form-post-info-msize'>" . $board['max_width'] . 'x' . $board['max_height'] . "</span>"])?></li>
+</ul>
