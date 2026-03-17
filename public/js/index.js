@@ -1945,3 +1945,42 @@ document.addEventListener('DOMContentLoaded', function(event) {
   init_gallery_features();
   console.timeEnd('init_gallery_features');
 });
+
+// Public API for js_override user scripts
+window.miniboard = {
+  state,
+  storage,
+  ui_window,
+  gallery,
+  utils,
+  t,
+  available_languages,
+  current_lang,
+  FILE_EXTS_IMAGE,
+  FILE_EXTS_VIDEO,
+  FILE_EXTS_AUDIO,
+  init: {
+    settings_features: init_settings_features,
+    post_thumb_links: init_post_thumb_links,
+    post_reference_links: init_post_reference_links,
+    post_backreference_links: init_post_backreference_links,
+    location_hash_features: init_location_hash_features,
+    dropdown_menu_buttons: init_dropdown_menu_buttons,
+    post_hashid_features: init_post_hashid_features,
+    postform_features: init_postform_features,
+    deleteform_features: init_deleteform_features,
+    thread_features: init_thread_features,
+    boardselect_mobile_features: init_boardselect_mobile_features,
+    board_filter_features: init_board_filter_features,
+    gallery_features: init_gallery_features,
+  },
+  apply_settings,
+  insert_ref_to_message,
+  insert_format_to_message,
+  create_quickreply_window,
+  open_quickreply_on_post,
+  create_settings_window,
+  create_error_window,
+  create_post_highlight,
+  get_finfo,
+};
