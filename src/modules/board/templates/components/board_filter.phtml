@@ -1,20 +1,34 @@
 <div id="board-filter" class="board-filter">
-  <a id="board-filter-toggle" href="#"><?=__('filter.toggle')?></a>
-  <form id="board-filter-form" class="board-filter-form" method="post" action="/<?=$board['id']?>/filter" style="display:none;">
-    <?=funcs_common_csrf_field()?>
-    <div class="board-filter-options">
-      <?php
-        foreach (MB_BOARDS as $key => $val) {
-          if ($val['type'] === 'main' || (isset($val['hidden']) && $val['hidden'] == true) || !funcs_board_check_access($val, funcs_common_get_role())) {
-            continue;
-          }
+  <div class="box-container">
+    <div class="box">
+      <div class="box-title" style="text-align:center;">
+        <a id="board-filter-toggle" href="#"><span id="board-filter-toggle-arrow">▶</span> <?=__('filter.toggle')?></a>
+      </div>
+      <form id="board-filter-form" class="board-filter-form" method="post" action="/<?=$board['id']?>/filter" style="display:none;">
+        <?=funcs_common_csrf_field()?>
+        <div class="box-content">
+            <?php
+              foreach (MB_BOARDS as $key => $val) {
+                if ($val['type'] === 'main' || (isset($val['hidden']) && $val['hidden'] == true) || !funcs_board_check_access($val, funcs_common_get_role())) {
+                  continue;
+                }
 
-          $checked = empty($board_filters) || in_array($key, $board_filters) ? ' checked' : '';
-          echo "<label><input type='checkbox' name='boards[]' value='{$key}'{$checked}>/{$key}/ - {$val['name']}</label> ";
-        }
-      ?>
+                $checked = empty($board_filters) || in_array($key, $board_filters) ? ' checked' : '';
+                echo "
+                  <div class='board-filter-row'>
+                    <label>
+                      <input type='checkbox' name='boards[]' value='{$key}'{$checked}>
+                      <span class='board-filter-label'>/{$key}/ - {$val['name']}</span>
+                    </label>
+                  </div>";
+              }
+            ?>
+          <div class="board-filter-controls">
+            <button type="submit"><?=__('filter.apply')?></button>
+            <button id="board-filter-reset" type="button"><?=__('filter.reset')?></button>
+          </div>
+        </div>
+      </form>
     </div>
-    <button type="submit"><?=__('filter.apply')?></button>
-    <button id="board-filter-reset" type="button"><?=__('filter.reset')?></button>
-  </form>
+  </div>
 </div>

@@ -452,8 +452,8 @@ function listener_dropdown_menu_button_click(event) {
   let data = target.dataset;
 
   // open or close the menu
-  if (!target.classList.contains('dd-menu-btn-open')) {
-    target.classList.add('dd-menu-btn-open');
+  if (!target.classList.contains('dropdown-toggle-open')) {
+    target.classList.add('dropdown-toggle-open');
 
     switch (data.cmd) {
       case 'post-menu':
@@ -929,7 +929,7 @@ function delete_dropdown_menu(id) {
 
   Array.from(dd_menu_btns).forEach(element => {
     if (id == null || element.dataset.id === id) {
-      element.classList.remove('dd-menu-btn-open');
+      element.classList.remove('dropdown-toggle-open');
     }
   });
 }
@@ -1844,14 +1844,21 @@ function init_settings_features() {
  */
 function init_board_filter_features() {
   const toggle = document.getElementById('board-filter-toggle');
+  const arrow = document.getElementById('board-filter-toggle-arrow');
   const form = document.getElementById('board-filter-form');
-  if (toggle == null || form == null) {
+  if (toggle == null || arrow == null || form == null) {
     return;
   }
 
   toggle.addEventListener('click', (event) => {
     event.preventDefault();
+    
     form.style.display = form.style.display === 'none' ? '' : 'none';
+    if (!arrow.classList.contains('dropdown-toggle-open')) {
+      arrow.classList.add('dropdown-toggle-open');
+    } else {
+      arrow.classList.remove('dropdown-toggle-open');
+    }
   });
 
   const reset_btn = document.getElementById('board-filter-reset');

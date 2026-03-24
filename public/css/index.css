@@ -90,6 +90,10 @@ hr {
   z-index: 10;
 }
 
+.dropdown-toggle-open {
+  transform: rotate(90deg);
+}
+
 /* banner */
 div.banner {
   clear: both;
@@ -277,20 +281,22 @@ span.post-catalog-subject {
 /* board-filter */
 .board-filter {
   text-align: center;
-  margin: 4px 0;
 }
 
-.board-filter-form {
-  margin-top: 4px;
+#board-filter-toggle-arrow {
+  display: inline-block;
+  text-decoration: none;
+  text-align: center;
+  transition: transform 0.1s;
 }
 
-.board-filter-options {
-  display: inline;
-}
-
-.board-filter-options label {
-  margin-right: 8px;
+span.board-filter-label {
   white-space: nowrap;
+}
+
+div.board-filter-controls {
+  padding-top: 8px;
+  text-align: center;
 }
 
 /* deleteform */
@@ -332,10 +338,6 @@ a.dd-menu-btn {
   text-decoration: none;
   text-align: center;
   transition: transform 0.1s;
-}
-
-a.dd-menu-btn-open {
-  transform: rotate(90deg);
 }
 
 div.dd-menu {
