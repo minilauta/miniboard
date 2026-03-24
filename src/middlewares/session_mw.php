@@ -7,20 +7,21 @@ use minichan\core;
 
 require __ROOT__ . '/core/db_connection.php';
 
-function session_mw_update_session_id_refs(string $old_session_id, string $new_session_id): bool
+function session_mw_update_session_id_refs(string $old_session_id, string $new_session_id): void
 {
     $connection = new core\DbConnection(MB_DB_HOST, MB_DB_NAME, MB_DB_USER, MB_DB_PASS);
-    $pdo = $connection->get_pdo();
-    $sth = $pdo->prepare('UPDATE hides SET session_id = :s_id_new WHERE session_id = :s_id_old');
-    $sth->execute([
-        's_id_new' => $new_session_id,
-        's_id_old' => $old_session_id,
-    ]);
-    $sth = $pdo->prepare('UPDATE board_filters SET session_id = :s_id_new WHERE session_id = :s_id_old');
-    return $sth->execute([
-        's_id_new' => $new_session_id,
-        's_id_old' => $old_session_id,
-    ]);
+    $connection->transaction(function(\PDO $pdo) use ($old_session_id, $new_session_id) {
+        $sth = $pdo->prepare('UPDATE hides SET session_id = :s_id_new WHERE session_id = :s_id_old');
+        $sth->execute([
+            's_id_new' => $new_session_id,
+            's_id_old' => $old_session_id,
+        ]);
+        $sth = $pdo->prepare('UPDATE board_filters SET session_id = :s_id_new WHERE session_id = :s_id_old');
+        $sth->execute([
+            's_id_new' => $new_session_id,
+            's_id_old' => $old_session_id,
+        ]);
+    });
 }
 
 function session_mw(int $session_lifetime, int $recreate_after): Closure
@@ -44,10 +45,7 @@ function session_mw(int $session_lifetime, int $recreate_after): Closure
         if ($s_duration <= $session_lifetime && $s_duration > $recreate_after)
         {
             $s_id_old = session_id();
-            $s_vars = $_SESSION;
-            session_destroy();
-            session_start();
-            $_SESSION = $s_vars;
+            session_regenerate_id(true);
             $_SESSION['timestamp'] = $timestamp;
             session_mw_update_session_id_refs($s_id_old, session_id());
         }
