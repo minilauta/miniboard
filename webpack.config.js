@@ -50,6 +50,10 @@ module.exports = {
       'src/**/*.php',
       'src/**/*.phtml',
     ],
+    client: {
+      overlay: false,
+    },
+    hot: false,
     open: true,
     compress: true,
     port: 9000
