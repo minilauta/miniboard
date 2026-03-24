@@ -18,7 +18,7 @@ require __ROOT__ . '/core/migrator.php';
 require __ROOT__ . '/core/cleaner.php';
 
 function print_help(): void {
-	printf("cli: available commands: [migrate]\n");
+	printf("cli: available commands: [migrate, clean:posts, clean:files]\n");
 }
 
 if ($argc < 2) {

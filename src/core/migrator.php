@@ -24,10 +24,14 @@ class Migrator
 	{
 		$this->connection = $connection;
 
-		$files = array_slice(scandir(DB_MIGRATION_DIR, SCANDIR_SORT_ASCENDING), 2);
-		if (!$files) {
-			throw new Exception('DB_MIGRATION_DIR not found');
+		$scan = scandir(DB_MIGRATION_DIR, SCANDIR_SORT_ASCENDING);
+		if ($scan === false) {
+			throw new Exception('DB_MIGRATION_DIR not found or not readable');
 		}
+
+		$files = array_filter(array_slice($scan, 2), function (string $file) {
+			return str_ends_with($file, '.yaml') || str_ends_with($file, '.yml');
+		});
 
 		$this->migrations = [];
 		foreach ($files as $file) {
@@ -88,11 +92,11 @@ class Migrator
 				continue;
 			}
 
+			$this->connection->get_pdo()->exec($migration->get_script()); // NOTE: MySQL/MariaDB implicitly commits DDL
 			$this->connection->transaction(function(\PDO $pdo) use ($migration) {
-				$pdo->exec($migration->get_script());
 				$this->insert($pdo, $migration);
-				printf("migrator: migrated db to: v%s:%s\n", $migration->get_version(), $migration->get_filename());
 			});
+			printf("migrator: migrated db to: v%s:%s\n", $migration->get_version(), $migration->get_filename());
 		}
 	}
 }
