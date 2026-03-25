@@ -12,6 +12,15 @@ spec: # spec for deployment
       labels:
         run: miniboard-app # service looks for this label
     spec: # spec for pods
+      securityContext:
+        fsGroup: 82 # www-data GID on alpine
+      initContainers:
+      - name: fix-permissions
+        image: busybox:stable
+        command: ['sh', '-c', 'chown -R 82:82 /data']
+        volumeMounts:
+        - name: miniboard-app-pv
+          mountPath: /data
       containers:
       - name: miniboard-app
         image: ghcr.io/minilauta/miniboard/app:latest
