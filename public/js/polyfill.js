@@ -1,5 +1,88 @@
 import 'whatwg-fetch';
 
+// Element.prototype.matches
+// IE: 9+ (msMatchesSelector), FF: 3.6+ (mozMatchesSelector), standard: FF34+
+(function (proto) {
+  if (proto.hasOwnProperty('matches')) {
+    return;
+  }
+  Object.defineProperty(proto, 'matches', {
+    configurable: true,
+    enumerable: true,
+    writable: true,
+    value: proto.msMatchesSelector ||
+      proto.mozMatchesSelector ||
+      proto.webkitMatchesSelector
+  });
+})(Element.prototype);
+
+// Element.prototype.closest
+// IE: none, FF: 35+
+(function (proto) {
+  if (proto.hasOwnProperty('closest')) {
+    return;
+  }
+  Object.defineProperty(proto, 'closest', {
+    configurable: true,
+    enumerable: true,
+    writable: true,
+    value: function closest(s) {
+      var el = this;
+      do {
+        if (el.matches(s)) return el;
+        el = el.parentElement;
+      } while (el !== null);
+      return null;
+    }
+  });
+})(Element.prototype);
+
+// Element.prototype.replaceChildren
+// IE: none, FF: 78+
+(function (proto) {
+  if (proto.hasOwnProperty('replaceChildren')) {
+    return;
+  }
+  Object.defineProperty(proto, 'replaceChildren', {
+    configurable: true,
+    enumerable: true,
+    writable: true,
+    value: function replaceChildren() {
+      while (this.lastChild) this.removeChild(this.lastChild);
+      this.append.apply(this, arguments);
+    }
+  });
+})(Element.prototype);
+
+// HTMLFormElement.prototype.requestSubmit
+// IE: none, FF: 75+
+(function (proto) {
+  if (proto.hasOwnProperty('requestSubmit')) {
+    return;
+  }
+  Object.defineProperty(proto, 'requestSubmit', {
+    configurable: true,
+    enumerable: true,
+    writable: true,
+    value: function requestSubmit(submitter) {
+      if (submitter) {
+        submitter.click();
+      } else {
+        this.submit();
+      }
+    }
+  });
+})(HTMLFormElement.prototype);
+
+// window.scrollX / window.scrollY
+// IE: none (use pageXOffset/pageYOffset)
+(function (win) {
+  if (!('scrollX' in win)) {
+    Object.defineProperty(win, 'scrollX', { get: function () { return win.pageXOffset; } });
+    Object.defineProperty(win, 'scrollY', { get: function () { return win.pageYOffset; } });
+  }
+})(window);
+
 // Source: https://github.com/jserz/js_piece/blob/master/DOM/ParentNode/append()/append().md
 (function (arr) {
   arr.forEach(function (item) {
