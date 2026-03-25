@@ -27,10 +27,15 @@ class Cleaner
 
 	public function clean_files(): void
 	{
+		$trashbin = __PUBLIC__ . '/src/.trashbin';
+		if (!is_dir($trashbin)) mkdir($trashbin, 0755);
+
 		$pdo = $this->connection->get_pdo();
 		$pdo->exec('LOCK TABLES posts AS p1 READ, posts AS p2 READ, posts AS p3 READ, posts AS p4 READ');
 		try {
-			$files_disk = array_slice(scandir(__PUBLIC__ . '/src', SCANDIR_SORT_ASCENDING), 2);
+			$files_disk = array_filter(array_slice(scandir(__PUBLIC__ . '/src', SCANDIR_SORT_ASCENDING), 2), function (string $file) {
+				return $file !== '.trashbin';
+			});
 			array_walk($files_disk, function (string &$file, int $idx) { $file = '/src/' . $file; });
 			$files_disk_n = count($files_disk);
 			$files_db = $pdo
@@ -69,7 +74,7 @@ class Cleaner
 			$path = __PUBLIC__ . $file;
 			if (!is_file($path)) continue;
 			printf("cleaner: cleaning file '%s'...\n", $file);
-			if (unlink($path)) $cleaned_n++;
+			if (rename($path, $trashbin . '/' . basename($file))) $cleaned_n++;
 			else printf("cleaner: warning, failed to clean file '%s'!\n", $file);
 		}
 		printf("cleaner: cleaned files: %d\n", $cleaned_n);
