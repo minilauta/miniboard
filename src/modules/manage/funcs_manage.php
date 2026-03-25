@@ -123,7 +123,7 @@ function funcs_manage_rebuild(array $params): string {
       $hashid = funcs_common_generate_hashid($post['salt'], $post['ip_str'], $board_cfg['hashid_salt']);
     }
 
-    // set nameblock country code if flags enabled OR country code is T1
+    // set nameblock country code if flags enabled OR country code is T1/VPN
     $country = $post['country'];
     $country_nb = null;
     if ($board_cfg['flags'] == true || $country == 't1' || $country == 'vpn') {
@@ -287,6 +287,229 @@ function funcs_manage_toggle_sticky(array $select): string {
   $status = "Toggled sticky state for {$processed} posts";
   funcs_manage_log($status);
   return $status;
+}
+
+function funcs_manage_move_thread(string $src_board_id, int $thread_id, string $dst_board_id): string {
+  // validate boards
+  $src_cfg = funcs_common_get_board_cfg($src_board_id);
+  $dst_cfg = funcs_common_get_board_cfg($dst_board_id);
+  if ($src_board_id === $dst_board_id) {
+    throw new \AppException('funcs_manage', 'move_thread', 'source and destination boards are the same', SC_BAD_REQUEST);
+  }
+
+  // fetch thread posts ordered by post_id ASC
+  $posts = select_thread_posts_for_move($src_board_id, $thread_id);
+  if (!$posts || count($posts) === 0) {
+    throw new \AppException('funcs_manage', 'move_thread', "thread /{$src_board_id}/{$thread_id}/ not found", SC_NOT_FOUND);
+  }
+
+  // verify first post is OP
+  if ($posts[0]['parent_id'] !== null) {
+    throw new \AppException('funcs_manage', 'move_thread', "post /{$src_board_id}/{$thread_id}/ is not a thread", SC_BAD_REQUEST);
+  }
+
+  // generate new IDs on destination board
+  init_post_auto_increment($dst_board_id);
+  $id_map = [];
+  foreach ($posts as $post) {
+    $id_map[$post['post_id']] = generate_post_auto_increment($dst_board_id);
+  }
+  $new_op_id = $id_map[$thread_id];
+
+  // rewrite raw messages and prepare posts for reinsertion
+  foreach ($posts as &$post) {
+    $post['message'] = funcs_manage_rewrite_message_references($post['message'], $src_board_id, $id_map);
+  }
+  unset($post);
+
+  // perform move in transaction
+  $dbh = get_db_handle();
+  $dbh->beginTransaction();
+  try {
+    // delete originals
+    delete_thread_posts($src_board_id, $thread_id);
+
+    // insert on destination board
+    foreach ($posts as $post) {
+      $new_post_id = $id_map[$post['post_id']];
+      $new_parent_id = ($post['parent_id'] === null) ? null : $new_op_id;
+
+      // re-render message for destination board context
+      $message = funcs_board_render_message($dst_board_id, $new_parent_id, $post['message'], $dst_cfg['truncate']);
+
+      // re-generate hashid with destination board's salt
+      $hashid = null;
+      if (isset($dst_cfg['hashid_salt']) && strlen($dst_cfg['hashid_salt']) >= 2) {
+        $hashid = funcs_common_generate_hashid($post['salt'], $post['ip_str'], $dst_cfg['hashid_salt']);
+      }
+
+      // set nameblock country code if flags enabled OR country code is T1/VPN
+      $country_nb = null;
+      if ($dst_cfg['flags'] == true || $post['country'] == 't1' || $post['country'] == 'vpn') {
+        $country_nb = $post['country'];
+      }
+
+      // re-render nameblock
+      $name = $post['name'] !== '' ? $post['name'] : $dst_cfg['anonymous'];
+      $nameblock = funcs_board_render_nameblock($name, $post['tripcode'], $post['email'], $hashid, $country_nb, $post['role'], $post['timestamp']);
+
+      // re-render file
+      $file_rendered = $post['file'];
+      if ($post['embed'] === 1) {
+        $file_rendered = rawurlencode($file_rendered);
+      }
+
+      $new_post = [
+        'post_id'             => $new_post_id,
+        'board_id'            => $dst_board_id,
+        'parent_id'           => $new_parent_id,
+        'salt'                => $post['salt'],
+        'req_role'            => $dst_cfg['req_role'],
+        'role'                => $post['role'],
+        'name'                => $post['name'],
+        'tripcode'            => $post['tripcode'],
+        'nameblock'           => $nameblock,
+        'email'               => $post['email'],
+        'subject'             => $post['subject'],
+        'message'             => $post['message'],
+        'message_rendered'    => $message['rendered'],
+        'message_truncated'   => $message['truncated'],
+        'password'            => $post['password'],
+        'file'                => $post['file'],
+        'file_rendered'       => $file_rendered,
+        'file_hex'            => $post['file_hex'],
+        'file_original'       => $post['file_original'],
+        'file_size'           => $post['file_size'],
+        'file_size_formatted' => $post['file_size_formatted'],
+        'file_mime'           => $post['file_mime'],
+        'file_meta'           => $post['file_meta'],
+        'image_width'         => $post['image_width'],
+        'image_height'        => $post['image_height'],
+        'thumb'               => $post['thumb'],
+        'thumb_width'         => $post['thumb_width'],
+        'thumb_height'        => $post['thumb_height'],
+        'audio_album'         => $post['audio_album'],
+        'embed'               => $post['embed'],
+        'timestamp'           => $post['timestamp'],
+        'bumped'              => $post['bumped'],
+        'ip'                  => $post['ip_str'],
+        'country'             => $post['country'],
+      ];
+
+      if (insert_post($new_post) === false) {
+        throw new \AppException('funcs_manage', 'move_thread', "failed to insert post {$new_post_id} on /{$dst_board_id}/", SC_INTERNAL_ERROR);
+      }
+    }
+
+    // preserve sticky/locked state on the new OP
+    if ($posts[0]['stickied'] === 1) {
+      toggle_post_stickied($dst_board_id, $new_op_id);
+    }
+    if ($posts[0]['locked'] === 1) {
+      toggle_post_locked($dst_board_id, $new_op_id);
+    }
+
+    // append system message
+    funcs_manage_create_system_post($dst_board_id, $new_op_id, "Thread moved from >>>/{$src_board_id}/");
+
+    $dbh->commit();
+  } catch (\Exception $e) {
+    $dbh->rollBack();
+    throw $e;
+  }
+
+  // refresh auto increment tables
+  refresh_post_auto_increment($src_board_id);
+  refresh_post_auto_increment($dst_board_id);
+
+  $post_count = count($posts);
+  $status = "Moved thread /{$src_board_id}/{$thread_id}/ ({$post_count} posts) to /{$dst_board_id}/{$new_op_id}/";
+  funcs_manage_log($status);
+  return $status;
+}
+
+/**
+ * Rewrites post references in a raw message for thread move.
+ */
+function funcs_manage_rewrite_message_references(string $message, string $src_board_id, array $id_map): string {
+  $message = preg_replace_callback('/>>>\/(' . preg_quote($src_board_id, '/') . ')\/([0-9]{1,16})/', function ($m) use ($id_map) {
+    $old_id = intval($m[2]);
+    if (isset($id_map[$old_id])) {
+      return '>>' . $id_map[$old_id];
+    }
+    return $m[0];
+  }, $message);
+
+  $message = preg_replace_callback('/>>([0-9]{1,16})/', function ($m) use ($src_board_id, $id_map) {
+    $old_id = intval($m[1]);
+    if (isset($id_map[$old_id])) {
+      return '>>' . $id_map[$old_id];
+    }
+    return '>>>/' . $src_board_id . '/' . $old_id;
+  }, $message);
+
+  return $message;
+}
+
+/**
+ * Creates and inserts a system post as a reply to a thread.
+ */
+function funcs_manage_create_system_post(string $board_id, int $parent_id, string $message): int {
+  $board_cfg = funcs_common_get_board_cfg($board_id);
+  $parent = select_post($board_id, $parent_id);
+  if (!$parent) {
+    throw new \AppException('funcs_manage', 'create_system_post', "thread /{$board_id}/{$parent_id}/ not found", SC_NOT_FOUND);
+  }
+
+  $post_id = generate_post_auto_increment($board_id);
+  $timestamp = time();
+  $name = $board_cfg['anonymous'];
+  $nameblock = funcs_board_render_nameblock($name, null, null, null, null, MB_ROLE_SYSTEM, $timestamp);
+  $message_rendered = funcs_board_render_message($board_id, $parent_id, $message, $board_cfg['truncate']);
+
+  $post = [
+    'post_id'             => $post_id,
+    'board_id'            => $board_id,
+    'parent_id'           => $parent_id,
+    'salt'                => $parent['salt'],
+    'req_role'            => $board_cfg['req_role'],
+    'role'                => MB_ROLE_SYSTEM,
+    'name'                => $name,
+    'tripcode'            => null,
+    'nameblock'           => $nameblock,
+    'email'               => null,
+    'subject'             => null,
+    'message'             => $message,
+    'message_rendered'    => $message_rendered['rendered'],
+    'message_truncated'   => $message_rendered['truncated'],
+    'password'            => null,
+    'file'                => null,
+    'file_rendered'       => null,
+    'file_hex'            => null,
+    'file_original'       => null,
+    'file_size'           => null,
+    'file_size_formatted' => null,
+    'file_mime'           => null,
+    'file_meta'           => null,
+    'image_width'         => null,
+    'image_height'        => null,
+    'thumb'               => null,
+    'thumb_width'         => null,
+    'thumb_height'        => null,
+    'audio_album'         => null,
+    'embed'               => 0,
+    'timestamp'           => $timestamp,
+    'bumped'              => $timestamp,
+    'ip'                  => '127.0.0.1',
+    'country'             => null,
+  ];
+
+  $result = insert_post($post);
+  if ($result === false) {
+    throw new \AppException('funcs_manage', 'create_system_post', "failed to insert system post on /{$board_id}/", SC_INTERNAL_ERROR);
+  }
+
+  return $post_id;
 }
 
 function funcs_manage_csam_scanner_cp(array $select): string {

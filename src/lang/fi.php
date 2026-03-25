@@ -100,6 +100,7 @@ return [
 	'manage.mark_csam'          => 'Merkitse CSAM:ksi',
 	'manage.toggle_lock'        => 'Lukitse/avaa (lanka)',
 	'manage.toggle_sticky'      => 'Kiinnitä/irrota (lanka)',
+	'manage.move_thread'        => 'Siirrä (lanka)',
 	'manage.management_iface'   => 'Hallintapaneeli',
 	'manage.approve_report'     => 'Hyväksy (ilmianto)',
 	'manage.source_db'          => 'Lähdetietokanta',

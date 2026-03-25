@@ -100,6 +100,7 @@ return [
 	'manage.mark_csam'          => 'Oznacz jako CSAM',
 	'manage.toggle_lock'        => 'Zablokuj/odblokuj (wątek)',
 	'manage.toggle_sticky'      => 'Przypnij/odepnij (wątek)',
+	'manage.move_thread'        => 'Przenieś (wątek)',
 	'manage.management_iface'   => 'Panel zarządzania',
 	'manage.approve_report'     => 'Zatwierdź (zgłoszenie)',
 	'manage.source_db'          => 'Źródłowa baza danych',

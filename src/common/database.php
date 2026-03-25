@@ -916,6 +916,47 @@ function select_post_with_replies(string $board_id, int $post_id): array|bool {
   return $sth->fetchAll();
 }
 
+function select_thread_posts_for_move(string $board_id, int $thread_id): array|bool {
+  $dbh = get_db_handle();
+  $sth = $dbh->prepare('
+    SELECT
+      p.*,
+      INET6_NTOA(p.ip) AS ip_str
+    FROM posts p
+    WHERE
+      (p.board_id = :board_id_1 AND p.post_id = :post_id_1)
+      OR
+      (p.board_id = :board_id_2 AND p.parent_id = :post_id_2)
+    ORDER BY p.post_id ASC
+  ');
+  $sth->execute([
+    'board_id_1' => $board_id,
+    'post_id_1' => $thread_id,
+    'board_id_2' => $board_id,
+    'post_id_2' => $thread_id
+  ]);
+  return $sth->fetchAll();
+}
+
+function delete_thread_posts(string $board_id, int $thread_id): bool {
+  $dbh = get_db_handle();
+  $dbh->exec('SET FOREIGN_KEY_CHECKS = 0');
+  try {
+    $sth = $dbh->prepare('
+      DELETE FROM posts
+      WHERE board_id = :board_id AND (post_id = :post_id OR parent_id = :parent_id)
+    ');
+    $result = $sth->execute([
+      'board_id' => $board_id,
+      'post_id' => $thread_id,
+      'parent_id' => $thread_id
+    ]);
+  } finally {
+    $dbh->exec('SET FOREIGN_KEY_CHECKS = 1');
+  }
+  return $result;
+}
+
 function ban_poster_by_post_id(string $board_id, int $post_id, int $duration, string $reason): int {
   $dbh = get_db_handle();
   $sth = $dbh->prepare('

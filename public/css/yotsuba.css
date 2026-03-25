@@ -124,6 +124,10 @@ span.cap-mod {
   color: #8800EE;
 }
 
+span.cap-system {
+  color: #FF00FF;
+}
+
 a.reference {
   color: #000080;
 }

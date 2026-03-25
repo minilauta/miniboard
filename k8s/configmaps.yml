@@ -27,6 +27,7 @@ data:
     define('MB_ROLE_ADMIN', 2);
     define('MB_ROLE_MODERATOR', 3);
     define('MB_ROLE_DISABLED', 99);
+    define('MB_ROLE_SYSTEM', 100);
     define('MB_IMPORT_TINYIB_ACCOUNTS', 1);
     define('MB_IMPORT_TINYIB_BANS', 2);
     define('MB_IMPORT_TINYIB_LOGS', 3);

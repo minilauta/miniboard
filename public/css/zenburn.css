@@ -127,6 +127,10 @@ span.cap-mod {
   color: #8899EE;
 }
 
+span.cap-system {
+  color: #DC8CC3;
+}
+
 a.reference {
   color: #f0dfaf;
 }

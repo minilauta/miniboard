@@ -152,6 +152,9 @@ function funcs_board_render_nameblock(string $name, ?string $tripcode, ?string $
     case MB_ROLE_MODERATOR:
       $nameblock .= '<span class="post-cap cap-mod">## Mod</span>';
       break;
+    case MB_ROLE_SYSTEM:
+      $nameblock .= '<span class="post-cap cap-system">## System</span>';
+      break;
     default:
       break;
   }
@@ -195,6 +198,17 @@ function funcs_board_render_message(string $board_id, ?int $parent_id, string $i
 
       $data_fields = "data-board_id='{$post['board_id']}' data-parent_id='{$post_parent_id}' data-id='{$post['post_id']}'";
       return "<a class='reference' {$data_fields} href='/{$post['board_id']}/{$post_parent_id}/#{$post['board_id']}-{$post['post_id']}'>{$matches[0]}</a>";
+    }
+
+    return $matches[0];
+  }, $message);
+
+  // preprocess message board links
+  $message = preg_replace_callback('/(&gt;&gt;&gt;)\/([a-z]{1,10})\/(?![0-9])/m', function ($matches) {
+    $board = MB_BOARDS[$matches[2]] ?? null;
+
+    if ($board) {
+      return "<a class='reference' href='/{$board['id']}/'>{$matches[0]}</a>";
     }
 
     return $matches[0];

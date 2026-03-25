@@ -332,6 +332,48 @@ class ManageModule implements core\Module
 			http_response_code(303);
 		}
 
+		$router->add_route(HTTP_POST, '/manage/move_thread', function ($vars) {
+			if (!funcs_common_is_logged_in()) {
+				throw new \AppException('index', 'route', 'access denied', SC_UNAUTHORIZED);
+			}
+
+			if ($_SESSION['mb_role'] > MB_ROLE_ADMIN) {
+				throw new \AppException('index', 'route', 'insufficient permissions', SC_FORBIDDEN);
+			}
+
+			return handle_manage_movethreadform($vars);
+		});
+
+		function handle_manage_movethreadform($vars) {
+			// validate CSRF token
+			funcs_common_validate_csrf($_POST);
+
+			// validate request fields
+			funcs_common_validate_fields($_POST, [
+				'select'        => ['required' => true, 'type' => 'array'],
+				'dst_board_id'  => ['required' => true, 'type' => 'string']
+			]);
+
+			// parse selected thread (only one thread allowed)
+			if (count($_POST['select']) !== 1) {
+				throw new \AppException('index', 'route', 'select exactly one thread to move', SC_BAD_REQUEST);
+			}
+
+			$selected = explode('/', $_POST['select'][0]);
+			$src_board_id = $selected[0];
+			$thread_id = intval($selected[1]);
+			$dst_board_id = $_POST['dst_board_id'];
+
+			// execute move
+			$status = funcs_manage_move_thread($src_board_id, $thread_id, $dst_board_id);
+
+			// set query to return properly
+			$query = funcs_common_mutate_query($_GET, 'status', $status);
+
+			header("Location: /manage/?{$query}");
+			http_response_code(303);
+		}
+
 		$router->add_route(HTTP_POST, '/manage/csam_scanner/cp', function ($vars) {
 			if (!funcs_common_is_logged_in()) {
 				throw new \AppException('index', 'route', 'access denied', SC_UNAUTHORIZED);

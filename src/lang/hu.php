@@ -100,6 +100,7 @@ return [
 	'manage.mark_csam'          => 'Megjelölés CSAM-ként',
 	'manage.toggle_lock'        => 'Zárolás/feloldás (téma)',
 	'manage.toggle_sticky'      => 'Kitűzés/levétel (téma)',
+	'manage.move_thread'        => 'Áthelyezés (téma)',
 	'manage.management_iface'   => 'Kezelőfelület',
 	'manage.approve_report'     => 'Jóváhagyás (jelentés)',
 	'manage.source_db'          => 'Forrás adatbázis',

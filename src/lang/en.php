@@ -100,6 +100,7 @@ return [
 	'manage.mark_csam'          => 'Mark as CSAM',
 	'manage.toggle_lock'        => 'Lock/unlock (thread)',
 	'manage.toggle_sticky'      => 'Sticky/unsticky (thread)',
+	'manage.move_thread'        => 'Move (thread)',
 	'manage.management_iface'   => 'Management interface',
 	'manage.approve_report'     => 'Approve (report)',
 	'manage.source_db'          => 'Source database',

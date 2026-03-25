@@ -124,6 +124,10 @@ span.cap-mod {
   color: #F8F8F2;
 }
 
+span.cap-system {
+  color: #F92672;
+}
+
 span.post-id a {
   color: inherit;
 }

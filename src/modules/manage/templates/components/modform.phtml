@@ -22,6 +22,12 @@
 	        <input type="submit" value="<?=__('manage.mark_csam')?>" formaction="csam_scanner/cp?<?=http_build_query($_GET)?>">
 	        <input type="submit" value="<?=__('manage.toggle_lock')?>" formaction="toggle_lock?<?=http_build_query($_GET)?>">
 	        <input type="submit" value="<?=__('manage.toggle_sticky')?>" formaction="toggle_sticky?<?=http_build_query($_GET)?>">
+          <input type="submit" value="<?=__('manage.move_thread')?>" formaction="move_thread?<?=http_build_query($_GET)?>">
+          <select name="dst_board_id">
+            <?php foreach (MB_BOARDS as $bid => $bcfg): if ($bcfg['type'] !== 'main'): ?>
+              <option value="<?=htmlspecialchars($bid)?>">/<?=htmlspecialchars($bid)?>/ - <?=htmlspecialchars($bcfg['name'])?></option>
+            <?php endif; endforeach; ?>
+          </select>
         </td>
       </tr>
     </tbody>
