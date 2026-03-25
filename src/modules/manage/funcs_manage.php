@@ -119,7 +119,7 @@ function funcs_manage_rebuild(array $params): string {
 
     // re-generate hashed ID
     $hashid = null;
-    if (isset($board_cfg['hashid_salt']) && strlen($board_cfg['hashid_salt']) >= 2 && $post['parent_id'] > 0) {
+    if (isset($board_cfg['hashid_salt']) && strlen($board_cfg['hashid_salt']) >= 2) {
       $hashid = funcs_common_generate_hashid($post['salt'], $post['ip_str'], $board_cfg['hashid_salt']);
     }
 

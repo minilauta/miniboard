@@ -377,7 +377,7 @@ function funcs_common_generate_tripcode(string $input, string $secure_salt): arr
  */
 function funcs_common_generate_hashid(?string $salt, string $ip, string $crypt_salt): ?string {
   if (!isset($salt) || strlen($salt) === 0) return null;
-  else if (strlen($ip) === 0 || $ip == '0.0.0.0' || $ip == '127.0.0.1') return null;
+  else if (filter_var($ip, FILTER_VALIDATE_IP, FILTER_FLAG_NO_PRIV_RANGE | FILTER_FLAG_NO_RES_RANGE) === false) return null;
   
   return substr(crypt(hash('sha256', "$salt::$ip"), $crypt_salt), strlen($crypt_salt));
 }

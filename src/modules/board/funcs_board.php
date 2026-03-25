@@ -60,10 +60,13 @@ function funcs_board_create_post(string $ip, ?string $country, array $board_cfg,
   if (funcs_common_is_logged_in() && isset($input['capcode']) && $input['capcode'] == true || $board_cfg['req_role'] != null) {
     $role = funcs_common_get_role();
   }
+  
+  // generate new thread salt for OPs, inherit parent salt for replies
+  $salt = $salt ?? md5(random_bytes(32));
 
   // generate hashed ID
   $hashid = null;
-  if (isset($board_cfg['hashid_salt']) && strlen($board_cfg['hashid_salt']) >= 2 && $parent_id > 0) {
+  if (isset($board_cfg['hashid_salt']) && strlen($board_cfg['hashid_salt']) >= 2) {
     $hashid = funcs_common_generate_hashid($salt, $ip, $board_cfg['hashid_salt']);
   }
 
@@ -79,6 +82,7 @@ function funcs_board_create_post(string $ip, ?string $country, array $board_cfg,
   return [
     'board_id'            => $board_cfg['id'],
     'parent_id'           => $parent_id,
+    'salt'                => $salt,
     'req_role'            => $board_cfg['req_role'],
     'role'                => $role,
     'name'                => $name_trip[0],
