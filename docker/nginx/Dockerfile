@@ -8,7 +8,6 @@ RUN openssl req -x509 -nodes -days 365 \
     -keyout /etc/ssl/private/nginx-selfsigned.key \
     -out /etc/ssl/certs/nginx-selfsigned.crt
 
-RUN mkdir -p /app
 WORKDIR /app
 COPY package.json webpack.config.js /app/
 RUN yarn

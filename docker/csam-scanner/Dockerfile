@@ -1,7 +1,7 @@
 FROM python:3.12-slim AS build
 
 # install buildtime pkgs
-RUN apt-get update && apt-get -y install build-essential
+RUN apt-get update && apt-get -y install build-essential && rm -rf /var/lib/apt/lists/*
 
 # create venv and install pip deps there
 COPY microservices/csam-scanner/requirements.txt .
@@ -13,17 +13,21 @@ RUN python -m venv /opt/venv && \
 FROM python:3.12-slim
 
 # install runtime pkgs
-RUN apt-get update && apt-get -y install libgl1 libglib2.0-0
+RUN apt-get update && apt-get -y install libgl1 libglib2.0-0 && rm -rf /var/lib/apt/lists/*
 
 # copy venv and activate it
 COPY --from=build /opt/venv /opt/venv
 ENV PATH="$PATH:/opt/venv/bin"
 
 # copy app files
-RUN mkdir -p /app && mkdir -p /app/tmp
 WORKDIR /app
+RUN mkdir -p tmp
 COPY microservices/csam-scanner/csam_scanner /app/csam_scanner/
 COPY microservices/csam-scanner/tests /app/tests/
+
+RUN adduser --disabled-password --no-create-home scanner && \
+    chown scanner:scanner tmp
+USER scanner
 
 EXPOSE 8000
 

@@ -13,7 +13,7 @@ services:
           memory: "1G"
     restart: always
     healthcheck:
-      test: ['CMD', 'curl', '-fs', 'http://localhost:80']
+      test: ['CMD-SHELL', 'php-fpm -t || exit 1']
       interval: 5s
       timeout: 1s
       retries: 2
