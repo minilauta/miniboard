@@ -440,6 +440,11 @@ function funcs_common_mutate_query(array $query, string $key, string $val): stri
 function funcs_common_delete_post_files(array $post): array {
   $warnings = [];
 
+  // post has no file (e.g. content was cleared by OP delete)
+  if (empty($post['file_hex'])) {
+    return $warnings;
+  }
+
   // is the file thumbnail static?
   $static = str_contains($post['thumb'], '/static/');
 
