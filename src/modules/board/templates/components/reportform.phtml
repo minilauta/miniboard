@@ -29,6 +29,14 @@
           <button type="submit"><?=__('form.submit')?></button>
         </td>
       </tr>
+      <tr>
+        <td class="form-label">
+          <label for="reason"><?=__('report.reason')?></label>
+        </td>
+        <td>
+          <textarea id="reason" name="reason" rows="3" maxlength="500" placeholder="<?=__('report.reason_placeholder')?>"></textarea>
+        </td>
+      </tr>
       <?php
         if (MB_CAPTCHA_REPORT) {
           $captcha = MB_CAPTCHA_HCAPTCHA_SITE;

@@ -56,6 +56,8 @@ return [
 	'report.info'               => 'Zgłaszanie postu :post_id na tablicy /:board_id/.',
 	'report.warning'            => 'Wysyłanie fałszywych lub błędnie sklasyfikowanych zgłoszeń skutkuje banem.',
 	'report.type'               => 'Typ',
+	'report.reason'             => 'Powód',
+	'report.reason_placeholder' => 'Opcjonalnie: wyjaśnij dlaczego zgłaszasz ten post.',
 
 	// Board filter
 	'filter.toggle'             => 'Filtruj tablice',
@@ -131,6 +133,7 @@ return [
 	'manage.th.role'            => 'rola',
 	'manage.th.lastactive'      => 'ostatnio aktywny',
 	'manage.th.type'            => 'typ',
+	'manage.th.reason'          => 'powód',
 	'manage.th.post_ip'         => 'ip_postu',
 	'manage.th.post_deleted'    => 'post_usunięty',
 	'manage.th.post_imported'   => 'post_zaimportowany',

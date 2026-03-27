@@ -56,6 +56,8 @@ return [
 	'report.info'               => 'Reporting post :post_id on board /:board_id/.',
 	'report.warning'            => 'Submitting false or misclassified reports will result in a ban.',
 	'report.type'               => 'Type',
+	'report.reason'             => 'Reason',
+	'report.reason_placeholder' => 'Optional: explain why you are reporting this post.',
 
 	// Board filter
 	'filter.toggle'             => 'Filter boards',
@@ -131,6 +133,7 @@ return [
 	'manage.th.role'            => 'role',
 	'manage.th.lastactive'      => 'lastactive',
 	'manage.th.type'            => 'type',
+	'manage.th.reason'          => 'reason',
 	'manage.th.post_ip'         => 'post_ip',
 	'manage.th.post_deleted'    => 'post_deleted',
 	'manage.th.post_imported'   => 'post_imported',

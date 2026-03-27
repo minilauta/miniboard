@@ -502,7 +502,8 @@ class BoardModule implements core\Module
 
 			// create report
 			$ip = funcs_common_get_client_remote_address(MB_CLOUDFLARE, $_SERVER);
-			$report = funcs_board_create_report($ip, $board_cfg['id'], $post['post_id'], $_POST['type'], MB_REPORT_TYPES);
+			$reason = isset($_POST['reason']) ? trim($_POST['reason']) : '';
+			$report = funcs_board_create_report($ip, $board_cfg['id'], $post['post_id'], $_POST['type'], MB_REPORT_TYPES, $reason);
 
 			// insert report
 			$inserted_report_id = insert_report($report);

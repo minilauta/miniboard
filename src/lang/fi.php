@@ -56,6 +56,8 @@ return [
 	'report.info'               => 'Ilmiannetaan viesti :post_id laudalla /:board_id/.',
 	'report.warning'            => 'Väärien tai väärin luokiteltujen ilmiantojen lähettäminen johtaa porttikieltoon.',
 	'report.type'               => 'Tyyppi',
+	'report.reason'             => 'Syy',
+	'report.reason_placeholder' => 'Valinnainen: selitä miksi ilmiannoit tämän viestin.',
 
 	// Board filter
 	'filter.toggle'             => 'Suodata lautoja',
@@ -131,6 +133,7 @@ return [
 	'manage.th.role'            => 'rooli',
 	'manage.th.lastactive'      => 'viimeksiaktiivinen',
 	'manage.th.type'            => 'tyyppi',
+	'manage.th.reason'          => 'syy',
 	'manage.th.post_ip'         => 'viesti_ip',
 	'manage.th.post_deleted'    => 'viesti_poistettu',
 	'manage.th.post_imported'   => 'viesti_tuotu',

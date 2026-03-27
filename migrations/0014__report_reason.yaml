@@ -1,0 +1,6 @@
+# optional free-text reason field for reports
+
+version: 14
+script: |
+  ALTER TABLE reports
+    ADD COLUMN `reason` text NOT NULL default '';

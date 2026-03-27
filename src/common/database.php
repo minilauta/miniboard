@@ -680,14 +680,16 @@ function insert_report($report): int {
       timestamp,
       board_id,
       post_id,
-      type
+      type,
+      reason
     )
     VALUES (
       INET6_ATON(:ip),
       :timestamp,
       :board_id,
       :post_id,
-      :type
+      :type,
+      :reason
     )
   ');
   $sth->execute($report);
@@ -872,6 +874,7 @@ function select_all_reports(bool $desc = true, int $offset = 0, int $limit = 10)
       r.board_id AS r_board_id,
       r.post_id AS r_post_id,
       r.type AS r_type,
+      r.reason AS r_reason,
       r.imported AS r_imported,
       INET6_NTOA(r.ip) AS r_ip_str,
       p.*,

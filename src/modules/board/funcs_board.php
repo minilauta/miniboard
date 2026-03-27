@@ -931,17 +931,22 @@ function funcs_board_validate_report(array $input, array $types) {
   if (!array_key_exists($input['type'], $types)) {
     throw new AppException('funcs_report', 'validate_fields', "field type value {$input['type']} is invalid", SC_BAD_REQUEST);
   }
+
+  if (isset($input['reason']) && mb_strlen($input['reason']) > 500) {
+    throw new AppException('funcs_report', 'validate_fields', 'field reason exceeds maximum length', SC_BAD_REQUEST);
+  }
 }
 
 /**
  * Creates a new report object.
  */
-function funcs_board_create_report(string $ip, string $board_id, int $post_id, int $type, array $types): array {
+function funcs_board_create_report(string $ip, string $board_id, int $post_id, int $type, array $types, string $reason = ''): array {
   return [
     'ip'        => $ip,
     'timestamp' => time(),
     'board_id'  => $board_id,
     'post_id'   => $post_id,
-    'type'      => $types[$type]
+    'type'      => $types[$type],
+    'reason'    => $reason
   ];
 }

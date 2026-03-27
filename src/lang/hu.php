@@ -56,6 +56,8 @@ return [
 	'report.info'               => ':post_id számú hozzászólás jelentése a /:board_id/ fórumon.',
 	'report.warning'            => 'Hamis vagy rosszul besorolt jelentések küldése kitiltást von maga után.',
 	'report.type'               => 'Típus',
+	'report.reason'             => 'Indok',
+	'report.reason_placeholder' => 'Opcionális: magyarázd el miért jelented ezt a hozzászólást.',
 
 	// Board filter
 	'filter.toggle'             => 'Fórumok szűrése',
@@ -131,6 +133,7 @@ return [
 	'manage.th.role'            => 'szerep',
 	'manage.th.lastactive'      => 'utoljára aktív',
 	'manage.th.type'            => 'típus',
+	'manage.th.reason'          => 'indok',
 	'manage.th.post_ip'         => 'hozzászólás_ip',
 	'manage.th.post_deleted'    => 'hozzászólás_törölt',
 	'manage.th.post_imported'   => 'hozzászólás_importált',
