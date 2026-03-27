@@ -118,6 +118,13 @@ function select_site_stats(): array|bool {
   return $sth->fetch();
 }
 
+function select_expired_ban_thumbs(): array {
+  $dbh = get_db_handle();
+  $sth = $dbh->prepare('SELECT post_thumb FROM bans WHERE expire < :now AND post_thumb IS NOT NULL');
+  $sth->execute(['now' => time()]);
+  return $sth->fetchAll(\PDO::FETCH_COLUMN);
+}
+
 function cleanup_bans(): int {
   $dbh = get_db_handle();
   $sth = $dbh->prepare('DELETE FROM bans WHERE expire < :now');
@@ -960,29 +967,78 @@ function delete_thread_posts(string $board_id, int $thread_id): bool {
   return $result;
 }
 
-function ban_poster_by_post_id(string $board_id, int $post_id, int $duration, string $reason): int {
+function ban_poster_by_post_id(string $board_id, int $post_id, int $duration, string $reason, ?array $post_preview = null): int {
   $dbh = get_db_handle();
-  $sth = $dbh->prepare('
-    INSERT IGNORE INTO bans (
-      ip,
-      timestamp,
-      expire,
-      reason
-    )
-    VALUES (
-      (SELECT ip FROM posts WHERE board_id = :board_id AND post_id = :post_id),
-      :timestamp,
-      :expire,
-      :reason
-    )
-  ');
-  $sth->execute([
-    'board_id' => $board_id,
-    'post_id' => $post_id,
-    'timestamp' => time(),
-    'expire' => time() + $duration,
-    'reason' => $reason
-  ]);
+
+  if ($post_preview !== null) {
+    $sth = $dbh->prepare('
+      INSERT INTO bans (
+        ip,
+        timestamp,
+        expire,
+        reason,
+        post_board_id,
+        post_id,
+        post_subject,
+        post_nameblock,
+        post_message_rendered,
+        post_thumb,
+        post_thumb_width,
+        post_thumb_height
+      )
+      VALUES (
+        (SELECT ip FROM posts WHERE board_id = :board_id AND post_id = :post_id),
+        :timestamp,
+        :expire,
+        :reason,
+        :post_board_id,
+        :p_post_id,
+        :post_subject,
+        :post_nameblock,
+        :post_message_rendered,
+        :post_thumb,
+        :post_thumb_width,
+        :post_thumb_height
+      )
+    ');
+    $sth->execute([
+      'board_id' => $board_id,
+      'post_id' => $post_id,
+      'timestamp' => time(),
+      'expire' => time() + $duration,
+      'reason' => $reason,
+      'post_board_id' => $post_preview['board_id'],
+      'p_post_id' => $post_preview['post_id'],
+      'post_subject' => $post_preview['subject'],
+      'post_nameblock' => $post_preview['nameblock'],
+      'post_message_rendered' => $post_preview['message_rendered'],
+      'post_thumb' => $post_preview['thumb'],
+      'post_thumb_width' => $post_preview['thumb_width'],
+      'post_thumb_height' => $post_preview['thumb_height'],
+    ]);
+  } else {
+    $sth = $dbh->prepare('
+      INSERT INTO bans (
+        ip,
+        timestamp,
+        expire,
+        reason
+      )
+      VALUES (
+        (SELECT ip FROM posts WHERE board_id = :board_id AND post_id = :post_id),
+        :timestamp,
+        :expire,
+        :reason
+      )
+    ');
+    $sth->execute([
+      'board_id' => $board_id,
+      'post_id' => $post_id,
+      'timestamp' => time(),
+      'expire' => time() + $duration,
+      'reason' => $reason
+    ]);
+  }
   $affected = $sth->rowCount();
 
   $banmsg = '<br><br><span class="banned">(USER WAS BANNED FOR THIS POST';
@@ -1462,6 +1518,8 @@ function select_ban(string $ip): array|bool {
   $sth = $dbh->prepare('
     SELECT expire, reason FROM bans
     WHERE ip = INET6_ATON(:ip) AND :now < expire
+    ORDER BY expire DESC
+    LIMIT 1
   ');
   $sth->execute([
     'ip' => $ip,

@@ -27,22 +27,24 @@
                   <th><?=__('manage.th.timestamp')?></th>
                   <th><?=__('manage.th.expire')?></th>
                   <th><?=__('manage.th.reason')?></th>
+                  <th><?=__('manage.th.preview')?></th>
                 </tr>
               </thead>
               <tbody>
-                <?php
-                  foreach ($bans as $ban) {
-                    echo "
-                      <tr>
-                        <td>{$ban->id}</td>
-                        <td>{$ban->redact_ip()}</td>
-                        <td>{$ban->fmt_timestamp()}</td>
-                        <td>{$ban->fmt_expire()}</td>
-                        <td>{$ban->fmt_reason(16)}</td>
-                      </tr>
-                    ";
-                  }
-                ?>
+                <?php foreach ($bans as $ban): ?>
+                  <tr>
+                    <td><?=$ban->id?></td>
+                    <td><?=$ban->redact_ip()?></td>
+                    <td><?=$ban->fmt_timestamp()?></td>
+                    <td><?=$ban->fmt_expire()?></td>
+                    <td><?=$ban->fmt_reason(16)?></td>
+                    <td>
+                      <?php if ($ban->has_preview()): ?>
+                        <?=$this->render(__DIR__ . '/components/ban_preview.phtml', ['ban' => $ban])?>
+                      <?php endif; ?>
+                    </td>
+                  </tr>
+                <?php endforeach; ?>
               </tbody>
             </table>
           </div>
@@ -53,5 +55,22 @@
     <div class="container-centered">
       <?=$this->render(__ROOT__ . '/common/templates/footer.phtml')?>
     </div>
+    <script>
+      function toggle_ban_preview(el) {
+        var trigger = el.parentElement;
+        var popup = trigger.querySelector('.ban-preview-popup');
+        if (trigger.classList.toggle('active')) {
+          var rect = el.getBoundingClientRect();
+          popup.style.right = (document.documentElement.clientWidth - rect.left) + 'px';
+          popup.style.top = (rect.bottom + 2) + 'px';
+        }
+      }
+      document.addEventListener('click', function(e) {
+        if (e.target.closest('.ban-preview-trigger')) return;
+        document.querySelectorAll('.ban-preview-trigger.active').forEach(function(el) {
+          el.classList.remove('active');
+        });
+      });
+    </script>
   </body>
 </html>

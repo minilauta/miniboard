@@ -611,7 +611,7 @@ class BoardModule implements core\Module
 		}
 	
 		// cleanup expired bans
-		cleanup_bans();
+		funcs_common_cleanup_bans();
 	
 		// check if ip address has been banned
 		$ban = select_ban($user_ip);

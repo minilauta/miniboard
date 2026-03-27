@@ -99,6 +99,7 @@ return [
 	'manage.ban_ip'             => 'Kitiltás (ip)',
 	'manage.ban_minutes'        => 'Kitiltás percei',
 	'manage.ban_reason'         => 'Kitiltás oka',
+	'manage.ban_capture'        => 'Bejegyzés mentése',
 	'manage.mark_csam'          => 'Megjelölés CSAM-ként',
 	'manage.toggle_lock'        => 'Zárolás/feloldás (téma)',
 	'manage.toggle_sticky'      => 'Kitűzés/levétel (téma)',

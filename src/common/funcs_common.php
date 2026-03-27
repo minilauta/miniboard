@@ -479,6 +479,22 @@ function funcs_common_delete_post_files(array $post): array {
   return $warnings;
 }
 
+function funcs_common_delete_ban_thumbs(array $thumbs): void {
+  foreach ($thumbs as $thumb) {
+    if (str_contains($thumb, '/src/bans/')) {
+      $path = __PUBLIC__ . $thumb;
+      if (is_file($path)) {
+        unlink($path);
+      }
+    }
+  }
+}
+
+function funcs_common_cleanup_bans(): int {
+  funcs_common_delete_ban_thumbs(select_expired_ban_thumbs());
+  return cleanup_bans();
+}
+
 function funcs_common_clear_post(string $board_id, int $post_id, ?string $notice = null): array {
   $warnings = [];
 

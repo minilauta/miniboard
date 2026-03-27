@@ -1,0 +1,25 @@
+<span class="ban-preview-trigger">
+  <a href="javascript:void(0)" onclick="toggle_ban_preview(this)">VIEW</a>
+  <div class="ban-preview-popup">
+    <div class="post reply">
+      <div class="reply">
+        <div class="post-info">
+          <label>
+            <input type="checkbox" disabled>
+            <span class="post-subject"><?=$ban->post_subject?></span>
+            <?=$ban->post_nameblock?>
+          </label>
+          <span class="post-id">
+            No.<?=$ban->post_id?>
+          </span>
+        </div>
+        <?=$this->render(__DIR__ . '/ban_preview_thumb.phtml', ['ban' => $ban])?>
+        <div class="post-message-wrapper">
+          <div class="post-message">
+            <?=$ban->post_message_rendered?>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</span>

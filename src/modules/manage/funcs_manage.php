@@ -211,7 +211,7 @@ function funcs_manage_delete(array $select): string {
   return $status;
 }
 
-function funcs_manage_ban(array $select, int $duration, string $reason): string {
+function funcs_manage_ban(array $select, int $duration, string $reason, bool $capture = false): string {
   // escape reason HTML entities
   $reason = funcs_common_clean_field($reason);
 
@@ -223,8 +223,46 @@ function funcs_manage_ban(array $select, int $duration, string $reason): string 
     $selected_board_id = $selected_parsed[0];
     $selected_post_id = intval($selected_parsed[1]);
 
+    // build post preview for the ban record if capture is enabled
+    $post_preview = null;
+    if ($capture) {
+      $post = select_post($selected_board_id, $selected_post_id);
+      if ($post) {
+        // copy thumbnail to /src/bans/ so it survives post deletion
+        $thumb = null;
+        if (!empty($post['thumb'])) {
+          if (str_contains($post['thumb'], '/static/')) {
+            $thumb = $post['thumb'];
+          } else {
+            $bans_dir = __PUBLIC__ . '/src/bans';
+            if (!is_dir($bans_dir)) {
+              mkdir($bans_dir, 0755, true);
+            }
+            $ext = pathinfo($post['thumb'], PATHINFO_EXTENSION);
+            $ban_thumb_name = "ban_{$post['board_id']}_{$post['post_id']}_" . time() . ".{$ext}";
+            $ban_thumb_path = $bans_dir . '/' . $ban_thumb_name;
+            $src_path = __PUBLIC__ . $post['thumb'];
+            if (is_file($src_path) && copy($src_path, $ban_thumb_path)) {
+              $thumb = '/src/bans/' . $ban_thumb_name;
+            }
+          }
+        }
+
+        $post_preview = [
+          'board_id'         => $post['board_id'],
+          'post_id'          => $post['post_id'],
+          'subject'          => $post['subject'],
+          'nameblock'        => $post['nameblock'],
+          'message_rendered' => $post['message_rendered'],
+          'thumb'            => $thumb,
+          'thumb_width'      => $thumb !== null ? $post['thumb_width'] : null,
+          'thumb_height'     => $thumb !== null ? $post['thumb_height'] : null,
+        ];
+      }
+    }
+
     // ban poster by board id and post id
-    $processed += ban_poster_by_post_id($selected_board_id, $selected_post_id, $duration, $reason);
+    $processed += ban_poster_by_post_id($selected_board_id, $selected_post_id, $duration, $reason, $post_preview);
 
     // delete remaining reports
     delete_reports_by_post_id($selected_board_id, $selected_post_id);

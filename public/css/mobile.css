@@ -43,6 +43,10 @@
     border-right: none !important;
   }
   
+  .box-content {
+    overflow-x: auto;
+  }
+
   .post-message-wrapper {
     margin-left: 12px !important;
     margin-right: 12px !important;
@@ -62,5 +66,15 @@
 
   .post-message pre {
     max-width: 600px;
+  }
+
+  .ban-preview-popup {
+    top: 50% !important;
+    left: 50% !important;
+    right: auto !important;
+    transform: translate(-50%, -50%);
+    max-width: calc(100vw - 16px);
+    max-height: calc(100vh - 16px);
+    overflow: auto;
   }
 }

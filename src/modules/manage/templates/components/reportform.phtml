@@ -19,6 +19,7 @@
 	        <input type="submit" value="<?=__('manage.ban_ip')?>" formaction="ban?<?=http_build_query($_GET)?>">
           <input type="number" name="duration" placeholder="<?=__('manage.ban_minutes')?>">
           <input type="text" name="reason" placeholder="<?=__('manage.ban_reason')?>">
+          <label><input type="checkbox" name="capture"> <?=__('manage.ban_capture')?></label>
 	        <input type="submit" value="<?=__('manage.mark_csam')?>" formaction="csam_scanner/cp?<?=http_build_query($_GET)?>">
 	        <input type="submit" value="<?=__('manage.toggle_lock')?>" formaction="toggle_lock?<?=http_build_query($_GET)?>">
 	        <input type="submit" value="<?=__('manage.toggle_sticky')?>" formaction="toggle_sticky?<?=http_build_query($_GET)?>">

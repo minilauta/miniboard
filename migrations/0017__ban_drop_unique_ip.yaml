@@ -1,0 +1,6 @@
+# drop unique constraint on ip to allow multiple bans per ip
+
+version: 17
+script: |
+  ALTER TABLE bans
+    DROP INDEX `ip`;

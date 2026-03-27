@@ -1,0 +1,7 @@
+# add nameblock and subject fields to ban post preview
+
+version: 16
+script: |
+  ALTER TABLE bans
+    ADD COLUMN `post_subject` varchar(128) default NULL,
+    ADD COLUMN `post_nameblock` text default NULL;

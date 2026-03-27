@@ -1,0 +1,11 @@
+# optional post preview fields for bans (public ban list)
+
+version: 15
+script: |
+  ALTER TABLE bans
+    ADD COLUMN `post_board_id` varchar(8) default NULL,
+    ADD COLUMN `post_id` int unsigned default NULL,
+    ADD COLUMN `post_message_rendered` text default NULL,
+    ADD COLUMN `post_thumb` varchar(256) default NULL,
+    ADD COLUMN `post_thumb_width` smallint unsigned default NULL,
+    ADD COLUMN `post_thumb_height` smallint unsigned default NULL;

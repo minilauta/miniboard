@@ -99,6 +99,7 @@ return [
 	'manage.ban_ip'             => 'Ban (ip)',
 	'manage.ban_minutes'        => 'Minuty bana',
 	'manage.ban_reason'         => 'Powód bana',
+	'manage.ban_capture'        => 'Zapisz post',
 	'manage.mark_csam'          => 'Oznacz jako CSAM',
 	'manage.toggle_lock'        => 'Zablokuj/odblokuj (wątek)',
 	'manage.toggle_sticky'      => 'Przypnij/odepnij (wątek)',

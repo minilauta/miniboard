@@ -99,6 +99,7 @@ return [
 	'manage.ban_ip'             => 'Porttikielto (ip)',
 	'manage.ban_minutes'        => 'Porttikiellon minuutit',
 	'manage.ban_reason'         => 'Porttikiellon syy',
+	'manage.ban_capture'        => 'Tallenna viesti',
 	'manage.mark_csam'          => 'Merkitse CSAM:ksi',
 	'manage.toggle_lock'        => 'Lukitse/avaa (lanka)',
 	'manage.toggle_sticky'      => 'Kiinnitä/irrota (lanka)',

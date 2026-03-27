@@ -44,7 +44,15 @@ class BansModule implements core\Module
 						timestamp,
 						expire,
 						reason,
-						imported
+						imported,
+						post_board_id,
+						post_id,
+						post_subject,
+						post_nameblock,
+						post_message_rendered,
+						post_thumb,
+						post_thumb_width,
+						post_thumb_height
 					FROM bans
 					WHERE timestamp > :time
 					ORDER BY id DESC

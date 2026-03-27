@@ -12,6 +12,18 @@ class Ban
 	public int $expire;
 	public string $reason;
 	public bool $imported;
+	public ?string $post_board_id;
+	public ?int $post_id;
+	public ?string $post_subject;
+	public ?string $post_nameblock;
+	public ?string $post_message_rendered;
+	public ?string $post_thumb;
+	public ?int $post_thumb_width;
+	public ?int $post_thumb_height;
+
+	public function has_preview(): bool {
+		return $this->post_board_id !== null && $this->post_id !== null;
+	}
 
 	public function redact_ip(): string {
 		if (str_contains($this->ip, '.')) {

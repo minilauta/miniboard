@@ -485,6 +485,35 @@ table.form-manage-table {
   100% { transform: translate(-100%, 0); }
 }
 
+/* ban preview popup */
+.ban-preview-trigger {
+  position: relative;
+}
+
+.ban-preview-popup {
+  display: none;
+  position: fixed;
+  z-index: 100;
+}
+
+.ban-preview-trigger.active .ban-preview-popup {
+  display: block;
+}
+
+.ban-preview-popup .post-info {
+  display: block;
+  white-space: nowrap;
+}
+
+.ban-preview-popup > div.post.reply {
+  display: table;
+  margin-bottom: 0;
+}
+
+.ban-preview-popup > div.post.reply > div.reply {
+  margin-bottom: 0;
+}
+
 /* gallery component */
 .gallery-container {
   display: flex;

@@ -235,15 +235,16 @@ class ManageModule implements core\Module
 				'duration' => ['required' => true, 'type' => 'string'],
 				'reason'   => ['required' => true, 'type' => 'string']
 			]);
-			
+
 			// parse request fields
 			$_POST['duration'] = funcs_common_parse_input_int($_POST, 'duration', 60, 5, 60 * 24 * 365);
+			$capture = isset($_POST['capture']);
 
 			// cleanup expired bans
-			cleanup_bans();
+			funcs_common_cleanup_bans();
 
 			// execute ban
-			$status = funcs_manage_ban($_POST['select'], $_POST['duration'] * 60, $_POST['reason']);
+			$status = funcs_manage_ban($_POST['select'], $_POST['duration'] * 60, $_POST['reason'], $capture);
 
 			// set query to return properly
 			$query = funcs_common_mutate_query($_GET, 'status', $status);

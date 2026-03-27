@@ -99,6 +99,7 @@ return [
 	'manage.ban_ip'             => 'Ban (ip)',
 	'manage.ban_minutes'        => 'Ban minutes',
 	'manage.ban_reason'         => 'Ban reason',
+	'manage.ban_capture'        => 'Capture post',
 	'manage.mark_csam'          => 'Mark as CSAM',
 	'manage.toggle_lock'        => 'Lock/unlock (thread)',
 	'manage.toggle_sticky'      => 'Sticky/unsticky (thread)',

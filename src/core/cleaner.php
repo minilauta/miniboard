@@ -34,7 +34,7 @@ class Cleaner
 		$pdo->exec('LOCK TABLES posts AS p1 READ, posts AS p2 READ, posts AS p3 READ, posts AS p4 READ');
 		try {
 			$files_disk = array_filter(array_slice(scandir(__PUBLIC__ . '/src', SCANDIR_SORT_ASCENDING), 2), function (string $file) {
-				return $file !== '.trashbin';
+				return $file !== '.trashbin' && $file !== 'bans';
 			});
 			array_walk($files_disk, function (string &$file, int $idx) { $file = '/src/' . $file; });
 			$files_disk_n = count($files_disk);
