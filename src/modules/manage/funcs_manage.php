@@ -301,10 +301,15 @@ function funcs_manage_edit_post(array $input): string {
 
   // render message
   $message = funcs_board_render_message($input['board_id'], $post['parent_id'], $input['message'], $board_cfg['truncate']);
-  $notice = '<br><br><span class="edited">(POST EDITED BY A MODERATOR)</span>';
-  $message['rendered'] .= $notice;
-  if (isset($message['truncated'])) {
-    $message['truncated'] .= $notice;
+  if (empty($input['silent'])) {
+    $notice_text = funcs_common_clean_field($input['notice'] ?? '');
+    $notice = strlen($notice_text) > 0
+      ? '<br><br><span class="edited">(POST EDITED BY A MODERATOR: ' . $notice_text . ')</span>'
+      : '<br><br><span class="edited">(POST EDITED BY A MODERATOR)</span>';
+    $message['rendered'] .= $notice;
+    if (isset($message['truncated'])) {
+      $message['truncated'] .= $notice;
+    }
   }
 
   // re-generate hashed ID

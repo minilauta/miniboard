@@ -395,6 +395,7 @@ class ManageModule implements core\Module
 				'email'     => ['required' => false, 'type' => 'string'],
 				'subject'   => ['required' => false, 'type' => 'string'],
 				'message'   => ['required' => false, 'type' => 'string'],
+				'notice'    => ['required' => false, 'type' => 'string'],
 			]);
 
 			$post = [
@@ -404,6 +405,8 @@ class ManageModule implements core\Module
 				'email'    => $_POST['email'] ?? '',
 				'subject'  => $_POST['subject'] ?? '',
 				'message'  => $_POST['message'] ?? '',
+				'notice'   => $_POST['notice'] ?? '',
+				'silent'   => isset($_POST['silent']),
 				'delfile'  => isset($_POST['delfile']),
 			];
 
