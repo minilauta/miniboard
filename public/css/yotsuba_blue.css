@@ -97,6 +97,10 @@ div.post-message .spoiler {
   color: #FF00FF;
 }
 
+.post-message .deleted {
+  color: #FF0000;
+}
+
 .truncated {
   color: #707070;
 }

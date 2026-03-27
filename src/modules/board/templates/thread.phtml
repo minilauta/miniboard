@@ -6,7 +6,7 @@
     <?=$this->render(__ROOT__ . '/common/templates/scripts.phtml', ['hcaptcha' => MB_CAPTCHA_REPLY])?>
     <?php
       $title = "/{$board['id']}/ - ";
-      if (strlen($thread['subject']) > 0) {
+      if (isset($thread['subject']) && strlen($thread['subject']) > 0) {
         $title .= $thread['subject'];
       } else {
         // TODO: create specific function for this

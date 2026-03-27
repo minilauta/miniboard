@@ -807,30 +807,23 @@ class BoardModule implements core\Module
 				throw new \AppException('index', 'route', "invalid password for post with ID /{$delete_board_id}/{$delete_post_id}", SC_FORBIDDEN);
 			}
 
-			// validate timeframe if post is a thread
 			if ($post['parent_id'] == null) {
-				$timeframe_reply_limit = MB_TIMEFRAME_REPLY_LIMIT;
-				$thread_replies_n = count_posts('NULL', $post['board_id'], $post['post_id'], false);
-				if (MB_TIMEFRAME > 0 && $thread_replies_n > $timeframe_reply_limit) {
-					$timeframe_in_seconds = MB_TIMEFRAME;
-					if (time() - $post['timestamp'] > $timeframe_in_seconds) {
-						throw new \AppException('index', 'route', "you cannot delete threads older than {$timeframe_in_seconds}s with more than {$timeframe_reply_limit} replies", SC_FORBIDDEN);
-					}
+				// thread: clear OP content and files, leave thread and replies intact
+				$warnings = funcs_common_clear_post($post['board_id'], $post['post_id'], '<span class="deleted">(THREAD DELETED BY OP)</span>');
+				if ($warnings) {
+					throw new \AppException('index', 'route', "failed to clear post with ID /{$delete_board_id}/{$delete_post_id}", SC_INTERNAL_ERROR);
 				}
-			}
+			} else {
+				// reply: delete post entirely
+				$warnings = funcs_common_delete_post($post['board_id'], $post['post_id']);
+				if ($warnings) {
+					throw new \AppException('index', 'route', "failed to delete post with ID /{$delete_board_id}/{$delete_post_id}", SC_INTERNAL_ERROR);
+				}
 
-			// delete post
-			$warnings = funcs_common_delete_post($post['board_id'], $post['post_id']);
-			if ($warnings) {
-				throw new \AppException('index', 'route', "failed to delete post with ID /{$delete_board_id}/{$delete_post_id}", SC_INTERNAL_ERROR);
-			}
-
-			// debump if deleted post was a reply
-			$thread_bumped = false;
-			if ($post['parent_id'] != null) {
+				// debump thread if reply count falls back within limits
 				$thread_replies_n = count_posts('NULL', $post['board_id'], $post['parent_id'], false);
 				if ($thread_replies_n <= $board_cfg['max_replies']) {
-					$thread_bumped = bump_thread($post['board_id'], $post['parent_id']);
+					bump_thread($post['board_id'], $post['parent_id']);
 				}
 			}
 		}

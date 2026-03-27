@@ -479,6 +479,34 @@ function funcs_common_delete_post_files(array $post): array {
   return $warnings;
 }
 
+function funcs_common_clear_post(string $board_id, int $post_id, ?string $notice = null): array {
+  $warnings = [];
+
+  // get the post
+  $post = select_post($board_id, $post_id);
+  if ($post == null) {
+    $warnings[] = "Post /{$board_id}/{$post_id}/ not found";
+    return $warnings;
+  }
+
+  // unlink files from filesystem
+  if ($post['file'] != null) {
+    $warnings = array_merge($warnings, funcs_common_delete_post_files($post));
+  }
+
+  // clear file columns in db
+  if (!clear_post_files($board_id, $post_id)) {
+    $warnings[] = "Failed to clear files for post /{$board_id}/{$post_id}/";
+  }
+
+  // clear content columns in db
+  if (!clear_post_content($board_id, $post_id, $notice)) {
+    $warnings[] = "Failed to clear content for post /{$board_id}/{$post_id}/";
+  }
+
+  return $warnings;
+}
+
 function funcs_common_delete_post(string $board_id, int $post_id): array {
   $warnings = [];
 

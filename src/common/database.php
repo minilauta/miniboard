@@ -1295,6 +1295,33 @@ function update_edit_post(array $post): bool {
   return $sth->execute($post);
 }
 
+function clear_post_content(string $board_id, int $post_id, ?string $notice = null): bool {
+  $dbh = get_db_handle();
+  $sth = $dbh->prepare('
+    UPDATE posts
+    SET
+      name = :name,
+      tripcode = NULL,
+      email = NULL,
+      subject = NULL,
+      message = :message,
+      message_rendered = :message_rendered,
+      message_truncated = NULL,
+      nameblock = :nameblock,
+      password = NULL
+    WHERE
+      board_id = :board_id AND post_id = :post_id
+  ');
+  return $sth->execute([
+    'board_id' => $board_id,
+    'post_id' => $post_id,
+    'name' => '',
+    'message' => '',
+    'message_rendered' => $notice ?? '',
+    'nameblock' => '',
+  ]);
+}
+
 function clear_post_files(string $board_id, int $post_id): bool {
   $dbh = get_db_handle();
   $sth = $dbh->prepare('
