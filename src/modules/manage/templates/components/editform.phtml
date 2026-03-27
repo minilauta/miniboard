@@ -57,7 +57,6 @@
           <input type="text" name="notice" maxlength="256" placeholder="<?= __('manage.editform.notice_placeholder') ?>">
         </td>
       </tr>
-      <?php if (strlen($post['file'] ?? '') > 0): ?>
       <tr>
         <td class="form-label">
           <label for="edit-options"><?= __('manage.editform.edit_options') ?></label>
@@ -67,12 +66,15 @@
             <input type='checkbox' name='silent' value='1'>
             <?= __('manage.editform.silent') ?>
           </label>
+          <?php if (strlen($post['file'] ?? '') > 0): ?>
           <label>
             <input type='checkbox' name='delfile' value='1'>
             <?= __('manage.editform.delete_file') ?>
           </label>
+          <?php endif; ?>
         </td>
       </tr>
+      <?php if (strlen($post['file'] ?? '') > 0): ?>
       <tr>
         <td class="form-label">
           <label for="file"><?= __('manage.editform.file') ?></label>
