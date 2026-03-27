@@ -1,0 +1,75 @@
+<form id="form-edit" class="form-manage form" method="post" action="/manage/edit_post">
+  <?= funcs_common_csrf_field() ?>
+  <table>
+    <tbody>
+      <tr>
+        <td class="form-label">
+          <label>/<?= __('manage.editform.board_id') ?>/<?= __('manage.editform.post_id') ?></label>
+        </td>
+        <td>
+          <input type="text" name="board_id" value="<?= htmlspecialchars($post['board_id'], ENT_QUOTES, 'UTF-8') ?>" readonly>
+          <input type="text" name="post_id" value="<?= htmlspecialchars($post['post_id'], ENT_QUOTES, 'UTF-8') ?>" readonly>
+        </td>
+      </tr>
+      <tr>
+        <td class="form-label">
+          <label for="name"><?= __('manage.editform.name') ?></label>
+        </td>
+        <td>
+          <input type="text" name="name" value="<?= $post['name'] ?>">
+        </td>
+      </tr>
+      <tr>
+        <td class="form-label">
+          <label for="email"><?= __('manage.editform.email') ?></label>
+        </td>
+        <td>
+          <input type="text" name="email" autocomplete="off" value="<?= $post['email'] ?? '' ?>">
+        </td>
+      </tr>
+      <tr>
+        <td class="form-label">
+          <label for="subject"><?= __('manage.editform.subject') ?></label>
+        </td>
+        <td>
+          <input type="text" name="subject" autocomplete="off" value="<?= $post['subject'] ?? '' ?>">
+          <input type="submit" name="submit" value="<?= __('manage.editform.submit') ?>">
+        </td>
+      </tr>
+      <tr>
+        <td class="form-label">
+          <label for="message"><?= __('manage.editform.message') ?></label>
+        </td>
+        <td>
+          <textarea
+            id="form-post-message"
+            class="form-post-message"
+            name="message"
+            autocomplete="off"
+            maxlength="8192"><?= htmlspecialchars($post['message'] ?? '', ENT_QUOTES, 'UTF-8') ?></textarea>
+        </td>
+      </tr>
+      <?php if (strlen($post['file'] ?? '') > 0): ?>
+      <tr>
+        <td class="form-label">
+          <label for="file-options"><?= __('manage.editform.file_options') ?></label>
+        </td>
+        <td>
+          <label>
+            <input type='checkbox' name='delfile' value='1'>
+            <?= __('manage.editform.delete_file') ?>
+          </label>
+        </td>
+      </tr>
+      <tr>
+        <td class="form-label">
+          <label for="file"><?= __('manage.editform.file') ?></label>
+        </td>
+        <td>
+          <?= $this->render(__DIR__ . '/post_file.phtml', ['context' => 'preview', 'post' => $post]) ?>
+        </td>
+      </tr>
+      <?php endif; ?>
+    </tbody>
+  </table>
+</form>

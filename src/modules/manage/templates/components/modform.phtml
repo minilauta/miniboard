@@ -44,10 +44,12 @@
         <th><?=__('manage.th.deleted')?></th>
         <th><?=__('manage.th.imported')?></th>
         <th><?=__('manage.th.preview')?></th>
+        <th><?=__('manage.th.actions')?></th>
       </tr>
     </thead>
     <tbody>
       <?php
+        $editLabel = __('manage.edit_post');
         foreach ($posts as $post) {
           $preview = '';
           if ($post['parent_id'] == 0) {
@@ -69,6 +71,7 @@
               <td>{$deleted}</td>
               <td>{$imported}</td>
               <td>{$preview}</td>
+              <td><a href='?route=edit_post&board_id={$post['board_id']}&post_id={$post['post_id']}'>{$editLabel}</a></td>
             </tr>
           ";
         }

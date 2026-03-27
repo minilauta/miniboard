@@ -112,6 +112,7 @@ return [
 	'manage.table_name'         => 'TAULU-nimi',
 	'manage.table_type'         => 'TAULU-tyyppi',
 	'manage.board_id'           => 'LAUTA-id',
+	'manage.edit_post'			=> 'MUOKKAA',
 
 	// Manage table headers
 	'manage.th.id'              => 'id',
@@ -133,6 +134,19 @@ return [
 	'manage.th.post_ip'         => 'viesti_ip',
 	'manage.th.post_deleted'    => 'viesti_poistettu',
 	'manage.th.post_imported'   => 'viesti_tuotu',
+	'manage.th.actions'			=> 'toiminnot',
+
+	// Manage editform
+	'manage.editform.board_id'             => 'Laudan ID',
+	'manage.editform.post_id'              => 'Viestin ID',
+	'manage.editform.name'                 => 'Nimi',
+	'manage.editform.email'                => 'Sähköposti',
+	'manage.editform.subject'              => 'Aihe',
+	'manage.editform.submit'               => 'Lähetä',
+	'manage.editform.message'              => 'Viesti',
+	'manage.editform.file'                 => 'Tiedosto',
+	'manage.editform.file_options'         => 'Tiedostoasetukset',
+	'manage.editform.delete_file'          => 'Poista tiedosto(t)',
 
 	// Bans page
 	'bans.title'                => 'Porttikiellot',

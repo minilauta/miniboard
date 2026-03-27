@@ -112,6 +112,7 @@ return [
 	'manage.table_name'         => 'TABLE name',
 	'manage.table_type'         => 'TABLE type',
 	'manage.board_id'           => 'BOARD id',
+	'manage.edit_post'			=> 'EDIT',
 
 	// Manage table headers
 	'manage.th.id'              => 'id',
@@ -133,6 +134,19 @@ return [
 	'manage.th.post_ip'         => 'post_ip',
 	'manage.th.post_deleted'    => 'post_deleted',
 	'manage.th.post_imported'   => 'post_imported',
+	'manage.th.actions'			=> 'actions',
+
+	// Manage editform
+	'manage.editform.board_id'             => 'Board ID',
+	'manage.editform.post_id'              => 'Post ID',
+	'manage.editform.name'                 => 'Name',
+	'manage.editform.email'                => 'E-mail',
+	'manage.editform.subject'              => 'Subject',
+	'manage.editform.submit'               => 'Submit',
+	'manage.editform.message'              => 'Message',
+	'manage.editform.file'                 => 'File',
+	'manage.editform.file_options'         => 'File options',
+	'manage.editform.delete_file'          => 'Delete file(s)',
 
 	// Bans page
 	'bans.title'                => 'Bans',

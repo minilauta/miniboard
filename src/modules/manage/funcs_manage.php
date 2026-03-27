@@ -289,6 +289,78 @@ function funcs_manage_toggle_sticky(array $select): string {
   return $status;
 }
 
+function funcs_manage_edit_post(array $input): string {
+  // fetch existing post
+  $post = select_post($input['board_id'], $input['post_id']);
+  if (!$post) {
+    throw new \AppException('funcs_manage', 'edit_post', "post /{$input['board_id']}/{$input['post_id']}/ not found", SC_NOT_FOUND);
+  }
+
+  // get board config
+  $board_cfg = funcs_common_get_board_cfg($input['board_id']);
+
+  // render message
+  $message = funcs_board_render_message($input['board_id'], $post['parent_id'], $input['message'], $board_cfg['truncate']);
+  $notice = '<br><br><span class="edited">(POST EDITED BY A MODERATOR)</span>';
+  $message['rendered'] .= $notice;
+  if (isset($message['truncated'])) {
+    $message['truncated'] .= $notice;
+  }
+
+  // re-generate hashed ID
+  $hashid = null;
+  if (isset($board_cfg['hashid_salt']) && strlen($board_cfg['hashid_salt']) >= 2) {
+    $ip_str = inet_ntop($post['ip']);
+    $hashid = funcs_common_generate_hashid($post['salt'], $ip_str, $board_cfg['hashid_salt']);
+  }
+
+  // set nameblock country code if flags enabled OR country code is T1/VPN
+  $country_nb = null;
+  if ($board_cfg['flags'] == true || $post['country'] == 't1' || $post['country'] == 'vpn') {
+    $country_nb = $post['country'];
+  }
+
+  // clean name, use board default if empty
+  $name = strlen($input['name']) > 0 ? funcs_common_clean_field($input['name']) : $board_cfg['anonymous'];
+  $email = funcs_common_clean_field($input['email']);
+
+  // render nameblock
+  $nameblock = funcs_board_render_nameblock($name, $post['tripcode'], $email, $hashid, $country_nb, $post['role'], $post['timestamp']);
+
+  // update post
+  $update = [
+    'board_id' => $input['board_id'],
+    'post_id' => $input['post_id'],
+    'name' => $name,
+    'email' => $email,
+    'subject' => funcs_common_clean_field($input['subject']),
+    'message' => $input['message'],
+    'message_rendered' => $message['rendered'],
+    'message_truncated' => $message['truncated'],
+    'nameblock' => $nameblock,
+  ];
+  if (!update_edit_post($update)) {
+    throw new \AppException('funcs_manage', 'edit_post', "failed to update post /{$input['board_id']}/{$input['post_id']}/", SC_INTERNAL_ERROR);
+  }
+
+  // handle file deletion
+  $warnings = [];
+  if (isset($input['delfile']) && $input['delfile'] && strlen($post['file'] ?? '') > 0) {
+    $warnings = funcs_common_delete_post_files($post);
+
+    if (!clear_post_files($input['board_id'], $input['post_id'])) {
+      $warnings[] = "Failed to clear file columns";
+    }
+  }
+
+  $status = "Edited post /{$input['board_id']}/{$input['post_id']}/";
+  if (count($warnings) > 0) {
+    $status .= "<br>Warnings:<br>- " . implode('<br>- ', $warnings);
+  }
+  funcs_manage_log($status);
+  return $status;
+}
+
 function funcs_manage_move_thread(string $src_board_id, int $thread_id, string $dst_board_id): string {
   // validate boards
   $src_cfg = funcs_common_get_board_cfg($src_board_id);

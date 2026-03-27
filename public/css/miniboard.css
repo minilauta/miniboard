@@ -96,6 +96,10 @@ div.post-message .spoiler {
   color: #F92672;
 }
 
+.post-message .edited {
+  color: #F92672;
+}
+
 .truncated {
   color: #707070;
 }

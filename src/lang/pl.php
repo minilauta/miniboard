@@ -112,6 +112,7 @@ return [
 	'manage.table_name'         => 'Nazwa TABELI',
 	'manage.table_type'         => 'Typ TABELI',
 	'manage.board_id'           => 'ID TABLICY',
+	'manage.edit_post'			=> 'EDYTUJ',
 
 	// Manage table headers
 	'manage.th.id'              => 'id',
@@ -133,6 +134,19 @@ return [
 	'manage.th.post_ip'         => 'ip_postu',
 	'manage.th.post_deleted'    => 'post_usunięty',
 	'manage.th.post_imported'   => 'post_zaimportowany',
+	'manage.th.actions'			=> 'akcje',
+
+	// Manage editform
+	'manage.editform.board_id'             => 'ID tablicy',
+	'manage.editform.post_id'              => 'ID postu',
+	'manage.editform.name'                 => 'Nazwa',
+	'manage.editform.email'                => 'E-mail',
+	'manage.editform.subject'              => 'Temat',
+	'manage.editform.submit'               => 'Wyślij',
+	'manage.editform.message'              => 'Wiadomość',
+	'manage.editform.file'                 => 'Plik',
+	'manage.editform.file_options'         => 'Opcje pliku',
+	'manage.editform.delete_file'          => 'Usuń plik(i)',
 
 	// Bans page
 	'bans.title'                => 'Bany',

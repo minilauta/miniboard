@@ -232,6 +232,10 @@ div.post-message .spoiler:hover {
   font-weight: bold;
 }
 
+.post-message .edited {
+  font-weight: bold;
+}
+
 .catalog {
   text-align: center;
 }

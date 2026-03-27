@@ -437,6 +437,48 @@ function funcs_common_mutate_query(array $query, string $key, string $val): stri
 /**
  * Deletes target post and its replies if any. Deletes files if 0 references remaining.
  */
+function funcs_common_delete_post_files(array $post): array {
+  $warnings = [];
+
+  // is the file thumbnail static?
+  $static = str_contains($post['thumb'], '/static/');
+
+  // count identical files, only unlink if this is the last one
+  $file_collisions = select_files_by_md5($post['file_hex']);
+  $file_collisions_n = count($file_collisions);
+
+  if ($file_collisions_n <= 1) {
+    if ($post['embed'] === 0 && strlen($post['file']) > 0) {
+      if (!unlink(__PUBLIC__ . $post['file'])) {
+        $warnings[] = "Failed to delete file for post /{$post['board_id']}/{$post['post_id']}/ (maybe it didn't exist?)";
+      }
+    }
+
+    if (!$static && strlen($post['thumb']) > 0) {
+      if (!unlink(__PUBLIC__ . $post['thumb'])) {
+        $warnings[] = "Failed to delete thumbnail for post /{$post['board_id']}/{$post['post_id']}/ (maybe it didn't exist?)";
+      }
+    }
+
+    if (isset($post['audio_album']) && strlen($post['audio_album']) > 0) {
+      if (!unlink(__PUBLIC__ . $post['audio_album'])) {
+        $warnings[] = "Failed to delete album art for post /{$post['board_id']}/{$post['post_id']}/ (maybe it didn't exist?)";
+      }
+    }
+
+    if (isset($post['file_meta']) && strlen($post['file_meta']) > 0) {
+      $file_meta = json_decode($post['file_meta'], true);
+      if (isset($file_meta) && isset($file_meta['tgk_png_file']) && strlen($file_meta['tgk_png_file']) > 0) {
+        if (!unlink(__PUBLIC__ . $file_meta['tgk_png_file'])) {
+          $warnings[] = "Failed to delete tgk png for post /{$post['board_id']}/{$post['post_id']}/ (maybe it didn't exist?)";
+        }
+      }
+    }
+  }
+
+  return $warnings;
+}
+
 function funcs_common_delete_post(string $board_id, int $post_id): array {
   $warnings = [];
 
@@ -447,42 +489,8 @@ function funcs_common_delete_post(string $board_id, int $post_id): array {
   $selected_posts = select_post_with_replies($board_id, $post_id);
 
   foreach ($selected_posts as &$post) {
-    // is the file thumbnail static?
-    $static = str_contains($post['thumb'], '/static/');
-
-    // count identical files, only unlink if this is the last one
-    $file_collisions = select_files_by_md5($post['file_hex']);
-    $file_collisions_n = count($file_collisions);
-
-    // unlink file and thumb from filesystem
-    if ($file_collisions_n === 1) {
-      if ($post['embed'] === 0 && strlen($post['file']) > 0) {
-        if (!unlink(__PUBLIC__ . $post['file'])) {
-          $warnings[] = "Failed to delete file for post /{$post['board_id']}/{$post['post_id']}/ (maybe it didn't exist?)";
-        }
-      }
-      
-      if (!$static && strlen($post['thumb']) > 0) {
-        if (!unlink(__PUBLIC__ . $post['thumb'])) {
-          $warnings[] = "Failed to delete thumbnail for post /{$post['board_id']}/{$post['post_id']}/ (maybe it didn't exist?)";
-        }
-      }
-
-      if (isset($post['audio_album']) && strlen($post['audio_album']) > 0) {
-        if (!unlink(__PUBLIC__ . $post['audio_album'])) {
-          $warnings[] = "Failed to delete album art for post /{$post['board_id']}/{$post['post_id']}/ (maybe it didn't exist?)";
-        }
-      }
-
-      if (isset($post['file_meta']) && strlen($post['file_meta']) > 0) {
-        $file_meta = json_decode($post['file_meta'], true);
-        if (isset($file_meta) && isset($file_meta['tgk_png_file']) && strlen($file_meta['tgk_png_file']) > 0) {
-          if (!unlink(__PUBLIC__ . $file_meta['tgk_png_file'])) {
-            $warnings[] = "Failed to delete tgk png for post /{$post['board_id']}/{$post['post_id']}/ (maybe it didn't exist?)";
-          }
-        }
-      }
-    }
+    // unlink files from filesystem
+    $warnings = array_merge($warnings, funcs_common_delete_post_files($post));
 
     // delete post from db
     if (!delete_post($post['board_id'], $post['post_id'])) {

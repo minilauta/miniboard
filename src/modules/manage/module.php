@@ -44,6 +44,7 @@ class ManageModule implements core\Module
 			$query_page = funcs_common_parse_input_int($query_params, 'page', 0, 0, 1000);
 
 			echo $this->renderer->render(__DIR__ . '/templates/manage.phtml', [
+				'query_params' => $query_params,
 				'route' => $query_route,
 				'status' => $query_status,
 				'page' => $query_page,
@@ -366,6 +367,48 @@ class ManageModule implements core\Module
 
 			// execute move
 			$status = funcs_manage_move_thread($src_board_id, $thread_id, $dst_board_id);
+
+			// set query to return properly
+			$query = funcs_common_mutate_query($_GET, 'status', $status);
+
+			header("Location: /manage/?{$query}");
+			http_response_code(303);
+		}
+
+		$router->add_route(HTTP_POST, '/manage/edit_post', function ($vars) {
+			if (!funcs_common_is_logged_in()) {
+				throw new \AppException('index', 'route', 'access denied', SC_UNAUTHORIZED);
+			}
+
+			return handle_manage_editpostform($vars);
+		});
+
+		function handle_manage_editpostform($vars) {
+			// validate CSRF token
+			funcs_common_validate_csrf($_POST);
+
+			// validate request fields
+			funcs_common_validate_fields($_POST, [
+				'board_id'  => ['required' => true, 'type' => 'string'],
+				'post_id'   => ['required' => true, 'type' => 'string'],
+				'name'      => ['required' => false, 'type' => 'string'],
+				'email'     => ['required' => false, 'type' => 'string'],
+				'subject'   => ['required' => false, 'type' => 'string'],
+				'message'   => ['required' => false, 'type' => 'string'],
+			]);
+
+			$post = [
+				'board_id' => $_POST['board_id'],
+				'post_id'  => funcs_common_parse_input_int($_POST, 'post_id', null, 0),
+				'name'     => $_POST['name'] ?? '',
+				'email'    => $_POST['email'] ?? '',
+				'subject'  => $_POST['subject'] ?? '',
+				'message'  => $_POST['message'] ?? '',
+				'delfile'  => isset($_POST['delfile']),
+			];
+
+			// execute edit
+			$status = funcs_manage_edit_post($post);
 
 			// set query to return properly
 			$query = funcs_common_mutate_query($_GET, 'status', $status);

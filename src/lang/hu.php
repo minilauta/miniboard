@@ -112,6 +112,7 @@ return [
 	'manage.table_name'         => 'TÁBLA név',
 	'manage.table_type'         => 'TÁBLA típus',
 	'manage.board_id'           => 'FÓRUM id',
+	'manage.edit_post'			=> 'SZERKESZTÉS',
 
 	// Manage table headers
 	'manage.th.id'              => 'id',
@@ -133,6 +134,19 @@ return [
 	'manage.th.post_ip'         => 'hozzászólás_ip',
 	'manage.th.post_deleted'    => 'hozzászólás_törölt',
 	'manage.th.post_imported'   => 'hozzászólás_importált',
+	'manage.th.actions'			=> 'műveletek',
+
+	// Manage editform
+	'manage.editform.board_id'             => 'Fórum ID',
+	'manage.editform.post_id'              => 'Hozzászólás ID',
+	'manage.editform.name'                 => 'Név',
+	'manage.editform.email'                => 'E-mail',
+	'manage.editform.subject'              => 'Tárgy',
+	'manage.editform.submit'               => 'Küldés',
+	'manage.editform.message'              => 'Üzenet',
+	'manage.editform.file'                 => 'Fájl',
+	'manage.editform.file_options'         => 'Fájl opciók',
+	'manage.editform.delete_file'          => 'Fájl(ok) törlése',
 
 	// Bans page
 	'bans.title'                => 'Kitiltások',

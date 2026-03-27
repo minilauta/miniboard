@@ -1277,6 +1277,53 @@ function update_rebuild_post(array $rebuild_post): bool {
   return $sth->execute($rebuild_post);
 }
 
+function update_edit_post(array $post): bool {
+  $dbh = get_db_handle();
+  $sth = $dbh->prepare('
+    UPDATE posts
+    SET
+      name = :name,
+      email = :email,
+      subject = :subject,
+      message = :message,
+      message_rendered = :message_rendered,
+      message_truncated = :message_truncated,
+      nameblock = :nameblock
+    WHERE
+      board_id = :board_id AND post_id = :post_id
+  ');
+  return $sth->execute($post);
+}
+
+function clear_post_files(string $board_id, int $post_id): bool {
+  $dbh = get_db_handle();
+  $sth = $dbh->prepare('
+    UPDATE posts
+    SET
+      file = NULL,
+      file_rendered = NULL,
+      file_hex = NULL,
+      file_original = NULL,
+      file_size = NULL,
+      file_size_formatted = NULL,
+      file_mime = NULL,
+      file_meta = NULL,
+      image_width = NULL,
+      image_height = NULL,
+      thumb = NULL,
+      thumb_width = NULL,
+      thumb_height = NULL,
+      audio_album = NULL,
+      embed = 0
+    WHERE
+      board_id = :board_id AND post_id = :post_id
+  ');
+  return $sth->execute([
+    'board_id' => $board_id,
+    'post_id' => $post_id,
+  ]);
+}
+
 function insert_refresh_board(array $board): bool {
   // convert bools to int
   $board['nsfw'] = $board['nsfw'] == true ? 1 : 0;
