@@ -23,6 +23,10 @@ spec: # spec for deployment
           capabilities:
             drop: [ALL]
             add: [CHOWN, FOWNER]
+        resources:
+          requests:
+            cpu: 50m
+            memory: 32Mi
         volumeMounts:
         - name: miniboard-app-pv
           mountPath: /data

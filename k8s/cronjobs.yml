@@ -99,6 +99,10 @@ spec:
               capabilities:
                 drop: [ALL]
                 add: [CHOWN, FOWNER]
+            resources:
+              requests:
+                cpu: 50m
+                memory: 32Mi
             volumeMounts:
             - name: miniboard-app-pv
               mountPath: /data
@@ -186,6 +190,8 @@ spec:
           - name: miniboard-clean-trashbin
             image: busybox:stable
             securityContext:
+              runAsUser: 82
+              runAsNonRoot: true
               allowPrivilegeEscalation: false
               capabilities:
                 drop: [ALL]

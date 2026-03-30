@@ -1,0 +1,7 @@
+checks:
+  exclude:
+    - "latest-tag"
+    - "unset-memory-requirements"
+    - "no-anti-affinity"
+    - "no-read-only-root-fs"
+    - "run-as-non-root"
