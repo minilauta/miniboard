@@ -4,7 +4,29 @@ on:
   push:
     branches:
       - 'master'
+    paths:
+      - 'src/**'
+      - 'tests/**'
+      - 'public/**'
+      - 'docker/**'
+      - 'microservices/**'
+      - 'migrations/**'
+      - 'composer.json'
+      - 'phpunit.xml'
+      - 'docker-compose.yml'
+      - '.github/workflows/run-tests.yml'
   pull_request:
+    paths:
+      - 'src/**'
+      - 'tests/**'
+      - 'public/**'
+      - 'docker/**'
+      - 'microservices/**'
+      - 'migrations/**'
+      - 'composer.json'
+      - 'phpunit.xml'
+      - 'docker-compose.yml'
+      - '.github/workflows/run-tests.yml'
 
 concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}

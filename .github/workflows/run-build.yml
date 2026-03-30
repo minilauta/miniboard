@@ -4,6 +4,17 @@ on:
   push:
     branches:
       - 'master'
+    paths:
+      - 'src/**'
+      - 'public/**'
+      - 'docker/**'
+      - 'microservices/**'
+      - 'migrations/**'
+      - 'composer.json'
+      - 'package.json'
+      - 'webpack.config.js'
+      - 'yarn.lock'
+      - '.github/workflows/run-build.yml'
 
 concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
