@@ -1,0 +1,24 @@
+name: Run lint
+
+on:
+  push:
+    branches:
+      - 'master'
+    paths:
+      - 'k8s/**'
+  pull_request:
+    paths:
+      - 'k8s/**'
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  lint-k8s:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: stackrox/kube-linter-action@v1
+        with:
+          directory: k8s
