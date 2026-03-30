@@ -16,6 +16,11 @@ spec: # spec for stateful set
       containers:
       - name: miniboard-mariadb
         image: mariadb:10.6
+        securityContext:
+          allowPrivilegeEscalation: false
+          capabilities:
+            drop: [ALL]
+            add: [SETUID, SETGID, CHOWN, FOWNER, DAC_OVERRIDE]
         ports:
         - containerPort: 3306
         resources:
@@ -84,6 +89,11 @@ spec: # spec for stateful set
       containers:
       - name: miniboard-redis
         image: redis:7.0-alpine
+        securityContext:
+          runAsNonRoot: true
+          allowPrivilegeEscalation: false
+          capabilities:
+            drop: [ALL]
         args: ["--save 60 1", "--loglevel verbose", "--requirepass $(REDIS_PASS)"]
         ports:
         - containerPort: 6379

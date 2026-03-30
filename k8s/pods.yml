@@ -2,11 +2,18 @@ apiVersion: v1
 kind: Pod
 metadata:
   name: pod-miniboard-migrate
+  labels:
+    run: miniboard-migrate
 spec: # spec for pod
   containers:
   - name: miniboard-migrate
     image: ghcr.io/minilauta/miniboard/app:latest
     imagePullPolicy: Always
+    securityContext:
+      runAsNonRoot: true
+      allowPrivilegeEscalation: false
+      capabilities:
+        drop: [ALL]
     workingDir: /app
     args: ["php", "src/cli.php", "migrate"]
     resources:

@@ -8,11 +8,19 @@ spec:
   jobTemplate:
     spec:
       template:
+        metadata:
+          labels:
+            run: miniboard-cronjob
         spec:
           containers:
           - name: miniboard-clean-posts
             image: ghcr.io/minilauta/miniboard/app:latest
             imagePullPolicy: Always
+            securityContext:
+              runAsNonRoot: true
+              allowPrivilegeEscalation: false
+              capabilities:
+                drop: [ALL]
             workingDir: /app
             args: ["php", "src/cli.php", "clean:posts"]
             resources:
@@ -76,6 +84,9 @@ spec:
   jobTemplate:
     spec:
       template:
+        metadata:
+          labels:
+            run: miniboard-cronjob
         spec:
           securityContext:
             fsGroup: 82
@@ -83,6 +94,11 @@ spec:
           - name: fix-permissions
             image: busybox:stable
             command: ['sh', '-c', 'chown -R 82:82 /data']
+            securityContext:
+              allowPrivilegeEscalation: false
+              capabilities:
+                drop: [ALL]
+                add: [CHOWN, FOWNER]
             volumeMounts:
             - name: miniboard-app-pv
               mountPath: /data
@@ -90,6 +106,11 @@ spec:
           - name: miniboard-clean-files
             image: ghcr.io/minilauta/miniboard/app:latest
             imagePullPolicy: Always
+            securityContext:
+              runAsNonRoot: true
+              allowPrivilegeEscalation: false
+              capabilities:
+                drop: [ALL]
             workingDir: /app
             args: ["php", "src/cli.php", "clean:files"]
             resources:
@@ -164,6 +185,10 @@ spec:
           containers:
           - name: miniboard-clean-trashbin
             image: busybox:stable
+            securityContext:
+              allowPrivilegeEscalation: false
+              capabilities:
+                drop: [ALL]
             command: ['sh', '-c', 'rm -rf /data/.trashbin && echo "trashbin cleared"']
             resources:
               requests:

@@ -18,6 +18,11 @@ spec: # spec for deployment
       - name: fix-permissions
         image: busybox:stable
         command: ['sh', '-c', 'chown -R 82:82 /data']
+        securityContext:
+          allowPrivilegeEscalation: false
+          capabilities:
+            drop: [ALL]
+            add: [CHOWN, FOWNER]
         volumeMounts:
         - name: miniboard-app-pv
           mountPath: /data
@@ -25,6 +30,11 @@ spec: # spec for deployment
       - name: miniboard-app
         image: ghcr.io/minilauta/miniboard/app:latest
         imagePullPolicy: Always
+        securityContext:
+          runAsNonRoot: true
+          allowPrivilegeEscalation: false
+          capabilities:
+            drop: [ALL]
         ports:
         - containerPort: 9000
         resources:
@@ -100,6 +110,10 @@ spec:
       - name: miniboard-nginx
         image: ghcr.io/minilauta/miniboard/nginx:latest
         imagePullPolicy: Always
+        securityContext:
+          allowPrivilegeEscalation: false
+          capabilities:
+            drop: [ALL]
         ports:
         - containerPort: 80
         - containerPort: 443
@@ -150,6 +164,11 @@ spec:
       - name: miniboard-csam-scanner
         image: ghcr.io/minilauta/miniboard/csam-scanner:latest
         imagePullPolicy: Always
+        securityContext:
+          runAsNonRoot: true
+          allowPrivilegeEscalation: false
+          capabilities:
+            drop: [ALL]
         ports:
         - containerPort: 8000
         resources:
