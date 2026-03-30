@@ -1,0 +1,247 @@
+# Default deny all ingress and egress traffic
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: default-deny-all
+spec:
+  podSelector: {}
+  policyTypes:
+  - Ingress
+  - Egress
+
+---
+# Allow DNS resolution for all pods
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: allow-dns
+spec:
+  podSelector: {}
+  policyTypes:
+  - Egress
+  egress:
+  - to:
+    - namespaceSelector: {}
+    ports:
+    - protocol: UDP
+      port: 53
+    - protocol: TCP
+      port: 53
+
+---
+# nginx: ingress from ingress controller, egress to app
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: netpol-miniboard-nginx
+spec:
+  podSelector:
+    matchLabels:
+      run: miniboard-nginx
+  policyTypes:
+  - Ingress
+  - Egress
+  ingress:
+  - from:
+    - namespaceSelector:
+        matchLabels:
+          kubernetes.io/metadata.name: ingress-nginx
+    ports:
+    - protocol: TCP
+      port: 80
+    - protocol: TCP
+      port: 443
+  egress:
+  - to:
+    - podSelector:
+        matchLabels:
+          run: miniboard-app
+    ports:
+    - protocol: TCP
+      port: 9000
+
+---
+# app: ingress from nginx, egress to internal services and HTTPS
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: netpol-miniboard-app
+spec:
+  podSelector:
+    matchLabels:
+      run: miniboard-app
+  policyTypes:
+  - Ingress
+  - Egress
+  ingress:
+  - from:
+    - podSelector:
+        matchLabels:
+          run: miniboard-nginx
+    ports:
+    - protocol: TCP
+      port: 9000
+  egress:
+  - to:
+    - podSelector:
+        matchLabels:
+          run: miniboard-mariadb
+    ports:
+    - protocol: TCP
+      port: 3306
+  - to:
+    - podSelector:
+        matchLabels:
+          run: miniboard-redis
+    ports:
+    - protocol: TCP
+      port: 6379
+  - to:
+    - podSelector:
+        matchLabels:
+          run: miniboard-csam-scanner
+    ports:
+    - protocol: TCP
+      port: 8000
+  - ports:
+    - protocol: TCP
+      port: 443
+
+---
+# mariadb: ingress from app, csam-scanner, cronjobs, migrate
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: netpol-miniboard-mariadb
+spec:
+  podSelector:
+    matchLabels:
+      run: miniboard-mariadb
+  policyTypes:
+  - Ingress
+  ingress:
+  - from:
+    - podSelector:
+        matchExpressions:
+        - key: run
+          operator: In
+          values:
+          - miniboard-app
+          - miniboard-csam-scanner
+          - miniboard-cronjob
+          - miniboard-migrate
+    ports:
+    - protocol: TCP
+      port: 3306
+
+---
+# redis: ingress from app, cronjobs, migrate
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: netpol-miniboard-redis
+spec:
+  podSelector:
+    matchLabels:
+      run: miniboard-redis
+  policyTypes:
+  - Ingress
+  ingress:
+  - from:
+    - podSelector:
+        matchExpressions:
+        - key: run
+          operator: In
+          values:
+          - miniboard-app
+          - miniboard-cronjob
+          - miniboard-migrate
+    ports:
+    - protocol: TCP
+      port: 6379
+
+---
+# csam-scanner: ingress from app, egress to mariadb
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: netpol-miniboard-csam-scanner
+spec:
+  podSelector:
+    matchLabels:
+      run: miniboard-csam-scanner
+  policyTypes:
+  - Ingress
+  - Egress
+  ingress:
+  - from:
+    - podSelector:
+        matchLabels:
+          run: miniboard-app
+    ports:
+    - protocol: TCP
+      port: 8000
+  egress:
+  - to:
+    - podSelector:
+        matchLabels:
+          run: miniboard-mariadb
+    ports:
+    - protocol: TCP
+      port: 3306
+
+---
+# cronjobs: egress to mariadb, redis
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: netpol-miniboard-cronjob
+spec:
+  podSelector:
+    matchLabels:
+      run: miniboard-cronjob
+  policyTypes:
+  - Egress
+  egress:
+  - to:
+    - podSelector:
+        matchLabels:
+          run: miniboard-mariadb
+    ports:
+    - protocol: TCP
+      port: 3306
+  - to:
+    - podSelector:
+        matchLabels:
+          run: miniboard-redis
+    ports:
+    - protocol: TCP
+      port: 6379
+
+---
+# migrate pod: egress to mariadb, redis
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: netpol-miniboard-migrate
+spec:
+  podSelector:
+    matchLabels:
+      run: miniboard-migrate
+  policyTypes:
+  - Egress
+  egress:
+  - to:
+    - podSelector:
+        matchLabels:
+          run: miniboard-mariadb
+    ports:
+    - protocol: TCP
+      port: 3306
+  - to:
+    - podSelector:
+        matchLabels:
+          run: miniboard-redis
+    ports:
+    - protocol: TCP
+      port: 6379
