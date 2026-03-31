@@ -3,6 +3,9 @@
 require_once __ROOT__ . '/common/config.php';
 require_once __ROOT__ . '/common/exception.php';
 require_once __ROOT__ . '/common/funcs_common.php';
+require_once __ROOT__ . '/models/post_history.php';
+
+use minichan\models\PostEvent;
 
 /**
  * Inserts a message to the management log.
@@ -195,9 +198,16 @@ function funcs_manage_delete(array $select): string {
     $selected_board_id = $selected_parsed[0];
     $selected_post_id = intval($selected_parsed[1]);
 
+    $post = select_post($selected_board_id, $selected_post_id);
+
     // delete post and replies, files, etc...
     $warnings = array_merge($warnings, funcs_common_delete_post($selected_board_id, $selected_post_id));
     $processed++;
+
+    // record post history after deletion
+    if ($post != null) {
+      insert_post_history($selected_board_id, $selected_post_id, $post['parent_id'], PostEvent::DeletedAdmin->value);
+    }
   }
 
   // collect warnings
@@ -532,6 +542,9 @@ function funcs_manage_move_thread(string $src_board_id, int $thread_id, string $
     $dbh->rollBack();
     throw $e;
   }
+
+  // record post history for redirect
+  insert_post_history($src_board_id, $thread_id, null, PostEvent::Moved->value, $dst_board_id, $new_op_id);
 
   // refresh auto increment tables
   refresh_post_auto_increment($src_board_id);

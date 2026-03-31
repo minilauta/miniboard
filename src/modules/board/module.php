@@ -11,7 +11,10 @@ require_once __ROOT__ . '/common/config.php';
 require_once __ROOT__ . '/common/exception.php';
 require_once __ROOT__ . '/common/database.php';
 require_once __ROOT__ . '/common/funcs_common.php';
+require_once __ROOT__ . '/models/post_history.php';
 require_once __DIR__ . '/funcs_board.php';
+
+use minichan\models\PostEvent;
 
 class BoardModule implements core\Module
 {
@@ -235,6 +238,19 @@ class BoardModule implements core\Module
 			// get thread
 			$thread = select_post($board_cfg['id'], $vars['thread_id']);
 			if ($thread == null) {
+				// check post history for redirects or specific 404 messages
+				$history = select_post_history($board_cfg['id'], $vars['thread_id']);
+				if ($history) {
+					$event = PostEvent::from($history['event']);
+					if ($event === PostEvent::Moved) {
+						header("Location: /{$history['dst_board_id']}/{$history['dst_post_id']}/", true, 301);
+						return;
+					}
+					$msg = $event === PostEvent::DeletedAdmin
+						? "thread /{$board_cfg['id']}/{$vars['thread_id']}/ was deleted by a moderator"
+						: "thread /{$board_cfg['id']}/{$vars['thread_id']}/ was deleted by its author";
+					throw new \AppException('index', 'route', $msg, SC_NOT_FOUND);
+				}
 				throw new \AppException('index', 'route', "thread with ID /{$board_cfg['id']}/{$vars['thread_id']} not found", SC_NOT_FOUND);
 			} else if ($thread['parent_id'] != null) {
 				throw new \AppException('index', 'route', 'not a valid thread', SC_NOT_FOUND);
@@ -529,10 +545,19 @@ class BoardModule implements core\Module
 			// get post
 			$post = select_post($board_cfg['id'], $vars['post_id']);
 			if ($post == null || ($post['parent_id'] != null && $post['parent_id'] != $vars['thread_id'])) {
+				$history = select_post_history($board_cfg['id'], $vars['post_id']);
+				$msg = "post with ID /{$board_cfg['id']}/{$vars['thread_id']}/{$vars['post_id']} not found";
+				if ($history) {
+					$msg = match (PostEvent::from($history['event'])) {
+						PostEvent::Moved => "post was moved to /{$history['dst_board_id']}/{$history['dst_post_id']}/",
+						PostEvent::DeletedAdmin => "post was deleted by a moderator",
+						PostEvent::DeletedUser => "post was deleted by its author",
+					};
+				}
 				echo $this->renderer->render(__DIR__ . '/templates/components/post_preview_null.phtml', [
 					'error_code' => 404,
 					'error_title' => 'Not Found',
-					'message' => "post with ID /{$board_cfg['id']}/{$vars['thread_id']}/{$vars['post_id']} not found"
+					'message' => $msg
 				]);
 				return;
 			}
@@ -807,6 +832,9 @@ class BoardModule implements core\Module
 			if (funcs_common_verify_password($_POST['password'], $post['password']) !== true) {
 				throw new \AppException('index', 'route', "invalid password for post with ID /{$delete_board_id}/{$delete_post_id}", SC_FORBIDDEN);
 			}
+
+			// record post history
+			insert_post_history($post['board_id'], $post['post_id'], $post['parent_id'], PostEvent::DeletedUser->value);
 
 			if ($post['parent_id'] == null) {
 				// thread: clear OP content and files, leave thread and replies intact

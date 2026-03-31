@@ -1,0 +1,18 @@
+# post_history tracks what happened to posts
+
+version: 18
+script: |
+  CREATE TABLE IF NOT EXISTS post_history (
+    `id` int unsigned NOT NULL auto_increment,
+    `board_id` varchar(8) NOT NULL,
+    `post_id` int unsigned NOT NULL,
+    `parent_id` int unsigned NULL,
+    `event` tinyint unsigned NOT NULL,
+    `timestamp` int unsigned NOT NULL,
+    `dst_board_id` varchar(8) NULL,
+    `dst_post_id` int unsigned NULL,
+    PRIMARY KEY (`id`),
+    UNIQUE KEY `board_post_event` (`board_id`, `post_id`, `event`),
+    KEY `timestamp` (`timestamp`)
+  ) ENGINE=InnoDB
+  CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
