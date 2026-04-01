@@ -18,6 +18,7 @@ spec:
             imagePullPolicy: Always
             securityContext:
               runAsNonRoot: true
+              runAsUser: 82
               allowPrivilegeEscalation: false
               capabilities:
                 drop: [ALL]
@@ -112,6 +113,7 @@ spec:
             imagePullPolicy: Always
             securityContext:
               runAsNonRoot: true
+              runAsUser: 82
               allowPrivilegeEscalation: false
               capabilities:
                 drop: [ALL]
@@ -190,8 +192,8 @@ spec:
           - name: miniboard-clean-trashbin
             image: busybox:stable
             securityContext:
-              runAsUser: 82
               runAsNonRoot: true
+              runAsUser: 82
               allowPrivilegeEscalation: false
               capabilities:
                 drop: [ALL]

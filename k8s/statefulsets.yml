@@ -91,6 +91,7 @@ spec: # spec for stateful set
         image: redis:7.0-alpine
         securityContext:
           runAsNonRoot: true
+          runAsUser: 82
           allowPrivilegeEscalation: false
           capabilities:
             drop: [ALL]

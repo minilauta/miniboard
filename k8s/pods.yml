@@ -11,6 +11,7 @@ spec: # spec for pod
     imagePullPolicy: Always
     securityContext:
       runAsNonRoot: true
+      runAsUser: 82
       allowPrivilegeEscalation: false
       capabilities:
         drop: [ALL]
