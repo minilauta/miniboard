@@ -8,13 +8,15 @@ import numpy as np
 from fastapi import FastAPI, File, UploadFile, HTTPException
 import csam_scanner.utils as utils
 
+logging.basicConfig(level=logging.INFO)
+
 app = FastAPI()
 
 MIME_TYPES_IMAGE = [
     'image/jpeg',
     'image/pjpeg',
     'image/png',
-#    'image/gif',
+    'image/gif',
     'image/bmp',
     'image/x-ms-bmp',
     'image/tiff',
@@ -36,10 +38,17 @@ async def api_check(input: UploadFile):
 
     logging.info('checking file, name: %s, size: %s SHA256: %s', input.filename, input.size, hash_sha256)
 
-    # calculate pdq hash vector and quality
-    hash_vector, quality = utils.compute_pdq_hash(input_bytes)
+    # calculate pdq hash vector(s) and quality
+    if input.content_type == 'image/gif':
+        hashes = utils.compute_pdq_hashes_gif(input_bytes)
+        logging.info('computed %d PDQ hashes from GIF frames', len(hashes))
+    else:
+        hash_vector, quality = utils.compute_pdq_hash(input_bytes)
+        hashes = [(hash_vector, quality)]
+        logging.info('computed PDQ hash, quality: %s', quality)
 
-    logging.info('computed PDQ hash, quality: %s', quality)
+    if not hashes:
+        raise HTTPException(status_code=422, detail='no usable frames')
 
     # select whole database into memory in chunks
     db = mysql.connector.connect(
@@ -70,18 +79,20 @@ async def api_check(input: UploadFile):
     tolerance = float(os.getenv('TOLERANCE'))
     result = {'match': False}
     for row in cr:
-        # match found if similarity exceeds tolerance
         hash_vector_b = np.unpackbits(np.frombuffer(row['hash'], dtype=np.uint8))
-        similarity = utils.compute_pdq_similarity(hash_vector, hash_vector_b)
-        if similarity > tolerance:
-            # encode binary and blob as base64
-            row['sha256'] = base64.b64encode(row['sha256'])
-            row['hash'] = base64.b64encode(row['hash'])
+        for hash_vector, _ in hashes:
+            similarity = utils.compute_pdq_similarity(hash_vector, hash_vector_b)
+            if similarity > tolerance:
+                # encode binary and blob as base64
+                row['sha256'] = base64.b64encode(row['sha256'])
+                row['hash'] = base64.b64encode(row['hash'])
 
-            # set result
-            row['match'] = True
-            row['similarity'] = similarity
-            result = row
+                # set result
+                row['match'] = True
+                row['similarity'] = similarity
+                result = row
+                break
+        if result['match']:
             break
     cr.close()
     db.close()
@@ -137,10 +148,17 @@ async def api_cp(input: UploadFile):
 
     logging.info('received file, name: %s, size: %s SHA256: %s', input.filename, input.size, hash_sha256)
 
-    # calculate pdq hash vector and quality
-    hash_vector, quality = utils.compute_pdq_hash(input_bytes)
+    # calculate pdq hash vector(s) and quality
+    if input.content_type == 'image/gif':
+        hashes = utils.compute_pdq_hashes_gif(input_bytes)
+        logging.info('computed %d PDQ hashes from GIF frames', len(hashes))
+    else:
+        hash_vector, quality = utils.compute_pdq_hash(input_bytes)
+        hashes = [(hash_vector, quality)]
+        logging.info('computed PDQ hash, quality: %s', quality)
 
-    logging.info('computed PDQ hash, quality: %s', quality)
+    if not hashes:
+        raise HTTPException(status_code=422, detail='no usable frames')
 
     # store the data to database
     db = mysql.connector.connect(
@@ -150,34 +168,35 @@ async def api_cp(input: UploadFile):
         database=os.getenv('DB_NAME')
     )
     cr = db.cursor()
-    cr.execute("""
-        INSERT IGNORE INTO csam_scanner (
-            sha256,
-            type,
-            algorithm,
-            hash,
-            quality,
-            originator,
-            upvotes,
-            downvotes,
-            timestamp
-        )
-        VALUES (
-            %s,
-            'image',
-            'pdq',
-            %s,
-            %s,
-            %s,
-            0,
-            0,
-            %s
-        )
-    """, (hash_sha256.digest(), np.packbits(hash_vector).tobytes(), quality, os.getenv('ORIGINATOR'), int(time.time())))
+    for hash_vector, quality in hashes:
+        cr.execute("""
+            INSERT IGNORE INTO csam_scanner (
+                sha256,
+                type,
+                algorithm,
+                hash,
+                quality,
+                originator,
+                upvotes,
+                downvotes,
+                timestamp
+            )
+            VALUES (
+                %s,
+                'image',
+                'pdq',
+                %s,
+                %s,
+                %s,
+                0,
+                0,
+                %s
+            )
+        """, (hash_sha256.digest(), np.packbits(hash_vector).tobytes(), quality, os.getenv('ORIGINATOR'), int(time.time())))
     db.commit()
     cr.close()
     db.close()
 
-    logging.info('stored to database')
+    logging.info('stored %d hashes to database', len(hashes))
 
     return {'success': True}

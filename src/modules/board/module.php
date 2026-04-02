@@ -757,20 +757,13 @@ class BoardModule implements core\Module
 		if (isset($file_info) && isset($file)) {
 			$csam_scan_result = funcs_board_csam_scanner_check($file);
 			if (isset($csam_scan_result) && isset($csam_scan_result['match']) && $csam_scan_result['match'] === true) {
-				// create and insert automatic report
+				// create and insert log row
 				$csam_match_similarity = round($csam_scan_result['similarity'] * 100.0, 2);
 				$csam_match_log_msg = "CSAM-scanner: detected as CP, similarity: {$csam_match_similarity}%";
-				insert_report([
-					'ip'        => '127.0.0.1',
-					'timestamp' => time(),
-					'board_id'  => $board_cfg['id'],
-					'post_id'   => $inserted_post_id,
-					'type'      => $csam_match_log_msg
-				]);
 				insert_log('127.0.0.1', time(), 'CSAM-scanner', $csam_match_log_msg);
 		
 				// delete the post automatically
-				delete_post($board_cfg['id'], $inserted_post_id);
+				funcs_common_delete_post($board_cfg['id'], $inserted_post_id);
 			}
 		}
 	

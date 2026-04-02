@@ -2,5 +2,6 @@ python-multipart
 fastapi
 numpy
 opencv-python-headless
+Pillow
 pdqhash
 mysql-connector-python
