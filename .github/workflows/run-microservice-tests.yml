@@ -29,15 +29,15 @@ jobs:
           --user root
           --name csam-scanner_test
           csam-scanner
-          bash -c 'pip install coverage && coverage run -m unittest && coverage xml -o coverage.xml && coverage html -d coverage'
-      - name: Copy coverage reports
-        if: always()
-        run: |
-          docker cp csam-scanner_test:/app/coverage.xml ./ 2>/dev/null || true
-          docker cp csam-scanner_test:/app/coverage ./ 2>/dev/null || true
-      - name: Upload coverage report
-        if: always()
-        uses: actions/upload-artifact@v4
-        with:
-          name: code-coverage-report
-          path: coverage
+          bash -c '. /opt/venv/bin/activate && python -m unittest'
+      # - name: Copy coverage reports
+      #   if: always()
+      #   run: |
+      #     docker cp csam-scanner_test:/app/coverage.xml ./ 2>/dev/null || true
+      #     docker cp csam-scanner_test:/app/coverage ./ 2>/dev/null || true
+      # - name: Upload coverage report
+      #   if: always()
+      #   uses: actions/upload-artifact@v4
+      #   with:
+      #     name: code-coverage-report
+      #     path: coverage
