@@ -27,6 +27,10 @@
     margin-right: 0px !important;
   }
 
+  .file-thumb:has([expanded="true"]) {
+    float: none;
+  }
+
   .file-thumb-img {
     max-width: 125px;
     max-height: 125px;
@@ -108,6 +112,13 @@
     max-width: calc(100vw - 16px);
     max-height: calc(100vh - 16px);
     overflow: auto;
+  }
+
+  div.post-preview {
+    left: 50vw !important;
+    right: auto !important;
+    transform: translateX(-50%);
+    max-width: calc(100vw - 16px);
   }
 
   .ref-hash {
