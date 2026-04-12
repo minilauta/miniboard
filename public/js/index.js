@@ -1160,6 +1160,23 @@ function create_quickreply_window(target) {
   div_fixed_window_content.style = 'padding: 0;';
   document.body.appendChild(div_fixed_window.element);
 
+  // on mobile, snap to top when user is near the bottom of the page
+  if (window.innerWidth <= 767) {
+    const updateSnapPosition = () => {
+      const nearBottom = (window.innerHeight + window.scrollY) >= (document.body.scrollHeight - window.innerHeight * 0.25);
+      div_fixed_window.element.classList.toggle('snap-top', nearBottom);
+    };
+    updateSnapPosition();
+    const scrollHandler = () => {
+      if (!document.body.contains(div_fixed_window.element)) {
+        window.removeEventListener('scroll', scrollHandler);
+        return;
+      }
+      updateSnapPosition();
+    };
+    window.addEventListener('scroll', scrollHandler);
+  }
+
   // shift container up if overflow-y
   let div_rect = div_fixed_window.element.getBoundingClientRect();
   if (div_rect.bottom > window.innerHeight) {

@@ -54,8 +54,6 @@ function open(id, title, left, top, right, bottom, draggable, content) {
     }
   };
   fixed_window.setXY = function(x, y) {
-    fixed_window.element.style.transform = '';
-
     if (left != null) {
       left = x;
       top = y;
@@ -116,22 +114,6 @@ function open(id, title, left, top, right, bottom, draggable, content) {
     const down_handler = (event) => {
       event.preventDefault();
 
-      // Cancel mobile centering if user drags window
-      if (fixed_window.element.style.transform) {
-        const rect = fixed_window.element.getBoundingClientRect();
-        left = rect.left;
-        top = rect.top;
-        right = null;
-        bottom = null;
-        fixed_window.element.style.transform = '';
-        fixed_window.element.style.left = left + 'px';
-        fixed_window.element.style.top = top + 'px';
-        fixed_window.element.style.right = '';
-        fixed_window.element.style.bottom = '';
-        fixed_window.pos.x = left;
-        fixed_window.pos.y = top;
-      }
-
       const clientX = event.clientX || event.touches[0].clientX;
       const clientY = event.clientY || event.touches[0].clientY;
 
@@ -178,15 +160,6 @@ function open(id, title, left, top, right, bottom, draggable, content) {
     div_box_title.addEventListener('touchend', up_handler);
     document.addEventListener('mousemove', move_handler);
     document.addEventListener('touchmove', move_handler);
-  }
-
-  // Center window on mobile resolutions
-  if (window.innerWidth <= 767) {
-    fixed_window.element.style.left = '50%';
-    fixed_window.element.style.top = '50%';
-    fixed_window.element.style.right = '';
-    fixed_window.element.style.bottom = '';
-    fixed_window.element.style.transform = 'translate(-50%, -50%)';
   }
 
   return fixed_window;

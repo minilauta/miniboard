@@ -68,6 +68,33 @@
     max-width: 600px;
   }
 
+  .fixed-window {
+    left: 50% !important;
+    top: 50% !important;
+    right: auto !important;
+    bottom: auto !important;
+    transform: translate(-50%, -50%);
+    min-width: calc(100vw - 32px);
+    max-width: calc(100vw - 16px);
+    max-height: calc(100vh - 16px);
+    overflow: auto;
+  }
+
+  #quickreplywindow {
+    top: auto !important;
+    bottom: 0 !important;
+    transform: translateX(-50%);
+  }
+
+  #quickreplywindow.snap-top {
+    top: 0 !important;
+    bottom: auto !important;
+  }
+
+  .menubar-detached ~ #quickreplywindow.snap-top {
+    top: 20px !important;
+  }
+
   .ban-preview-popup {
     top: 50% !important;
     left: 50% !important;
