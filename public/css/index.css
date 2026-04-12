@@ -90,6 +90,25 @@ hr {
   z-index: 10;
 }
 
+#quickreplywindow {
+  min-width: 300px;
+}
+
+#quickreplywindow input[name="subject"] {
+  width: 85% !important;
+}
+
+#quickreplywindow input[type="submit"] {
+  width: 15%;
+}
+
+#quickreplywindow input[type="text"],
+#quickreplywindow input[type="password"],
+#quickreplywindow .form-post-message {
+  width: 100%;
+  box-sizing: border-box;
+}
+
 .dropdown-toggle-open {
   transform: rotate(90deg);
 }
