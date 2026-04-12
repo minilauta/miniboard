@@ -1118,12 +1118,15 @@ function create_quickreply_window(target) {
   if (form_post_captcha != null) {
     form_reply.appendChild(form_post_captcha.cloneNode());
   }
+  
   const form_post_format_btns = form_post.querySelectorAll('.format-btn');
   form_post_format_btns.forEach((x) => {
     const format_btn = x.cloneNode(true);
     form_reply.appendChild(format_btn);
   });
+
   form_reply.appendChild(document.createElement('br'));
+
   const form_post_message = form_post.querySelector('#form-post-message')
   const form_reply_message = form_post_message.cloneNode();
   form_reply_message.placeholder = form_reply_message.name;
@@ -1131,6 +1134,11 @@ function create_quickreply_window(target) {
     form_post_message.value = event.target.value;
   });
   form_reply.appendChild(form_reply_message);
+
+  form_reply.appendChild(document.createElement('br'));
+
+  const form_post_kaomoji = form_post.querySelector('.form-post-kaomoji');
+  form_reply.appendChild(form_post_kaomoji.cloneNode(true));
 
   const div_content = document.createElement('div');
   div_content.appendChild(form_reply);
@@ -1305,6 +1313,20 @@ function insert_format_to_message(format) {
                          + text_val.slice(text_idx_s, text_idx_e) + '[/' + format + ']'
                          + text_val.slice(text_idx_e);
   postform_message.setSelectionRange(text_idx_s + (2 + format.length), text_idx_s + (2 + format.length));
+  postform_message.focus();
+}
+
+function insert_text_to_message(text) {
+  let postform_message = select_postform_element('form-post-message');
+
+  if (postform_message == null) {
+    return;
+  }
+
+  let text_idx = postform_message.selectionEnd;
+  let text_val = postform_message.value;
+  postform_message.value = text_val.slice(0, text_idx) + text + text_val.slice(text_idx);
+  postform_message.setSelectionRange(text_idx + text.length, text_idx + text.length);
   postform_message.focus();
 }
 
@@ -1589,6 +1611,32 @@ function init_postform_features(target_id_prefix) {
         insert_format_to_message(event.currentTarget.dataset.format);
       });
     });
+  }
+
+  // init kaomoji insert buttons
+  if (post_form != null) {
+    const kaomoji_toggle = post_form.querySelector(`#${target_id_prefix}form-post-kaomoji-toggle`);
+    const kaomoji_arrow = post_form.querySelector(`#${target_id_prefix}form-post-kaomoji-toggle-arrow`);
+    const kaomoji_div = post_form.querySelector(`#${target_id_prefix}form-post-kaomoji-container`);
+    if (kaomoji_toggle != null && kaomoji_arrow != null && kaomoji_div != null) {
+      kaomoji_toggle.addEventListener('click', (event) => {
+        event.preventDefault();
+
+        kaomoji_div.style.display = kaomoji_div.style.display === 'none' ? '' : 'none';
+        if (!kaomoji_arrow.classList.contains('dropdown-toggle-open')) {
+          kaomoji_arrow.classList.add('dropdown-toggle-open');
+        } else {
+          kaomoji_arrow.classList.remove('dropdown-toggle-open');
+        }
+      });
+
+      const kaomoji_btns = post_form.getElementsByClassName('kaomoji-btn');
+      Array.from(kaomoji_btns).forEach(element => {
+        element.addEventListener('click', (event) => {
+          insert_text_to_message(event.currentTarget.dataset.kaomoji);
+        });
+      });
+    }
   }
 
   // init file pasting

@@ -36,6 +36,7 @@ return [
 	'form.supported_embeds'     => 'Obsługiwane typy osadzania to :types.',
 	'form.max_filesize'         => 'Maksymalny rozmiar pliku to :size.',
 	'form.thumb_info'           => 'Obrazy większe niż :size zostaną zmniejszone.',
+	'form.kaomoji-toggle'       => 'Kaomoji',
 
 	// Thread / Posts
 	'post.posting_mode'         => 'Tryb postowania:',

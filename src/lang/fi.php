@@ -36,6 +36,7 @@ return [
 	'form.supported_embeds'     => 'Tuetut upotetyypit ovat :types.',
 	'form.max_filesize'         => 'Tiedoston enimmäiskoko on :size.',
 	'form.thumb_info'           => 'Kuvat, jotka ovat suurempia kuin :size, pienennetään.',
+	'form.kaomoji-toggle'       => 'Kaomoji',
 
 	// Thread / Posts
 	'post.posting_mode'         => 'Viestitystila:',

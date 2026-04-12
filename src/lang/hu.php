@@ -36,6 +36,7 @@ return [
 	'form.supported_embeds'     => 'Támogatott beágyazási típusok: :types.',
 	'form.max_filesize'         => 'Maximális fájlméret: :size.',
 	'form.thumb_info'           => 'A :size-nál nagyobb képek kicsinyítve lesznek.',
+	'form.kaomoji-toggle'       => 'Kaomoji',
 
 	// Thread / Posts
 	'post.posting_mode'         => 'Hozzászólás mód:',

@@ -77,6 +77,17 @@
        --><button type="button" class="format-btn" data-format="spoiler">spoiler</button>
           <br>
           <textarea id="form-post-message" class="form-post-message" name="message" autocomplete="off" maxlength="8192"></textarea>
+          <br>
+          <div id="form-post-kaomoji" class="form-post-kaomoji">
+            <a id="form-post-kaomoji-toggle" class="kaomoji-toggle" href="#">
+              <span id="form-post-kaomoji-toggle-arrow" class="kaomoji-toggle-arrow">▶</span> <?=__('form.kaomoji-toggle')?>
+            </a>
+            <div id="form-post-kaomoji-container" class="kaomoji-container" style="display:none;">
+              <?php foreach (KAOMOJI as $kaomoji): ?>
+                <button type="button" class="kaomoji-btn" data-kaomoji="<?= htmlspecialchars($kaomoji) ?>"><?= htmlspecialchars($kaomoji) ?></button>
+              <?php endforeach; ?>
+            </div>
+          </div>
         </td>
       </tr>
       <?php

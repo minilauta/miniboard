@@ -36,6 +36,7 @@ return [
 	'form.supported_embeds'     => 'Supported embed types are :types.',
 	'form.max_filesize'         => 'Maximum file size allowed is :size.',
 	'form.thumb_info'           => 'Images greater than :size will be thumbnailed.',
+	'form.kaomoji-toggle'       => 'Kaomoji',
 
 	// Thread / Posts
 	'post.posting_mode'         => 'Posting mode:',
