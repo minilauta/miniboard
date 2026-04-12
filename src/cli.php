@@ -16,9 +16,10 @@ require __ROOT__ . '/common/config.php';
 require __ROOT__ . '/core/db_connection.php';
 require __ROOT__ . '/core/migrator.php';
 require __ROOT__ . '/core/cleaner.php';
+require __ROOT__ . '/core/analyzer.php';
 
 function print_help(): void {
-	printf("cli: available commands: [migrate, clean:posts, clean:files]\n");
+	printf("cli: available commands: [migrate, clean:posts, clean:files, analyze:files]\n");
 }
 
 if ($argc < 2) {
@@ -43,6 +44,11 @@ switch ($argv[1]) {
 		$connection = new core\DbConnection(MB_DB_HOST, MB_DB_NAME, MB_DB_USER, MB_DB_PASS);
 		$cleaner = new core\Cleaner($connection);
 		$cleaner->clean_files();
+	} break;
+	case 'analyze:files': {
+		$connection = new core\DbConnection(MB_DB_HOST, MB_DB_NAME, MB_DB_USER, MB_DB_PASS);
+		$analyzer = new core\Analyzer($connection);
+		$analyzer->analyze_files();
 	} break;
 	default: {
 		printf("cli: invalid command\n");
