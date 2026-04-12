@@ -674,9 +674,78 @@ function listener_post_reference_link_mouseleave(event) {
 }
 
 /**
+ * Event listener: click on post reference link.
+ * On mobile, toggles a post preview instead of navigating.
+ * @param {*} event
+ */
+function listener_post_reference_link_click(event) {
+  if (window.innerWidth > 767) return;
+
+  event.preventDefault();
+
+  let target = event.currentTarget;
+  let data = target.dataset;
+
+  if (data.board_id == null || data.parent_id == null || data.id == null) {
+    return;
+  }
+
+  // toggle: if preview already open on this link, close it
+  let existing = target.querySelector('.post-preview');
+  if (existing) {
+    state.mouse_over_post_ref_link = false;
+    delete_post_previews(target);
+    return;
+  }
+
+  // close any other open previews
+  delete_post_previews(document);
+
+  state.mouse_over_post_ref_link = true;
+
+  let rect = target.getBoundingClientRect();
+  const key = data.board_id + '/' + data.parent_id + '/' + data.id;
+
+  if (state.post_preview_cache[key] == null) {
+    let xhr = new XMLHttpRequest();
+    xhr.onreadystatechange = function() {
+      if (xhr.readyState !== XMLHttpRequest.DONE) {
+        return;
+      }
+
+      state.post_preview_cache[key] = xhr.responseText;
+      create_post_preview(target, data.board_id, data.parent_id, data.id, rect, false, xhr.responseText);
+    }
+    xhr.open('GET', '/' + data.board_id + '/' + data.parent_id + '/' + data.id, true);
+    xhr.send();
+  } else {
+    create_post_preview(target, data.board_id, data.parent_id, data.id, rect, false, state.post_preview_cache[key]);
+  }
+}
+
+/**
+ * Creates a mobile-only "#" hash link postfix for a reference/backreference link.
+ * Uses the same href as the reference link to scroll via hash navigation.
+ * @param {HTMLElement} ref_link - The reference or backreference <a> element.
+ */
+function create_mobile_ref_hash_link(ref_link) {
+  // skip if already has a hash link
+  if (ref_link.nextElementSibling && ref_link.nextElementSibling.classList.contains('ref-hash')) {
+    return;
+  }
+
+  let hash_link = document.createElement('a');
+  hash_link.classList.add('ref-hash', 'mobile');
+  hash_link.href = ref_link.href;
+  hash_link.textContent = '#';
+
+  ref_link.parentNode.insertBefore(hash_link, ref_link.nextSibling);
+}
+
+/**
  * Event listener: click on dropdown menu indice.
  * Executes menu action.
- * @param {*} event 
+ * @param {*} event
  */
  function listener_dropdown_menu_indice(event) {
   event.preventDefault();
@@ -1391,6 +1460,12 @@ function init_post_reference_links(target) {
   Array.from(post_ref_links).forEach(element => {
     element.addEventListener('mouseenter', listener_post_reference_link_mouseenter);
     element.addEventListener('mouseleave', listener_post_reference_link_mouseleave);
+    element.addEventListener('click', listener_post_reference_link_click);
+
+    // add mobile "#" hash link postfix for scrolling to post
+    if (element.dataset.board_id != null && element.dataset.id != null) {
+      create_mobile_ref_hash_link(element);
+    }
   });
 }
 
@@ -1455,9 +1530,11 @@ function init_post_backreference_links(newPosts) {
       backreference.textContent = '>>' + post_id;
       backreference.addEventListener('mouseenter', listener_post_reference_link_mouseenter);
       backreference.addEventListener('mouseleave', listener_post_reference_link_mouseleave);
+      backreference.addEventListener('click', listener_post_reference_link_click);
 
       target_post_info.appendChild(new Text(' '));
       target_post_info.appendChild(backreference);
+      create_mobile_ref_hash_link(backreference);
       num_added++;
     }
   }

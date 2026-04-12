@@ -109,4 +109,8 @@
     max-height: calc(100vh - 16px);
     overflow: auto;
   }
+
+  .ref-hash {
+    margin-left: 4px;
+  }
 }
