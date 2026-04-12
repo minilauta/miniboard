@@ -3,7 +3,7 @@
     text-size-adjust: 100%;
     -moz-text-size-adjust: 100%;
     -webkit-text-size-adjust: 100%;
-    -ms-text-size-adjust: 100%
+    -ms-text-size-adjust: 100%;
   }
 
   body {
@@ -38,6 +38,10 @@
     width: 100%;
   }
 
+  .reply-container, .post.reply {
+    display: inline-block;
+  }
+
   .post.reply {
     border-left: none !important;
     border-right: none !important;
@@ -50,6 +54,7 @@
   .post-message-wrapper {
     margin-left: 12px !important;
     margin-right: 12px !important;
+    overflow-x: auto;
   }
 
   .post-message {
@@ -65,12 +70,12 @@
   }
 
   .post-message pre {
-    max-width: 600px;
+    max-width: calc(100vw - 50px);
   }
 
   .fixed-window {
-    left: 50% !important;
-    top: 50% !important;
+    left: 50vw !important;
+    top: 50vh !important;
     right: auto !important;
     bottom: auto !important;
     transform: translate(-50%, -50%);
@@ -96,8 +101,8 @@
   }
 
   .ban-preview-popup {
-    top: 50% !important;
-    left: 50% !important;
+    top: 50vh !important;
+    left: 50vw !important;
     right: auto !important;
     transform: translate(-50%, -50%);
     max-width: calc(100vw - 16px);
