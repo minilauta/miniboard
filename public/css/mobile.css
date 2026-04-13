@@ -109,6 +109,7 @@
     left: 50vw !important;
     right: auto !important;
     transform: translate(-50%, -50%);
+    min-width: calc(100vw - 32px);
     max-width: calc(100vw - 16px);
     max-height: calc(100vh - 16px);
     overflow: auto;
@@ -118,6 +119,7 @@
     left: 50vw !important;
     right: auto !important;
     transform: translateX(-50%);
+    min-width: calc(100vw - 32px);
     max-width: calc(100vw - 16px);
   }
 

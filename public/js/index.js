@@ -672,6 +672,7 @@ function listener_post_reference_link_mouseenter(event) {
       }
       
       state.post_preview_cache[key] = xhr.responseText;
+      delete_post_previews(document);
       create_post_preview(target, data.board_id, data.parent_id, data.id, rect, false, xhr.responseText);
     }
     xhr.open('GET', '/' + data.board_id + '/' + data.parent_id + '/' + data.id, true);
@@ -693,6 +694,17 @@ function listener_post_reference_link_mouseleave(event) {
   state.mouse_over_post_ref_link = false;
 
   delete_post_previews(event.target);
+}
+
+/**
+ * Event listener: click anywhere on the document.
+ * On mobile, closes post previews when tapping outside a preview or reference link.
+ * @param {*} event
+ */
+function listener_post_preview_dismiss(event) {
+  if (window.innerWidth > 767) return;
+  if (event.target.closest('.post-preview') || event.target.closest('a.reference') || event.target.closest('a.backreference')) return;
+  delete_post_previews(document);
 }
 
 /**
@@ -736,12 +748,15 @@ function listener_post_reference_link_click(event) {
       }
 
       state.post_preview_cache[key] = xhr.responseText;
+      delete_post_previews(document);
       create_post_preview(target, data.board_id, data.parent_id, data.id, rect, false, xhr.responseText);
+      document.addEventListener('click', listener_post_preview_dismiss);
     }
     xhr.open('GET', '/' + data.board_id + '/' + data.parent_id + '/' + data.id, true);
     xhr.send();
   } else {
     create_post_preview(target, data.board_id, data.parent_id, data.id, rect, false, state.post_preview_cache[key]);
+    document.addEventListener('click', listener_post_preview_dismiss);
   }
 }
 
@@ -1055,6 +1070,8 @@ function delete_post_previews(target) {
   Array.from(post_previews).forEach(element => {
     element.remove();
   });
+
+  document.removeEventListener('click', listener_post_preview_dismiss);
 }
 
 /**
@@ -1271,7 +1288,7 @@ function create_quickreply_window(target) {
   // on mobile, snap to top when user is near the bottom of the page
   if (window.innerWidth <= 767) {
     const updateSnapPosition = () => {
-      const nearBottom = (window.innerHeight + window.scrollY) >= (document.body.scrollHeight - window.innerHeight * 0.25);
+      const nearBottom = (window.innerHeight + window.scrollY) >= (document.body.scrollHeight - window.innerHeight);
       div_fixed_window.element.classList.toggle('snap-top', nearBottom);
     };
     updateSnapPosition();
@@ -1416,7 +1433,7 @@ function insert_ref_to_message(id) {
       postform_message.value += '>' + text.trim() + '\n';
     }
   }
-  postform_message.focus();
+  postform_message.focus({ preventScroll: true });
 }
 
 /**
@@ -1438,7 +1455,7 @@ function insert_format_to_message(format) {
                          + text_val.slice(text_idx_s, text_idx_e) + '[/' + format + ']'
                          + text_val.slice(text_idx_e);
   postform_message.setSelectionRange(text_idx_s + (2 + format.length), text_idx_s + (2 + format.length));
-  postform_message.focus();
+  postform_message.focus({ preventScroll: true });
 }
 
 function insert_text_to_message(text) {
@@ -1452,7 +1469,7 @@ function insert_text_to_message(text) {
   let text_val = postform_message.value;
   postform_message.value = text_val.slice(0, text_idx) + text + text_val.slice(text_idx);
   postform_message.setSelectionRange(text_idx + text.length, text_idx + text.length);
-  postform_message.focus();
+  postform_message.focus({ preventScroll: true });
 }
 
 /**
