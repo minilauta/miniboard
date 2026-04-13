@@ -477,6 +477,17 @@ function listener_dropdown_menu_button_click(event) {
               id: data.id
             }
           });
+          let thread_el = document.getElementById('thread_' + data.board_id + '-' + data.id);
+          let isPinnedThread = thread_el != null && thread_el.classList.contains('thread-pinned');
+          lis.push({
+            type: 'li',
+            text: isPinnedThread ? t('menu.unpin_thread') : t('menu.pin_thread'),
+            data: {
+              cmd: 'pin',
+              board_id: data.board_id,
+              id: data.id
+            }
+          });
         } else {
           let rc = document.getElementById('rc_' + data.board_id + '-' + data.id);
           let isHidden = rc != null && rc.classList.contains('reply-hidden');
@@ -485,6 +496,17 @@ function listener_dropdown_menu_button_click(event) {
             text: isHidden ? t('menu.unhide_post') : t('menu.hide_post'),
             data: {
               cmd: 'hide',
+              board_id: data.board_id,
+              id: data.id,
+              parent_id: data.parent_id
+            }
+          });
+          let isPinnedReply = rc != null && rc.classList.contains('reply-pinned');
+          lis.push({
+            type: 'li',
+            text: isPinnedReply ? t('menu.unpin_post') : t('menu.pin_post'),
+            data: {
+              cmd: 'pin',
               board_id: data.board_id,
               id: data.id,
               parent_id: data.parent_id
@@ -809,6 +831,23 @@ function create_mobile_ref_hash_link(ref_link) {
         hide_body.append('csrf_token', csrf_input.value);
       }
       xhr.send(hide_body);
+      break;
+    case 'pin':
+      let pin_xhr = new XMLHttpRequest();
+      pin_xhr.onreadystatechange = function() {
+        if (pin_xhr.readyState !== XMLHttpRequest.DONE) {
+          return;
+        }
+        // reload page to reflect new pin order
+        location.reload();
+      };
+      pin_xhr.open('POST', '/' + data.board_id + '/' + data.id + '/pin', true);
+      let pin_csrf_input = document.querySelector('input[name="csrf_token"]');
+      let pin_body = new FormData();
+      if (pin_csrf_input) {
+        pin_body.append('csrf_token', pin_csrf_input.value);
+      }
+      pin_xhr.send(pin_body);
       break;
     case 'file_download':
       window.location.assign('/' + data.board_id + '/' + data.id + '/download');

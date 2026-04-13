@@ -227,15 +227,20 @@ function select_threads(string $session_id, ?int $user_role, ?string $board_id, 
   $sth = null;
   if ($board_id != null) {
     $sth = $dbh->prepare('
-      SELECT * FROM posts
-      WHERE board_id = :board_id AND parent_id IS NULL AND post_id ' . ($hidden === true ? '' : 'NOT') . ' IN (
-        SELECT post_id FROM hides WHERE session_id = :session_id AND board_id = posts.board_id
+      SELECT
+        p.*,
+        pin.post_id IS NOT NULL AS pinned
+      FROM posts AS p
+      LEFT JOIN pins AS pin ON pin.session_id = :session_id_pin AND pin.board_id = p.board_id AND pin.post_id = p.post_id
+      WHERE p.board_id = :board_id AND p.parent_id IS NULL AND p.post_id ' . ($hidden === true ? '' : 'NOT') . ' IN (
+        SELECT post_id FROM hides WHERE session_id = :session_id AND board_id = p.board_id
       )
-      AND (req_role IS NULL OR (:user_role_1 IS NOT NULL AND :user_role_2 <= req_role))
-      ORDER BY stickied DESC, bumped ' . ($desc === true ? 'DESC' : 'ASC') . '
+      AND (p.req_role IS NULL OR (:user_role_1 IS NOT NULL AND :user_role_2 <= p.req_role))
+      ORDER BY pinned DESC, p.stickied DESC, p.bumped ' . ($desc === true ? 'DESC' : 'ASC') . '
       LIMIT :limit OFFSET :offset
     ');
     $sth->execute([
+      'session_id_pin' => $session_id,
       'session_id' => $session_id,
       'board_id' => $board_id,
       'user_role_1' => $user_role,
@@ -245,19 +250,24 @@ function select_threads(string $session_id, ?int $user_role, ?string $board_id, 
     ]);
   } else {
     $sth = $dbh->prepare('
-      SELECT * FROM posts
-      WHERE board_id IS NOT NULL AND parent_id IS NULL AND post_id ' . ($hidden === true ? '' : 'NOT') . ' IN (
-        SELECT post_id FROM hides WHERE session_id = :session_id AND board_id = posts.board_id
+      SELECT
+        p.*,
+        pin.post_id IS NOT NULL AS pinned
+      FROM posts AS p
+      LEFT JOIN pins AS pin ON pin.session_id = :session_id_pin AND pin.board_id = p.board_id AND pin.post_id = p.post_id
+      WHERE p.board_id IS NOT NULL AND p.parent_id IS NULL AND p.post_id ' . ($hidden === true ? '' : 'NOT') . ' IN (
+        SELECT post_id FROM hides WHERE session_id = :session_id AND board_id = p.board_id
       )
       AND (
         NOT EXISTS (SELECT 1 FROM board_filters WHERE session_id = :session_id_bf1)
-        OR board_id IN (SELECT board_id FROM board_filters WHERE session_id = :session_id_bf2)
+        OR p.board_id IN (SELECT board_id FROM board_filters WHERE session_id = :session_id_bf2)
       )
-      AND (req_role IS NULL OR (:user_role_1 IS NOT NULL AND :user_role_2 <= req_role))
-      ORDER BY bumped ' . ($desc === true ? 'DESC' : 'ASC') . '
+      AND (p.req_role IS NULL OR (:user_role_1 IS NOT NULL AND :user_role_2 <= p.req_role))
+      ORDER BY pinned DESC, p.bumped ' . ($desc === true ? 'DESC' : 'ASC') . '
       LIMIT :limit OFFSET :offset
     ');
     $sth->execute([
+      'session_id_pin' => $session_id,
       'session_id' => $session_id,
       'session_id_bf1' => $session_id,
       'session_id_bf2' => $session_id,
@@ -275,16 +285,19 @@ function select_posts(string $session_id, ?int $user_role, string $board_id, int
   $sth = $dbh->prepare('
     SELECT
       p.*,
-      h.post_id IS NOT NULL AS hidden
+      h.post_id IS NOT NULL AS hidden,
+      pin.post_id IS NOT NULL AS pinned
     FROM posts AS p
     LEFT JOIN hides AS h ON h.session_id = :session_id AND h.board_id = p.board_id AND h.post_id = p.post_id
+    LEFT JOIN pins AS pin ON pin.session_id = :session_id_pin AND pin.board_id = p.board_id AND pin.post_id = p.post_id
     WHERE p.board_id = :board_id AND p.parent_id = :parent_id
     AND (p.req_role IS NULL OR (:user_role_1 IS NOT NULL AND :user_role_2 <= p.req_role))
-    ORDER BY p.stickied DESC, p.bumped ' . ($desc === true ? 'DESC' : 'ASC') . '
+    ORDER BY pinned DESC, p.stickied DESC, p.bumped ' . ($desc === true ? 'DESC' : 'ASC') . '
     LIMIT :limit OFFSET :offset
   ');
   $sth->execute([
     'session_id' => $session_id,
+    'session_id_pin' => $session_id,
     'board_id' => $board_id,
     'parent_id' => $parent_id,
     'user_role_1' => $user_role,
@@ -300,16 +313,19 @@ function select_replies_after(string $session_id, ?int $user_role, string $board
   $sth = $dbh->prepare('
     SELECT
       p.*,
-      h.post_id IS NOT NULL AS hidden
+      h.post_id IS NOT NULL AS hidden,
+      pin.post_id IS NOT NULL AS pinned
     FROM posts AS p
     LEFT JOIN hides AS h ON h.session_id = :session_id AND h.board_id = p.board_id AND h.post_id = p.post_id
+    LEFT JOIN pins AS pin ON pin.session_id = :session_id_pin AND pin.board_id = p.board_id AND pin.post_id = p.post_id
     WHERE p.board_id = :board_id AND p.parent_id = :parent_id AND p.post_id > :post_id
     AND (p.req_role IS NULL OR (:user_role_1 IS NOT NULL AND :user_role_2 <= p.req_role))
-    ORDER BY p.stickied DESC, p.bumped ' . ($desc === true ? 'DESC' : 'ASC') . '
+    ORDER BY pinned DESC, p.stickied DESC, p.bumped ' . ($desc === true ? 'DESC' : 'ASC') . '
     LIMIT :limit OFFSET :offset
   ');
   $sth->execute([
     'session_id' => $session_id,
+    'session_id_pin' => $session_id,
     'board_id' => $board_id,
     'parent_id' => $parent_id,
     'post_id' => $post_id,
@@ -325,23 +341,47 @@ function select_replies_preview(string $session_id, string $board_id, ?int $pare
   $dbh = get_db_handle();
   $sth = $dbh->prepare('
     SELECT t.* FROM (
-      SELECT
-        p.*,
-        h.post_id IS NOT NULL AS hidden
-      FROM posts AS p
-      LEFT JOIN hides AS h ON h.session_id = :session_id AND h.board_id = p.board_id AND h.post_id = p.post_id
-      WHERE p.board_id = :board_id AND p.parent_id = :parent_id
-      ORDER BY p.bumped DESC
-      LIMIT :limit OFFSET :offset
+      (
+        SELECT
+          p.*,
+          h.post_id IS NOT NULL AS hidden,
+          pin.post_id IS NOT NULL AS pinned
+        FROM posts AS p
+        LEFT JOIN hides AS h ON h.session_id = :session_id_1 AND h.board_id = p.board_id AND h.post_id = p.post_id
+        LEFT JOIN pins AS pin ON pin.session_id = :session_id_pin_1 AND pin.board_id = p.board_id AND pin.post_id = p.post_id
+        WHERE p.board_id = :board_id_1 AND p.parent_id = :parent_id_1
+        ORDER BY p.bumped DESC
+        LIMIT :limit OFFSET :offset
+      )
+
+      UNION
+
+      (
+        SELECT
+          p.*,
+          h.post_id IS NOT NULL AS hidden,
+          1 AS pinned
+        FROM posts AS p
+        LEFT JOIN hides AS h ON h.session_id = :session_id_2 AND h.board_id = p.board_id AND h.post_id = p.post_id
+        INNER JOIN pins AS pin ON pin.session_id = :session_id_pin_2 AND pin.board_id = p.board_id AND pin.post_id = p.post_id
+        WHERE p.board_id = :board_id_2 AND p.parent_id = :parent_id_2
+        LIMIT :limit_pin
+      )
     ) AS t
-    ORDER BY t.bumped ASC
+    ORDER BY t.pinned DESC, t.bumped ASC
   ');
   $sth->execute([
-    'session_id' => $session_id,
-    'board_id' => $board_id,
-    'parent_id' => $parent_id,
+    'session_id_1' => $session_id,
+    'session_id_pin_1' => $session_id,
+    'board_id_1' => $board_id,
+    'parent_id_1' => $parent_id,
     'limit' => $limit,
-    'offset' => $offset
+    'offset' => $offset,
+    'session_id_2' => $session_id,
+    'session_id_pin_2' => $session_id,
+    'board_id_2' => $board_id,
+    'parent_id_2' => $parent_id,
+    'limit_pin' => $limit,
   ]);
   return $sth->fetchAll();
 }
@@ -672,6 +712,51 @@ function delete_hide($hide): int {
     'session_id' => $hide['session_id'],
     'board_id' => $hide['board_id'],
     'post_id' => $hide['post_id']
+  ]);
+  return $sth->rowCount();
+}
+
+// PIN related functions below
+// ---------------------------
+
+function select_pin(string $session_id, string $board_id, int $post_id): array|bool {
+  $dbh = get_db_handle();
+  $sth = $dbh->prepare('SELECT * FROM pins WHERE session_id = :session_id AND board_id = :board_id AND post_id = :post_id');
+  $sth->execute([
+    'session_id' => $session_id,
+    'board_id' => $board_id,
+    'post_id' => $post_id
+  ]);
+  return $sth->fetch();
+}
+
+function insert_pin($pin): int {
+  $dbh = get_db_handle();
+  $sth = $dbh->prepare('
+    INSERT INTO pins (
+      session_id,
+      board_id,
+      post_id,
+      timestamp
+    )
+    VALUES (
+      :session_id,
+      :board_id,
+      :post_id,
+      :timestamp
+    )
+  ');
+  $sth->execute($pin);
+  return intval($dbh->lastInsertId());
+}
+
+function delete_pin($pin): int {
+  $dbh = get_db_handle();
+  $sth = $dbh->prepare('DELETE FROM pins WHERE session_id = :session_id AND board_id = :board_id AND post_id = :post_id');
+  $sth->execute([
+    'session_id' => $pin['session_id'],
+    'board_id' => $pin['board_id'],
+    'post_id' => $pin['post_id']
   ]);
   return $sth->rowCount();
 }

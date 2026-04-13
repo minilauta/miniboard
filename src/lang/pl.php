@@ -44,6 +44,7 @@ return [
 	'post.truncated'            => 'Post skrócony. Kliknij odpowiedz, aby zobaczyć.',
 	'post.replies_omitted'      => ':count odpowiedzi pominięto. Kliknij odpowiedz, aby zobaczyć.',
 	'post.hidden'               => 'Post ukryty',
+	'post.pinned'               => 'Przypięty',
 	'post.stickied'             => 'Przypięty',
 	'post.locked'               => 'Zablokowany',
 

@@ -1,4 +1,4 @@
-<div class="thread post-catalog break-words" id="thread_<?=$post['board_id']?>-<?=$post['post_id']?>">
+<div class="thread post-catalog break-words<?=!empty($post['pinned']) ? ' thread-pinned' : ''?>" id="thread_<?=$post['board_id']?>-<?=$post['post_id']?>">
   <?php
     $thumb_src = null;
     $thumb_width = null;
@@ -35,6 +35,7 @@
 
     $t_stickied = __('post.stickied');
     $t_locked = __('post.locked');
+    $t_pinned = __('post.pinned');
     $stickied = '';
     if ($post['stickied'] === 1) {
       $stickied = "<img src='/static/sticky.png' alt='{$t_stickied}' title='{$t_stickied}' width='16' height='16'>";
@@ -43,12 +44,16 @@
     if ($post['locked'] === 1) {
       $locked = "<img src='/static/lock.png' alt='{$t_locked}' title='{$t_locked}' width='16' height='16'>";
     }
+    $pinned = '';
+    if (!empty($post['pinned'])) {
+      $pinned = "<img src='/static/pin.png' alt='{$t_pinned}' title='{$t_pinned}' width='16' height='16'>";
+    }
 
     // TODO: create specific function for this
     $message_truncated = substr(trim(str_ireplace("\n", '', strip_tags($post['message_rendered']))), 0, 75);
     echo "
       <div class='post-catalog-meta'>
-        {$stickied}{$locked} R: <b>{$post['replies_n']}</b>
+        {$stickied}{$locked}{$pinned} R: <b>{$post['replies_n']}</b>
         <a href='#' class='dd-menu-btn' data-board_id='{$post['board_id']}' data-id='{$post['post_id']}' data-cmd='post-menu'>▶</a>
       </div>
       <div class='post-catalog-title'>

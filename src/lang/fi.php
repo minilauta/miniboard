@@ -44,6 +44,7 @@ return [
 	'post.truncated'            => 'Viesti lyhennetty. Klikkaa vastaa nähdäksesi.',
 	'post.replies_omitted'      => ':count vastausta piilotettu. Klikkaa vastaa nähdäksesi.',
 	'post.hidden'               => 'Viesti piilotettu',
+	'post.pinned'               => 'Kiinnitetty',
 	'post.stickied'             => 'Kiinnitetty',
 	'post.locked'               => 'Lukittu',
 

@@ -44,6 +44,7 @@ return [
 	'post.truncated'            => 'Post truncated. Click reply to view.',
 	'post.replies_omitted'      => ':count replies omitted. Click reply to view.',
 	'post.hidden'               => 'Post hidden',
+	'post.pinned'               => 'Pinned',
 	'post.stickied'             => 'Stickied',
 	'post.locked'               => 'Locked',
 

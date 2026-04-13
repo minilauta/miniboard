@@ -921,6 +921,18 @@ function funcs_board_create_hide(string $session_id, string $board_id, int $post
 }
 
 /**
+ * Creates a new pin object.
+ */
+function funcs_board_create_pin(string $session_id, string $board_id, int $post_id): array {
+  return [
+    'session_id' => $session_id,
+    'board_id'   => $board_id,
+    'post_id'    => $post_id,
+    'timestamp'  => time()
+  ];
+}
+
+/**
  * Validates report form fields based on a set of simple validation rules, throws on errors.
  */
 function funcs_board_validate_report(array $input, array $types) {

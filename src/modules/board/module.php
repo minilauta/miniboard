@@ -256,6 +256,9 @@ class BoardModule implements core\Module
 				throw new \AppException('index', 'route', 'not a valid thread', SC_NOT_FOUND);
 			}
 
+			// check if thread is pinned
+			$thread['pinned'] = select_pin($session_id, $board_cfg['id'], $thread['post_id']) != null;
+
 			// get replies
 			$thread['replies'] = select_posts($session_id, $user_role, $thread['board_id'], $thread['post_id'], false, 0, 9001);
 
@@ -487,6 +490,31 @@ class BoardModule implements core\Module
 				delete_hide($hide);
 			}
 			
+			http_response_code(200);
+		});
+
+		$router->add_route(HTTP_POST, '/:board_id/:post_id/pin', function ($vars) {
+			// validate CSRF token
+			funcs_common_validate_csrf($_POST);
+
+			// get board config
+			$board_cfg = funcs_common_get_board_cfg($vars['board_id']);
+
+			// check board access
+			if (!funcs_board_check_access($board_cfg, funcs_common_get_role())) {
+				throw new \AppException('index', 'route', 'access denied', SC_UNAUTHORIZED);
+			}
+			$session_id = session_id();
+
+			// toggle pin
+			$pin = select_pin($session_id, $board_cfg['id'], $vars['post_id']);
+			if ($pin == null) {
+				$pin = funcs_board_create_pin($session_id, $board_cfg['id'], $vars['post_id']);
+				insert_pin($pin);
+			} else {
+				delete_pin($pin);
+			}
+
 			http_response_code(200);
 		});
 

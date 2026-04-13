@@ -207,6 +207,10 @@ div.post-info {
   display: inline-block;
 }
 
+div.post-info img {
+  vertical-align: sub;
+}
+
 span.post-id a {
   text-decoration: none;
 }

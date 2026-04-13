@@ -44,6 +44,7 @@ return [
 	'post.truncated'            => 'Hozzászólás rövidítve. Kattints a válaszra a megtekintéshez.',
 	'post.replies_omitted'      => ':count válasz kihagyva. Kattints a válaszra a megtekintéshez.',
 	'post.hidden'               => 'Hozzászólás elrejtve',
+	'post.pinned'               => 'Kitűzve',
 	'post.stickied'             => 'Kitűzve',
 	'post.locked'               => 'Zárolva',
 

@@ -1,0 +1,11 @@
+# add foreign key constraint to pins table
+
+version: 20
+script: |
+  DELETE FROM pins;
+
+  ALTER TABLE pins
+    ADD CONSTRAINT `pins_fk_boardid_postid` FOREIGN KEY IF NOT EXISTS (`board_id`, `post_id`)
+    REFERENCES posts (`board_id`, `post_id`)
+    ON DELETE CASCADE
+    ON UPDATE CASCADE;

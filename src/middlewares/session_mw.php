@@ -16,6 +16,11 @@ function session_mw_update_session_id_refs(string $old_session_id, string $new_s
             's_id_new' => $new_session_id,
             's_id_old' => $old_session_id,
         ]);
+        $sth = $pdo->prepare('UPDATE pins SET session_id = :s_id_new WHERE session_id = :s_id_old');
+        $sth->execute([
+            's_id_new' => $new_session_id,
+            's_id_old' => $old_session_id,
+        ]);
         $sth = $pdo->prepare('UPDATE board_filters SET session_id = :s_id_new WHERE session_id = :s_id_old');
         $sth->execute([
             's_id_new' => $new_session_id,

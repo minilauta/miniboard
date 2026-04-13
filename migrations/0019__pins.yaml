@@ -1,0 +1,13 @@
+# per-session thread/post pinning
+
+version: 19
+script: |
+  CREATE TABLE IF NOT EXISTS pins (
+    `session_id` varchar(64) NOT NULL,
+    `board_id` varchar(8) NOT NULL,
+    `post_id` int unsigned NOT NULL,
+    `timestamp` int unsigned NOT NULL DEFAULT 0,
+    PRIMARY KEY (`session_id`, `board_id`, `post_id`),
+    KEY `timestamp` (`timestamp`)
+  ) ENGINE=InnoDB
+  CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;

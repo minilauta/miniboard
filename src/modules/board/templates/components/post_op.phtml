@@ -1,4 +1,4 @@
-<div class="thread" id="thread_<?=$post['board_id']?>-<?=$post['post_id']?>">
+<div class="thread<?=!empty($post['pinned']) ? ' thread-pinned' : ''?>" id="thread_<?=$post['board_id']?>-<?=$post['post_id']?>">
   <div class="post-container" id="pc_<?=$post['board_id']?>-<?=$post['post_id']?>">
     <div class="post op" id="<?=$post['board_id']?>-<?=$post['post_id']?>">
       <?=$this->render(__DIR__ . '/post_file.phtml', ['context' => 'normal', 'post' => $post])?>
@@ -19,11 +19,15 @@
         <?php
           $t_stickied = __('post.stickied');
           $t_locked = __('post.locked');
+          $t_pinned = __('post.pinned');
           if ($post['stickied'] === 1) {
             echo "<img src='/static/sticky.png' alt='{$t_stickied}' title='{$t_stickied}' width='16' height='16'>";
           }
           if ($post['locked'] === 1) {
             echo "<img src='/static/lock.png' alt='{$t_locked}' title='{$t_locked}' width='16' height='16'>";
+          }
+          if (!empty($post['pinned'])) {
+            echo "<img src='/static/pin.png' alt='{$t_pinned}' title='{$t_pinned}' width='16' height='16'>";
           }
         ?>
         <?php
