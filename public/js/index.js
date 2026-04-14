@@ -1783,7 +1783,7 @@ function init_postform_features(target_id_prefix) {
       const kaomoji_btns = post_form.getElementsByClassName('kaomoji-btn');
       Array.from(kaomoji_btns).forEach(element => {
         element.addEventListener('click', (event) => {
-          insert_text_to_message(event.currentTarget.dataset.kaomoji);
+          insert_text_to_message('[kao]' + event.currentTarget.dataset.kaomoji + '[/kao]');
         });
       });
     }

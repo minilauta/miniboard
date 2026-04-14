@@ -480,6 +480,11 @@ textarea:focus {
 }
 
 /* post form kaomoji */
+.kaomoji {
+  font-family: "Segoe UI Symbol", "Noto Sans", "Noto Sans JP", "Noto Sans CJK JP", "MS Gothic", sans-serif;
+  white-space: nowrap;
+}
+
 .kaomoji-toggle {
   text-align: left;
   text-decoration: none;
@@ -497,11 +502,13 @@ textarea:focus {
 }
 
 .kaomoji-btn {
+  font-family: "Segoe UI Symbol", "Noto Sans", "Noto Sans JP", "Noto Sans CJK JP", "MS Gothic", sans-serif;
   padding: 2px;
   margin: 0px;
   line-height: 1;
   font-size: x-small;
   box-sizing: border-box;
+  white-space: nowrap;
 }
 
 /* manage */
