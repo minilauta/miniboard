@@ -1,0 +1,18 @@
+# optimize database by adding missing useful indexes
+
+version: 21
+script: |
+  ALTER TABLE posts
+    ADD KEY IF NOT EXISTS `idx_posts_board_parent_bumped` (`board_id`, `parent_id`, `bumped`);
+
+  ALTER TABLE posts
+    ADD KEY IF NOT EXISTS `idx_posts_timestamp` (`timestamp`);
+
+  ALTER TABLE posts
+    ADD KEY IF NOT EXISTS `idx_posts_ip_timestamp` (`ip`, `timestamp`);
+
+  ALTER TABLE posts
+    DROP INDEX IF EXISTS `ip`;
+
+  ALTER TABLE bans
+    ADD KEY IF NOT EXISTS `idx_bans_ip_expire` (`ip`, `expire`);
