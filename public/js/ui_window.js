@@ -97,10 +97,11 @@ function open(id, title, left, top, right, bottom, draggable, content) {
   div_box_title.classList.add('box-title');
   div_box_title.textContent = title;
   const close_anchor = document.createElement('a');
-  close_anchor.innerHTML = '&#128473;';
+  close_anchor.innerHTML = '&#10005;';
   close_anchor.href = '#';
+  close_anchor.style.fontSize = '1.25em';
   close_anchor.style.position = 'relative';
-  close_anchor.style.bottom = '3px';
+  close_anchor.style.bottom = '2px';
   const close_click_handler = (event) => {
     event.preventDefault();
 
@@ -114,7 +115,7 @@ function open(id, title, left, top, right, bottom, draggable, content) {
   minimize_anchor.href = '#';
   minimize_anchor.style.paddingRight = '0.5em';
   minimize_anchor.style.position = 'relative';
-  minimize_anchor.style.top = '3px';
+  minimize_anchor.style.top = '1px';
   const minimize_click_handler = (event) => {
     event.preventDefault();
     
