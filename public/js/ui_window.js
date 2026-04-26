@@ -84,30 +84,58 @@ function open(id, title, left, top, right, bottom, draggable, content) {
   div_box.classList.add('box');
   fixed_window.element.appendChild(div_box);
 
+  // create content div here to reference it in minimize anchor
+  const div_box_content = document.createElement('div');
+  div_box_content.classList.add('box-content');
+  div_box_content.appendChild(content);
+
   const div_box_title = document.createElement('div');
   div_box_title.style.cursor = 'move';
   div_box_title.style.userSelect = 'none';
+  div_box_title.style.position = 'relative';
+  div_box_title.style.paddingRight = '3em';
   div_box_title.classList.add('box-title');
   div_box_title.textContent = title;
   const close_anchor = document.createElement('a');
-  close_anchor.text = 'x';
+  close_anchor.innerHTML = '&#128473;';
   close_anchor.href = '#';
-  const click_handler = (event) => {
+  close_anchor.style.position = 'relative';
+  close_anchor.style.bottom = '3px';
+  const close_click_handler = (event) => {
     event.preventDefault();
 
     fixed_window.element.remove();
   };
-  close_anchor.addEventListener('click', click_handler);
-  close_anchor.addEventListener('touchend', click_handler);
-  const close_anchor_wrapper = document.createElement('div');
-  close_anchor_wrapper.style.float = 'right';
-  close_anchor_wrapper.appendChild(close_anchor);
-  div_box_title.append(close_anchor_wrapper);
+  close_anchor.addEventListener('click', close_click_handler);
+  close_anchor.addEventListener('touchend', close_click_handler);
+
+  const minimize_anchor = document.createElement('a');
+  minimize_anchor.innerHTML = '&#9620;';
+  minimize_anchor.href = '#';
+  minimize_anchor.style.paddingRight = '0.5em';
+  minimize_anchor.style.position = 'relative';
+  minimize_anchor.style.top = '3px';
+  const minimize_click_handler = (event) => {
+    event.preventDefault();
+    
+    const minimize = !div_box_content.style.display;
+    if (minimize) {
+      div_box_content.style.display = 'none';
+    } else {
+      div_box_content.style.display = '';
+    }
+  };
+  minimize_anchor.addEventListener('click', minimize_click_handler);
+  minimize_anchor.addEventListener('touchend', minimize_click_handler);
+  const anchor_wrapper = document.createElement('div');
+  anchor_wrapper.style.position = 'absolute';
+  anchor_wrapper.style.right = '0.5em';
+  anchor_wrapper.style.top = '0';
+  anchor_wrapper.appendChild(minimize_anchor);
+  anchor_wrapper.appendChild(close_anchor);
+  div_box_title.append(anchor_wrapper);
   div_box.appendChild(div_box_title);
 
-  const div_box_content = document.createElement('div');
-  div_box_content.classList.add('box-content');
-  div_box_content.appendChild(content);
   div_box.appendChild(div_box_content);
 
   if (draggable === true) {
