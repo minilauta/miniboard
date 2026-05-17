@@ -621,7 +621,6 @@ class BoardModule implements core\Module
 		if ($board_cfg['flags'] == true) {
 			$user_country = funcs_common_get_client_remote_country(MB_CLOUDFLARE, $_SERVER);
 		}
-		$user_last_post_by_ip = select_last_post_by_ip($user_ip);
 		$user_is_logged_in = funcs_common_is_logged_in();
 	
 		// clean some request fields (UNICODE icons)
@@ -653,13 +652,28 @@ class BoardModule implements core\Module
 				funcs_common_validate_captcha($_POST);
 			}
 		}
+
+		// validate thread delay (skip for logged in users and replies)
+		if (!$user_is_logged_in && !isset($vars['thread_id']) && MB_DELAY_THREAD > 0) {
+			$user_last_thread_by_ip = select_last_thread_by_ip($user_ip);
+			if ($user_last_thread_by_ip != null) {
+				$delay_in_seconds = time() - $user_last_thread_by_ip['timestamp'];
+				$cooldown_in_seconds = MB_DELAY_THREAD - $delay_in_seconds;
+				if ($delay_in_seconds < MB_DELAY_THREAD) {
+					throw new \AppException('index', 'route', "please wait {$cooldown_in_seconds}s before making a new thread again", SC_FORBIDDEN);
+				}
+			}
+		}
 	
 		// validate delay (skip for logged in users)
-		if (!$user_is_logged_in && MB_DELAY > 0 && $user_last_post_by_ip != null) {
-			$delay_in_seconds = time() - $user_last_post_by_ip['timestamp'];
-			$cooldown_in_seconds = MB_DELAY - $delay_in_seconds;
-			if ($delay_in_seconds < MB_DELAY) {
-				throw new \AppException('index', 'route', "please wait a moment before posting again, you will be able to post in {$cooldown_in_seconds}s", SC_FORBIDDEN);
+		if (!$user_is_logged_in && MB_DELAY > 0) {
+			$user_last_post_by_ip = select_last_post_by_ip($user_ip);
+			if ($user_last_post_by_ip != null) {
+				$delay_in_seconds = time() - $user_last_post_by_ip['timestamp'];
+				$cooldown_in_seconds = MB_DELAY - $delay_in_seconds;
+				if ($delay_in_seconds < MB_DELAY) {
+					throw new \AppException('index', 'route', "please wait {$cooldown_in_seconds}s before posting again", SC_FORBIDDEN);
+				}
 			}
 		}
 	

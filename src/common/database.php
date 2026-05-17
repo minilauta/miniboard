@@ -222,6 +222,18 @@ function select_last_post_by_ip(string $ip): array|bool {
   return $sth->fetch();
 }
 
+function select_last_thread_by_ip(string $ip): array|bool {
+  $dbh = get_db_handle();
+  $sth = $dbh->prepare('
+    SELECT * FROM posts
+    WHERE ip = INET6_ATON(:ip) AND parent_id IS NULL
+    ORDER BY timestamp DESC
+    LIMIT 1
+  ');
+  $sth->execute(['ip' => $ip]);
+  return $sth->fetch();
+}
+
 function select_threads(string $session_id, ?int $user_role, ?string $board_id, bool $desc = true, int $offset = 0, int $limit = 10, bool $hidden = false): array|bool {
   $dbh = get_db_handle();
   $sth = null;

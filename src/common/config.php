@@ -68,6 +68,7 @@ define('MB_STYLES', [
   'miniboard',
 ]);
 define('MB_DELAY', 15);
+define('MB_DELAY_THREAD', 60);
 define('MB_TIMEFRAME', 3600);
 define('MB_TIMEFRAME_REPLY_LIMIT', 5);
 define('MB_ANONYMIZE_AFTER', 3600 * 24 * 15);
