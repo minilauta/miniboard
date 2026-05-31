@@ -672,7 +672,6 @@ function listener_post_reference_link_mouseenter(event) {
       }
       
       state.post_preview_cache[key] = xhr.responseText;
-      delete_post_previews(document);
       create_post_preview(target, data.board_id, data.parent_id, data.id, rect, false, xhr.responseText);
     }
     xhr.open('GET', '/' + data.board_id + '/' + data.parent_id + '/' + data.id, true);
@@ -748,7 +747,6 @@ function listener_post_reference_link_click(event) {
       }
 
       state.post_preview_cache[key] = xhr.responseText;
-      delete_post_previews(document);
       create_post_preview(target, data.board_id, data.parent_id, data.id, rect, false, xhr.responseText);
       document.addEventListener('click', listener_post_preview_dismiss);
     }
