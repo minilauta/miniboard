@@ -66,6 +66,9 @@ return [
 	'filter.apply'              => 'Apply',
 	'filter.reset'              => 'Reset',
 
+	// Catalog search
+	'catalog.search'			=> 'Search threads',
+
 	// Home page
 	'home.boards'               => 'Boards',
 	'home.stats'                => 'Stats',

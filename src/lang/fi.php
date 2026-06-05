@@ -66,6 +66,9 @@ return [
 	'filter.apply'              => 'Käytä',
 	'filter.reset'              => 'Nollaa',
 
+	// Catalog search
+	'catalog.search'			=> 'Hae lankoja',
+
 	// Home page
 	'home.boards'               => 'Laudat',
 	'home.stats'                => 'Tilastot',

@@ -2111,6 +2111,36 @@ function init_gallery_features() {
   anchors.forEach((x) => x.addEventListener('click', gallery_anchor_click_handler));
 }
 
+function init_search_catalog_features() {
+  const search_element = document.getElementById('search-catalog');
+  if (!search_element) {
+    return;
+  }
+
+  const threads = Array.from(document.querySelectorAll('.thread'))
+    .map((x) => ({
+      element: x,
+      subject: x?.querySelector('.post-catalog-subject')?.innerText.toLowerCase() || '',
+      message: x?.querySelector('.post-catalog-message')?.innerText.toLowerCase() || '',
+    }));
+
+  search_element.addEventListener('input', function(event) {
+    const search_str = event.target.value.trim();
+    if (search_str.length === 0) {
+      threads.forEach((x) => x.element.style.display = null);
+      return;
+    }
+
+    threads.forEach((x) => {
+      if (x.subject.includes(search_str) || x.message.includes(search_str)) {
+        x.element.style.display = null;
+      } else {
+        x.element.style.display = 'none';
+      }
+    })
+  });
+}
+
 document.addEventListener('DOMContentLoaded', function(event) {
   console.time('init_settings_features');
   init_settings_features();
@@ -2165,6 +2195,12 @@ document.addEventListener('DOMContentLoaded', function(event) {
   console.time('init_gallery_features');
   init_gallery_features();
   console.timeEnd('init_gallery_features');
+
+  if (location.pathname.includes('/catalog/')) {
+    console.time('init_search_catalog_features');
+    init_search_catalog_features();
+    console.timeEnd('init_search_catalog_features');
+  }
 });
 
 // Public API for js_override user scripts
