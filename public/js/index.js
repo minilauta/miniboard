@@ -2111,6 +2111,23 @@ function init_gallery_features() {
   anchors.forEach((x) => x.addEventListener('click', gallery_anchor_click_handler));
 }
 
+function search_catalog(threads, search_str) {
+  search_str = search_str.trim()
+
+  if (search_str.length === 0) {
+    threads.forEach((x) => x.element.style.display = null);
+    return;
+  }
+
+  threads.forEach((x) => {
+    if (x.subject.includes(search_str) || x.message.includes(search_str)) {
+      x.element.style.display = null;
+    } else {
+      x.element.style.display = 'none';
+    }
+  });
+}
+
 function init_search_catalog_features() {
   const search_element = document.getElementById('search-catalog');
   if (!search_element) {
@@ -2125,19 +2142,24 @@ function init_search_catalog_features() {
     }));
 
   search_element.addEventListener('input', function(event) {
-    const search_str = event.target.value.trim();
-    if (search_str.length === 0) {
-      threads.forEach((x) => x.element.style.display = null);
-      return;
-    }
+    search_catalog(threads, event.target.value);
+    history.replaceState(null, '', document.location.pathname + `#s=${event.target.value}`);
+  });
 
-    threads.forEach((x) => {
-      if (x.subject.includes(search_str) || x.message.includes(search_str)) {
-        x.element.style.display = null;
-      } else {
-        x.element.style.display = 'none';
-      }
-    })
+  function search_via_location_hash(hash) {
+    if (hash.startsWith('#s=')) {
+      const hash_parsed = hash.substring(3);
+      search_element.value = hash_parsed;
+      search_catalog(threads, hash_parsed);
+    }
+  }
+
+  if (location.hash.length > 1) {
+    search_via_location_hash(location.hash);
+  }
+
+  window.addEventListener('hashchange', function(event) {
+    search_via_location_hash(location.hash);
   });
 }
 
