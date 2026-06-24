@@ -129,7 +129,7 @@ function funcs_manage_rebuild(array $params): string {
     // set nameblock country code if flags enabled OR country code is T1/VPN
     $country = $post['country'];
     $country_nb = null;
-    if ($board_cfg['flags'] == true || $country == 't1' || $country == 'vpn') {
+    if ($board_cfg['flags'] == true || $country === 't1' || $country === 'vpn') {
       $country_nb = $country;
     }
 
@@ -369,7 +369,7 @@ function funcs_manage_edit_post(array $input): string {
 
   // set nameblock country code if flags enabled OR country code is T1/VPN
   $country_nb = null;
-  if ($board_cfg['flags'] == true || $post['country'] == 't1' || $post['country'] == 'vpn') {
+  if ($board_cfg['flags'] == true || $post['country'] === 't1' || $post['country'] === 'vpn') {
     $country_nb = $post['country'];
   }
 
@@ -470,7 +470,7 @@ function funcs_manage_move_thread(string $src_board_id, int $thread_id, string $
 
       // set nameblock country code if flags enabled OR country code is T1/VPN
       $country_nb = null;
-      if ($dst_cfg['flags'] == true || $post['country'] == 't1' || $post['country'] == 'vpn') {
+      if ($dst_cfg['flags'] == true || $post['country'] === 't1' || $post['country'] === 'vpn') {
         $country_nb = $post['country'];
       }
 

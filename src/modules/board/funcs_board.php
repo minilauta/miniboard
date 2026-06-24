@@ -72,7 +72,7 @@ function funcs_board_create_post(string $ip, ?string $country, array $board_cfg,
 
   // set nameblock country code if flags enabled OR country code is T1/VPN
   $country_nb = null;
-  if ($board_cfg['flags'] == true || $country == 't1' || $country == 'vpn') {
+  if ($board_cfg['flags'] == true || $country === 't1' || $country === 'vpn') {
     $country_nb = $country;
   }
 
