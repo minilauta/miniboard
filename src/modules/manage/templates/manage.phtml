@@ -94,7 +94,13 @@
 
           // process bans
           foreach ($bans as $key => &$ban) {
-            $ban['ip_rendered'] = funcs_common_get_role() === MB_ROLE_SUPERADMIN ? $ban['ip_str'] : '<s>REDACTED</s>';
+            $is_superadmin = funcs_common_get_role() === MB_ROLE_SUPERADMIN;
+            $ban['ip_rendered'] = $is_superadmin ? $ban['ip_str'] : '<s>REDACTED</s>';
+
+            // render the range end only for actual range bans (ip_end not null)
+            if ($ban['ip_end_str'] !== null && $ban['ip_end_str'] !== $ban['ip_str']) {
+              $ban['ip_rendered'] .= $is_superadmin ? ' - ' . $ban['ip_end_str'] : ' <s>(range)</s>';
+            }
           }
 
           // get ban count
@@ -212,6 +218,27 @@
 
           echo $this->render(__DIR__ .'/components/editform.phtml', [
             'post' => $post,
+          ]);
+          break;
+        case 'edit_ban':
+          // get query params
+          $query_id = funcs_common_parse_input_int($query_params, 'id', null, 0);
+
+          // get ban
+          $ban = select_ban_by_id($query_id);
+          if (!$ban) {
+            throw new \AppException('manage.phtml', 'inline', "ban #{$query_id} not found", SC_NOT_FOUND);
+          }
+
+          // render ip (redacted for non-superadmins, same as the bans list)
+          $is_superadmin = funcs_common_get_role() === MB_ROLE_SUPERADMIN;
+          $ban['ip_rendered'] = $is_superadmin ? $ban['ip_str'] : '<s>REDACTED</s>';
+          if ($ban['ip_end_str'] !== null && $ban['ip_end_str'] !== $ban['ip_str']) {
+            $ban['ip_rendered'] .= $is_superadmin ? ' - ' . $ban['ip_end_str'] : ' <s>(range)</s>';
+          }
+
+          echo $this->render(__DIR__ .'/components/editbanform.phtml', [
+            'ban' => $ban,
           ]);
           break;
         case 'reports':

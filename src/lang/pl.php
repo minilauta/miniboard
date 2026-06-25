@@ -102,6 +102,14 @@ return [
 	'manage.ban_minutes'        => 'Minuty bana',
 	'manage.ban_reason'         => 'Powód bana',
 	'manage.ban_capture'        => 'Zapisz post',
+	'manage.ban_prefix'         => 'Prefiks podsieci',
+	'manage.ban_prefix_exact'   => 'Dokładny',
+	'manage.ban_network'        => 'Ban (sieć/WHOIS)',
+	'manage.ban_ip_cidr'        => 'IP lub CIDR (np. 1.2.3.0/24)',
+	'manage.ban_comment'        => 'Komentarz (np. właściciel sieci)',
+	'manage.th.comment'         => 'komentarz',
+	'manage.create_ban'         => 'Utwórz ban',
+	'manage.delete_ban'         => 'Usuń (ban)',
 	'manage.mark_csam'          => 'Oznacz jako CSAM',
 	'manage.toggle_lock'        => 'Zablokuj/odblokuj (wątek)',
 	'manage.toggle_sticky'      => 'Przypnij/odepnij (wątek)',
@@ -118,6 +126,7 @@ return [
 	'manage.table_type'         => 'Typ TABELI',
 	'manage.board_id'           => 'ID TABLICY',
 	'manage.edit_post'			=> 'EDYTUJ',
+	'manage.edit_ban'			=> 'EDYTUJ',
 
 	// Manage table headers
 	'manage.th.id'              => 'id',
@@ -157,6 +166,19 @@ return [
 	'manage.editform.file'                 => 'Plik',
 	'manage.editform.file_options'         => 'Opcje pliku',
 	'manage.editform.delete_file'          => 'Usuń plik(i)',
+
+	// Manage editbanform
+	'manage.editbanform.id'                => 'ID bana',
+	'manage.editbanform.ip'                => 'IP / zakres',
+	'manage.editbanform.timestamp'         => 'Utworzono',
+	'manage.editbanform.expire'            => 'Obecne wygaśnięcie',
+	'manage.editbanform.duration'          => 'Czas trwania',
+	'manage.editbanform.duration_hint'     => 'Minuty od teraz do wygaśnięcia bana',
+	'manage.editbanform.reason'            => 'Powód',
+	'manage.editbanform.comment'           => 'Komentarz',
+	'manage.editbanform.edit_options'      => 'Opcje edycji',
+	'manage.editbanform.submit'            => 'Wyślij',
+	'manage.editbanform.delete_confirm'    => 'Usunąć tego bana?',
 
 	// Bans page
 	'bans.title'                => 'Bany',

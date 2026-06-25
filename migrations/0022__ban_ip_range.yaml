@@ -1,0 +1,7 @@
+# add ip_end column to bans to support IP-range / CIDR bans
+# (NULL ip_end means a single-ip ban, treated as ip_end = ip)
+
+version: 22
+script: |
+  ALTER TABLE bans
+    ADD COLUMN IF NOT EXISTS `ip_end` varbinary(16) DEFAULT NULL AFTER `ip`;

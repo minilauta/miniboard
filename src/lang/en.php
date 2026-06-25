@@ -105,6 +105,13 @@ return [
 	'manage.ban_minutes'        => 'Ban minutes',
 	'manage.ban_reason'         => 'Ban reason',
 	'manage.ban_capture'        => 'Capture post',
+	'manage.ban_prefix'         => 'Subnet prefix',
+	'manage.ban_prefix_exact'   => 'Exact',
+	'manage.ban_network'        => 'Ban (network/WHOIS)',
+	'manage.ban_ip_cidr'        => 'IP or CIDR (e.g. 1.2.3.0/24)',
+	'manage.ban_comment'        => 'Comment (e.g. network owner)',
+	'manage.create_ban'         => 'Create ban',
+	'manage.delete_ban'         => 'Delete (ban)',
 	'manage.mark_csam'          => 'Mark as CSAM',
 	'manage.toggle_lock'        => 'Lock/unlock (thread)',
 	'manage.toggle_sticky'      => 'Sticky/unsticky (thread)',
@@ -121,6 +128,7 @@ return [
 	'manage.table_type'         => 'TABLE type',
 	'manage.board_id'           => 'BOARD id',
 	'manage.edit_post'			=> 'EDIT',
+	'manage.edit_ban'			=> 'EDIT',
 
 	// Manage table headers
 	'manage.th.id'              => 'id',
@@ -134,6 +142,7 @@ return [
 	'manage.th.timestamp'       => 'timestamp',
 	'manage.th.expire'          => 'expire',
 	'manage.th.reason'          => 'reason',
+	'manage.th.comment'         => 'comment',
 	'manage.th.message'         => 'message',
 	'manage.th.username'        => 'username',
 	'manage.th.role'            => 'role',
@@ -160,6 +169,19 @@ return [
 	'manage.editform.file'                 => 'File',
 	'manage.editform.file_options'         => 'File options',
 	'manage.editform.delete_file'          => 'Delete file(s)',
+
+	// Manage editbanform
+	'manage.editbanform.id'                => 'Ban ID',
+	'manage.editbanform.ip'                => 'IP / range',
+	'manage.editbanform.timestamp'         => 'Created',
+	'manage.editbanform.expire'            => 'Current expiry',
+	'manage.editbanform.duration'          => 'Duration',
+	'manage.editbanform.duration_hint'     => 'Minutes from now until the ban expires',
+	'manage.editbanform.reason'            => 'Reason',
+	'manage.editbanform.comment'           => 'Comment',
+	'manage.editbanform.edit_options'      => 'Edit options',
+	'manage.editbanform.submit'            => 'Submit',
+	'manage.editbanform.delete_confirm'    => 'Delete this ban?',
 
 	// Bans page
 	'bans.title'                => 'Bans',

@@ -240,11 +240,114 @@ class ManageModule implements core\Module
 			$_POST['duration'] = funcs_common_parse_input_int($_POST, 'duration', 60, 5, 60 * 24 * 365);
 			$capture = isset($_POST['capture']);
 
+			// optional subnet prefix (ban the whole CIDR block of the poster)
+			$prefix = (isset($_POST['prefix']) && $_POST['prefix'] !== '') ? intval($_POST['prefix']) : null;
+
+			// optional WHOIS network ban (ban the poster's allocated network range)
+			$network = isset($_POST['network']);
+
 			// cleanup expired bans
 			funcs_common_cleanup_bans();
 
 			// execute ban
-			$status = funcs_manage_ban($_POST['select'], $_POST['duration'] * 60, $_POST['reason'], $capture);
+			$status = funcs_manage_ban($_POST['select'], $_POST['duration'] * 60, $_POST['reason'], $capture, $prefix, $network);
+
+			// set query to return properly
+			$query = funcs_common_mutate_query($_GET, 'status', $status);
+
+			header("Location: /manage/?{$query}");
+			http_response_code(303);
+		}
+
+		$router->add_route(HTTP_POST, '/manage/create_ban', function ($vars) {
+			if (!funcs_common_is_logged_in()) {
+				throw new \AppException('index', 'route', 'access denied', SC_UNAUTHORIZED);
+			}
+
+			return handle_manage_createbanform($vars);
+		});
+
+		function handle_manage_createbanform($vars) {
+			// validate CSRF token
+			funcs_common_validate_csrf($_POST);
+
+			// validate request fields
+			funcs_common_validate_fields($_POST, [
+				'ip'       => ['required' => true, 'type' => 'string'],
+				'duration' => ['required' => true, 'type' => 'string'],
+				'reason'   => ['required' => true, 'type' => 'string'],
+				'comment'  => ['required' => false, 'type' => 'string']
+			]);
+
+			// parse request fields
+			$duration = funcs_common_parse_input_int($_POST, 'duration', 60, 5, 60 * 24 * 365);
+
+			// execute create ban
+			$status = funcs_manage_create_ban($_POST['ip'], $duration * 60, $_POST['reason'], $_POST['comment'] ?? '');
+
+			// set query to return properly
+			$query = funcs_common_mutate_query($_GET, 'status', $status);
+
+			header("Location: /manage/?{$query}");
+			http_response_code(303);
+		}
+
+		$router->add_route(HTTP_POST, '/manage/edit_ban', function ($vars) {
+			if (!funcs_common_is_logged_in()) {
+				throw new \AppException('index', 'route', 'access denied', SC_UNAUTHORIZED);
+			}
+
+			return handle_manage_editbanform($vars);
+		});
+
+		function handle_manage_editbanform($vars) {
+			// validate CSRF token
+			funcs_common_validate_csrf($_POST);
+
+			// validate request fields
+			funcs_common_validate_fields($_POST, [
+				'id'       => ['required' => true, 'type' => 'string'],
+				'duration' => ['required' => true, 'type' => 'string'],
+				'reason'   => ['required' => true, 'type' => 'string'],
+				'comment'  => ['required' => false, 'type' => 'string']
+			]);
+
+			// parse request fields
+			$id = funcs_common_parse_input_int($_POST, 'id', null, 0);
+			$duration = funcs_common_parse_input_int($_POST, 'duration', 60, 5, 60 * 24 * 365);
+
+			// execute edit ban
+			$status = funcs_manage_edit_ban($id, $duration * 60, $_POST['reason'], $_POST['comment'] ?? '');
+
+			// set query to return properly
+			$query = funcs_common_mutate_query($_GET, 'status', $status);
+
+			header("Location: /manage/?{$query}");
+			http_response_code(303);
+		}
+
+		$router->add_route(HTTP_POST, '/manage/delete_ban', function ($vars) {
+			if (!funcs_common_is_logged_in()) {
+				throw new \AppException('index', 'route', 'access denied', SC_UNAUTHORIZED);
+			}
+
+			return handle_manage_deletebanform($vars);
+		});
+
+		function handle_manage_deletebanform($vars) {
+			// validate CSRF token
+			funcs_common_validate_csrf($_POST);
+
+			// validate request fields
+			funcs_common_validate_fields($_POST, [
+				'id' => ['required' => true, 'type' => 'string']
+			]);
+
+			// parse request fields
+			$id = funcs_common_parse_input_int($_POST, 'id', null, 0);
+
+			// execute delete ban
+			$status = funcs_manage_delete_ban($id);
 
 			// set query to return properly
 			$query = funcs_common_mutate_query($_GET, 'status', $status);

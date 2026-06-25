@@ -102,6 +102,14 @@ return [
 	'manage.ban_minutes'        => 'Kitiltás percei',
 	'manage.ban_reason'         => 'Kitiltás oka',
 	'manage.ban_capture'        => 'Bejegyzés mentése',
+	'manage.ban_prefix'         => 'Alhálózati előtag',
+	'manage.ban_prefix_exact'   => 'Pontos',
+	'manage.ban_network'        => 'Kitiltás (hálózat/WHOIS)',
+	'manage.ban_ip_cidr'        => 'IP vagy CIDR (pl. 1.2.3.0/24)',
+	'manage.ban_comment'        => 'Megjegyzés (pl. hálózat tulajdonosa)',
+	'manage.th.comment'         => 'megjegyzés',
+	'manage.create_ban'         => 'Kitiltás létrehozása',
+	'manage.delete_ban'         => 'Törlés (kitiltás)',
 	'manage.mark_csam'          => 'Megjelölés CSAM-ként',
 	'manage.toggle_lock'        => 'Zárolás/feloldás (téma)',
 	'manage.toggle_sticky'      => 'Kitűzés/levétel (téma)',
@@ -118,6 +126,7 @@ return [
 	'manage.table_type'         => 'TÁBLA típus',
 	'manage.board_id'           => 'FÓRUM id',
 	'manage.edit_post'			=> 'SZERKESZTÉS',
+	'manage.edit_ban'			=> 'SZERKESZTÉS',
 
 	// Manage table headers
 	'manage.th.id'              => 'id',
@@ -157,6 +166,19 @@ return [
 	'manage.editform.file'                 => 'Fájl',
 	'manage.editform.file_options'         => 'Fájl opciók',
 	'manage.editform.delete_file'          => 'Fájl(ok) törlése',
+
+	// Manage editbanform
+	'manage.editbanform.id'                => 'Kitiltás ID',
+	'manage.editbanform.ip'                => 'IP / tartomány',
+	'manage.editbanform.timestamp'         => 'Létrehozva',
+	'manage.editbanform.expire'            => 'Jelenlegi lejárat',
+	'manage.editbanform.duration'          => 'Időtartam',
+	'manage.editbanform.duration_hint'     => 'Percek mostantól a kitiltás lejáratáig',
+	'manage.editbanform.reason'            => 'Indok',
+	'manage.editbanform.comment'           => 'Megjegyzés',
+	'manage.editbanform.edit_options'      => 'Szerkesztési beállítások',
+	'manage.editbanform.submit'            => 'Küldés',
+	'manage.editbanform.delete_confirm'    => 'Törli ezt a kitiltást?',
 
 	// Bans page
 	'bans.title'                => 'Kitiltások',

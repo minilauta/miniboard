@@ -105,6 +105,14 @@ return [
 	'manage.ban_minutes'        => 'Porttikiellon minuutit',
 	'manage.ban_reason'         => 'Porttikiellon syy',
 	'manage.ban_capture'        => 'Tallenna viesti',
+	'manage.ban_prefix'         => 'Aliverkon etuliite',
+	'manage.ban_prefix_exact'   => 'Tarkka',
+	'manage.ban_network'        => 'Porttikielto (verkko/WHOIS)',
+	'manage.ban_ip_cidr'        => 'IP tai CIDR (esim. 1.2.3.0/24)',
+	'manage.ban_comment'        => 'Kommentti (esim. verkon omistaja)',
+	'manage.th.comment'         => 'kommentti',
+	'manage.create_ban'         => 'Luo porttikielto',
+	'manage.delete_ban'         => 'Poista (porttikielto)',
 	'manage.mark_csam'          => 'Merkitse CSAM:ksi',
 	'manage.toggle_lock'        => 'Lukitse/avaa (lanka)',
 	'manage.toggle_sticky'      => 'Kiinnitä/irrota (lanka)',
@@ -121,6 +129,7 @@ return [
 	'manage.table_type'         => 'TAULU-tyyppi',
 	'manage.board_id'           => 'LAUTA-id',
 	'manage.edit_post'			=> 'MUOKKAA',
+	'manage.edit_ban'			=> 'MUOKKAA',
 
 	// Manage table headers
 	'manage.th.id'              => 'id',
@@ -160,6 +169,19 @@ return [
 	'manage.editform.file'                 => 'Tiedosto',
 	'manage.editform.file_options'         => 'Tiedostoasetukset',
 	'manage.editform.delete_file'          => 'Poista tiedosto(t)',
+
+	// Manage editbanform
+	'manage.editbanform.id'                => 'Porttikiellon ID',
+	'manage.editbanform.ip'                => 'IP / alue',
+	'manage.editbanform.timestamp'         => 'Luotu',
+	'manage.editbanform.expire'            => 'Nykyinen vanheneminen',
+	'manage.editbanform.duration'          => 'Kesto',
+	'manage.editbanform.duration_hint'     => 'Minuutteja tästä hetkestä porttikiellon vanhenemiseen',
+	'manage.editbanform.reason'            => 'Syy',
+	'manage.editbanform.comment'           => 'Kommentti',
+	'manage.editbanform.edit_options'      => 'Muokkausvalinnat',
+	'manage.editbanform.submit'            => 'Lähetä',
+	'manage.editbanform.delete_confirm'    => 'Poistetaanko tämä porttikielto?',
 
 	// Bans page
 	'bans.title'                => 'Porttikiellot',

@@ -1,3 +1,31 @@
+<?php $query = http_build_query($_GET); ?>
+<form id="createbanform" class="form-manage" method="post" action="create_ban?<?=$query?>">
+  <?=funcs_common_csrf_field()?>
+  <table>
+    <tbody>
+      <tr>
+        <td class="form-label">
+          <label><?=__('manage.status')?></label>
+        </td>
+        <td>
+          <b><?=$status?></b>
+        </td>
+      </tr>
+      <tr>
+        <td class="form-label">
+          <label><?=__('manage.create_ban')?></label>
+        </td>
+        <td>
+          <input type="text" name="ip" placeholder="<?=__('manage.ban_ip_cidr')?>" autocomplete="off">
+          <input type="number" name="duration" placeholder="<?=__('manage.ban_minutes')?>">
+          <input type="text" name="reason" placeholder="<?=__('manage.ban_reason')?>" autocomplete="off">
+          <input type="text" name="comment" placeholder="<?=__('manage.ban_comment')?>" autocomplete="off">
+          <input type="submit" value="<?=__('manage.create_ban')?>">
+        </td>
+      </tr>
+    </tbody>
+  </table>
+</form>
 <form id="banform" class="form-manage" method="post">
   <table class="form-manage-table">
     <thead>
@@ -7,11 +35,14 @@
         <th><?=__('manage.th.timestamp')?></th>
         <th><?=__('manage.th.expire')?></th>
         <th><?=__('manage.th.reason')?></th>
+        <th><?=__('manage.th.comment')?></th>
         <th><?=__('manage.th.imported')?></th>
+        <th><?=__('manage.th.actions')?></th>
       </tr>
     </thead>
     <tbody>
       <?php
+        $editLabel = __('manage.edit_ban');
         foreach ($bans as $ban) {
           $timestamp = date(MB_DATEFORMAT, $ban['timestamp']);
           $expire = date(MB_DATEFORMAT, $ban['expire']);
@@ -23,7 +54,9 @@
               <td>{$timestamp}</td>
               <td>{$expire}</td>
               <td>{$ban['reason']}</td>
+              <td>{$ban['comment']}</td>
               <td>{$ban['imported']}</td>
+              <td><a href='?route=edit_ban&id={$ban['id']}'>{$editLabel}</a></td>
             </tr>
           ";
         }

@@ -17,6 +17,14 @@
         <td>
 	        <input type="submit" value="<?=__('manage.delete_post')?>" formaction="delete?<?=http_build_query($_GET)?>">
 	        <input type="submit" value="<?=__('manage.ban_ip')?>" formaction="ban?<?=http_build_query($_GET)?>">
+          <select name="prefix" title="<?=__('manage.ban_prefix')?>">
+            <option value=""><?=__('manage.ban_prefix_exact')?></option>
+            <option value="24">IPv4 /24</option>
+            <option value="16">IPv4 /16</option>
+            <option value="64">IPv6 /64</option>
+            <option value="48">IPv6 /48</option>
+          </select>
+          <input type="submit" name="network" value="<?=__('manage.ban_network')?>" formaction="ban?<?=http_build_query($_GET)?>">
           <input type="number" name="duration" placeholder="<?=__('manage.ban_minutes')?>">
           <input type="text" name="reason" placeholder="<?=__('manage.ban_reason')?>" autocomplete="off">
           <label><input type="checkbox" name="capture"> <?=__('manage.ban_capture')?></label>

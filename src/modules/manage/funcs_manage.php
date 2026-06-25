@@ -221,7 +221,7 @@ function funcs_manage_delete(array $select): string {
   return $status;
 }
 
-function funcs_manage_ban(array $select, int $duration, string $reason, bool $capture = false): string {
+function funcs_manage_ban(array $select, int $duration, string $reason, bool $capture = false, ?int $prefix = null, bool $network = false): string {
   // escape reason HTML entities
   $reason = funcs_common_clean_field($reason);
 
@@ -233,52 +233,151 @@ function funcs_manage_ban(array $select, int $duration, string $reason, bool $ca
     $selected_board_id = $selected_parsed[0];
     $selected_post_id = intval($selected_parsed[1]);
 
-    // build post preview for the ban record if capture is enabled
-    $post_preview = null;
-    if ($capture) {
+    // load the post if we need it for a preview capture or range resolution
+    $post = null;
+    if ($capture || $prefix !== null || $network) {
       $post = select_post($selected_board_id, $selected_post_id);
-      if ($post) {
-        // copy thumbnail to /src/bans/ so it survives post deletion
-        $thumb = null;
-        if (!empty($post['thumb'])) {
-          if (str_contains($post['thumb'], '/static/')) {
-            $thumb = $post['thumb'];
-          } else {
-            $bans_dir = __PUBLIC__ . '/src/bans';
-            if (!is_dir($bans_dir)) {
-              mkdir($bans_dir, 0755, true);
-            }
-            $ext = pathinfo($post['thumb'], PATHINFO_EXTENSION);
-            $ban_thumb_name = "ban_{$post['board_id']}_{$post['post_id']}_" . time() . ".{$ext}";
-            $ban_thumb_path = $bans_dir . '/' . $ban_thumb_name;
-            $src_path = __PUBLIC__ . $post['thumb'];
-            if (is_file($src_path) && copy($src_path, $ban_thumb_path)) {
-              $thumb = '/src/bans/' . $ban_thumb_name;
-            }
+    }
+
+    // resolve an explicit ip range for subnet / network (WHOIS) bans
+    $ip_start = null;
+    $ip_end = null;
+    $comment = null;
+    if (($prefix !== null || $network) && $post && !empty($post['ip'])) {
+      $poster_ip = @inet_ntop($post['ip']);
+      if ($poster_ip !== false) {
+        $range = $network
+          ? funcs_common_rdap_lookup($poster_ip)
+          : funcs_common_parse_ip_range("{$poster_ip}/{$prefix}");
+        if ($range !== null) {
+          $ip_start = $range['start'];
+          $ip_end = $range['end'];
+
+          // store the WHOIS network name / owner as the ban comment
+          if (!empty($range['name'])) {
+            $comment = funcs_common_clean_field($range['name']);
           }
         }
-
-        $post_preview = [
-          'board_id'         => $post['board_id'],
-          'post_id'          => $post['post_id'],
-          'subject'          => $post['subject'],
-          'nameblock'        => $post['nameblock'],
-          'message_rendered' => $post['message_rendered'],
-          'thumb'            => $thumb,
-          'thumb_width'      => $thumb !== null ? $post['thumb_width'] : null,
-          'thumb_height'     => $thumb !== null ? $post['thumb_height'] : null,
-        ];
       }
     }
 
+    // build post preview for the ban record if capture is enabled
+    $post_preview = null;
+    if ($capture && $post) {
+      // copy thumbnail to /src/bans/ so it survives post deletion
+      $thumb = null;
+      if (!empty($post['thumb'])) {
+        if (str_contains($post['thumb'], '/static/')) {
+          $thumb = $post['thumb'];
+        } else {
+          $bans_dir = __PUBLIC__ . '/src/bans';
+          if (!is_dir($bans_dir)) {
+            mkdir($bans_dir, 0755, true);
+          }
+          $ext = pathinfo($post['thumb'], PATHINFO_EXTENSION);
+          $ban_thumb_name = "ban_{$post['board_id']}_{$post['post_id']}_" . time() . ".{$ext}";
+          $ban_thumb_path = $bans_dir . '/' . $ban_thumb_name;
+          $src_path = __PUBLIC__ . $post['thumb'];
+          if (is_file($src_path) && copy($src_path, $ban_thumb_path)) {
+            $thumb = '/src/bans/' . $ban_thumb_name;
+          }
+        }
+      }
+
+      $post_preview = [
+        'board_id'         => $post['board_id'],
+        'post_id'          => $post['post_id'],
+        'subject'          => $post['subject'],
+        'nameblock'        => $post['nameblock'],
+        'message_rendered' => $post['message_rendered'],
+        'thumb'            => $thumb,
+        'thumb_width'      => $thumb !== null ? $post['thumb_width'] : null,
+        'thumb_height'     => $thumb !== null ? $post['thumb_height'] : null,
+      ];
+    }
+
     // ban poster by board id and post id
-    $processed += ban_poster_by_post_id($selected_board_id, $selected_post_id, $duration, $reason, $post_preview);
+    $processed += ban_poster_by_post_id($selected_board_id, $selected_post_id, $duration, $reason, $post_preview, $ip_start, $ip_end, $comment);
 
     // delete remaining reports
     delete_reports_by_post_id($selected_board_id, $selected_post_id);
   }
 
   $status = "Banned {$processed} posters";
+  funcs_manage_log($status);
+  return $status;
+}
+
+function funcs_manage_create_ban(string $ip_or_cidr, int $duration, string $reason, string $comment = ''): string {
+  // parse the supplied single ip or CIDR range
+  $range = funcs_common_parse_ip_range($ip_or_cidr);
+  if ($range === null) {
+    return "Invalid IP address or CIDR range: {$ip_or_cidr}";
+  }
+
+  // escape reason / comment HTML entities
+  $reason = funcs_common_clean_field($reason);
+  $comment = $comment !== '' ? funcs_common_clean_field($comment) : null;
+
+  // insert the ban
+  insert_ban($range['start'], $range['end'], $duration, $reason, $comment);
+
+  $is_range = $range['start'] !== $range['end'];
+
+  // log without the banned ip address
+  funcs_manage_log($is_range ? 'Created range ban' : 'Created ban');
+
+  // only reveal the actual ip / range to superadmins, redacted otherwise
+  if (funcs_common_get_role() !== MB_ROLE_SUPERADMIN) {
+    return $is_range ? 'Banned range' : 'Banned IP';
+  }
+
+  return $is_range
+    ? "Banned range {$range['start']} - {$range['end']}"
+    : "Banned {$range['start']}";
+}
+
+function funcs_manage_edit_ban(int $id, int $duration, string $reason, string $comment = ''): string {
+  // get the existing ban
+  $ban = select_ban_by_id($id);
+  if (!$ban) {
+    return "Ban #{$id} not found";
+  }
+
+  // escape reason / comment HTML entities
+  $reason = funcs_common_clean_field($reason);
+  $comment = $comment !== '' ? funcs_common_clean_field($comment) : null;
+
+  // update the ban (expire is recomputed from now + duration)
+  update_ban([
+    'id' => $id,
+    'timestamp' => time(),
+    'expire' => time() + $duration,
+    'reason' => $reason,
+    'comment' => $comment
+  ]);
+
+  $status = "Updated ban #{$id}";
+  funcs_manage_log($status);
+  return $status;
+}
+
+function funcs_manage_delete_ban(int $id): string {
+  // get the existing ban
+  $ban = select_ban_by_id($id);
+  if (!$ban) {
+    return "Ban #{$id} not found";
+  }
+
+  // delete the captured thumbnail (if any) before removing the ban
+  if (!empty($ban['post_thumb'])) {
+    funcs_common_delete_ban_thumbs([$ban['post_thumb']]);
+  }
+
+  // delete the ban
+  delete_ban($id);
+
+  $status = "Deleted ban #{$id}";
   funcs_manage_log($status);
   return $status;
 }

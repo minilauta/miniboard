@@ -1,0 +1,7 @@
+# add comment column to bans to store extra info about a ban
+# (e.g. the banned network name / owner from a WHOIS / RDAP lookup)
+
+version: 23
+script: |
+  ALTER TABLE bans
+    ADD COLUMN IF NOT EXISTS `comment` varchar(256) DEFAULT NULL AFTER `reason`;

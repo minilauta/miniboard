@@ -427,6 +427,159 @@ function funcs_common_url_get_contents($url): ?string {
 }
 
 /**
+ * Parses a single IP address or a CIDR range into its inclusive start/end
+ * addresses. Supports both IPv4 and IPv6. Returns null on invalid input.
+ */
+function funcs_common_parse_ip_range(string $input): ?array {
+  $input = trim($input);
+  if ($input === '') {
+    return null;
+  }
+
+  // plain single ip address
+  if (!str_contains($input, '/')) {
+    $bin = @inet_pton($input);
+    if ($bin === false) {
+      return null;
+    }
+
+    return ['start' => inet_ntop($bin), 'end' => inet_ntop($bin)];
+  }
+
+  // cidr range
+  [$addr, $prefix_str] = explode('/', $input, 2);
+  $bin = @inet_pton(trim($addr));
+  if ($bin === false || !ctype_digit(trim($prefix_str))) {
+    return null;
+  }
+
+  $bytes = strlen($bin);
+  $prefix = intval(trim($prefix_str));
+  if ($prefix < 0 || $prefix > $bytes * 8) {
+    return null;
+  }
+
+  $start = '';
+  $end = '';
+  for ($i = 0; $i < $bytes; $i++) {
+    $byte = ord($bin[$i]);
+    $remaining = $prefix - $i * 8;
+    if ($remaining >= 8) {
+      $mask = 0xFF;
+    } else if ($remaining <= 0) {
+      $mask = 0x00;
+    } else {
+      $mask = (0xFF << (8 - $remaining)) & 0xFF;
+    }
+
+    $start .= chr($byte & $mask);
+    $end .= chr($byte | (~$mask & 0xFF));
+  }
+
+  return ['start' => inet_ntop($start), 'end' => inet_ntop($end)];
+}
+
+/**
+ * Looks up the allocated network range for an IP address via RDAP.
+ * Returns null on failure.
+ */
+function funcs_common_rdap_lookup(string $ip): ?array {
+  if (@inet_pton($ip) === false) {
+    return null;
+  }
+
+  $body = null;
+  if (function_exists('curl_init')) {
+    $curl = curl_init();
+    curl_setopt($curl, CURLOPT_URL, 'https://rdap.org/ip/' . urlencode($ip));
+    curl_setopt($curl, CURLOPT_FOLLOWLOCATION, true);
+    curl_setopt($curl, CURLOPT_MAXREDIRS, 5);
+    curl_setopt($curl, CURLOPT_TIMEOUT, 10);
+    curl_setopt($curl, CURLOPT_RETURNTRANSFER, true);
+    curl_setopt($curl, CURLOPT_HTTPHEADER, ['Accept: application/rdap+json']);
+    $body = curl_exec($curl);
+    $code = curl_getinfo($curl, CURLINFO_HTTP_CODE);
+    curl_close($curl);
+    if (intval($code) !== 200) {
+      $body = null;
+    }
+  } else {
+    $body = @file_get_contents('https://rdap.org/ip/' . urlencode($ip));
+  }
+
+  if (!is_string($body) || $body === '') {
+    return null;
+  }
+
+  $data = json_decode($body, true);
+  if (!is_array($data)) {
+    return null;
+  }
+
+  // derive a human readable network name / owner for the ban comment
+  $name = funcs_common_rdap_name($data);
+
+  // preferred: explicit start/end addresses
+  if (!empty($data['startAddress']) && !empty($data['endAddress'])) {
+    $start = @inet_pton($data['startAddress']);
+    $end = @inet_pton($data['endAddress']);
+    if ($start !== false && $end !== false) {
+      return ['start' => inet_ntop($start), 'end' => inet_ntop($end), 'name' => $name];
+    }
+  }
+
+  // fallback: cidr0_cidrs notation
+  if (!empty($data['cidr0_cidrs']) && is_array($data['cidr0_cidrs'])) {
+    $cidr = $data['cidr0_cidrs'][0];
+    $addr = $cidr['v4prefix'] ?? $cidr['v6prefix'] ?? null;
+    $len = $cidr['length'] ?? null;
+    if ($addr !== null && $len !== null) {
+      $range = funcs_common_parse_ip_range("{$addr}/{$len}");
+      if ($range !== null) {
+        $range['name'] = $name;
+      }
+      return $range;
+    }
+  }
+
+  return null;
+}
+
+/**
+ * Builds a readable "network name - owner" label from an RDAP IP network
+ * response. Returns an empty string when nothing usable is found.
+ */
+function funcs_common_rdap_name(array $data): string {
+  $parts = [];
+
+  // the network handle / name (e.g. "GOOGLE", "AS15169")
+  if (!empty($data['name'])) {
+    $parts[] = $data['name'];
+  }
+
+  // the registrant / owner organisation name from the entities' vCard
+  if (!empty($data['entities']) && is_array($data['entities'])) {
+    foreach ($data['entities'] as $entity) {
+      $vcard = $entity['vcardArray'][1] ?? null;
+      if (!is_array($vcard)) {
+        continue;
+      }
+
+      foreach ($vcard as $field) {
+        if (is_array($field) && ($field[0] ?? '') === 'fn' && !empty($field[3])) {
+          $parts[] = $field[3];
+          break 2;
+        }
+      }
+    }
+  }
+
+  // de-duplicate (name and owner are often identical) and join
+  $parts = array_values(array_unique(array_filter(array_map('trim', $parts))));
+  return implode(' - ', array_slice($parts, 0, 2));
+}
+
+/**
  * Mutates target query array and returns it as string.
  */
 function funcs_common_mutate_query(array $query, string $key, string $val): string {
