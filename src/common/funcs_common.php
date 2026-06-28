@@ -491,11 +491,12 @@ function funcs_common_rdap_lookup(string $ip): ?array {
   $body = null;
   if (function_exists('curl_init')) {
     $curl = curl_init();
-    curl_setopt($curl, CURLOPT_URL, 'https://rdap.org/ip/' . urlencode($ip));
+    curl_setopt($curl, CURLOPT_URL, 'https://rdap.org/ip/' . $ip);
     curl_setopt($curl, CURLOPT_FOLLOWLOCATION, true);
     curl_setopt($curl, CURLOPT_MAXREDIRS, 5);
     curl_setopt($curl, CURLOPT_TIMEOUT, 10);
     curl_setopt($curl, CURLOPT_RETURNTRANSFER, true);
+    curl_setopt($curl, CURLOPT_USERAGENT, 'curl/8.0');
     curl_setopt($curl, CURLOPT_HTTPHEADER, ['Accept: application/rdap+json']);
     $body = curl_exec($curl);
     $code = curl_getinfo($curl, CURLINFO_HTTP_CODE);
