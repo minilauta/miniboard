@@ -550,7 +550,12 @@ function funcs_manage_move_thread(string $src_board_id, int $thread_id, string $
   $dbh = get_db_handle();
   $dbh->beginTransaction();
   try {
-    // delete originals
+    // save original hides
+    $hides = select_hides_by_parent_id($src_board_id, $thread_id);
+
+    // delete originals, ditch reports
+    delete_hides_by_parent_id($src_board_id, $thread_id);
+    delete_reports_by_parent_id($src_board_id, $thread_id);
     delete_thread_posts($src_board_id, $thread_id);
 
     // insert on destination board
@@ -624,6 +629,23 @@ function funcs_manage_move_thread(string $src_board_id, int $thread_id, string $
         throw new \AppException('funcs_manage', 'move_thread', "failed to insert post {$new_post_id} on /{$dst_board_id}/", SC_INTERNAL_ERROR);
       }
     }
+
+    // re-map hides
+    $hides_moved = [];
+    foreach ($hides as $hide) {
+      $new_post_id = $id_map[intval($hide['post_id'])] ?? null;
+      if ($new_post_id === null) {
+        continue;
+      }
+
+      $hides_moved[] = [
+        'session_id' => $hide['session_id'],
+        'board_id'   => $dst_board_id,
+        'post_id'    => $new_post_id,
+        'timestamp'  => intval($hide['timestamp'])
+      ];
+    }
+    insert_hides($hides_moved);
 
     // preserve sticky/locked state on the new OP
     if ($posts[0]['stickied'] === 1) {
