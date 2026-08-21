@@ -45,12 +45,12 @@
   </div>
 
   <div id="boardmenu-mobile" class="boardmenu mobile">
-    <a id="boardmenu-mobile-home" href="/"><img class="icon" src="/icons/home.svg"></a>
-    <a id="boardmenu-mobile-hidden" href="/<?=$board_id?>/hidden/"><img class="icon" src="/icons/eye-slash.svg"></a>
-    <a id="boardmenu-mobile-catalog" href="/<?=$board_id?>/catalog/"><img class="icon" src="/icons/squares-2x2.svg"></a>
-    <a id="boardmenu-mobile-gallery" href="#"><img class="icon" src="/icons/photo.svg"></a>
-    <a id="boardmenu-mobile-settings" href="#"><img class="icon" src="/icons/wrench.svg"></a>
-    <a id="boardmenu-mobile-manage" href="/manage/"><img class="icon" src="/icons/users.svg"></a>
+    <a id="boardmenu-mobile-home" href="/"><span class="icon" style="--icon:url(/icons/home.svg)"></span></a>
+    <a id="boardmenu-mobile-hidden" href="/<?=$board_id?>/hidden/"><span class="icon" style="--icon:url(/icons/eye-slash.svg)"></span></a>
+    <a id="boardmenu-mobile-catalog" href="/<?=$board_id?>/catalog/"><span class="icon" style="--icon:url(/icons/squares-2x2.svg)"></span></a>
+    <a id="boardmenu-mobile-gallery" href="#"><span class="icon" style="--icon:url(/icons/photo.svg)"></span></a>
+    <a id="boardmenu-mobile-settings" href="#"><span class="icon" style="--icon:url(/icons/wrench.svg)"></span></a>
+    <a id="boardmenu-mobile-manage" href="/manage/"><span class="icon" style="--icon:url(/icons/users.svg)"></span></a>
   </div>
   <?=$this->render(__ROOT__ . '/common/templates/stylepicker.phtml')?>
 </div>
