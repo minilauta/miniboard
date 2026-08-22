@@ -22,9 +22,8 @@ const en = {
 
   // Settings window
   'settings.title': 'Settings',
-  'settings.set_language': 'Set language',
-  'settings.apply': 'Apply',
-  'settings.set_style': 'Set style',
+  'settings.ui_language': 'UI: Language',
+  'settings.ui_style': 'UI: Style',
   'settings.menubar_detach': 'Menubar: detach',
   'settings.thread_quickreply': 'Thread: quick reply',
   'settings.thread_auto_update': 'Thread: auto update',

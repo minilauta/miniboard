@@ -1097,101 +1097,105 @@ function create_post_highlight(id) {
  * @param {*} variables 
  */
 function create_settings_window(variables) {
-  const create_settings_variable = (target_div, variable) => {
-    const div_var = document.createElement('div');
-    div_var.style.clear = 'both';
-    div_var.style.overflow = 'auto';
-    const div_var_name = document.createElement('div');
-    div_var_name.style.float = 'left';
-    div_var_name.style.marginRight = '16px';
-    div_var_name.textContent = variable.name;
-    div_var.appendChild(div_var_name);
-    const div_var_value = document.createElement('div');
-    div_var_value.style.float = 'right';
+  const create_settings_variable = (target, variable) => {
+    const var_tr = document.createElement('tr');
 
-    let div_var_value_data = null;
+    const var_td_label = document.createElement('td');
+    var_td_label.className = 'form-label';
+    const var_label = document.createElement('label');
+    var_label.textContent = variable.name;
+    var_td_label.appendChild(var_label);
+    var_tr.appendChild(var_td_label);
+
+    const var_td_input = document.createElement('td');
+    let var_input = null;
     switch (variable.type) {
       case 'bool':
-        div_var_value_data = document.createElement('input');
-        div_var_value_data.type = 'checkbox';
-        div_var_value_data.checked = storage.get_lsvar_bool(variable.key, variable.def);
+        var_input = document.createElement('input');
+        var_input.type = 'checkbox';
+        var_input.checked = storage.get_lsvar_bool(variable.key, variable.def);
         break;
       case 'string':
-        div_var_value_data = document.createElement('input');
-        div_var_value_data.type = 'text';
-        div_var_value_data.value = storage.get_lsvar(variable.key, variable.def);
+        var_input = document.createElement('input');
+        var_input.type = 'text';
+        var_input.value = storage.get_lsvar(variable.key, variable.def);
         break;
       case 'float':
-        div_var_value_data = document.createElement('input');
-        div_var_value_data.type = 'number';
-        div_var_value_data.min = variable.min;
-        div_var_value_data.max = variable.max;
-        div_var_value_data.step = variable.step;
-        div_var_value_data.value = storage.get_lsvar(variable.key, variable.def);
+        var_input = document.createElement('input');
+        var_input.type = 'number';
+        var_input.min = variable.min;
+        var_input.max = variable.max;
+        var_input.step = variable.step;
+        var_input.value = storage.get_lsvar(variable.key, variable.def);
         break;
       case 'string_multiline':
-        div_var_value_data = document.createElement('textarea');
-        div_var_value_data.rows = '4';
-        div_var_value_data.value = storage.get_lsvar(variable.key, variable.def);
+        var_input = document.createElement('textarea');
+        var_input.rows = '4';
+        var_input.value = storage.get_lsvar(variable.key, variable.def);
         break;
       case 'float_slider':
-        div_var_value_data = document.createElement('input');
-        div_var_value_data.type = 'range';
-        div_var_value_data.min = variable.min;
-        div_var_value_data.max = variable.max;
-        div_var_value_data.step = variable.step;
-        div_var_value_data.value = storage.get_lsvar(variable.key, variable.def);
+        var_input = document.createElement('input');
+        var_input.type = 'range';
+        var_input.min = variable.min;
+        var_input.max = variable.max;
+        var_input.step = variable.step;
+        var_input.value = storage.get_lsvar(variable.key, variable.def);
         break;
       case 'select':
-        div_var_value_data = document.createElement('select');
+        var_input = document.createElement('select');
         variable.options.forEach(opt => {
           const option = document.createElement('option');
           option.value = opt.value;
           option.textContent = opt.label;
           if (opt.value === variable.def) option.selected = true;
-          div_var_value_data.appendChild(option);
+          var_input.appendChild(option);
         });
         if (variable.callback != null) {
-          variable.callback(div_var_value_data);
+          variable.callback(var_input);
         }
         break;
       case 'element':
-        div_var_value_data = document.getElementById(variable.id)?.cloneNode(true);
-        if (div_var_value_data != null) {
-          div_var_value_data.id += '_settings_var';
-          div_var_value_data.style = '';
+        var_input = document.getElementById(variable.id)?.cloneNode(true);
+        if (var_input != null) {
+          var_input.id += '_settings_var';
+          var_input.style = '';
           if (variable.callback != null) {
-            variable.callback(div_var_value_data);
+            variable.callback(var_input);
           }
         }
         break;
     }
     if (variable.key != null) {
-      div_var_value_data.addEventListener('change', (event) => {
+      var_input.addEventListener('change', (event) => {
         const val_data = variable.type === 'bool' ? event.target.checked : event.target.value;
         storage.set_lsvar(variable.key, val_data);
+        if (variable.type === 'bool') {
+          apply_settings();
+        }
       });
+      if (variable.type !== 'bool') {
+        var_input.addEventListener('focusout', (event) => {
+            apply_settings();
+        });
+      }
     }
-    div_var_value.appendChild(div_var_value_data);
+    var_td_input.appendChild(var_input);
+    var_tr.appendChild(var_td_input);
 
-    div_var.appendChild(div_var_value);
-
-    target_div.appendChild(div_var);
+    target.appendChild(var_tr);
   };
 
-  const div_content = document.createElement('div');
+  const settings_form = document.createElement('form');
+  settings_form.id = 'form-settings';
+  settings_form.className = 'form';
+  const settings_table = document.createElement('table');
+  const settings_tbody = document.createElement('tbody');
+  settings_table.appendChild(settings_tbody);
+  settings_form.appendChild(settings_table);
 
   variables.forEach((variable) => {
-    create_settings_variable(div_content, variable);
+    create_settings_variable(settings_tbody, variable);
   });
-
-  const btn_apply = document.createElement('button');
-  btn_apply.type = 'button';
-  btn_apply.innerHTML = t('settings.apply');
-  btn_apply.addEventListener('click', (event) => {
-    apply_settings();
-  });
-  div_content.appendChild(btn_apply);
   
   const div_fixed_window = ui_window.open(
     'settingswindow',
@@ -1201,7 +1205,7 @@ function create_settings_window(variables) {
     null,
     null,
     true,
-    div_content
+    settings_form
   );
   document.body.appendChild(div_fixed_window.element);
   const client_rect = div_fixed_window.element.getBoundingClientRect();
@@ -1369,8 +1373,6 @@ function apply_settings() {
     menubar_element.classList.remove('menubar-detached');
     document.body.style.padding = '8px 8px 8px 8px';
   }
-
-  console.log(state);
 }
 
 /**
@@ -1999,7 +2001,7 @@ function init_settings_features() {
       existing_element.remove();
     } else {
       create_settings_window([
-        { name: t('settings.set_language'), type: 'select', options: available_languages, def: current_lang, callback: (target) => {
+        { name: t('settings.ui_language'), type: 'select', options: available_languages, def: current_lang, callback: (target) => {
           let lang_expires = new Date();
           lang_expires.setFullYear(lang_expires.getFullYear() + 10);
           target.addEventListener('change', (event) => {
@@ -2007,7 +2009,7 @@ function init_settings_features() {
             location.reload();
           });
         } },
-        { name: t('settings.set_style'), id: 'stylepicker', type: 'element', callback: (target) => {
+        { name: t('settings.ui_style'), id: 'stylepicker', type: 'element', callback: (target) => {
           let style_expires = new Date();
           style_expires.setFullYear(style_expires.getFullYear() + 10);
           target.addEventListener('change', (event) => {
