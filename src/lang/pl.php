@@ -66,6 +66,9 @@ return [
 	'filter.apply'              => 'Zastosuj',
 	'filter.reset'              => 'Resetuj',
 
+	// Catalog search
+	'catalog.search'			=> 'Szukaj wątków',
+
 	// Home page
 	'home.boards'               => 'Tablice',
 	'home.stats'                => 'Statystyki',
@@ -107,7 +110,6 @@ return [
 	'manage.ban_network'        => 'Ban (sieć/WHOIS)',
 	'manage.ban_ip_cidr'        => 'IP lub CIDR (np. 1.2.3.0/24)',
 	'manage.ban_comment'        => 'Komentarz (np. właściciel sieci)',
-	'manage.th.comment'         => 'komentarz',
 	'manage.create_ban'         => 'Utwórz ban',
 	'manage.delete_ban'         => 'Usuń (ban)',
 	'manage.mark_csam'          => 'Oznacz jako CSAM',
@@ -140,12 +142,12 @@ return [
 	'manage.th.timestamp'       => 'znacznik czasu',
 	'manage.th.expire'          => 'wygasa',
 	'manage.th.reason'          => 'powód',
+	'manage.th.comment'         => 'komentarz',
 	'manage.th.message'         => 'wiadomość',
 	'manage.th.username'        => 'nazwa użytkownika',
 	'manage.th.role'            => 'rola',
 	'manage.th.lastactive'      => 'ostatnio aktywny',
 	'manage.th.type'            => 'typ',
-	'manage.th.reason'          => 'powód',
 	'manage.th.post_ip'         => 'ip_postu',
 	'manage.th.post_deleted'    => 'post_usunięty',
 	'manage.th.post_imported'   => 'post_zaimportowany',

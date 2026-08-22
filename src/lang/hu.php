@@ -66,6 +66,9 @@ return [
 	'filter.apply'              => 'Alkalmaz',
 	'filter.reset'              => 'Visszaállítás',
 
+	// Catalog search
+	'catalog.search'			=> 'Témák keresése',
+
 	// Home page
 	'home.boards'               => 'Fórumok',
 	'home.stats'                => 'Statisztikák',
@@ -107,7 +110,6 @@ return [
 	'manage.ban_network'        => 'Kitiltás (hálózat/WHOIS)',
 	'manage.ban_ip_cidr'        => 'IP vagy CIDR (pl. 1.2.3.0/24)',
 	'manage.ban_comment'        => 'Megjegyzés (pl. hálózat tulajdonosa)',
-	'manage.th.comment'         => 'megjegyzés',
 	'manage.create_ban'         => 'Kitiltás létrehozása',
 	'manage.delete_ban'         => 'Törlés (kitiltás)',
 	'manage.mark_csam'          => 'Megjelölés CSAM-ként',
@@ -139,13 +141,13 @@ return [
 	'manage.th.preview'         => 'előnézet',
 	'manage.th.timestamp'       => 'időbélyeg',
 	'manage.th.expire'          => 'lejárat',
-	'manage.th.reason'          => 'ok',
+	'manage.th.reason'          => 'indok',
+	'manage.th.comment'         => 'megjegyzés',
 	'manage.th.message'         => 'üzenet',
 	'manage.th.username'        => 'felhasználónév',
 	'manage.th.role'            => 'szerep',
 	'manage.th.lastactive'      => 'utoljára aktív',
 	'manage.th.type'            => 'típus',
-	'manage.th.reason'          => 'indok',
 	'manage.th.post_ip'         => 'hozzászólás_ip',
 	'manage.th.post_deleted'    => 'hozzászólás_törölt',
 	'manage.th.post_imported'   => 'hozzászólás_importált',

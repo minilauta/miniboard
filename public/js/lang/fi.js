@@ -22,9 +22,8 @@ const fi = {
 
   // Settings window
   'settings.title': 'Asetukset',
-  'settings.set_language': 'Aseta kieli',
-  'settings.apply': 'Käytä',
-  'settings.set_style': 'Aseta tyyli',
+  'settings.ui_language': 'UI: Kieli',
+  'settings.ui_style': 'UI: Tyyli',
   'settings.menubar_detach': 'Valikkopalkki: irrota',
   'settings.thread_quickreply': 'Lanka: pikavastaus',
   'settings.thread_auto_update': 'Lanka: automaattipäivitys',

@@ -148,7 +148,6 @@ return [
 	'manage.th.role'            => 'role',
 	'manage.th.lastactive'      => 'lastactive',
 	'manage.th.type'            => 'type',
-	'manage.th.reason'          => 'reason',
 	'manage.th.post_ip'         => 'post_ip',
 	'manage.th.post_deleted'    => 'post_deleted',
 	'manage.th.post_imported'   => 'post_imported',

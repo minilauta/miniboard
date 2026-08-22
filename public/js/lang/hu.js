@@ -22,9 +22,8 @@ const hu = {
 
   // Settings window
   'settings.title': 'Beállítások',
-  'settings.set_language': 'Nyelv beállítása',
-  'settings.apply': 'Alkalmaz',
-  'settings.set_style': 'Stílus beállítása',
+  'settings.ui_language': 'UI: Nyelv',
+  'settings.ui_style': 'UI: Stílus',
   'settings.menubar_detach': 'Menüsor: leválasztás',
   'settings.thread_quickreply': 'Téma: gyors válasz',
   'settings.thread_auto_update': 'Téma: automatikus frissítés',

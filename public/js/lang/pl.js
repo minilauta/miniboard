@@ -22,9 +22,8 @@ const pl = {
 
   // Settings window
   'settings.title': 'Ustawienia',
-  'settings.set_language': 'Ustaw język',
-  'settings.apply': 'Zastosuj',
-  'settings.set_style': 'Ustaw styl',
+  'settings.ui_language': 'UI: Język',
+  'settings.ui_style': 'UI: Styl',
   'settings.menubar_detach': 'Pasek menu: odłącz',
   'settings.thread_quickreply': 'Wątek: szybka odpowiedź',
   'settings.thread_auto_update': 'Wątek: automatyczna aktualizacja',
