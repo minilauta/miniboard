@@ -346,11 +346,10 @@ function listener_post_thumb_link_click(event) {
           event.stopPropagation();
         });
         embed.innerHTML = decodeURIComponent(finfo.file_data);
-        embed.style.minWidth = '50vw';
-        embed.style.maxWidth = '85vw';
-        embed.style.height = '50vh';
-        embed.firstElementChild.width = '100%';
-        embed.firstElementChild.height = '100%';
+        embed.style.maxWidth = '100%';
+        embed.style.maxHeight = '85vh';
+        embed.style.height = 'auto';
+        embed.firstElementChild.style = 'width:854px;height:480px;max-width:100%;';
 
         current.appendChild(embed);
       } break;
