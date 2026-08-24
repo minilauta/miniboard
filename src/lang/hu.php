@@ -57,7 +57,7 @@ return [
 	'report.notice'             => 'FIGYELEM',
 	'report.info'               => ':post_id számú hozzászólás jelentése a /:board_id/ fórumon.',
 	'report.warning'            => 'Hamis vagy rosszul besorolt jelentések küldése kitiltást von maga után.',
-	'report.type'               => 'Típus',
+	'report.type'               => 'Megszegett szabály',
 	'report.reason'             => 'Indok',
 	'report.reason_placeholder' => 'Opcionális: magyarázd el miért jelented ezt a hozzászólást.',
 

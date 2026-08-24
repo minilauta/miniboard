@@ -57,7 +57,7 @@ return [
 	'report.notice'             => 'UWAGA',
 	'report.info'               => 'Zgłaszanie postu :post_id na tablicy /:board_id/.',
 	'report.warning'            => 'Wysyłanie fałszywych lub błędnie sklasyfikowanych zgłoszeń skutkuje banem.',
-	'report.type'               => 'Typ',
+	'report.type'               => 'Złamana zasada',
 	'report.reason'             => 'Powód',
 	'report.reason_placeholder' => 'Opcjonalnie: wyjaśnij dlaczego zgłaszasz ten post.',
 
