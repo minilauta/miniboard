@@ -30,7 +30,7 @@ return [
 	'form.file_options'         => 'Tiedostoasetukset',
 	'form.spoiler'              => 'Spoileri',
 	'form.no_filename'          => 'Ei tiedostonimeä',
-	'form.embed'                => 'Upota',
+	'form.embed'                => 'Upote',
 	'form.password'             => 'Salasana',
 	'form.supported_files'      => 'Tuetut tiedostotyypit ovat :types.',
 	'form.supported_embeds'     => 'Tuetut upotetyypit ovat :types.',
@@ -39,7 +39,7 @@ return [
 	'form.kaomoji-toggle'       => 'Kaomoji',
 
 	// Thread / Posts
-	'post.posting_mode'         => 'Viestitystila:',
+	'post.posting_mode'         => 'Postaustila:',
 	'post.reply'                => 'Vastaa',
 	'post.truncated'            => 'Viesti lyhennetty. Klikkaa vastaa nähdäksesi.',
 	'post.replies_omitted'      => ':count vastausta piilotettu. Klikkaa vastaa nähdäksesi.',
@@ -55,15 +55,15 @@ return [
 
 	// Report form
 	'report.notice'             => 'HUOMAUTUS',
-	'report.info'               => 'Ilmiannetaan viesti :post_id laudalla /:board_id/.',
+	'report.info'               => 'Ilmiannetaan postaus :post_id laudalla /:board_id/.',
 	'report.warning'            => 'Väärien tai väärin luokiteltujen ilmiantojen lähettäminen johtaa porttikieltoon.',
-	'report.type'               => 'Tyyppi',
+	'report.type'               => 'Rikottu sääntö',
 	'report.reason'             => 'Syy',
-	'report.reason_placeholder' => 'Valinnainen: selitä miksi ilmiannoit tämän viestin.',
+	'report.reason_placeholder' => 'Valinnainen: selitä miksi ilmiannoit tämän postauksen.',
 
 	// Board filter
 	'filter.toggle'             => 'Suodata lautoja',
-	'filter.apply'              => 'Käytä',
+	'filter.apply'              => 'Aseta',
 	'filter.reset'              => 'Nollaa',
 
 	// Catalog search
@@ -100,11 +100,11 @@ return [
 	'manage.return'             => 'Takaisin',
 	'manage.status'             => 'TILA',
 	'manage.selected'           => 'Valittu',
-	'manage.delete_post'        => 'Poista (viesti)',
+	'manage.delete_post'        => 'Poista (postaus)',
 	'manage.ban_ip'             => 'Porttikielto (ip)',
 	'manage.ban_minutes'        => 'Porttikiellon minuutit',
 	'manage.ban_reason'         => 'Porttikiellon syy',
-	'manage.ban_capture'        => 'Tallenna viesti',
+	'manage.ban_capture'        => 'Tallenna postaus',
 	'manage.ban_prefix'         => 'Aliverkon etuliite',
 	'manage.ban_prefix_exact'   => 'Tarkka',
 	'manage.ban_network'        => 'Porttikielto (verkko/WHOIS)',
@@ -162,7 +162,7 @@ return [
 	'manage.editform.submit'               => 'Lähetä',
 	'manage.editform.message'              => 'Viesti',
 	'manage.editform.notice'               => 'Huomautus',
-	'manage.editform.notice_placeholder'   => 'Valinnainen muokkauksen syy',
+	'manage.editform.notice_placeholder'   => 'Valinnainen: muokkauksen syy',
 	'manage.editform.edit_options'         => 'Muokkausasetukset',
 	'manage.editform.silent'               => 'Hiljainen',
 	'manage.editform.file'                 => 'Tiedosto',

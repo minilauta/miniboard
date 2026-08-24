@@ -2,15 +2,15 @@ const fi = {
   '_name': 'Suomi',
 
   // Context menu items
-  'menu.report_post': 'Ilmianna viesti',
+  'menu.report_post': 'Ilmianna postaus',
   'menu.hide_thread': 'Piilota lanka',
   'menu.unhide_thread': 'Näytä lanka',
-  'menu.hide_post': 'Piilota viesti',
-  'menu.unhide_post': 'Näytä viesti',
+  'menu.hide_post': 'Piilota postaus',
+  'menu.unhide_post': 'Näytä postaus',
   'menu.pin_thread': 'Kiinnitä lanka',
   'menu.unpin_thread': 'Irrota lanka',
-  'menu.pin_post': 'Kiinnitä viesti',
-  'menu.unpin_post': 'Irrota viesti',
+  'menu.pin_post': 'Kiinnitä postaus',
+  'menu.unpin_post': 'Irrota postaus',
   'menu.download_original': 'Lataa alkuperäinen',
   'menu.tegaki_open': 'Tegaki: Avaa kuva',
   'menu.audio_album': 'Audio: Kansikuva',
@@ -44,7 +44,7 @@ const fi = {
   'window.gallery': 'Galleria (lctrl + rulla koon muuttamiseen)',
 
   // Post UI
-  'post.hidden': 'Viesti piilotettu',
+  'post.hidden': 'Postaus piilotettu',
 
   // MOD player
   'mod.title': 'NIMI',

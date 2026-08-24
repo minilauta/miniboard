@@ -57,7 +57,7 @@ return [
 	'report.notice'             => 'NOTICE',
 	'report.info'               => 'Reporting post :post_id on board /:board_id/.',
 	'report.warning'            => 'Submitting false or misclassified reports will result in a ban.',
-	'report.type'               => 'Type',
+	'report.type'               => 'Broken rule',
 	'report.reason'             => 'Reason',
 	'report.reason_placeholder' => 'Optional: explain why you are reporting this post.',
 
