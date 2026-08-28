@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <?=$this->render(__ROOT__ . '/common/templates/meta.phtml')?>
+    <?=$this->render(__ROOT__ . '/common/templates/styles.phtml')?>
+    <?=$this->render(__ROOT__ . '/common/templates/scripts.phtml', ['hcaptcha' => false])?>
+    <?php
+      $title = "/{$board['id']}/ - ";
+      if (isset($thread['subject']) && strlen($thread['subject']) > 0) {
+        $title .= $thread['subject'];
+      } else {
+        // TODO: create specific function for this
+        $title .= substr(trim(str_ireplace("\n", '', strip_tags($thread['message_rendered']))), 0, 75);
+      }
+      echo "<title>{$title}</title>";
+    ?>
+    <style>
+      .archive-info { text-align: center; }
+    </style>
+  </head>
+  <body>
+    <?=$this->render(__DIR__ . '/menubar.phtml')?>
+    <?=$this->render(__ROOT__ . '/common/templates/header.phtml', ['h_title' => "/{$board['id']}/ - {$board['name']}", 'h_subtitle' => $board['desc']])?>
+    <hr>
+    <div class="archive-info">
+      <?=__('archive.info', ['url' => "<a href=\"/{$board['id']}/{$thread['post_id']}/\">/{$board['id']}/{$thread['post_id']}/</a>", 'date' => date(MB_DATEFORMAT, time())])?>
+    </div>
+    <hr>
+    <?=$this->render(__ROOT__ . '/modules/board/templates/components/post_op.phtml', ['context' => 'thread', 'board' => $board, 'post' => $thread])?>
+    <hr>
+    <div class="container-centered">
+    <?=$this->render(__ROOT__ . '/common/templates/footer.phtml')?>
+    </div>
+  </body>
+</html>

@@ -3,7 +3,7 @@ FROM php:8.2-fpm-alpine3.23 AS build
 RUN apk add --no-cache ffmpeg exiftool
 ADD https://github.com/mlocati/docker-php-extension-installer/releases/latest/download/install-php-extensions /usr/local/bin/
 RUN chmod +x /usr/local/bin/install-php-extensions && \
-    install-php-extensions @composer imagick pdo pdo_mysql yaml redis
+    install-php-extensions @composer imagick pdo pdo_mysql yaml redis zip
 COPY docker/miniboard/php/conf.d/miniboard.ini $PHP_INI_DIR/conf.d/
 
 WORKDIR /app

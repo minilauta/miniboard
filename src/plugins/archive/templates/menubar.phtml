@@ -1,0 +1,12 @@
+<div id="menubar" class="menubar">
+  <div id="boardmenu-desktop" class="boardmenu desktop">
+    [<a id="boardmenu-desktop-gallery" href="#"><?=__('nav.gallery')?></a>]
+    [<a id="boardmenu-desktop-settings" href="#"><?=__('nav.settings')?></a>]
+  </div>
+
+  <div id="boardmenu-mobile" class="boardmenu mobile">
+    <a id="boardmenu-mobile-gallery" href="#"><span class="icon" style="--icon:url(/icons/photo.svg)"></span></a>
+    <a id="boardmenu-mobile-settings" href="#"><span class="icon" style="--icon:url(/icons/wrench.svg)"></span></a>
+  </div>
+  <?=$this->render(__ROOT__ . '/common/templates/stylepicker.phtml')?>
+</div>
