@@ -2,8 +2,9 @@
 <html>
   <head>
     <?=$this->render(__ROOT__ . '/common/templates/meta.phtml')?>
-    <?=$this->render(__ROOT__ . '/common/templates/styles.phtml')?>
-    <?=$this->render(__ROOT__ . '/common/templates/scripts.phtml', ['hcaptcha' => false])?>
+    <?=$this->render(__DIR__ . '/styles.phtml')?>
+    <script>window.MB_ARCHIVE = true</script>
+    <?=$this->render(__DIR__ . '/scripts.phtml')?>
     <?php
       $title = "/{$board['id']}/ - ";
       if (isset($thread['subject']) && strlen($thread['subject']) > 0) {
@@ -26,7 +27,7 @@
       <?=__('archive.info', ['url' => "<a href=\"/{$board['id']}/{$thread['post_id']}/\">/{$board['id']}/{$thread['post_id']}/</a>", 'date' => date(MB_DATEFORMAT, time())])?>
     </div>
     <hr>
-    <?=$this->render(__ROOT__ . '/modules/board/templates/components/post_op.phtml', ['context' => 'thread', 'board' => $board, 'post' => $thread])?>
+    <?=$this->render(__DIR__ . '/post_op.phtml', ['context' => 'thread', 'board' => $board, 'post' => $thread])?>
     <hr>
     <div class="container-centered">
     <?=$this->render(__ROOT__ . '/common/templates/footer.phtml')?>

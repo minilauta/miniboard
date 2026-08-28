@@ -1,0 +1,21 @@
+<div class="post-container reply-container" id="rc_<?=$post['board_id']?>-<?=$post['post_id']?>">
+  <div class="post-dash">>></div>
+  <div class="post reply" id="<?=$post['board_id']?>-<?=$post['post_id']?>" data-parent_id="<?=$post['parent_id']?>">
+    <div class="post-info">
+      <label>
+        <span class="post-number"><?=$reply_number?></span>
+        <span class="post-subject"><?=$post['subject']?></span>
+        <?=$post['nameblock']?>
+      </label>
+      <span class="post-id">
+        <a href="#<?=$post['board_id']?>-<?=$post['post_id']?>">No.</a><span><?=$post['post_id']?></span>
+      </span>
+    </div>
+    <?=$this->render(__DIR__ . '/post_file.phtml', ['post' => $post])?>
+    <div class="post-message-wrapper">
+      <div class="post-message">
+        <?=$post['message_rendered']?>
+      </div>
+    </div>
+  </div>
+</div>
