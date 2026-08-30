@@ -98,6 +98,7 @@ class ArchivePlugin implements core\Plugin
 			'board' => $board_cfg,
 			'thread' => $thread
 		]);
+		$json = funcs_archive_json($board_cfg, $thread);
 
 		// create the ZIP-archive
 		$zip_path = tempnam(sys_get_temp_dir(), 'mbzip');
@@ -115,6 +116,7 @@ class ArchivePlugin implements core\Plugin
 			funcs_archive_add_src($zip, [$thread]);
 			funcs_archive_add_src($zip, $thread['replies']);
 			$zip->addFromString('thread.html', $html);
+			$zip->addFromString('thread.json', $json);
 
 			if ($zip->close() !== true) {
 				throw new \AppException('archive', 'route', 'failed to create archive', SC_INTERNAL_ERROR);

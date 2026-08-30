@@ -3,8 +3,6 @@
   <head>
     <?=$this->render(__ROOT__ . '/common/templates/meta.phtml')?>
     <?=$this->render(__DIR__ . '/styles.phtml')?>
-    <script>window.MB_ARCHIVE = true</script>
-    <?=$this->render(__DIR__ . '/scripts.phtml')?>
     <?php
       $title = "/{$board['id']}/ - ";
       if (isset($thread['subject']) && strlen($thread['subject']) > 0) {
@@ -20,7 +18,6 @@
     </style>
   </head>
   <body>
-    <?=$this->render(__DIR__ . '/menubar.phtml')?>
     <?=$this->render(__ROOT__ . '/common/templates/header.phtml', ['h_title' => "/{$board['id']}/ - {$board['name']}", 'h_subtitle' => $board['desc']])?>
     <hr>
     <div class="archive-info">

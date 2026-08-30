@@ -89,9 +89,6 @@ function open(id, title, left, top, right, bottom, draggable, content) {
   div_box_content.classList.add('box-content');
   div_box_content.appendChild(content);
 
-  // plugins/archive: requires relative path
-  const icon_base_path = !window.MB_ARCHIVE ? '' : '.';
-
   const div_box_title = document.createElement('div');
   div_box_title.style.cursor = 'move';
   div_box_title.style.userSelect = 'none';
@@ -100,7 +97,7 @@ function open(id, title, left, top, right, bottom, draggable, content) {
   div_box_title.classList.add('box-title');
   div_box_title.textContent = title;
   const close_anchor = document.createElement('a');
-  close_anchor.innerHTML = `<span class="icon" style="width:24px;height:24px;padding:0px;--icon:url(${icon_base_path}/icons/x-mark.svg)"></span>`;
+  close_anchor.innerHTML = '<span class="icon" style="width:24px;height:24px;padding:0px;--icon:url(/icons/x-mark.svg)"></span>';
   close_anchor.href = '#';
   close_anchor.style.position = 'relative';
   close_anchor.style.bottom = '2px';
@@ -113,7 +110,7 @@ function open(id, title, left, top, right, bottom, draggable, content) {
   close_anchor.addEventListener('touchend', close_click_handler);
 
   const minimize_anchor = document.createElement('a');
-  minimize_anchor.innerHTML = `<span class="icon" style="width:24px;height:24px;padding:0px;--icon:url(${icon_base_path}/icons/minimize.svg)"></span>`;
+  minimize_anchor.innerHTML = '<span class="icon" style="width:24px;height:24px;padding:0px;--icon:url(/icons/minimize.svg)"></span>';
   minimize_anchor.href = '#';
   minimize_anchor.style.position = 'relative';
   minimize_anchor.style.bottom = '2px';
