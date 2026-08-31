@@ -11,7 +11,7 @@ class DbConnection
 	public function __construct(string $host, string $dbname, string $username, string $password)
 	{
 		$this->pdo = new \PDO("mysql:host=$host;dbname=$dbname", $username, $password, [
-			\PDO::ATTR_PERSISTENT => true,
+			\PDO::ATTR_PERSISTENT => 'miniboard_dbconnection',
 			\PDO::ATTR_EMULATE_PREPARES => false,
 			\PDO::ATTR_ERRMODE => \PDO::ERRMODE_EXCEPTION,
 			\PDO::ATTR_AUTOCOMMIT => 0, // NOTE: does not apply to implicit commits of DDL statements!

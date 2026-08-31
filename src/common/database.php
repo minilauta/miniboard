@@ -14,9 +14,11 @@ function get_db_handle(): PDO {
   $mb_db_host = MB_DB_HOST;
   $mb_db_name = MB_DB_NAME;
 
-  $dbh = new PDO("mysql:host={$mb_db_host};dbname={$mb_db_name}", MB_DB_USER, MB_DB_PASS, [
-    PDO::ATTR_PERSISTENT => true,
-    PDO::ATTR_EMULATE_PREPARES => false
+  $dbh = new \PDO("mysql:host={$mb_db_host};dbname={$mb_db_name}", MB_DB_USER, MB_DB_PASS, [
+    \PDO::ATTR_PERSISTENT => 'miniboard_database',
+    \PDO::ATTR_EMULATE_PREPARES => false,
+    \PDO::ATTR_ERRMODE => \PDO::ERRMODE_EXCEPTION,
+    \PDO::ATTR_AUTOCOMMIT => 1,
   ]);
 
   return $dbh;
