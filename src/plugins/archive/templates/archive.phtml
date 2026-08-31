@@ -21,7 +21,7 @@
     <?=$this->render(__ROOT__ . '/common/templates/header.phtml', ['h_title' => "/{$board['id']}/ - {$board['name']}", 'h_subtitle' => $board['desc']])?>
     <hr>
     <div class="archive-info">
-      <?=__('archive.info', ['url' => "<a href=\"/{$board['id']}/{$thread['post_id']}/\">/{$board['id']}/{$thread['post_id']}/</a>", 'date' => date(MB_DATEFORMAT, time())])?>
+      <?=__('archive.info', ['url' => "<a href=\"{$base_url}/{$board['id']}/{$thread['post_id']}/\">{$base_url}/{$board['id']}/{$thread['post_id']}/</a>", 'date' => date(MB_DATEFORMAT, time())])?>
     </div>
     <hr>
     <?=$this->render(__DIR__ . '/post_op.phtml', ['context' => 'thread', 'board' => $board, 'post' => $thread])?>

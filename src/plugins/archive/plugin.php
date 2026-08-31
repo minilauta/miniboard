@@ -92,13 +92,17 @@ class ArchivePlugin implements core\Plugin
 		if ($total_size > MB_PLUGIN_ARCHIVE_MAX_BYTES) {
 			throw new \AppException('archive', 'route', 'thread archive too large', SC_BAD_REQUEST);
 		}
+		
+		// resolve base URL
+		$base_url = funcs_common_resolve_base_url();
 
 		// render the thread
 		$html = $this->renderer->render(__DIR__ . '/templates/archive.phtml', [
 			'board' => $board_cfg,
-			'thread' => $thread
+			'thread' => $thread,
+			'base_url' => $base_url,
 		]);
-		$json = funcs_archive_json($board_cfg, $thread);
+		$json = funcs_archive_json($board_cfg, $thread, $base_url);
 
 		// create the ZIP-archive
 		$zip_path = tempnam(sys_get_temp_dir(), 'mbzip');

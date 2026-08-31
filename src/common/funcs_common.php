@@ -195,7 +195,7 @@ function funcs_common_clean_unicode(string $field): string {
  */
 function funcs_common_human_filesize(int $bytes, int $dec = 2): string {
   $size = array('B', 'KB', 'MB', 'GB', 'TB', 'PB', 'EB', 'ZB', 'YB');
-  $factor = floor((strlen($bytes) - 1) / 3);
+  $factor = intval(floor((strlen($bytes) - 1) / 3));
 
   return sprintf("%.{$dec}f", $bytes / pow(1024, $factor)) . @$size[$factor];
 }
@@ -209,6 +209,14 @@ function funcs_common_get_client_remote_address(bool $cloudflare, array $server)
   }
 
   return $server['REMOTE_ADDR'];
+}
+
+/**
+ * Resolve base URL.
+ */
+function funcs_common_resolve_base_url(): string {
+  $scheme = (!empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off') ? 'https' : 'http';
+  return $scheme . '://' . $_SERVER['HTTP_HOST'];
 }
 
 /**

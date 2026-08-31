@@ -108,12 +108,13 @@ function funcs_archive_json_post(array $post): array {
   return $json;
 }
 
-function funcs_archive_json(array $board, array $thread): string {
+function funcs_archive_json(array $board, array $thread, string $base_url): string {
   $json_thread = funcs_archive_json_post($thread);
   $json_thread['replies'] = array_map('funcs_archive_json_post', $thread['replies'] ?? []);
 
   $json = json_encode([
     'site' => MB_SITE_NAME,
+    'url' => $base_url . '/' . $board['id'] . '/' . $thread['post_id'],
     'archived' => time(),
     'board' => [
       'id' => $board['id'],

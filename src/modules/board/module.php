@@ -173,9 +173,8 @@ class BoardModule implements core\Module
 			// get recent threads (no session-based filtering for RSS)
 			$threads = select_threads('', null, $board_query_id, true, 0, 20, false);
 
-			// build base URL
-			$scheme = (!empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off') ? 'https' : 'http';
-			$base_url = $scheme . '://' . $_SERVER['HTTP_HOST'];
+			// resolve base URL
+			$base_url = funcs_common_resolve_base_url();
 			$board_url = $base_url . '/' . $board_cfg['id'] . '/';
 
 			// build RSS 2.0 XML
