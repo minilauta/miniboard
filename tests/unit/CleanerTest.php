@@ -247,4 +247,25 @@ class CleanerTest extends TestCase
 		$this->expectOutputRegex('/files on disk: 1/');
 		$cleaner->clean_files();
 	}
+
+	public function test_clean_files_archives_excluded_from_scan(): void
+	{
+		mkdir($this->srcDir . '/archives', 0755);
+		mkdir($this->srcDir . '/archives/test1234', 0755);
+		file_put_contents($this->srcDir . '/archives/test1234/archive.zip', 'data');
+		file_put_contents($this->srcDir . '/file.jpg', 'data');
+
+		$pdo = $this->createMockPdo(['/src/file.jpg']);
+		$connection = $this->createMockConnection();
+		$connection->method('get_pdo')->willReturn($pdo);
+
+		$cleaner = new Cleaner($connection);
+
+		// archives should not be counted as a disk file
+		$this->expectOutputRegex('/files on disk: 1/');
+		$cleaner->clean_files();
+
+		// and the archive must survive the sweep
+		$this->assertFileExists($this->srcDir . '/archives/test1234/archive.zip');
+	}
 }

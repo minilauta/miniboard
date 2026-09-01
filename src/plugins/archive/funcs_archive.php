@@ -2,6 +2,89 @@
 
 require_once __ROOT__ . '/common/config.php';
 require_once __ROOT__ . '/common/exception.php';
+require_once __ROOT__ . '/common/database.php';
+
+const FUNCS_ARCHIVE_DIR = '/src/archives';
+
+/**
+ * Returns the absolute path of the archives directory, creating it if needed.
+ */
+function funcs_archive_dir(): string {
+  $dir = __PUBLIC__ . FUNCS_ARCHIVE_DIR;
+  if (!is_dir($dir) && !mkdir($dir, 0755, true) && !is_dir($dir)) {
+    throw new AppException('archive', 'dir', 'failed to create the archives directory', SC_INTERNAL_ERROR);
+  }
+
+  return $dir;
+}
+
+/**
+ * Deletes a single archive directory and its contents.
+ */
+function funcs_archive_delete(string $token): bool {
+  $dir = funcs_archive_dir() . '/' . $token;
+  if (!is_dir($dir)) {
+    return false;
+  }
+
+  foreach (array_slice(scandir($dir, SCANDIR_SORT_ASCENDING), 2) as $file) {
+    @unlink($dir . '/' . $file);
+  }
+
+  return @rmdir($dir);
+}
+
+/**
+ * Deletes expired archives.
+ */
+function funcs_archive_cleanup(): void {
+  $dir = funcs_archive_dir();
+  $deleted_ids = [];
+
+  // delete archives past their time to live
+  $expired_before = time() - MB_PLUGIN_ARCHIVE_TTL;
+  foreach (select_expired_archives($expired_before) as $archive) {
+    funcs_archive_delete($archive['token']);
+    $deleted_ids[] = intval($archive['id']);
+  }
+
+  // delete oldest archives until the directory fits its byte budget
+  $archives = array_filter(select_archives_oldest_first(), function (array $archive) use ($deleted_ids) {
+    return !in_array(intval($archive['id']), $deleted_ids, true);
+  });
+  $total_size = 0;
+  foreach ($archives as $archive) {
+    $total_size += intval($archive['size']);
+  }
+  foreach ($archives as $archive) {
+    if ($total_size <= MB_PLUGIN_ARCHIVE_MAX_TOTAL_BYTES) {
+      break;
+    }
+
+    funcs_archive_delete($archive['token']);
+    $deleted_ids[] = intval($archive['id']);
+    $total_size -= intval($archive['size']);
+  }
+
+  delete_archives($deleted_ids);
+
+  // cleanup archives that were interrupted mid-build
+  $tokens = select_archive_tokens();
+  foreach (array_slice(scandir($dir, SCANDIR_SORT_ASCENDING), 2) as $entry) {
+    $path = $dir . '/' . $entry;
+    if (@filemtime($path) >= $expired_before) {
+      continue;
+    }
+
+    if (is_dir($path)) {
+      if (!in_array($entry, $tokens, true)) {
+        funcs_archive_delete($entry);
+      }
+    } else if (str_ends_with($entry, '.part')) {
+      @unlink($path);
+    }
+  }
+}
 
 const FUNCS_ARCHIVE_ADD_PUBLIC_EXCLUDE = [
   'robots.txt',
@@ -34,12 +117,12 @@ function funcs_archive_add_public(\ZipArchive $zip): void {
 
 function funcs_archive_add_src(\ZipArchive $zip, array $posts): void {
   $files = array_unique(array_merge([], ...array_map(function (array $post) {
-    if (!isset($post['file']) || empty($post['file']) || $post['embed'] !== 0) {
+    if (!isset($post['file']) || empty($post['file'])) {
       return [];
     }
 
     return [
-      $post['file'],
+      $post['embed'] === 0 ? $post['file'] : null,
       $post['thumb'],
       $post['audio_album'],
     ];

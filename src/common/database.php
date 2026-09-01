@@ -1830,3 +1830,116 @@ function select_ban(string $ip): array|bool {
   ]);
   return $sth->fetch();
 }
+
+
+// ARCHIVE related functions below
+// ------------------------------
+
+function select_last_archive_by_ip(string $ip): array|bool {
+  $dbh = get_db_handle();
+  $sth = $dbh->prepare('
+    SELECT timestamp FROM archives
+    WHERE ip = INET6_ATON(:ip)
+    ORDER BY timestamp DESC
+    LIMIT 1
+  ');
+  $sth->execute(['ip' => $ip]);
+  return $sth->fetch();
+}
+
+function select_archive_for_thread(string $board_id, int $post_id, int $min_timestamp): array|bool {
+  $dbh = get_db_handle();
+  $sth = $dbh->prepare('
+    SELECT token, filename, post_count, timestamp FROM archives
+    WHERE board_id = :board_id AND post_id = :post_id AND timestamp >= :min_timestamp
+    ORDER BY timestamp DESC
+    LIMIT 1
+  ');
+  $sth->execute([
+    'board_id' => $board_id,
+    'post_id' => $post_id,
+    'min_timestamp' => $min_timestamp
+  ]);
+  return $sth->fetch();
+}
+
+function insert_archive(string $ip, string $board_id, int $post_id, string $token, string $filename, int $size, int $post_count): bool {
+  $dbh = get_db_handle();
+  $sth = $dbh->prepare('
+    INSERT INTO archives (
+      ip,
+      board_id,
+      post_id,
+      token,
+      filename,
+      size,
+      post_count,
+      timestamp
+    )
+    VALUES (
+      INET6_ATON(:ip),
+      :board_id,
+      :post_id,
+      :token,
+      :filename,
+      :size,
+      :post_count,
+      :timestamp
+    )
+  ');
+  return $sth->execute([
+    'ip' => $ip,
+    'board_id' => $board_id,
+    'post_id' => $post_id,
+    'token' => $token,
+    'filename' => $filename,
+    'size' => $size,
+    'post_count' => $post_count,
+    'timestamp' => time()
+  ]);
+}
+
+function select_expired_archives(int $before): array {
+  $dbh = get_db_handle();
+  $sth = $dbh->prepare('
+    SELECT id, token FROM archives
+    WHERE timestamp < :before
+  ');
+  $sth->execute(['before' => $before]);
+  return $sth->fetchAll();
+}
+
+function select_archives_oldest_first(): array {
+  $dbh = get_db_handle();
+  $sth = $dbh->prepare('
+    SELECT id, token, size FROM archives
+    ORDER BY timestamp ASC
+  ');
+  $sth->execute();
+  return $sth->fetchAll();
+}
+
+function select_archive_tokens(): array {
+  $dbh = get_db_handle();
+  $sth = $dbh->prepare('SELECT token FROM archives');
+  $sth->execute();
+  return $sth->fetchAll(\PDO::FETCH_COLUMN);
+}
+
+function delete_archives(array $ids): int {
+  if (count($ids) === 0) {
+    return 0;
+  }
+
+  $dbh = get_db_handle();
+  $params = [];
+  $names = [];
+  foreach (array_values($ids) as $idx => $id) {
+    $names[] = ":id_{$idx}";
+    $params["id_{$idx}"] = $id;
+  }
+
+  $sth = $dbh->prepare('DELETE FROM archives WHERE id IN (' . implode(', ', $names) . ')');
+  $sth->execute($params);
+  return $sth->rowCount();
+}

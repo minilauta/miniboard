@@ -14,6 +14,9 @@ define('MB_PLUGIN_FRIENDS_CONTENT', '
   </ul>
 ');
 define('MB_PLUGIN_ARCHIVE_MAX_BYTES', 1024 * 1024 * 1024); // 1 GiB
+define('MB_PLUGIN_ARCHIVE_DELAY', 60);
+define('MB_PLUGIN_ARCHIVE_TTL', 3600);
+define('MB_PLUGIN_ARCHIVE_MAX_TOTAL_BYTES', 10 * 1024 * 1024 * 1024); // 10 GiB
 define('MB_DB_HOST', getenv('MB_DB_HOST'));
 define('MB_DB_NAME', getenv('MB_DB_NAME'));
 define('MB_DB_USER', getenv('MB_DB_USER'));

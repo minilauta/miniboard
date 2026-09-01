@@ -1,0 +1,21 @@
+# generated thread archives
+
+version: 24
+script: |
+  CREATE TABLE IF NOT EXISTS archives (
+    `id` int unsigned NOT NULL auto_increment,
+    `ip` varbinary(16) NOT NULL,
+    `board_id` varchar(8) NOT NULL,
+    `post_id` int unsigned NOT NULL,
+    `token` varchar(32) NOT NULL,
+    `filename` varchar(256) NOT NULL,
+    `size` bigint unsigned NOT NULL DEFAULT 0,
+    `post_count` int unsigned NOT NULL DEFAULT 0,
+    `timestamp` int unsigned NOT NULL,
+    PRIMARY KEY (`id`),
+    UNIQUE KEY `token` (`token`),
+    KEY `idx_archives_ip_timestamp` (`ip`, `timestamp`),
+    KEY `idx_archives_board_post_timestamp` (`board_id`, `post_id`, `timestamp`),
+    KEY `idx_archives_timestamp` (`timestamp`)
+  ) ENGINE=InnoDB
+  CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;

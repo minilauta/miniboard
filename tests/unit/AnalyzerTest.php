@@ -126,6 +126,17 @@ class AnalyzerTest extends TestCase
 		$analyzer->analyze_files();
 	}
 
+	public function test_excludes_archives(): void
+	{
+		mkdir($this->srcDir . '/archives', 0755);
+		mkdir($this->srcDir . '/archives/test4321', 0755);
+		file_put_contents($this->srcDir . '/archives/test4321/image.jpg', $this->buildJpeg());
+
+		$analyzer = $this->createAnalyzer();
+		$this->expectOutputRegex('/no files to analyze/');
+		$analyzer->analyze_files();
+	}
+
 	// --- Clean images (no findings) ---
 
 	public function test_clean_jpeg(): void

@@ -83,11 +83,38 @@ class ArchivePlugin implements core\Plugin
 		// get replies
 		$replies = select_posts('', $user_role, $thread['board_id'], $thread['post_id'], false, 0, 9001);
 		$thread['replies'] = $replies !== false ? $replies : [];
+		$post_count = count($thread['replies']);
+
+		// delete expired archives
+		funcs_archive_cleanup();
+
+		// reuse an existing archive if not changed
+		$existing = select_archive_for_thread($board_cfg['id'], $thread['post_id'], time() - MB_PLUGIN_ARCHIVE_TTL);
+		if ($existing !== false
+			&& $existing['timestamp'] >= $thread['bumped']
+			&& intval($existing['post_count']) === $post_count
+			&& is_file(funcs_archive_dir() . '/' . $existing['token'] . '/' . $existing['filename'])) {
+			$this->redirect_to_archive($existing['token'], $existing['filename']);
+			return;
+		}
+
+		// validate archive delay (skip for logged in users)
+		$user_ip = funcs_common_get_client_remote_address(MB_CLOUDFLARE, $_SERVER);
+		if (!funcs_common_is_logged_in() && MB_PLUGIN_ARCHIVE_DELAY > 0) {
+			$user_last_archive_by_ip = select_last_archive_by_ip($user_ip);
+			if ($user_last_archive_by_ip != null) {
+				$delay_in_seconds = time() - $user_last_archive_by_ip['timestamp'];
+				$cooldown_in_seconds = MB_PLUGIN_ARCHIVE_DELAY - $delay_in_seconds;
+				if ($delay_in_seconds < MB_PLUGIN_ARCHIVE_DELAY) {
+					throw new \AppException('archive', 'route', "please wait {$cooldown_in_seconds}s before requesting another archive", SC_FORBIDDEN);
+				}
+			}
+		}
 
 		// refuse to archive threads whose files exceed the size limit
-		$total_size = (int) ($thread['file_size'] ?? 0);
+		$total_size = intval($thread['file_size'] ?? 0);
 		foreach ($thread['replies'] as $reply) {
-			$total_size += (int) ($reply['file_size'] ?? 0);
+			$total_size += intval($reply['file_size'] ?? 0);
 		}
 		if ($total_size > MB_PLUGIN_ARCHIVE_MAX_BYTES) {
 			throw new \AppException('archive', 'route', 'thread archive too large', SC_BAD_REQUEST);
@@ -105,14 +132,14 @@ class ArchivePlugin implements core\Plugin
 		$json = funcs_archive_json($board_cfg, $thread, $base_url);
 
 		// create the ZIP-archive
-		$zip_path = tempnam(sys_get_temp_dir(), 'mbzip');
-		if ($zip_path === false) {
-			throw new \AppException('archive', 'route', 'failed to create archive', SC_INTERNAL_ERROR);
-		}
+		$archives_dir = funcs_archive_dir();
+		$token = bin2hex(random_bytes(16));
+		$filename = MB_SITE_NAME . '_ARCHIVE_' . $board_cfg['id'] . '_' . $thread['post_id'] . '.zip';
+		$part_path = $archives_dir . '/' . $token . '.part';
 
 		try {
 			$zip = new \ZipArchive();
-			if ($zip->open($zip_path, \ZipArchive::OVERWRITE) !== true) {
+			if ($zip->open($part_path, \ZipArchive::CREATE | \ZipArchive::OVERWRITE) !== true) {
 				throw new \AppException('archive', 'route', 'failed to create archive', SC_INTERNAL_ERROR);
 			}
 
@@ -126,13 +153,27 @@ class ArchivePlugin implements core\Plugin
 				throw new \AppException('archive', 'route', 'failed to create archive', SC_INTERNAL_ERROR);
 			}
 
-			header('Content-Type: application/zip');
-			header('Content-Disposition: attachment; filename="' . MB_SITE_NAME . '_ARCHIVE_' . $board_cfg['id'] . '_' . $thread['post_id'] . '.zip"');
-			header('Content-Length: ' . filesize($zip_path));
-			readfile($zip_path);
+			$size = filesize($part_path);
+
+			// replace the temp filename
+			$zip_dir = $archives_dir . '/' . $token;
+			if (!mkdir($zip_dir, 0755) || !rename($part_path, $zip_dir . '/' . $filename)) {
+				throw new \AppException('archive', 'route', 'failed to create archive', SC_INTERNAL_ERROR);
+			}
 		} finally {
-			@unlink($zip_path);
+			if (is_file($part_path)) {
+				@unlink($part_path);
+			}
 		}
+
+		insert_archive($user_ip, $board_cfg['id'], $thread['post_id'], $token, $filename, $size, $post_count);
+
+		$this->redirect_to_archive($token, $filename);
+	}
+
+	private function redirect_to_archive(string $token, string $filename): void
+	{
+		header('Location: ' . FUNCS_ARCHIVE_DIR . '/' . $token . '/' . rawurlencode($filename), true, 302);
 	}
 }
 
