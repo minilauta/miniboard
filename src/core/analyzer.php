@@ -61,7 +61,7 @@ class Analyzer
 		}
 
 		$files = array_filter(array_slice($entries, 2), function (string $file) use ($src_dir) {
-			return $file !== '.trashbin' && $file !== 'bans' && is_file($src_dir . '/' . $file);
+			return $file !== '.trashbin' && $file !== 'archives' && $file !== 'bans' && is_file($src_dir . '/' . $file);
 		});
 
 		$files_n = count($files);

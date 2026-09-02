@@ -52,6 +52,19 @@ class Router
 
 	public function add_route(string $method, string $uri, Closure $handler): void
 	{
+		[$uri_pattern, $route] = $this->make_route($method, $uri, $handler);
+		$this->routes[$method][$uri_pattern] = $route;
+	}
+
+	public function prepend_route(string $method, string $uri, Closure $handler): void
+	{
+		[$uri_pattern, $route] = $this->make_route($method, $uri, $handler);
+		unset($this->routes[$method][$uri_pattern]);
+		$this->routes[$method] = [$uri_pattern => $route] + $this->routes[$method];
+	}
+
+	private function make_route(string $method, string $uri, Closure $handler): array
+	{
 		if (!in_array($method, HTTP_METHODS)) {
 			throw new Exception('invalid http method');
 		}
@@ -61,7 +74,7 @@ class Router
 		}
 
 		$uri_pattern = preg_replace('/\/:([^\/]+)/', '/(?P<$1>[^/]+)', $uri);
-		$this->routes[$method][$uri_pattern] = new Route($method, $uri, $handler);
+		return [$uri_pattern, new Route($method, $uri, $handler)];
 	}
 
 	public function match_route(string $method, string $uri): void

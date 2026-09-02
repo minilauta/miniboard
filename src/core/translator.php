@@ -39,6 +39,22 @@ namespace minichan\core {
 			return $this->default_lang;
 		}
 
+		public function add_translation_dir(string $lang_dir): void
+		{
+			$file = $lang_dir . '/' . $this->lang . '.php';
+			if (!file_exists($file)) {
+				$file = $lang_dir . '/' . $this->default_lang . '.php';
+			}
+			if (!file_exists($file)) {
+				return;
+			}
+
+			$translations = require $file;
+			if (is_array($translations)) {
+				$this->translations = array_merge($this->translations, $translations);
+			}
+		}
+
 		private function load_translations(string $lang): array
 		{
 			$file = $this->lang_dir . '/' . $lang . '.php';

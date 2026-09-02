@@ -56,6 +56,34 @@ const FILE_EXTS_AUDIO = [
   'opus',
   'flac',
 ];
+
+// plugin hooks
+const hooks = {};
+
+function add_hook(name, hook) {
+  if (hooks[name] === undefined) {
+    hooks[name] = [];
+  }
+
+  hooks[name].push(hook);
+}
+
+function run_hooks(name) {
+  if (hooks[name] === undefined) {
+    return false;
+  }
+
+  const args = Array.prototype.slice.call(arguments, 1);
+  let handled = false;
+  for (const hook of hooks[name]) {
+    if (hook.apply(null, args) === true) {
+      handled = true;
+    }
+  }
+
+  return handled;
+}
+
 // app state
 var state = {
   mouse_over_post_ref_link: false,
@@ -612,6 +640,7 @@ function listener_dropdown_menu_button_click(event) {
             }
           });
         }
+        run_hooks('post_menu.indices', lis, data);
         create_dropdown_menu(target, data.board_id, data.parent_id, data.id, rect, lis);
         break;
       default:
@@ -887,7 +916,9 @@ function create_mobile_ref_hash_link(ref_link) {
       }
       break;
     default:
-      console.error('listener_dropdown_menu_indice unhandled cmd: ' + data.cmd);
+      if (!run_hooks('post_menu.command', data)) {
+        console.error('listener_dropdown_menu_indice unhandled cmd: ' + data.cmd);
+      }
   }
   
   delete_dropdown_menu(data.id);
@@ -2226,8 +2257,9 @@ document.addEventListener('DOMContentLoaded', function(event) {
   }
 });
 
-// Public API for js_override user scripts
+// Public API for js_override user scripts and plugins
 window.miniboard = {
+  add_hook,
   state,
   storage,
   ui_window,

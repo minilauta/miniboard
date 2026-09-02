@@ -1,0 +1,36 @@
+<div class="thread" id="thread_<?=$post['board_id']?>-<?=$post['post_id']?>">
+  <div class="post-container" id="pc_<?=$post['board_id']?>-<?=$post['post_id']?>">
+    <div class="post op" id="<?=$post['board_id']?>-<?=$post['post_id']?>">
+      <?=$this->render(__DIR__ . '/post_file.phtml', ['post' => $post])?>
+      <div class="post-info">
+        <label>
+          <span class="post-subject"><?=$post['subject']?></span>
+          <?=$post['nameblock']?>
+        </label>
+        <span class="post-id">
+          <a href="#<?=$post['board_id']?>-<?=$post['post_id']?>">No.</a><span><?=$post['post_id']?></span>
+        </span>
+        <?php
+          $t_stickied = __('post.stickied');
+          $t_locked = __('post.locked');
+          if ($post['stickied'] === 1) {
+            echo "<img src='./static/sticky.png' alt='{$t_stickied}' title='{$t_stickied}' width='16' height='16'>";
+          }
+          if ($post['locked'] === 1) {
+            echo "<img src='./static/lock.png' alt='{$t_locked}' title='{$t_locked}' width='16' height='16'>";
+          }
+        ?>
+      </div>
+      <div class="post-message-wrapper">
+        <div class="post-message">
+          <?=$post['message_rendered']?>
+        </div>
+      </div>
+    </div>
+  </div>
+  <?php
+    foreach ($post['replies'] as $key => $reply) {
+      echo $this->render(__DIR__ . '/post_reply.phtml', ['post' => $reply, 'reply_number' => 1 + $key]);
+    }
+  ?>
+</div>
