@@ -109,9 +109,18 @@ function funcs_archive_add_public(\ZipArchive $zip): void {
   });
 
   foreach (new \RecursiveIteratorIterator($filtered) as $path => $info) {
-    if ($info->isFile()) {
-      $zip->addFile($path, substr($path, strlen(__PUBLIC__) + 1));
+    if (!$info->isFile()) {
+      continue;
     }
+
+    $local_path = substr($path, strlen(__PUBLIC__) + 1);
+
+    if (strtolower($info->getExtension()) === 'css') {
+      $zip->addFromString($local_path, funcs_archive_rewrite_css(file_get_contents($path), $local_path));
+      continue;
+    }
+
+    $zip->addFile($path, $local_path);
   }
 }
 
@@ -121,15 +130,21 @@ function funcs_archive_add_src(\ZipArchive $zip, array $posts): void {
       return [];
     }
 
+    $file_meta = null;
+    if (isset($post['file_meta']) && is_string($post['file_meta']) && strlen($post['file_meta']) > 0) {
+      $file_meta = json_decode($post['file_meta'], true);
+    }
+
     return [
       $post['embed'] === 0 ? $post['file'] : null,
       $post['thumb'],
       $post['audio_album'],
+      is_array($file_meta) ? ($file_meta['tgk_png_file'] ?? null) : null,
     ];
   }, $posts)));
 
   foreach ($files as $file) {
-    if ($file == null || strpos($file, '..') !== false) {
+    if ($file == null || !str_starts_with($file, '/src/') || strpos($file, '..') !== false) {
       continue;
     }
 
@@ -138,6 +153,32 @@ function funcs_archive_add_src(\ZipArchive $zip, array $posts): void {
       $zip->addFile($file_src, ltrim($file, '/'));
     }
   }
+}
+
+function funcs_archive_rewrite_css(string $css, string $local_path): string {
+  $prefix = str_repeat('../', substr_count($local_path, '/'));
+
+  return preg_replace('/url\(\s*([\'"]?)\//', "url(\$1{$prefix}", $css);
+}
+
+function funcs_archive_rewrite_html(string $html): string {
+  return preg_replace('/\bhref=([\'"])\/[^\'"#]*(#[^\'"]*)\1/i', 'href=$1$2$1', $html);
+}
+
+function funcs_archive_rewrite_post(array $post): array {
+  if (isset($post['message_rendered']) && is_string($post['message_rendered'])) {
+    $post['message_rendered'] = funcs_archive_rewrite_html($post['message_rendered']);
+  }
+
+  return $post;
+}
+
+function funcs_archive_rewrite_thread(array $thread): array {
+  $replies = $thread['replies'] ?? [];
+  $thread = funcs_archive_rewrite_post($thread);
+  $thread['replies'] = array_map('funcs_archive_rewrite_post', $replies);
+
+  return $thread;
 }
 
 const FUNCS_ARCHIVE_JSON_POST_FIELDS = [

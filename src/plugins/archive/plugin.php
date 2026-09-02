@@ -123,10 +123,10 @@ class ArchivePlugin implements core\Plugin
 		// resolve base URL
 		$base_url = funcs_common_resolve_base_url();
 
-		// render the thread
+		// render the thread + rewrite HTML
 		$html = $this->renderer->render(__DIR__ . '/templates/archive.phtml', [
 			'board' => $board_cfg,
-			'thread' => $thread,
+			'thread' => funcs_archive_rewrite_thread($thread),
 			'base_url' => $base_url,
 		]);
 		$json = funcs_archive_json($board_cfg, $thread, $base_url);
