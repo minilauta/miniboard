@@ -186,9 +186,11 @@ const FUNCS_ARCHIVE_JSON_POST_FIELDS = [
   'parent_id',
   'board_id',
   'timestamp',
+  'bumped',
   'nameblock',
   'email',
   'subject',
+  'message',
   'message_rendered',
   'file_rendered',
   'file_hex',
@@ -220,7 +222,7 @@ function funcs_archive_json_post(array $post): array {
     $json[$field] = $post[$field];
   }
 
-  $json['message'] = $json['message_rendered'];
+  $json['message_html'] = $json['message_rendered'];
   unset($json['message_rendered']);
   $json['file'] = $json['file_rendered'];
   unset($json['file_rendered']);
