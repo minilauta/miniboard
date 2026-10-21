@@ -356,6 +356,13 @@ function funcs_board_validate_upload(?array $input, bool $no_file_ok, bool $spoi
 }
 
 /**
+ * Moves an uploaded tmp file to a persistent path with the same permissions move_uploaded_file() would set.
+ */
+function funcs_board_move_upload(string $tmp_file, string $file_path): bool {
+  return rename($tmp_file, $file_path) && chmod($file_path, 0666 & ~umask());
+}
+
+/**
  * Processes an uploaded file, stores the file in a persistent path and returns an array containing the results.
  */
 function funcs_board_execute_upload(?array $file_info, array $file_collisions, bool $spoiler, int $max_w = 250, int $max_h = 250): array {
@@ -385,7 +392,7 @@ function funcs_board_execute_upload(?array $file_info, array $file_collisions, b
     $file_name = time() . substr(microtime(), 2, 3) . '.' . $file_info['ext'];
     $file_dir = '/src/';
     $file_path = __PUBLIC__ . $file_dir . $file_name;
-    if (!move_uploaded_file($file_info['tmp'], $file_path)) {
+    if (!funcs_board_move_upload($file_info['tmp'], $file_path)) {
       throw new AppException('funcs_board', 'execute_upload', "failed to move the uploaded tmp file to a persistent location", SC_INTERNAL_ERROR);
     }
     $file_hex = $file_info['md5'];
@@ -523,7 +530,7 @@ function funcs_board_execute_upload(?array $file_info, array $file_collisions, b
         $tgk_info = funcs_board_read_tgk_header_meta($file_path);
         $tgk_png_file_name = 'tgk_' . $file_name . '.png';
         $tgk_png_file_path = __PUBLIC__ . $file_dir . $tgk_png_file_name;
-        if (!move_uploaded_file($file_info['tgk_png_info']['tmp'], $tgk_png_file_path)) {
+        if (!funcs_board_move_upload($file_info['tgk_png_info']['tmp'], $tgk_png_file_path)) {
           throw new AppException('funcs_board', 'execute_upload', "failed to move the uploaded tmp file to a persistent location", SC_INTERNAL_ERROR);
         }
         $tgk_info['tgk_png_file'] = $file_dir . $tgk_png_file_name;

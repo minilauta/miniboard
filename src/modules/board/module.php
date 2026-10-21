@@ -7,6 +7,7 @@ use minichan\core;
 
 require_once __ROOT__ . '/core/module.php';
 require_once __ROOT__ . '/core/renderer.php';
+require_once __ROOT__ . '/core/binary_form.php';
 require_once __ROOT__ . '/common/config.php';
 require_once __ROOT__ . '/common/exception.php';
 require_once __ROOT__ . '/common/database.php';
@@ -596,17 +597,28 @@ class BoardModule implements core\Module
 		});
 	}
 
-	private function handle_postform(array $vars, string $context) {
-		// validate CSRF token
-		funcs_common_validate_csrf($_POST);
-
-		// parse request body
-		if (isset($_FILES['file'])) {
-			$files = funcs_common_map_files($_FILES['file']);
-		} else {
-			$files = [];
+	private function parse_binary_form(): ?core\BinaryForm {
+		if (!str_starts_with($_SERVER['CONTENT_TYPE'] ?? '', core\BinaryForm::CONTENT_TYPE)) {
+			return null;
 		}
-	
+
+		try {
+			return new core\BinaryForm(fopen('php://input', 'rb'), (int) ini_get('max_file_uploads'), ini_parse_quantity(ini_get('upload_max_filesize')));
+		} catch (\UnexpectedValueException $ex) {
+			throw new \AppException('board', 'parse_binary_form', $ex->getMessage(), SC_BAD_REQUEST, $ex);
+		}
+	}
+
+	private function handle_postform(array $vars, string $context) {
+		// parse request body, JS clients send a binary form instead of multipart/form-data, plain HTML forms send text only
+		// NOTE: $form owns the uploaded tmp files and deletes any that were not moved when this function returns
+		$form = $this->parse_binary_form();
+		$fields = $form?->fields ?? $_POST;
+		$files = $form?->files ?: [core\BinaryForm::NO_FILE];
+
+		// validate CSRF token
+		funcs_common_validate_csrf($fields);
+
 		// get board config
 		$board_cfg = funcs_common_get_board_cfg($vars['board_id']);
 	
@@ -624,18 +636,18 @@ class BoardModule implements core\Module
 		$user_is_logged_in = funcs_common_is_logged_in();
 	
 		// clean some request fields (UNICODE icons)
-		$_POST['name'] = funcs_common_clean_unicode($_POST['name']);
-		$_POST['email'] = funcs_common_clean_unicode($_POST['email']);
-		$_POST['subject'] = funcs_common_clean_unicode($_POST['subject']);
-		$_POST['message'] = funcs_common_clean_unicode($_POST['message']);
+		$fields['name'] = funcs_common_clean_unicode($fields['name']);
+		$fields['email'] = funcs_common_clean_unicode($fields['email']);
+		$fields['subject'] = funcs_common_clean_unicode($fields['subject']);
+		$fields['message'] = funcs_common_clean_unicode($fields['message']);
 	
 		// validate request fields
-		funcs_common_validate_fields($_POST, $board_cfg['fields_post']);
+		funcs_common_validate_fields($fields, $board_cfg['fields_post']);
 	
 		// if board type is 'main', get target board config
 		if ($board_cfg['type'] === 'main') {
 			// get board config
-			$board_cfg = funcs_common_get_board_cfg($_POST['board']);
+			$board_cfg = funcs_common_get_board_cfg($fields['board']);
 		
 			// do not allow posting directly on boards of type 'main'
 			if ($board_cfg['type'] === 'main') {
@@ -643,13 +655,13 @@ class BoardModule implements core\Module
 			}
 		
 			// validate request fields
-			funcs_common_validate_fields($_POST, $board_cfg['fields_post']);
+			funcs_common_validate_fields($fields, $board_cfg['fields_post']);
 		}
 	
 		// validate captcha (skip for logged in users)
 		if (!$user_is_logged_in) {
 			if (MB_CAPTCHA_THREAD && $context === 'board' || MB_CAPTCHA_REPLY && $context === 'thread') {
-				funcs_common_validate_captcha($_POST);
+				funcs_common_validate_captcha($fields);
 			}
 		}
 
@@ -704,14 +716,14 @@ class BoardModule implements core\Module
 	
 		if (!isset($board_cfg['text']) || $board_cfg['text'] == false) {
 			// validate request file
-			$embed = strlen(trim($_POST['embed'])) > 0;
-			$spoiler = isset($_POST['spoiler']) && $_POST['spoiler'] == true ? true : false;
+			$embed = strlen(trim($fields['embed'])) > 0;
+			$spoiler = isset($fields['spoiler']) && $fields['spoiler'] == true ? true : false;
 			$no_file_ok = ($thread_id != null || $embed) ? true : $board_cfg['nofileok'];
 			$file_info = funcs_board_validate_upload($files[0], $no_file_ok, $spoiler, $board_cfg['mime_ext_types'], $board_cfg['maxkb'] * 1000);
 			$is_file_or_embed = $embed || $file_info != null;
 		
 			// validate request message + file or embed
-			if (strlen(trim($_POST['message'])) === 0 && !$is_file_or_embed) {
+			if (strlen(trim($fields['message'])) === 0 && !$is_file_or_embed) {
 				throw new \AppException('index', 'route', 'message and file or embed cannot both be null', SC_BAD_REQUEST);
 			}
 		
@@ -730,12 +742,12 @@ class BoardModule implements core\Module
 				}
 				$file = funcs_board_execute_upload($file_info, $file_collisions, $spoiler, $board_cfg['max_width'], $board_cfg['max_height']);
 			} else {
-				$file = funcs_board_execute_embed($_POST['embed'], $board_cfg['embed_types'], $board_cfg['max_width'], $board_cfg['max_height']);
+				$file = funcs_board_execute_embed($fields['embed'], $board_cfg['embed_types'], $board_cfg['max_width'], $board_cfg['max_height']);
 				$file_info = null;
 			}
 		} else {
 			// validate request message
-			if (strlen(trim($_POST['message'])) === 0) {
+			if (strlen(trim($fields['message'])) === 0) {
 				throw new \AppException('index', 'route', 'message cannot be null', SC_BAD_REQUEST);
 			}
 		
@@ -760,7 +772,7 @@ class BoardModule implements core\Module
 		}
 	
 		// create post
-		$post = funcs_board_create_post($user_ip, $user_country, $board_cfg, $thread_id, isset($parent) ? $parent['salt'] : null, $file_info, $file, $_POST);
+		$post = funcs_board_create_post($user_ip, $user_country, $board_cfg, $thread_id, isset($parent) ? $parent['salt'] : null, $file_info, $file, $fields);
 	
 		// generate unique post_id on current board
 		init_post_auto_increment($post['board_id']);

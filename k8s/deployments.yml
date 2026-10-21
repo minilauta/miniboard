@@ -12,6 +12,7 @@ spec: # spec for deployment
       labels:
         run: miniboard-app # service looks for this label
     spec: # spec for pods
+      automountServiceAccountToken: false # NOTE: app does not use the k8s API
       securityContext:
         fsGroup: 82 # www-data GID on alpine
       initContainers:
@@ -38,6 +39,7 @@ spec: # spec for deployment
           runAsNonRoot: true
           runAsUser: 82
           allowPrivilegeEscalation: false
+          readOnlyRootFilesystem: true # NOTE: only /app/public/src and /tmp are writable
           capabilities:
             drop: [ALL]
         ports:
@@ -82,6 +84,8 @@ spec: # spec for deployment
         volumeMounts:
         - name: miniboard-app-pv
           mountPath: /app/public/src
+        - name: miniboard-app-tmp
+          mountPath: /tmp
         - name: miniboard-app-config
           mountPath: /app/src/common/config.php
           subPath: config.php
@@ -89,6 +93,10 @@ spec: # spec for deployment
       - name: miniboard-app-pv
         persistentVolumeClaim:
           claimName: miniboard-app-pv-claim
+      # NOTE: PHP request body buffers, uploaded tmp files, file cache and imagemagick/thumbnail scratch files
+      - name: miniboard-app-tmp
+        emptyDir:
+          sizeLimit: 2Gi
       - name: miniboard-app-config
         configMap:
           name: miniboard-app-config

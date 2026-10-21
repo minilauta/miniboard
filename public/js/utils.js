@@ -34,10 +34,37 @@ function isVisible(element, threshold, mode) {
   return mode === 'above' ? above : (mode === 'below' ? below : !above && !below);
 }
 
+/**
+ * Encodes form data as a single application/octet-stream body instead of multipart/form-data,
+ * see src/core/binary_form.php for the layout.
+ */
+function encodeBinaryForm(form_data) {
+  const fields = new URLSearchParams();
+  const files = [];
+  form_data.forEach((value, key) => {
+    if (value instanceof File) {
+      files.push(value);
+    } else {
+      // NOTE: normalize newlines to CRLF like browsers do for regular form submissions
+      fields.append(key, value.replace(/\r\n|\r|\n/g, '\r\n'));
+    }
+  });
+
+  const header = new Blob([JSON.stringify({
+    fields: fields.toString(),
+    files: files.map((file) => ({ name: file.name, type: file.type, size: file.size })),
+  })]);
+  const header_size = new DataView(new ArrayBuffer(4));
+  header_size.setUint32(0, header.size);
+
+  return new Blob([header_size, header, ...files], { type: 'application/octet-stream' });
+}
+
 const utils = {
   toHex,
   removeTrailingSlash,
   isVisible,
+  encodeBinaryForm,
 };
 
 export default utils;

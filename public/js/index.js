@@ -838,7 +838,7 @@ function create_mobile_ref_hash_link(ref_link) {
       };
       xhr.open('POST', '/' + data.board_id + '/' + data.id + '/hide', true);
       let csrf_input = document.querySelector('input[name="csrf_token"]');
-      let hide_body = new FormData();
+      let hide_body = new URLSearchParams();
       if (csrf_input) {
         hide_body.append('csrf_token', csrf_input.value);
       }
@@ -855,7 +855,7 @@ function create_mobile_ref_hash_link(ref_link) {
       };
       pin_xhr.open('POST', '/' + data.board_id + '/' + data.id + '/pin', true);
       let pin_csrf_input = document.querySelector('input[name="csrf_token"]');
-      let pin_body = new FormData();
+      let pin_body = new URLSearchParams();
       if (pin_csrf_input) {
         pin_body.append('csrf_token', pin_csrf_input.value);
       }
@@ -1723,7 +1723,7 @@ function init_postform_features(target_id_prefix) {
       submit_btn.disabled = true;
       fetch(post_form.action, {
         method: 'POST',
-        body: new FormData(post_form)
+        body: utils.encodeBinaryForm(new FormData(post_form))
       }).then((data) => {
         data.text().then((response) => {
           try {
@@ -1856,7 +1856,7 @@ function init_deleteform_features() {
       submit_btn.disabled = true;
       fetch(delete_form.action, {
         method: 'POST',
-        body: new FormData(delete_form)
+        body: new URLSearchParams(new FormData(delete_form))
       }).then((data) => {
         data.text().then((response) => {
           try {
@@ -2073,7 +2073,7 @@ function init_board_filter_features() {
 
     fetch(form.action, {
       method: 'POST',
-      body: new FormData(form)
+      body: new URLSearchParams(new FormData(form))
     }).then((data) => {
       if (data.status === 200) {
         window.location.reload();

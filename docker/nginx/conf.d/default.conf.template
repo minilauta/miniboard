@@ -13,6 +13,11 @@ server {
   root /app/public;
   index index.php;
 
+  # NOTE: miniboard never sends multipart/form-data, reject it so PHP's multipart parser never runs
+  if ($content_type ~* multipart) {
+    return 415;
+  }
+
   location / {
     try_files $uri /index.php$is_args$args;
   }
