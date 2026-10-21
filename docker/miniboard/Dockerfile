@@ -2,8 +2,14 @@ FROM php:8.2-fpm-alpine3.23 AS build
 
 RUN apk add --no-cache ffmpeg exiftool
 ADD https://github.com/mlocati/docker-php-extension-installer/releases/latest/download/install-php-extensions /usr/local/bin/
-RUN chmod +x /usr/local/bin/install-php-extensions && \
-    install-php-extensions @composer imagick pdo pdo_mysql yaml redis
+# NOTE: PECL extensions are built from pinned GitHub sources, pecl.php.net is not reliable enough for builds
+# NOTE: phpredis is fetched manually because GitHub source archives lack its liblzf git submodule
+RUN mkdir -p /tmp/phpredis/liblzf && \
+    curl -fsSL https://codeload.github.com/phpredis/phpredis/tar.gz/refs/tags/6.3.0 | tar xz -C /tmp/phpredis --strip-components=1 && \
+    curl -fsSL https://codeload.github.com/nemequ/liblzf/tar.gz/fb25820c3c0aeafd127956ae6c115063b47e459a | tar xz -C /tmp/phpredis/liblzf --strip-components=1 && \
+    chmod +x /usr/local/bin/install-php-extensions && \
+    install-php-extensions @composer Imagick/imagick@3.8.1 pdo pdo_mysql php/pecl-file_formats-yaml@2.3.0 /tmp/phpredis && \
+    rm -rf /tmp/phpredis
 COPY docker/miniboard/php/conf.d/miniboard.ini $PHP_INI_DIR/conf.d/
 
 WORKDIR /app
@@ -22,7 +28,7 @@ EXPOSE 80
 
 RUN mv $PHP_INI_DIR/php.ini-development $PHP_INI_DIR/php.ini
 COPY docker/miniboard/php/conf.d/xdebug.ini $PHP_INI_DIR/conf.d/
-RUN install-php-extensions xdebug
+RUN install-php-extensions xdebug/xdebug@3.5.3
 COPY phpunit.xml /app/
 COPY tests /app/tests/
 RUN composer install --no-interaction
