@@ -1,4 +1,4 @@
-FROM php:8.2-fpm-alpine3.23 AS build
+FROM php:8.2.35-fpm-alpine3.23 AS build
 
 RUN apk add --no-cache ffmpeg exiftool
 ADD https://github.com/mlocati/docker-php-extension-installer/releases/latest/download/install-php-extensions /usr/local/bin/
