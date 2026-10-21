@@ -1,0 +1,8 @@
+# drop ip column from logs
+# (ALGORITHM=COPY rebuilds the table, an instant drop would leave the old ips on disk)
+
+version: 24
+script: |
+  ALTER TABLE logs
+    DROP COLUMN IF EXISTS `ip`,
+    ALGORITHM=COPY;

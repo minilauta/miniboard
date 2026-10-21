@@ -11,14 +11,13 @@ use minichan\models\PostEvent;
  * Inserts a message to the management log.
  */
 function funcs_manage_log(string $message) {
-  $ip = funcs_common_get_client_remote_address(MB_CLOUDFLARE, $_SERVER);
   $username = isset($_SESSION['mb_username']) ? $_SESSION['mb_username'] : null;
 
   if ($username == null) {
     return;
   }
 
-  insert_log($ip, time(), $_SESSION['mb_username'], $message);
+  insert_log(time(), $_SESSION['mb_username'], $message);
 }
 
 /**

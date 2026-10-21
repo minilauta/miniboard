@@ -1352,8 +1352,7 @@ function select_all_logs(bool $desc = true, int $offset = 0, int $limit = 10): a
   $dbh = get_db_handle();
   $sth = $dbh->prepare('
     SELECT
-      *,
-      INET6_NTOA(ip) AS ip_str
+      *
     FROM logs
     ORDER BY id ' . ($desc === true ? 'DESC' : 'ASC') . '
     LIMIT :limit OFFSET :offset
@@ -1372,24 +1371,21 @@ function count_all_logs(): int|bool {
   return $sth->fetchColumn();
 }
 
-function insert_log(string $ip, int $timestamp, string $username, string $message): int|bool {
+function insert_log(int $timestamp, string $username, string $message): int|bool {
   $dbh = get_db_handle();
   $sth = $dbh->prepare('
     INSERT INTO logs (
-      ip,
       timestamp,
       username,
       message
     )
     VALUES (
-      INET6_ATON(:ip),
       :timestamp,
       :username,
       :message
     )
   ');
   $result = $sth->execute([
-    'ip' => $ip,
     'timestamp' => $timestamp,
     'username' => $username,
     'message' => $message

@@ -67,7 +67,6 @@
 
           // process logs
           foreach ($logs as $key => &$log) {
-            $log['ip_rendered'] = funcs_common_get_role() === MB_ROLE_SUPERADMIN ? $log['ip_str'] : '<s>REDACTED</s>';
             $log['username_rendered'] = funcs_common_get_role() === MB_ROLE_SUPERADMIN ? $log['username'] : '<s>REDACTED</s>';
           }
 

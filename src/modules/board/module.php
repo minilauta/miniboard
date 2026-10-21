@@ -802,7 +802,7 @@ class BoardModule implements core\Module
 				// create and insert log row
 				$csam_match_similarity = round($csam_scan_result['similarity'] * 100.0, 2);
 				$csam_match_log_msg = "CSAM-scanner: detected as CP, similarity: {$csam_match_similarity}%";
-				insert_log('127.0.0.1', time(), 'CSAM-scanner', $csam_match_log_msg);
+				insert_log(time(), 'CSAM-scanner', $csam_match_log_msg);
 		
 				// delete the post automatically
 				funcs_common_delete_post($board_cfg['id'], $inserted_post_id);

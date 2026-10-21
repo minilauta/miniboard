@@ -7,7 +7,6 @@ require_once __ROOT__ . '/common/config.php';
 class Log
 {
 	public int $id;
-	public string $ip;
 	public int $timestamp;
 	public string $username;
 	public string $message;
