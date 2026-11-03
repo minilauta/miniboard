@@ -18,7 +18,7 @@
           "{$post['file_original']}, ".
           "<a href='{$fmjson['tgk_png_file_rendered']}' target='_blank'>PNG</a>";
       } else {
-        $file_meta = "{$post['file_size_formatted']}, {$post['image_width']}x{$post['image_height']}, {$post['file_original']}";
+        $file_meta = "{$post['file_size_formatted']}, {$post['image_width']}x{$post['image_height']}, <a href='/{$post['board_id']}/{$post['post_id']}/download' target='_blank'>{$post['file_original']}</a>";
       }
 
       $t_file = __('file.file');
