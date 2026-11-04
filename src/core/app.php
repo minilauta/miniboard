@@ -35,15 +35,20 @@ class App
 	 */
 	private array $plugins;
 
-	public function __construct($modules, $plugins)
+	public function __construct($modules, $plugins, array $middlewares = [])
 	{
 		$this->router = new Router();
+		foreach ($middlewares as $middleware)
+		{
+			$this->router->add_middleware($middleware);
+		}
 		$this->hooks = [];
 		$this->modules = [];
 		foreach ($modules as $module_name)
 		{
 			$module = require __ROOT__ . "/modules/{$module_name}/module.php";
 			$module->init($this);
+			$module->register_middleware($this->router);
 			$module->register_routes($this->router);
 			$this->modules[] = $module;
 		}

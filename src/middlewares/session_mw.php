@@ -42,6 +42,11 @@ function session_mw(int $session_lifetime, int $recreate_after): Closure
         ]);
         session_start();
         $timestamp = time();
+        if (!isset($_SESSION['created']))
+        {
+            $_SESSION['created'] = $timestamp;
+        }
+        $created = $_SESSION['created'];
         if (!isset($_SESSION['timestamp']))
         {
             $_SESSION['timestamp'] = $timestamp;
@@ -51,6 +56,7 @@ function session_mw(int $session_lifetime, int $recreate_after): Closure
         {
             $s_id_old = session_id();
             session_regenerate_id(true);
+            $_SESSION['created'] = $created;
             $_SESSION['timestamp'] = $timestamp;
             session_mw_update_session_id_refs($s_id_old, session_id());
         }
@@ -58,6 +64,7 @@ function session_mw(int $session_lifetime, int $recreate_after): Closure
         {
             session_destroy();
             session_start();
+            $_SESSION['created'] = $created;
             $_SESSION['timestamp'] = $timestamp;
         }
     };

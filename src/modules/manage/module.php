@@ -27,7 +27,7 @@ class ManageModule implements core\Module
 		$this->renderer->set_var('app', $app);
 	}
 
-	public function register_middleware(core\Router &$router, Closure $handler): void {}
+	public function register_middleware(core\Router &$router): void {}
 
 	public function register_routes(core\Router &$router): void
 	{

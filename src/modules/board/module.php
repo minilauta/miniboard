@@ -33,7 +33,20 @@ class BoardModule implements core\Module
 		$this->renderer->set_var('app', $app);
 	}
 
-	public function register_middleware(core\Router &$router, Closure $handler): void {}
+	public function register_middleware(core\Router &$router): void
+	{
+		$router->add_middleware(function () {
+			$s_age = time() - $_SESSION['created'];
+			if ($s_age < MB_SESSION_AGE_MIN && in_array($_SERVER['REQUEST_METHOD'], [HTTP_POST, HTTP_PUT, HTTP_PATCH, HTTP_DELETE]))
+			{
+				$s_timeout = MB_SESSION_AGE_MIN - $s_age;
+				header('Content-Type:application/json');
+				http_response_code(SC_FORBIDDEN);
+				echo json_encode(['error_message' => "please wait {$s_timeout} seconds"]);
+				return false;
+			}
+		});
+	}
 
 	public function register_routes(core\Router &$router): void
 	{

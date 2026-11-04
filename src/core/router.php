@@ -79,7 +79,9 @@ class Router
 				$params = array_filter($matches, 'is_string', ARRAY_FILTER_USE_KEY);
 
 				foreach ($this->middlewares as $middleware) {
-					call_user_func($middleware, $params);
+					if (call_user_func($middleware, $params) === false) {
+						return;
+					}
 				}
 				call_user_func($route->handler, $params);
 
