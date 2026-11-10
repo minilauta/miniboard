@@ -60,11 +60,18 @@ function encodeBinaryForm(form_data) {
   return new Blob([header_size, header, ...files], { type: 'application/octet-stream' });
 }
 
+function locationHashClear() {
+  if (!location.hash) return;
+
+  history.replaceState(null, '', location.pathname + location.search);
+}
+
 const utils = {
   toHex,
   removeTrailingSlash,
   isVisible,
   encodeBinaryForm,
+  locationHashClear,
 };
 
 export default utils;

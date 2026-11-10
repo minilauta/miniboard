@@ -1599,6 +1599,28 @@ function init_post_backreference_links(newPosts) {
 }
 
 /**
+ * Event listener: click on post hashid element.
+ * Highlights posts with the same hashid.
+ * @param {*} event 
+ */
+function listener_post_hashid_click(event) {
+  const element = event.target.closest('.post-hashid-hash');
+  if (element == null)
+    return;
+  event.preventDefault();
+
+  // clear old highlights and highlight by current hashid
+  const hashid = element.textContent;
+  Array.from(document.getElementsByClassName('highlight'))
+    .forEach(x => x.classList.remove('highlight'));
+  Array.from(document.getElementsByClassName('post-hashid-hash'))
+    .filter(x => x.textContent === hashid && !x.closest('.post-preview'))
+    .forEach(x => x.closest('.reply')?.classList.add('highlight'));
+
+  utils.locationHashClear();
+}
+
+/**
  * Initializes all post hashid fields with unique RGB color hash under target element.
  * @param {*} target 
  */
@@ -1607,16 +1629,21 @@ function init_post_hashid_features(target) {
     target = document;
   }
 
-  const hash_table = {};
+  const hashid_table = {};
   const hashids = Array.from(target.getElementsByClassName('post-hashid-hash'));
-  hashids.forEach(x => {
-    const hashid = x.innerText;
 
-    if (hash_table[hashid] == null) {
-      hash_table[hashid] = 1;
+  hashids.forEach(x => {
+    const hashid = x.textContent;
+
+    if (hashid_table[hashid] == null) {
+      hashid_table[hashid] = 1;
     } else {
-      hash_table[hashid]++;
+      hashid_table[hashid]++;
     }
+  });
+
+  hashids.forEach(x => {
+    const hashid = x.textContent;
 
     // calculate hashid bg color by simple hash to rgb
     const hid_bg = utils.toHex(hashid);
@@ -1631,11 +1658,14 @@ function init_post_hashid_features(target) {
     // set the hashid bgcolor and also set font color based on luminance
     x.style.backgroundColor = hid_bg;
     x.style.color = hid_bg_l < 100 ? '#ffffff' : '#000000';
-  });
-  hashids.forEach(x => {
-    const count = hash_table[x.innerText];
+
+    // set hashid tooltip
+    const count = hashid_table[hashid];
     x.title = count > 1 ? t('post.hashid.n', { count }) : t('post.hashid.1');
   });
+
+  document.removeEventListener('click', listener_post_hashid_click);
+  document.addEventListener('click', listener_post_hashid_click);
 }
 
 /**
@@ -1656,7 +1686,7 @@ function init_location_hash_features() {
       insert_ref_to_message(post_id);
       
       // reset hash to allow ref again
-      history.replaceState(null, '', './');
+      utils.locationHashClear();
     } else if (hash.length > 1) {
       create_post_highlight(hash.substring(1));
     }
