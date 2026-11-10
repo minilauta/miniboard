@@ -45,6 +45,8 @@ const fi = {
 
   // Post UI
   'post.hidden': 'Postaus piilotettu',
+  'post.hashid.1': '1 Postaus tältä ID:ltä',
+  'post.hashid.n': ':count Postausta tältä ID:ltä',
 
   // MOD player
   'mod.title': 'NIMI',

@@ -45,6 +45,8 @@ const hu = {
 
   // Post UI
   'post.hidden': 'Hozzászólás elrejtve',
+  'post.hashid.1': '1 hozzászólás ettől az azonosítótól',
+  'post.hashid.n': ':count hozzászólás ettől az azonosítótól',
 
   // MOD player
   'mod.title': 'CÍM',

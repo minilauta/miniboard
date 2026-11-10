@@ -1607,10 +1607,19 @@ function init_post_hashid_features(target) {
     target = document;
   }
 
-  let hashid_elements = target.getElementsByClassName('post-hashid-hash');
-  Array.from(hashid_elements).forEach(element => {
+  const hash_table = {};
+  const hashids = Array.from(target.getElementsByClassName('post-hashid-hash'));
+  hashids.forEach(x => {
+    const hashid = x.innerText;
+
+    if (hash_table[hashid] == null) {
+      hash_table[hashid] = 1;
+    } else {
+      hash_table[hashid]++;
+    }
+
     // calculate hashid bg color by simple hash to rgb
-    const hid_bg = utils.toHex(element.innerHTML);
+    const hid_bg = utils.toHex(hashid);
 
     // calculate hashid bg color luminance
     const hid_bg_rgb = parseInt(hid_bg.substring(1), 16);
@@ -1620,8 +1629,12 @@ function init_post_hashid_features(target) {
     const hid_bg_l = 0.2126 * hid_bg_r + 0.7152 * hid_bg_g + 0.0722 * hid_bg_b;
 
     // set the hashid bgcolor and also set font color based on luminance
-    element.style.backgroundColor = hid_bg;
-    element.style.color = hid_bg_l < 100 ? '#ffffff' : '#000000';
+    x.style.backgroundColor = hid_bg;
+    x.style.color = hid_bg_l < 100 ? '#ffffff' : '#000000';
+  });
+  hashids.forEach(x => {
+    const count = hash_table[x.innerText];
+    x.title = count > 1 ? t('post.hashid.n', { count }) : t('post.hashid.1');
   });
 }
 

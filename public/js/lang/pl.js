@@ -45,6 +45,8 @@ const pl = {
 
   // Post UI
   'post.hidden': 'Post ukryty',
+  'post.hashid.1': '1 post z tym ID',
+  'post.hashid.n': 'Liczba postów z tym ID: :count',
 
   // MOD player
   'mod.title': 'TYTUŁ',

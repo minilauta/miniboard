@@ -45,6 +45,8 @@ const en = {
 
   // Post UI
   'post.hidden': 'Post hidden',
+  'post.hashid.1': '1 Post by this ID',
+  'post.hashid.n': ':count Posts by this ID',
 
   // MOD player
   'mod.title': 'TITLE',
