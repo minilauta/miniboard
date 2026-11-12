@@ -27,6 +27,28 @@
           <?= date(MB_DATEFORMAT, $ban['timestamp']) ?>
         </td>
       </tr>
+      <?php if ($ban['post_board_id'] !== null && $ban['post_id'] !== null): ?>
+        <tr>
+          <td class="form-label">
+            <label><?= __('manage.editbanform.post') ?></label>
+          </td>
+          <td>
+            /<?= htmlspecialchars($ban['post_board_id'], ENT_QUOTES, 'UTF-8') ?>/<?= (int) $ban['post_id'] ?>/
+          </td>
+        </tr>
+        <tr>
+          <td class="form-label">
+            <label><?= __('manage.editbanform.post_timestamp') ?></label>
+          </td>
+          <td>
+            <?php if ($ban['post_timestamp'] !== null): ?>
+              <?= date(MB_DATEFORMAT, $ban['post_timestamp']) ?> (<?= (int) $ban['post_timestamp'] ?>)
+            <?php else: ?>
+              -
+            <?php endif; ?>
+          </td>
+        </tr>
+      <?php endif; ?>
       <tr>
         <td class="form-label">
           <label><?= __('manage.editbanform.expire') ?></label>

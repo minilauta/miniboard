@@ -173,6 +173,8 @@ return [
 	'manage.editbanform.id'                => 'ID bana',
 	'manage.editbanform.ip'                => 'IP / zakres',
 	'manage.editbanform.timestamp'         => 'Utworzono',
+	'manage.editbanform.post'              => 'Post',
+	'manage.editbanform.post_timestamp'    => 'Znacznik czasu posta',
 	'manage.editbanform.expire'            => 'Obecne wygaśnięcie',
 	'manage.editbanform.duration'          => 'Czas trwania',
 	'manage.editbanform.duration_hint'     => 'Minuty od teraz do wygaśnięcia bana',

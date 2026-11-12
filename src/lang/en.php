@@ -173,6 +173,8 @@ return [
 	'manage.editbanform.id'                => 'Ban ID',
 	'manage.editbanform.ip'                => 'IP / range',
 	'manage.editbanform.timestamp'         => 'Created',
+	'manage.editbanform.post'              => 'Post',
+	'manage.editbanform.post_timestamp'    => 'Post timestamp',
 	'manage.editbanform.expire'            => 'Current expiry',
 	'manage.editbanform.duration'          => 'Duration',
 	'manage.editbanform.duration_hint'     => 'Minutes from now until the ban expires',

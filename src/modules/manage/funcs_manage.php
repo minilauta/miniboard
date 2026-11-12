@@ -284,8 +284,6 @@ function funcs_manage_ban(array $select, int $duration, string $reason, bool $ca
       }
 
       $post_preview = [
-        'board_id'         => $post['board_id'],
-        'post_id'          => $post['post_id'],
         'subject'          => $post['subject'],
         'nameblock'        => $post['nameblock'],
         'message_rendered' => $post['message_rendered'],

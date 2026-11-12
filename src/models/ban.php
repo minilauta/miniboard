@@ -22,7 +22,8 @@ class Ban
 	public ?int $post_thumb_height;
 
 	public function has_preview(): bool {
-		return $this->post_board_id !== null && $this->post_id !== null;
+		// post_board_id / post_id are stored for every post ban, the rest only when the preview was captured
+		return $this->post_board_id !== null && $this->post_id !== null && $this->post_message_rendered !== null;
 	}
 
 	public function redact_ip(): string {

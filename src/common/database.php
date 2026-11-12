@@ -1190,81 +1190,60 @@ function ban_poster_by_post_id(string $board_id, int $post_id, int $duration, st
     $ip_params = ['board_id' => $board_id, 'post_id' => $post_id];
   }
 
-  if ($post_preview !== null) {
-    $sth = $dbh->prepare("
-      INSERT INTO bans (
-        ip,
-        ip_end,
-        timestamp,
-        expire,
-        reason,
-        comment,
-        post_board_id,
-        post_id,
-        post_subject,
-        post_nameblock,
-        post_message_rendered,
-        post_thumb,
-        post_thumb_width,
-        post_thumb_height
-      )
-      VALUES (
-        {$ip_expr},
-        {$ip_end_expr},
-        :timestamp,
-        :expire,
-        :reason,
-        :comment,
-        :post_board_id,
-        :p_post_id,
-        :post_subject,
-        :post_nameblock,
-        :post_message_rendered,
-        :post_thumb,
-        :post_thumb_width,
-        :post_thumb_height
-      )
-    ");
-    $sth->execute(array_merge($ip_params, [
-      'timestamp' => time(),
-      'expire' => time() + $duration,
-      'reason' => $reason,
-      'comment' => $comment,
-      'post_board_id' => $post_preview['board_id'],
-      'p_post_id' => $post_preview['post_id'],
-      'post_subject' => $post_preview['subject'],
-      'post_nameblock' => $post_preview['nameblock'],
-      'post_message_rendered' => $post_preview['message_rendered'],
-      'post_thumb' => $post_preview['thumb'],
-      'post_thumb_width' => $post_preview['thumb_width'],
-      'post_thumb_height' => $post_preview['thumb_height'],
-    ]));
-  } else {
-    $sth = $dbh->prepare("
-      INSERT INTO bans (
-        ip,
-        ip_end,
-        timestamp,
-        expire,
-        reason,
-        comment
-      )
-      VALUES (
-        {$ip_expr},
-        {$ip_end_expr},
-        :timestamp,
-        :expire,
-        :reason,
-        :comment
-      )
-    ");
-    $sth->execute(array_merge($ip_params, [
-      'timestamp' => time(),
-      'expire' => time() + $duration,
-      'reason' => $reason,
-      'comment' => $comment
-    ]));
-  }
+  // the post reference and its exact timestamp are always stored so they survive
+  // the post being deleted; the visual preview fields only when it was captured.
+  $sth = $dbh->prepare("
+    INSERT INTO bans (
+      ip,
+      ip_end,
+      timestamp,
+      expire,
+      reason,
+      comment,
+      post_board_id,
+      post_id,
+      post_timestamp,
+      post_subject,
+      post_nameblock,
+      post_message_rendered,
+      post_thumb,
+      post_thumb_width,
+      post_thumb_height
+    )
+    VALUES (
+      {$ip_expr},
+      {$ip_end_expr},
+      :timestamp,
+      :expire,
+      :reason,
+      :comment,
+      :p_board_id,
+      :p_post_id,
+      (SELECT timestamp FROM posts WHERE board_id = :ts_board_id AND post_id = :ts_post_id),
+      :post_subject,
+      :post_nameblock,
+      :post_message_rendered,
+      :post_thumb,
+      :post_thumb_width,
+      :post_thumb_height
+    )
+  ");
+  $sth->execute(array_merge($ip_params, [
+    'timestamp' => time(),
+    'expire' => time() + $duration,
+    'reason' => $reason,
+    'comment' => $comment,
+    'p_board_id' => $board_id,
+    'p_post_id' => $post_id,
+    'ts_board_id' => $board_id,
+    'ts_post_id' => $post_id,
+    'post_subject' => $post_preview['subject'] ?? null,
+    'post_nameblock' => $post_preview['nameblock'] ?? null,
+    'post_message_rendered' => $post_preview['message_rendered'] ?? null,
+    'post_thumb' => $post_preview['thumb'] ?? null,
+    'post_thumb_width' => $post_preview['thumb_width'] ?? null,
+    'post_thumb_height' => $post_preview['thumb_height'] ?? null,
+  ]));
   $affected = $sth->rowCount();
 
   $banmsg = '<br><br><span class="banned">(USER WAS BANNED FOR THIS POST';

@@ -1,0 +1,11 @@
+# add post_timestamp column to bans to preserve the exact time of the banned post
+
+version: 25
+script: |
+  ALTER TABLE bans
+    ADD COLUMN IF NOT EXISTS `post_timestamp` int unsigned DEFAULT NULL AFTER `post_id`;
+
+  UPDATE bans
+    INNER JOIN posts ON posts.board_id = bans.post_board_id AND posts.post_id = bans.post_id
+    SET bans.post_timestamp = posts.timestamp
+    WHERE bans.post_timestamp IS NULL;

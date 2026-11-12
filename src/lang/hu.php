@@ -173,6 +173,8 @@ return [
 	'manage.editbanform.id'                => 'Kitiltás ID',
 	'manage.editbanform.ip'                => 'IP / tartomány',
 	'manage.editbanform.timestamp'         => 'Létrehozva',
+	'manage.editbanform.post'              => 'Hozzászólás',
+	'manage.editbanform.post_timestamp'    => 'Hozzászólás időbélyege',
 	'manage.editbanform.expire'            => 'Jelenlegi lejárat',
 	'manage.editbanform.duration'          => 'Időtartam',
 	'manage.editbanform.duration_hint'     => 'Percek mostantól a kitiltás lejáratáig',

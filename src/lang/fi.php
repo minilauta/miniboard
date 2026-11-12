@@ -173,6 +173,8 @@ return [
 	'manage.editbanform.id'                => 'Porttikiellon ID',
 	'manage.editbanform.ip'                => 'IP / alue',
 	'manage.editbanform.timestamp'         => 'Luotu',
+	'manage.editbanform.post'              => 'Viesti',
+	'manage.editbanform.post_timestamp'    => 'Viestin aikaleima',
 	'manage.editbanform.expire'            => 'Nykyinen vanheneminen',
 	'manage.editbanform.duration'          => 'Kesto',
 	'manage.editbanform.duration_hint'     => 'Minuutteja tästä hetkestä porttikiellon vanhenemiseen',
