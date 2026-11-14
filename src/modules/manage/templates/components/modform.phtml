@@ -1,50 +1,56 @@
 <form id="modform" class="form-manage" method="post">
   <?=funcs_common_csrf_field()?>
   <?=$this->render(__DIR__ . '/post_actions.phtml', ['status' => $status, 'move_thread' => true, 'approve_report' => false])?>
-  <table class="form-manage-table">
-    <thead>
-      <tr>
-        <th></th>
-        <th><?=__('manage.th.id')?></th>
-        <th><?=__('manage.th.post_id')?></th>
-        <th><?=__('manage.th.parent_id')?></th>
-        <th><?=__('manage.th.board_id')?></th>
-        <th><?=__('manage.th.ip')?></th>
-        <th><?=__('manage.th.deleted')?></th>
-        <th><?=__('manage.th.imported')?></th>
-        <th><?=__('manage.th.preview')?></th>
-        <th><?=__('manage.th.actions')?></th>
-      </tr>
-    </thead>
-    <tbody>
-      <?php
-        $editLabel = __('manage.edit_post');
-        foreach ($posts as $post) {
-          $preview = '';
-          if ($post['parent_id'] == 0) {
-            $preview = $this->render(__DIR__ . '/post_preview_op.phtml', ['post' => $post]);
-          } else {
-            $preview = $this->render(__DIR__ . '/post_preview_reply.phtml', ['post' => $post]);
+  <div class="form-manage-table-wrapper">
+    <table class="form-manage-table">
+      <thead>
+        <tr>
+          <th class="cell-center"></th>
+          <th><?=__('manage.th.id')?></th>
+          <th><?=__('manage.th.post_id')?></th>
+          <th><?=__('manage.th.parent_id')?></th>
+          <th><?=__('manage.th.board_id')?></th>
+          <th><?=__('manage.th.ip')?></th>
+          <th><?=__('manage.th.deleted')?></th>
+          <th><?=__('manage.th.imported')?></th>
+          <th><?=__('manage.th.preview')?></th>
+          <th class="cell-center"><?=__('manage.th.actions')?></th>
+        </tr>
+      </thead>
+      <tbody>
+        <?php
+          if (count($posts) === 0) {
+            echo "<tr><td class='cell-empty' colspan='10'>" . __('manage.no_entries') . "</td></tr>";
           }
 
-          $deleted = $post['deleted'] === 1 ? '<b>TRUE</b>' : 'FALSE';
-          $imported = $post['imported'] === 1 ? '<b>TRUE</b>' : 'FALSE';
-          echo "
-            <tr>
-              <td><input type=\"checkbox\" name=\"select[]\" value=\"{$post['board_id']}/{$post['post_id']}\"></td>
-              <td>{$post['id']}</td>
-              <td>{$post['post_id']}</td>
-              <td>{$post['parent_id']}</td>
-              <td>/{$post['board_id']}/</td>
-              <td>{$post['ip_rendered']}</td>
-              <td>{$deleted}</td>
-              <td>{$imported}</td>
-              <td>{$preview}</td>
-              <td><a href='?route=edit_post&board_id={$post['board_id']}&post_id={$post['post_id']}'>{$editLabel}</a></td>
-            </tr>
-          ";
-        }
-      ?>
-    </tbody>
-  </table>
+          $editLabel = __('manage.edit_post');
+          foreach ($posts as $post) {
+            $preview = '';
+            if ($post['parent_id'] == 0) {
+              $preview = $this->render(__DIR__ . '/post_preview_op.phtml', ['post' => $post]);
+            } else {
+              $preview = $this->render(__DIR__ . '/post_preview_reply.phtml', ['post' => $post]);
+            }
+
+            $deleted = $post['deleted'] === 1 ? '<b>TRUE</b>' : 'FALSE';
+            $imported = $post['imported'] === 1 ? '<b>TRUE</b>' : 'FALSE';
+            echo "
+              <tr>
+                <td class=\"cell-select cell-center\"><label><input type=\"checkbox\" name=\"select[]\" value=\"{$post['board_id']}/{$post['post_id']}\"></label></td>
+                <td>{$post['id']}</td>
+                <td>{$post['post_id']}</td>
+                <td>{$post['parent_id']}</td>
+                <td>/{$post['board_id']}/</td>
+                <td>{$post['ip_rendered']}</td>
+                <td>{$deleted}</td>
+                <td>{$imported}</td>
+                <td class=\"cell-wrap\">{$preview}</td>
+                <td class=\"cell-center\"><a href='?route=edit_post&board_id={$post['board_id']}&post_id={$post['post_id']}'>{$editLabel}</a></td>
+              </tr>
+            ";
+          }
+        ?>
+      </tbody>
+    </table>
+  </div>
 </form>

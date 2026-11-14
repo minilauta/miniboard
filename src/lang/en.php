@@ -100,6 +100,8 @@ return [
 	'manage.return'             => 'Return',
 	'manage.status'             => 'STATUS',
 	'manage.selected'           => 'Selected',
+	'manage.select_all'         => 'Select all',
+	'manage.no_entries'         => 'No entries',
 	'manage.action_ban'         => 'Ban',
 	'manage.action_delete'      => 'Delete',
 	'manage.action_thread'      => 'Thread',

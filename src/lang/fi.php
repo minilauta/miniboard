@@ -100,6 +100,8 @@ return [
 	'manage.return'             => 'Takaisin',
 	'manage.status'             => 'TILA',
 	'manage.selected'           => 'Valittu',
+	'manage.select_all'         => 'Valitse kaikki',
+	'manage.no_entries'         => 'Ei merkintöjä',
 	'manage.action_ban'         => 'Porttikielto',
 	'manage.action_delete'      => 'Poista',
 	'manage.action_thread'      => 'Lanka',

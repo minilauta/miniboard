@@ -1,36 +1,42 @@
 <form id="csamhashform" class="form-manage" method="post">
-  <table class="form-manage-table">
-    <thead>
-      <tr>
-        <th><?=__('manage.th.id')?></th>
-        <th>sha256</th>
-        <th><?=__('manage.th.type')?></th>
-        <th>algorithm</th>
-        <th>hash</th>
-        <th>quality</th>
-        <th>originator</th>
-        <th><?=__('manage.th.timestamp')?></th>
-      </tr>
-    </thead>
-    <tbody>
-      <?php
-        foreach ($rows as $row) {
-          $timestamp = date(MB_DATEFORMAT, $row['timestamp']);
+  <div class="form-manage-table-wrapper">
+    <table class="form-manage-table">
+      <thead>
+        <tr>
+          <th><?=__('manage.th.id')?></th>
+          <th>sha256</th>
+          <th><?=__('manage.th.type')?></th>
+          <th>algorithm</th>
+          <th>hash</th>
+          <th>quality</th>
+          <th>originator</th>
+          <th><?=__('manage.th.timestamp')?></th>
+        </tr>
+      </thead>
+      <tbody>
+        <?php
+          if (count($rows) === 0) {
+            echo "<tr><td class='cell-empty' colspan='8'>" . __('manage.no_entries') . "</td></tr>";
+          }
 
-          echo "
-            <tr>
-              <td>{$row['id']}</td>
-              <td>{$row['sha256']}</td>
-              <td>{$row['type']}</td>
-              <td>{$row['algorithm']}</td>
-              <td>{$row['hash']}</td>
-              <td>{$row['quality']}</td>
-              <td>{$row['originator']}</td>
-              <td>{$timestamp}</td>
-            </tr>
-          ";
-        }
-      ?>
-    </tbody>
-  </table>
+          foreach ($rows as $row) {
+            $timestamp = date(MB_DATEFORMAT, $row['timestamp']);
+
+            echo "
+              <tr>
+                <td>{$row['id']}</td>
+                <td class=\"cell-wrap cell-mono\">{$row['sha256']}</td>
+                <td>{$row['type']}</td>
+                <td>{$row['algorithm']}</td>
+                <td class=\"cell-wrap cell-mono\">{$row['hash']}</td>
+                <td>{$row['quality']}</td>
+                <td class=\"cell-wrap\">{$row['originator']}</td>
+                <td>{$timestamp}</td>
+              </tr>
+            ";
+          }
+        ?>
+      </tbody>
+    </table>
+  </div>
 </form>

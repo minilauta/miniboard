@@ -100,6 +100,8 @@ return [
 	'manage.return'             => 'Vissza',
 	'manage.status'             => 'ÁLLAPOT',
 	'manage.selected'           => 'Kijelölt',
+	'manage.select_all'         => 'Összes kijelölése',
+	'manage.no_entries'         => 'Nincsenek bejegyzések',
 	'manage.action_ban'         => 'Kitiltás',
 	'manage.action_delete'      => 'Törlés',
 	'manage.action_thread'      => 'Téma',

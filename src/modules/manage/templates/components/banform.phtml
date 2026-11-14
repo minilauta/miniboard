@@ -37,40 +37,47 @@
   </table>
 </form>
 <form id="banform" class="form-manage" method="post">
-  <table class="form-manage-table">
-    <thead>
-      <tr>
-        <th><?=__('manage.th.id')?></th>
-        <th><?=__('manage.th.ip')?></th>
-        <th><?=__('manage.th.timestamp')?></th>
-        <th><?=__('manage.th.expire')?></th>
-        <th><?=__('manage.th.reason')?></th>
-        <th><?=__('manage.th.comment')?></th>
-        <th><?=__('manage.th.imported')?></th>
-        <th><?=__('manage.th.actions')?></th>
-      </tr>
-    </thead>
-    <tbody>
-      <?php
-        $editLabel = __('manage.edit_ban');
-        foreach ($bans as $ban) {
-          $timestamp = date(MB_DATEFORMAT, $ban['timestamp']);
-          $expire = date(MB_DATEFORMAT, $ban['expire']);
+  <div class="form-manage-table-wrapper">
+    <table class="form-manage-table">
+      <thead>
+        <tr>
+          <th><?=__('manage.th.id')?></th>
+          <th><?=__('manage.th.ip')?></th>
+          <th><?=__('manage.th.timestamp')?></th>
+          <th><?=__('manage.th.expire')?></th>
+          <th><?=__('manage.th.reason')?></th>
+          <th><?=__('manage.th.comment')?></th>
+          <th><?=__('manage.th.imported')?></th>
+          <th class="cell-center"><?=__('manage.th.actions')?></th>
+        </tr>
+      </thead>
+      <tbody>
+        <?php
+          if (count($bans) === 0) {
+            echo "<tr><td class='cell-empty' colspan='8'>" . __('manage.no_entries') . "</td></tr>";
+          }
 
-          echo "
-            <tr>
-              <td>{$ban['id']}</td>
-              <td>{$ban['ip_rendered']}</td>
-              <td>{$timestamp}</td>
-              <td>{$expire}</td>
-              <td>{$ban['reason']}</td>
-              <td>{$ban['comment']}</td>
-              <td>{$ban['imported']}</td>
-              <td><a href='?route=edit_ban&id={$ban['id']}'>{$editLabel}</a></td>
-            </tr>
-          ";
-        }
-      ?>
-    </tbody>
-  </table>
+          $editLabel = __('manage.edit_ban');
+          foreach ($bans as $ban) {
+            $timestamp = date(MB_DATEFORMAT, $ban['timestamp']);
+            $expire = date(MB_DATEFORMAT, $ban['expire']);
+            $imported = $ban['imported'] === 1 ? '<b>TRUE</b>' : 'FALSE';
+
+            echo "
+              <tr>
+                <td>{$ban['id']}</td>
+                <td>{$ban['ip_rendered']}</td>
+                <td>{$timestamp}</td>
+                <td>{$expire}</td>
+                <td class=\"cell-wrap\">{$ban['reason']}</td>
+                <td class=\"cell-wrap\">{$ban['comment']}</td>
+                <td>{$imported}</td>
+                <td class=\"cell-center\"><a href='?route=edit_ban&id={$ban['id']}'>{$editLabel}</a></td>
+              </tr>
+            ";
+          }
+        ?>
+      </tbody>
+    </table>
+  </div>
 </form>

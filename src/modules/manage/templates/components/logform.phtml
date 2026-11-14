@@ -1,28 +1,34 @@
 <form id="logform" class="form-manage" method="post">
-  <table class="form-manage-table">
-    <thead>
-      <tr>
-        <th><?=__('manage.th.id')?></th>
-        <th><?=__('manage.th.timestamp')?></th>
-        <th><?=__('manage.th.username')?></th>
-        <th><?=__('manage.th.message')?></th>
-      </tr>
-    </thead>
-    <tbody>
-      <?php
-        foreach ($logs as $log) {
-          $timestamp = date(MB_DATEFORMAT, $log['timestamp']);
+  <div class="form-manage-table-wrapper">
+    <table class="form-manage-table">
+      <thead>
+        <tr>
+          <th><?=__('manage.th.id')?></th>
+          <th><?=__('manage.th.timestamp')?></th>
+          <th><?=__('manage.th.username')?></th>
+          <th><?=__('manage.th.message')?></th>
+        </tr>
+      </thead>
+      <tbody>
+        <?php
+          if (count($logs) === 0) {
+            echo "<tr><td class='cell-empty' colspan='4'>" . __('manage.no_entries') . "</td></tr>";
+          }
 
-          echo "
-            <tr>
-              <td>{$log['id']}</td>
-              <td>{$timestamp}</td>
-              <td>{$log['username_rendered']}</td>
-              <td>{$log['message']}</td>
-            </tr>
-          ";
-        }
-      ?>
-    </tbody>
-  </table>
+          foreach ($logs as $log) {
+            $timestamp = date(MB_DATEFORMAT, $log['timestamp']);
+
+            echo "
+              <tr>
+                <td>{$log['id']}</td>
+                <td>{$timestamp}</td>
+                <td>{$log['username_rendered']}</td>
+                <td class=\"cell-wrap\">{$log['message']}</td>
+              </tr>
+            ";
+          }
+        ?>
+      </tbody>
+    </table>
+  </div>
 </form>

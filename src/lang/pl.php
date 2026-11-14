@@ -100,6 +100,8 @@ return [
 	'manage.return'             => 'Powrót',
 	'manage.status'             => 'STATUS',
 	'manage.selected'           => 'Zaznaczone',
+	'manage.select_all'         => 'Zaznacz wszystko',
+	'manage.no_entries'         => 'Brak wpisów',
 	'manage.action_ban'         => 'Ban',
 	'manage.action_delete'      => 'Usuń',
 	'manage.action_thread'      => 'Wątek',

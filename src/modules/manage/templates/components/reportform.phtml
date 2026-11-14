@@ -1,58 +1,77 @@
 <form id="reportform" class="form-manage" method="post">
   <?=funcs_common_csrf_field()?>
   <?=$this->render(__DIR__ . '/post_actions.phtml', ['status' => $status, 'move_thread' => true, 'approve_report' => true])?>
-  <table class="form-manage-table">
-    <thead>
-      <tr>
-        <th></th>
-        <th><?=__('manage.th.id')?></th>
-        <th><?=__('manage.th.ip')?></th>
-        <th><?=__('manage.th.timestamp')?></th>
-        <th><?=__('manage.th.board_id')?></th>
-        <th><?=__('manage.th.post_id')?></th>
-        <th><?=__('manage.th.type')?></th>
-        <th><?=__('manage.th.reason')?></th>
-        <th><?=__('manage.th.imported')?></th>
-        <th><?=__('manage.th.post_ip')?></th>
-        <th><?=__('manage.th.post_deleted')?></th>
-        <th><?=__('manage.th.post_imported')?></th>
-        <th><?=__('manage.th.preview')?></th>
-      </tr>
-    </thead>
-    <tbody>
-      <?php
-        foreach ($reports as $report) {
-          $preview = '';
-          if ($report['parent_id'] == 0) {
-            $preview = $this->render(__DIR__ . '/post_preview_op.phtml', ['post' => $report]);
-          } else {
-            $preview = $this->render(__DIR__ . '/post_preview_reply.phtml', ['post' => $report]);
+  <div class="form-manage-table-wrapper">
+    <table class="form-manage-table">
+      <thead>
+        <tr>
+          <th class="cell-center">
+            <input
+              type="checkbox"
+              title="<?=__('manage.select_all')?>"
+              aria-label="<?=__('manage.select_all')?>"
+              onclick="this.closest('table').querySelectorAll('tbody input[name^=select]').forEach((c) => c.checked = this.checked);"
+            >
+          </th>
+          <th><?=__('manage.th.id')?></th>
+          <th><?=__('manage.th.ip')?></th>
+          <th><?=__('manage.th.timestamp')?></th>
+          <th><?=__('manage.th.board_id')?></th>
+          <th><?=__('manage.th.post_id')?></th>
+          <th><?=__('manage.th.type')?></th>
+          <th><?=__('manage.th.reason')?></th>
+          <th><?=__('manage.th.imported')?></th>
+          <th><?=__('manage.th.post_ip')?></th>
+          <th><?=__('manage.th.post_deleted')?></th>
+          <th><?=__('manage.th.post_imported')?></th>
+          <th><?=__('manage.th.preview')?></th>
+        </tr>
+      </thead>
+      <tbody>
+        <?php
+          if (count($reports) === 0) {
+            echo "<tr><td class='cell-empty' colspan='13'>" . __('manage.no_entries') . "</td></tr>";
           }
 
-          $timestamp = date(MB_DATEFORMAT, $report['r_timestamp']);
-          $imported = $report['r_imported'] === 1 ? '<b>TRUE</b>' : 'FALSE';
-          $post_deleted = $report['deleted'] === 1 ? '<b>TRUE</b>' : 'FALSE';
-          $post_imported = $report['imported'] === 1 ? '<b>TRUE</b>' : 'FALSE';
+          foreach ($reports as $report) {
+            $preview = '';
+            if ($report['parent_id'] == 0) {
+              $preview = $this->render(__DIR__ . '/post_preview_op.phtml', ['post' => $report]);
+            } else {
+              $preview = $this->render(__DIR__ . '/post_preview_reply.phtml', ['post' => $report]);
+            }
 
-          echo "
-            <tr>
-              <td><input type=\"checkbox\" name=\"select[]\" value=\"{$report['board_id']}/{$report['post_id']}\"></td>
-              <td>{$report['r_id']}</td>
-              <td>{$report['r_ip_rendered']}</td>
-              <td>{$timestamp}</td>
-              <td>/{$report['r_board_id']}/</td>
-              <td>{$report['r_post_id']}</td>
-              <td>{$report['r_type']}</td>
-              <td>" . htmlspecialchars($report['r_reason']) . "</td>
-              <td>{$imported}</td>
-              <td>{$report['ip_rendered']}</td>
-              <td>{$post_deleted}</td>
-              <td>{$post_imported}</td>
-              <td>{$preview}</td>
-            </tr>
-          ";
-        }
-      ?>
-    </tbody>
-  </table>
+            $timestamp = date(MB_DATEFORMAT, $report['r_timestamp']);
+            $imported = $report['r_imported'] === 1 ? '<b>TRUE</b>' : 'FALSE';
+            $post_deleted = $report['deleted'] === 1 ? '<b>TRUE</b>' : 'FALSE';
+            $post_imported = $report['imported'] === 1 ? '<b>TRUE</b>' : 'FALSE';
+
+            // show the report type description next to its number
+            $type = $report['r_type'];
+            if (isset(MB_REPORT_TYPES[$type])) {
+              $type .= ': ' . htmlspecialchars(MB_REPORT_TYPES[$type]);
+            }
+
+            echo "
+              <tr>
+                <td class=\"cell-select cell-center\"><label><input type=\"checkbox\" name=\"select[]\" value=\"{$report['board_id']}/{$report['post_id']}\"></label></td>
+                <td>{$report['r_id']}</td>
+                <td>{$report['r_ip_rendered']}</td>
+                <td>{$timestamp}</td>
+                <td>/{$report['r_board_id']}/</td>
+                <td>{$report['r_post_id']}</td>
+                <td class=\"cell-wrap\">{$type}</td>
+                <td class=\"cell-wrap\">" . htmlspecialchars($report['r_reason']) . "</td>
+                <td>{$imported}</td>
+                <td>{$report['ip_rendered']}</td>
+                <td>{$post_deleted}</td>
+                <td>{$post_imported}</td>
+                <td class=\"cell-wrap\">{$preview}</td>
+              </tr>
+            ";
+          }
+        ?>
+      </tbody>
+    </table>
+  </div>
 </form>

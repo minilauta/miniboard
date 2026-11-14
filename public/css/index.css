@@ -507,8 +507,12 @@ textarea:focus {
 }
 
 table.form-manage-table {
-  width: 100%;
+  min-width: min(768px, 100%);
   margin: 4px auto 4px auto;
+}
+
+form.form-manage + table.pagetable {
+  margin: 0 auto;
 }
 
 .form-manage > table:not(.form-manage-table) {
@@ -524,7 +528,7 @@ table.form-manage-table {
   vertical-align: top;
 }
 
-.form-manage td * {
+.form-manage > table:not(.form-manage-table) td *:not(input[type="submit"]) {
   padding: 0px;
 }
 
@@ -537,6 +541,71 @@ table.form-manage-table {
 .form-manage td.form-fields input[type="number"] {
   width: 20em;
   box-sizing: border-box;
+}
+
+div.form-manage-table-wrapper {
+  overflow-x: auto;
+}
+
+table.form-manage-table th,
+table.form-manage-table td {
+  padding: 2px 4px;
+  white-space: nowrap;
+}
+
+table.form-manage-table td.cell-wrap {
+  white-space: normal;
+  overflow-wrap: anywhere;
+}
+
+table.form-manage-table td.cell-mono {
+  font-family: monospace;
+}
+
+table.form-manage-table th.cell-center,
+table.form-manage-table td.cell-center {
+  text-align: center;
+  vertical-align: middle;
+}
+
+table.form-manage-table td.cell-empty {
+  text-align: center;
+  font-style: italic;
+}
+
+table.form-manage-table div.post.reply {
+  width: 100%;
+  box-sizing: border-box;
+  margin-bottom: 0;
+}
+
+table.form-manage-table div.post-message {
+  margin: 0.25em 0;
+}
+
+table.form-manage-table td.cell-select {
+  position: relative;
+}
+
+table.form-manage-table td.cell-select label {
+  cursor: pointer;
+}
+
+table.form-manage-table td.cell-select label::after {
+  content: "";
+  position: absolute;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  left: 0;
+}
+
+table.form-manage-table tbody tr:hover {
+  background-color: rgba(128, 128, 128, 0.1);
+}
+
+table.form-manage-table tbody tr:has(input[name="select[]"]:checked) {
+  background-color: rgba(128, 128, 128, 0.25);
 }
 
 /* animations */

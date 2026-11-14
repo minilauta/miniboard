@@ -45,36 +45,49 @@
   </table>
 </form>
 <form id="accountform" class="form-manage" method="post">
-  <table class="form-manage-table">
-    <thead>
-      <tr>
-        <th><?=__('manage.th.id')?></th>
-        <th><?=__('manage.th.username')?></th>
-        <th><?=__('manage.th.role')?></th>
-        <th><?=__('manage.th.lastactive')?></th>
-        <th><?=__('manage.th.imported')?></th>
-        <th><?=__('manage.th.actions')?></th>
-      </tr>
-    </thead>
-    <tbody>
-      <?php
-        $editLabel = __('manage.edit_account');
-        foreach ($accounts as $account) {
-          $lastactive = date(MB_DATEFORMAT, $account['lastactive']);
-          $imported = $account['imported'] === 1 ? '<b>TRUE</b>' : 'FALSE';
+  <div class="form-manage-table-wrapper">
+    <table class="form-manage-table">
+      <thead>
+        <tr>
+          <th><?=__('manage.th.id')?></th>
+          <th><?=__('manage.th.username')?></th>
+          <th><?=__('manage.th.role')?></th>
+          <th><?=__('manage.th.lastactive')?></th>
+          <th><?=__('manage.th.imported')?></th>
+          <th class="cell-center"><?=__('manage.th.actions')?></th>
+        </tr>
+      </thead>
+      <tbody>
+        <?php
+          if (count($accounts) === 0) {
+            echo "<tr><td class='cell-empty' colspan='6'>" . __('manage.no_entries') . "</td></tr>";
+          }
 
-          echo "
-            <tr>
-              <td>{$account['id']}</td>
-              <td>{$account['username']}</td>
-              <td>{$account['role']}</td>
-              <td>{$lastactive}</td>
-              <td>{$imported}</td>
-              <td><a href='?route=edit_account&id={$account['id']}'>{$editLabel}</a></td>
-            </tr>
-          ";
-        }
-      ?>
-    </tbody>
-  </table>
+          $roles = [
+            MB_ROLE_SUPERADMIN => __('manage.editaccountform.role_superadmin'),
+            MB_ROLE_ADMIN      => __('manage.editaccountform.role_admin'),
+            MB_ROLE_MODERATOR  => __('manage.editaccountform.role_moderator'),
+            MB_ROLE_DISABLED   => __('manage.editaccountform.role_disabled'),
+          ];
+          $editLabel = __('manage.edit_account');
+          foreach ($accounts as $account) {
+            $lastactive = date(MB_DATEFORMAT, $account['lastactive']);
+            $imported = $account['imported'] === 1 ? '<b>TRUE</b>' : 'FALSE';
+            $role = isset($roles[$account['role']]) ? "{$roles[$account['role']]} ({$account['role']})" : $account['role'];
+
+            echo "
+              <tr>
+                <td>{$account['id']}</td>
+                <td>{$account['username']}</td>
+                <td>{$role}</td>
+                <td>{$lastactive}</td>
+                <td>{$imported}</td>
+                <td class=\"cell-center\"><a href='?route=edit_account&id={$account['id']}'>{$editLabel}</a></td>
+              </tr>
+            ";
+          }
+        ?>
+      </tbody>
+    </table>
+  </div>
 </form>
