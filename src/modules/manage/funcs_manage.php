@@ -29,6 +29,11 @@ function funcs_manage_login(array $account, string $password): bool {
     return false;
   }
 
+  // reject disabled or otherwise inactive accounts
+  if (!funcs_common_is_active_role($account['role'])) {
+    return false;
+  }
+
   // set session variables
   $_SESSION['mb_username'] = $account['username'];
   $_SESSION['mb_role'] = $account['role'];
@@ -36,6 +41,24 @@ function funcs_manage_login(array $account, string $password): bool {
   funcs_manage_log('Logged in');
 
   return true;
+}
+
+/**
+ * Re-validates the logged in account against the database.
+ */
+function funcs_manage_refresh_session(): void {
+  if (!isset($_SESSION['mb_username'])) {
+    unset($_SESSION['mb_role']);
+    return;
+  }
+
+  $account = select_account($_SESSION['mb_username']);
+  if (!$account || !funcs_common_is_active_role($account['role'])) {
+    unset($_SESSION['mb_username'], $_SESSION['mb_role']);
+    return;
+  }
+
+  $_SESSION['mb_role'] = $account['role'];
 }
 
 /**

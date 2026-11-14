@@ -27,10 +27,17 @@ function funcs_common_get_board_cfg(string $board_id): array {
 }
 
 /**
- * Returns true if user is logged in by checking session vars.
+ * Returns true if role is an active staff role (excludes disabled and system roles).
+ */
+function funcs_common_is_active_role(mixed $role): bool {
+  return in_array($role, [MB_ROLE_SUPERADMIN, MB_ROLE_ADMIN, MB_ROLE_MODERATOR], true);
+}
+
+/**
+ * Returns true if user is logged in with an active staff role by checking session vars.
  */
 function funcs_common_is_logged_in(): bool {
-  return isset($_SESSION['mb_username']) && isset($_SESSION['mb_role']);
+  return isset($_SESSION['mb_username']) && isset($_SESSION['mb_role']) && funcs_common_is_active_role($_SESSION['mb_role']);
 }
 
 /**

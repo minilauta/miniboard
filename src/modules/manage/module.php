@@ -8,6 +8,7 @@ use minichan\core;
 require_once __ROOT__ . '/core/module.php';
 require_once __ROOT__ . '/core/renderer.php';
 require_once __ROOT__ . '/common/exception.php';
+require_once __ROOT__ . '/common/database.php';
 require_once __ROOT__ . '/common/funcs_common.php';
 require_once __DIR__ . '/funcs_manage.php';
 
@@ -27,7 +28,13 @@ class ManageModule implements core\Module
 		$this->renderer->set_var('app', $app);
 	}
 
-	public function register_middleware(core\Router &$router): void {}
+	public function register_middleware(core\Router &$router): void
+	{
+		// re-validate logged in account on every request, the session role is used by all modules
+		$router->add_middleware(function () {
+			funcs_manage_refresh_session();
+		});
+	}
 
 	public function register_routes(core\Router &$router): void
 	{

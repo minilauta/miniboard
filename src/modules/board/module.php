@@ -667,6 +667,11 @@ class BoardModule implements core\Module
 				throw new \AppException('index', 'route', "posting on /{$board_cfg['id']}/ board is disabled", SC_BAD_REQUEST);
 			}
 		
+			// check target board access
+			if (!funcs_board_check_access($board_cfg, funcs_common_get_role())) {
+				throw new \AppException('index', 'route', 'access denied', SC_UNAUTHORIZED);
+			}
+		
 			// validate request fields
 			funcs_common_validate_fields($fields, $board_cfg['fields_post']);
 		}
