@@ -102,7 +102,7 @@ services:
       PMA_PASSWORD: ${DB_ROOT_PASS}
 
   redis:
-    image: redis:7.0-alpine
+    image: redis:7.2-alpine
     restart: always
     command: '--save 60 1 --loglevel verbose --requirepass ${REDIS_PASS}'
     networks:

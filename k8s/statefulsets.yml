@@ -88,7 +88,7 @@ spec: # spec for stateful set
     spec: # spec for pods
       containers:
       - name: miniboard-redis
-        image: redis:7.0-alpine
+        image: redis:7.2-alpine
         securityContext:
           runAsNonRoot: true
           runAsUser: 82
