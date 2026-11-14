@@ -129,6 +129,7 @@ return [
 	'manage.board_id'           => 'FÓRUM id',
 	'manage.edit_post'			=> 'SZERKESZTÉS',
 	'manage.edit_ban'			=> 'SZERKESZTÉS',
+	'manage.edit_account'		=> 'SZERKESZTÉS',
 
 	// Manage table headers
 	'manage.th.id'              => 'id',
@@ -183,6 +184,22 @@ return [
 	'manage.editbanform.edit_options'      => 'Szerkesztési beállítások',
 	'manage.editbanform.submit'            => 'Küldés',
 	'manage.editbanform.delete_confirm'    => 'Törli ezt a kitiltást?',
+
+	// Manage editaccountform
+	'manage.editaccountform.id'            => 'Fiók ID',
+	'manage.editaccountform.username'      => 'Felhasználónév',
+	'manage.editaccountform.lastactive'    => 'Utoljára aktív',
+	'manage.editaccountform.imported'      => 'Importálva',
+	'manage.editaccountform.role'          => 'Szerepkör',
+	'manage.editaccountform.role_superadmin' => 'Szuperadminisztrátor',
+	'manage.editaccountform.role_admin'    => 'Adminisztrátor',
+	'manage.editaccountform.role_moderator' => 'Moderátor',
+	'manage.editaccountform.role_disabled' => 'Letiltva',
+	'manage.editaccountform.role_self_hint' => 'Saját fiókja szerepkörét nem módosíthatja',
+	'manage.editaccountform.password'      => 'Új jelszó',
+	'manage.editaccountform.password_placeholder' => 'Hagyja üresen a jelenlegi jelszó megtartásához',
+	'manage.editaccountform.password_confirm' => 'Jelszó megerősítése',
+	'manage.editaccountform.submit'        => 'Küldés',
 
 	// Bans page
 	'bans.title'                => 'Kitiltások',

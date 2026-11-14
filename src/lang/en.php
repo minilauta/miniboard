@@ -129,6 +129,7 @@ return [
 	'manage.board_id'           => 'BOARD id',
 	'manage.edit_post'			=> 'EDIT',
 	'manage.edit_ban'			=> 'EDIT',
+	'manage.edit_account'		=> 'EDIT',
 
 	// Manage table headers
 	'manage.th.id'              => 'id',
@@ -183,6 +184,22 @@ return [
 	'manage.editbanform.edit_options'      => 'Edit options',
 	'manage.editbanform.submit'            => 'Submit',
 	'manage.editbanform.delete_confirm'    => 'Delete this ban?',
+
+	// Manage editaccountform
+	'manage.editaccountform.id'            => 'Account ID',
+	'manage.editaccountform.username'      => 'Username',
+	'manage.editaccountform.lastactive'    => 'Last active',
+	'manage.editaccountform.imported'      => 'Imported',
+	'manage.editaccountform.role'          => 'Role',
+	'manage.editaccountform.role_superadmin' => 'Superadmin',
+	'manage.editaccountform.role_admin'    => 'Admin',
+	'manage.editaccountform.role_moderator' => 'Moderator',
+	'manage.editaccountform.role_disabled' => 'Disabled',
+	'manage.editaccountform.role_self_hint' => 'You cannot change the role of your own account',
+	'manage.editaccountform.password'      => 'New password',
+	'manage.editaccountform.password_placeholder' => 'Leave empty to keep the current password',
+	'manage.editaccountform.password_confirm' => 'Confirm password',
+	'manage.editaccountform.submit'        => 'Submit',
 
 	// Bans page
 	'bans.title'                => 'Bans',

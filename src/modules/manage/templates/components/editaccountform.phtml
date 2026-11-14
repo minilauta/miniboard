@@ -1,0 +1,83 @@
+<?php
+  $roles = [
+    MB_ROLE_SUPERADMIN => __('manage.editaccountform.role_superadmin'),
+    MB_ROLE_ADMIN      => __('manage.editaccountform.role_admin'),
+    MB_ROLE_MODERATOR  => __('manage.editaccountform.role_moderator'),
+    MB_ROLE_DISABLED   => __('manage.editaccountform.role_disabled'),
+  ];
+?>
+<form id="form-edit-account" class="form-manage form" method="post" action="/manage/edit_account?route=accounts">
+  <?= funcs_common_csrf_field() ?>
+  <input type="hidden" name="id" value="<?= (int) $account['id'] ?>">
+  <table>
+    <tbody>
+      <tr>
+        <td class="form-label">
+          <label><?= __('manage.editaccountform.id') ?></label>
+        </td>
+        <td>
+          <?= (int) $account['id'] ?>
+        </td>
+      </tr>
+      <tr>
+        <td class="form-label">
+          <label><?= __('manage.editaccountform.username') ?></label>
+        </td>
+        <td>
+          <?= htmlspecialchars($account['username'], ENT_QUOTES, 'UTF-8') ?>
+        </td>
+      </tr>
+      <tr>
+        <td class="form-label">
+          <label><?= __('manage.editaccountform.lastactive') ?></label>
+        </td>
+        <td>
+          <?= date(MB_DATEFORMAT, $account['lastactive']) ?>
+        </td>
+      </tr>
+      <tr>
+        <td class="form-label">
+          <label><?= __('manage.editaccountform.imported') ?></label>
+        </td>
+        <td>
+          <?= $account['imported'] === 1 ? '<b>TRUE</b>' : 'FALSE' ?>
+        </td>
+      </tr>
+      <tr>
+        <td class="form-label">
+          <label for="role"><?= __('manage.editaccountform.role') ?></label>
+        </td>
+        <td>
+          <select id="role" name="role"<?= $is_self ? ' disabled' : '' ?>>
+            <?php if (!array_key_exists($account['role'], $roles)): ?>
+              <option value="<?= (int) $account['role'] ?>" selected><?= (int) $account['role'] ?></option>
+            <?php endif; ?>
+            <?php foreach ($roles as $value => $label): ?>
+              <option value="<?= $value ?>"<?= $account['role'] === $value ? ' selected' : '' ?>><?= $label ?> (<?= $value ?>)</option>
+            <?php endforeach; ?>
+          </select>
+          <?php if ($is_self): ?>
+            <?= __('manage.editaccountform.role_self_hint') ?>
+          <?php endif; ?>
+        </td>
+      </tr>
+      <tr>
+        <td class="form-label">
+          <label for="password"><?= __('manage.editaccountform.password') ?></label>
+        </td>
+        <td>
+          <input type="password" id="password" name="password" autocomplete="new-password" minlength="8" maxlength="72" placeholder="<?= __('manage.editaccountform.password_placeholder') ?>">
+        </td>
+      </tr>
+      <tr>
+        <td class="form-label">
+          <label for="password_confirm"><?= __('manage.editaccountform.password_confirm') ?></label>
+        </td>
+        <td>
+          <input type="password" id="password_confirm" name="password_confirm" autocomplete="new-password" minlength="8" maxlength="72">
+          <input type="submit" name="submit" value="<?= __('manage.editaccountform.submit') ?>">
+        </td>
+      </tr>
+    </tbody>
+  </table>
+</form>

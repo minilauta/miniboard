@@ -363,6 +363,44 @@ class ManageModule implements core\Module
 			http_response_code(303);
 		}
 
+		$router->add_route(HTTP_POST, '/manage/edit_account', function ($vars) {
+			if (!funcs_common_is_logged_in()) {
+				throw new \AppException('index', 'route', 'access denied', SC_UNAUTHORIZED);
+			}
+
+			if ($_SESSION['mb_role'] !== MB_ROLE_SUPERADMIN) {
+				throw new \AppException('index', 'route', 'insufficient permissions', SC_FORBIDDEN);
+			}
+
+			return handle_manage_editaccountform($vars);
+		});
+
+		function handle_manage_editaccountform($vars) {
+			// validate CSRF token
+			funcs_common_validate_csrf($_POST);
+
+			// validate request fields
+			funcs_common_validate_fields($_POST, [
+				'id'               => ['required' => true, 'type' => 'string'],
+				'role'             => ['required' => false, 'type' => 'string'],
+				'password'         => ['required' => false, 'type' => 'string', 'max_len' => 72],
+				'password_confirm' => ['required' => false, 'type' => 'string', 'max_len' => 72]
+			]);
+
+			// parse request fields
+			$id = funcs_common_parse_input_int($_POST, 'id', null, 0);
+			$role = isset($_POST['role']) ? intval($_POST['role']) : null;
+
+			// execute edit account
+			$status = funcs_manage_edit_account($id, $role, $_POST['password'] ?? '', $_POST['password_confirm'] ?? '');
+
+			// set query to return properly
+			$query = funcs_common_mutate_query($_GET, 'status', $status);
+
+			header("Location: /manage/?{$query}");
+			http_response_code(303);
+		}
+
 		$router->add_route(HTTP_POST, '/manage/approve', function ($vars) {
 			if (!funcs_common_is_logged_in()) {
 				throw new \AppException('index', 'route', 'access denied', SC_UNAUTHORIZED);

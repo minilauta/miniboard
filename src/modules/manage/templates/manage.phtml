@@ -240,6 +240,25 @@
             'ban' => $ban,
           ]);
           break;
+        case 'edit_account':
+          if (funcs_common_get_role() !== MB_ROLE_SUPERADMIN) {
+            throw new \AppException('manage.phtml', 'inline', 'insufficient permissions', SC_FORBIDDEN);
+          }
+
+          // get query params
+          $query_id = funcs_common_parse_input_int($query_params, 'id', null, 0);
+
+          // get account
+          $account = select_account_by_id($query_id);
+          if (!$account) {
+            throw new \AppException('manage.phtml', 'inline', "account #{$query_id} not found", SC_NOT_FOUND);
+          }
+
+          echo $this->render(__DIR__ .'/components/editaccountform.phtml', [
+            'account' => $account,
+            'is_self' => $account['username'] === ($_SESSION['mb_username'] ?? null),
+          ]);
+          break;
         case 'reports':
         default:
           // set constants

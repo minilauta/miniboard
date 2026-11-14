@@ -883,6 +883,15 @@ function select_account(string $username): array|bool {
   return $sth->fetch();
 }
 
+function select_account_by_id(int $id): array|bool {
+  $dbh = get_db_handle();
+  $sth = $dbh->prepare('SELECT * FROM accounts WHERE id = :id');
+  $sth->execute([
+    'id' => $id
+  ]);
+  return $sth->fetch();
+}
+
 function select_all_accounts(bool $desc = true, int $offset = 0, int $limit = 10): array|bool {
   $dbh = get_db_handle();
   $sth = $dbh->prepare('

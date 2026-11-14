@@ -129,6 +129,7 @@ return [
 	'manage.board_id'           => 'LAUTA-id',
 	'manage.edit_post'			=> 'MUOKKAA',
 	'manage.edit_ban'			=> 'MUOKKAA',
+	'manage.edit_account'		=> 'MUOKKAA',
 
 	// Manage table headers
 	'manage.th.id'              => 'id',
@@ -183,6 +184,22 @@ return [
 	'manage.editbanform.edit_options'      => 'Muokkausvalinnat',
 	'manage.editbanform.submit'            => 'Lähetä',
 	'manage.editbanform.delete_confirm'    => 'Poistetaanko tämä porttikielto?',
+
+	// Manage editaccountform
+	'manage.editaccountform.id'            => 'Tilin ID',
+	'manage.editaccountform.username'      => 'Käyttäjätunnus',
+	'manage.editaccountform.lastactive'    => 'Viimeksi aktiivinen',
+	'manage.editaccountform.imported'      => 'Tuotu',
+	'manage.editaccountform.role'          => 'Rooli',
+	'manage.editaccountform.role_superadmin' => 'Pääylläpitäjä',
+	'manage.editaccountform.role_admin'    => 'Ylläpitäjä',
+	'manage.editaccountform.role_moderator' => 'Moderaattori',
+	'manage.editaccountform.role_disabled' => 'Poistettu käytöstä',
+	'manage.editaccountform.role_self_hint' => 'Et voi muuttaa oman tilisi roolia',
+	'manage.editaccountform.password'      => 'Uusi salasana',
+	'manage.editaccountform.password_placeholder' => 'Jätä tyhjäksi säilyttääksesi nykyisen salasanan',
+	'manage.editaccountform.password_confirm' => 'Vahvista salasana',
+	'manage.editaccountform.submit'        => 'Lähetä',
 
 	// Bans page
 	'bans.title'                => 'Porttikiellot',

@@ -402,6 +402,58 @@ function funcs_manage_delete_ban(int $id): string {
   return $status;
 }
 
+function funcs_manage_edit_account(int $id, ?int $role, string $password, string $password_confirm): string {
+  // get the existing account
+  $account = select_account_by_id($id);
+  if (!$account) {
+    return "Account #{$id} not found";
+  }
+
+  $changes = [];
+
+  // role change
+  if ($role !== null && $role !== $account['role']) {
+    if (!in_array($role, [MB_ROLE_SUPERADMIN, MB_ROLE_ADMIN, MB_ROLE_MODERATOR, MB_ROLE_DISABLED], true)) {
+      return "Invalid role {$role}";
+    }
+
+    if ($account['username'] === ($_SESSION['mb_username'] ?? null)) {
+      return 'You cannot change the role of your own account';
+    }
+
+    $account['role'] = $role;
+    $changes[] = 'role';
+  }
+
+  // password change
+  if ($password !== '' || $password_confirm !== '') {
+    if (strlen($password) < 8) {
+      return 'Password must be at least 8 characters';
+    }
+
+    if (!hash_equals($password, $password_confirm)) {
+      return 'Passwords do not match';
+    }
+
+    $account['password'] = funcs_common_hash_password($password);
+    $changes[] = 'password';
+  }
+
+  if (count($changes) === 0) {
+    return "No changes to account #{$id}";
+  }
+
+  // update the account (lastactive is kept as is)
+  if (update_account($account) !== TRUE) {
+    throw new \AppException('funcs_manage', 'edit_account', "failed to update account #{$id}", SC_INTERNAL_ERROR);
+  }
+
+  // log without the username, logs are visible to all staff
+  $status = "Updated account #{$id} (" . implode(', ', $changes) . ")";
+  funcs_manage_log($status);
+  return $status;
+}
+
 function funcs_manage_approve(array $select): string {
   // delete each report
   $processed = 0;

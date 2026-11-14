@@ -1,3 +1,17 @@
+<form id="accountstatusform" class="form-manage" method="post">
+  <table>
+    <tbody>
+      <tr>
+        <td class="form-label">
+          <label><?=__('manage.status')?></label>
+        </td>
+        <td>
+          <b><?=$status?></b>
+        </td>
+      </tr>
+    </tbody>
+  </table>
+</form>
 <form id="accountform" class="form-manage" method="post">
   <table class="form-manage-table">
     <thead>
@@ -7,10 +21,12 @@
         <th><?=__('manage.th.role')?></th>
         <th><?=__('manage.th.lastactive')?></th>
         <th><?=__('manage.th.imported')?></th>
+        <th><?=__('manage.th.actions')?></th>
       </tr>
     </thead>
     <tbody>
       <?php
+        $editLabel = __('manage.edit_account');
         foreach ($accounts as $account) {
           $lastactive = date(MB_DATEFORMAT, $account['lastactive']);
           $imported = $account['imported'] === 1 ? '<b>TRUE</b>' : 'FALSE';
@@ -22,6 +38,7 @@
               <td>{$account['role']}</td>
               <td>{$lastactive}</td>
               <td>{$imported}</td>
+              <td><a href='?route=edit_account&id={$account['id']}'>{$editLabel}</a></td>
             </tr>
           ";
         }

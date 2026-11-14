@@ -129,6 +129,7 @@ return [
 	'manage.board_id'           => 'ID TABLICY',
 	'manage.edit_post'			=> 'EDYTUJ',
 	'manage.edit_ban'			=> 'EDYTUJ',
+	'manage.edit_account'		=> 'EDYTUJ',
 
 	// Manage table headers
 	'manage.th.id'              => 'id',
@@ -183,6 +184,22 @@ return [
 	'manage.editbanform.edit_options'      => 'Opcje edycji',
 	'manage.editbanform.submit'            => 'Wyślij',
 	'manage.editbanform.delete_confirm'    => 'Usunąć tego bana?',
+
+	// Manage editaccountform
+	'manage.editaccountform.id'            => 'ID konta',
+	'manage.editaccountform.username'      => 'Nazwa użytkownika',
+	'manage.editaccountform.lastactive'    => 'Ostatnia aktywność',
+	'manage.editaccountform.imported'      => 'Zaimportowano',
+	'manage.editaccountform.role'          => 'Rola',
+	'manage.editaccountform.role_superadmin' => 'Superadministrator',
+	'manage.editaccountform.role_admin'    => 'Administrator',
+	'manage.editaccountform.role_moderator' => 'Moderator',
+	'manage.editaccountform.role_disabled' => 'Wyłączone',
+	'manage.editaccountform.role_self_hint' => 'Nie możesz zmienić roli własnego konta',
+	'manage.editaccountform.password'      => 'Nowe hasło',
+	'manage.editaccountform.password_placeholder' => 'Pozostaw puste, aby zachować obecne hasło',
+	'manage.editaccountform.password_confirm' => 'Potwierdź hasło',
+	'manage.editaccountform.submit'        => 'Wyślij',
 
 	// Bans page
 	'bans.title'                => 'Bany',
