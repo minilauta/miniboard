@@ -933,6 +933,21 @@ function update_account(array $account): bool {
   ]);
 }
 
+function insert_account(string $username, string $password, int $role): int {
+  $dbh = get_db_handle();
+  $sth = $dbh->prepare('
+    INSERT INTO accounts (username, password, role, lastactive)
+    VALUES (:username, :password, :role, :lastactive)
+  ');
+  $sth->execute([
+    'username' => $username,
+    'password' => $password,
+    'role' => $role,
+    'lastactive' => time()
+  ]);
+  return intval($dbh->lastInsertId());
+}
+
 function select_all_bans(bool $desc = true, int $offset = 0, int $limit = 10): array|bool {
   $dbh = get_db_handle();
   $sth = $dbh->prepare('

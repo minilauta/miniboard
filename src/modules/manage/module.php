@@ -363,6 +363,43 @@ class ManageModule implements core\Module
 			http_response_code(303);
 		}
 
+		$router->add_route(HTTP_POST, '/manage/create_account', function ($vars) {
+			if (!funcs_common_is_logged_in()) {
+				throw new \AppException('index', 'route', 'access denied', SC_UNAUTHORIZED);
+			}
+
+			if ($_SESSION['mb_role'] !== MB_ROLE_SUPERADMIN) {
+				throw new \AppException('index', 'route', 'insufficient permissions', SC_FORBIDDEN);
+			}
+
+			return handle_manage_createaccountform($vars);
+		});
+
+		function handle_manage_createaccountform($vars) {
+			// validate CSRF token
+			funcs_common_validate_csrf($_POST);
+
+			// validate request fields
+			funcs_common_validate_fields($_POST, [
+				'username'         => ['required' => true, 'type' => 'string', 'max_len' => 75],
+				'role'             => ['required' => true, 'type' => 'string'],
+				'password'         => ['required' => true, 'type' => 'string', 'max_len' => 72],
+				'password_confirm' => ['required' => true, 'type' => 'string', 'max_len' => 72]
+			]);
+
+			// parse request fields
+			$role = funcs_common_parse_input_int($_POST, 'role', null);
+
+			// execute create account
+			$status = funcs_manage_create_account($_POST['username'], $role, $_POST['password'], $_POST['password_confirm']);
+
+			// set query to return properly
+			$query = funcs_common_mutate_query($_GET, 'status', $status);
+
+			header("Location: /manage/?{$query}");
+			http_response_code(303);
+		}
+
 		$router->add_route(HTTP_POST, '/manage/edit_account', function ($vars) {
 			if (!funcs_common_is_logged_in()) {
 				throw new \AppException('index', 'route', 'access denied', SC_UNAUTHORIZED);

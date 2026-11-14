@@ -402,6 +402,50 @@ function funcs_manage_delete_ban(int $id): string {
   return $status;
 }
 
+/**
+ * Validates a new account password, returns an error message or null if valid.
+ */
+function funcs_manage_validate_password(string $password, string $password_confirm): ?string {
+  // bcrypt only uses the first 72 bytes
+  if (strlen($password) < 8 || strlen($password) > 72) {
+    return 'Password must be 8-72 characters';
+  }
+
+  if (!hash_equals($password, $password_confirm)) {
+    return 'Passwords do not match';
+  }
+
+  return null;
+}
+
+function funcs_manage_create_account(string $username, int $role, string $password, string $password_confirm): string {
+  // restrict usernames to a safe charset, they are rendered in the accounts list and logs
+  if (preg_match('/\A[A-Za-z0-9_.-]{2,75}\z/', $username) !== 1) {
+    return 'Username must be 2-75 characters of A-Z, a-z, 0-9, _ . -';
+  }
+
+  if (!in_array($role, [MB_ROLE_SUPERADMIN, MB_ROLE_ADMIN, MB_ROLE_MODERATOR, MB_ROLE_DISABLED], true)) {
+    return "Invalid role {$role}";
+  }
+
+  $password_error = funcs_manage_validate_password($password, $password_confirm);
+  if ($password_error !== null) {
+    return $password_error;
+  }
+
+  // usernames are unique case-insensitively (utf8mb4_unicode_ci), so this also catches case variants
+  if (select_account($username)) {
+    return 'Username is already taken';
+  }
+
+  $id = insert_account($username, funcs_common_hash_password($password), $role);
+
+  // log without the username, logs are visible to all staff
+  $status = "Created account #{$id}";
+  funcs_manage_log($status);
+  return $status;
+}
+
 function funcs_manage_edit_account(int $id, ?int $role, string $password, string $password_confirm): string {
   // get the existing account
   $account = select_account_by_id($id);
@@ -427,12 +471,9 @@ function funcs_manage_edit_account(int $id, ?int $role, string $password, string
 
   // password change
   if ($password !== '' || $password_confirm !== '') {
-    if (strlen($password) < 8) {
-      return 'Password must be at least 8 characters';
-    }
-
-    if (!hash_equals($password, $password_confirm)) {
-      return 'Passwords do not match';
+    $password_error = funcs_manage_validate_password($password, $password_confirm);
+    if ($password_error !== null) {
+      return $password_error;
     }
 
     $account['password'] = funcs_common_hash_password($password);
