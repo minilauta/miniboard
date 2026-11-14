@@ -1,41 +1,6 @@
 <form id="reportform" class="form-manage" method="post">
   <?=funcs_common_csrf_field()?>
-  <table>
-    <tbody>
-      <tr>
-        <td class="form-label">
-          <label><?=__('manage.status')?></label>
-        </td>
-        <td>
-          <b><?=$status?></b>
-        </td>
-      </tr>
-      <tr>
-        <td class="form-label">
-          <label><?=__('manage.selected')?></label>
-        </td>
-        <td>
-	        <input type="submit" value="<?=__('manage.delete_post')?>" formaction="delete?<?=http_build_query($_GET)?>">
-	        <input type="submit" value="<?=__('manage.ban_ip')?>" formaction="ban?<?=http_build_query($_GET)?>">
-          <select name="prefix" title="<?=__('manage.ban_prefix')?>">
-            <option value=""><?=__('manage.ban_prefix_exact')?></option>
-            <option value="24">IPv4 /24</option>
-            <option value="16">IPv4 /16</option>
-            <option value="64">IPv6 /64</option>
-            <option value="48">IPv6 /48</option>
-          </select>
-          <input type="submit" name="network" value="<?=__('manage.ban_network')?>" formaction="ban?<?=http_build_query($_GET)?>">
-          <input type="number" name="duration" placeholder="<?=__('manage.ban_minutes')?>">
-          <input type="text" name="reason" placeholder="<?=__('manage.ban_reason')?>">
-          <label><input type="checkbox" name="capture"> <?=__('manage.ban_capture')?></label>
-	        <input type="submit" value="<?=__('manage.mark_csam')?>" formaction="csam_scanner/cp?<?=http_build_query($_GET)?>">
-	        <input type="submit" value="<?=__('manage.toggle_lock')?>" formaction="toggle_lock?<?=http_build_query($_GET)?>">
-	        <input type="submit" value="<?=__('manage.toggle_sticky')?>" formaction="toggle_sticky?<?=http_build_query($_GET)?>">
-	        <input type="submit" value="<?=__('manage.approve_report')?>" formaction="approve?<?=http_build_query($_GET)?>">
-        </td>
-      </tr>
-    </tbody>
-  </table>
+  <?=$this->render(__DIR__ . '/post_actions.phtml', ['status' => $status, 'move_thread' => true, 'approve_report' => true])?>
   <table class="form-manage-table">
     <thead>
       <tr>

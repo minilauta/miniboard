@@ -1,5 +1,5 @@
 <?php $query = http_build_query($_GET); ?>
-<form id="createaccountform" class="form-manage" method="post" action="/manage/create_account?<?=$query?>">
+<form id="createaccountform" class="form-manage form" method="post" action="/manage/create_account?<?=$query?>">
   <?=funcs_common_csrf_field()?>
   <table>
     <tbody>
@@ -15,17 +15,30 @@
         <td class="form-label">
           <label><?=__('manage.create_account')?></label>
         </td>
-        <td>
-          <input type="text" name="username" placeholder="<?=__('manage.username')?>" autocomplete="off" minlength="2" maxlength="75" required>
-          <input type="password" name="password" placeholder="<?=__('manage.password')?>" autocomplete="new-password" minlength="8" maxlength="72" required>
-          <input type="password" name="password_confirm" placeholder="<?=__('manage.account_password_confirm')?>" autocomplete="new-password" minlength="8" maxlength="72" required>
-          <select name="role" title="<?=__('manage.account_role')?>">
-            <option value="<?=MB_ROLE_MODERATOR?>" selected><?=__('manage.editaccountform.role_moderator')?> (<?=MB_ROLE_MODERATOR?>)</option>
-            <option value="<?=MB_ROLE_ADMIN?>"><?=__('manage.editaccountform.role_admin')?> (<?=MB_ROLE_ADMIN?>)</option>
-            <option value="<?=MB_ROLE_SUPERADMIN?>"><?=__('manage.editaccountform.role_superadmin')?> (<?=MB_ROLE_SUPERADMIN?>)</option>
-            <option value="<?=MB_ROLE_DISABLED?>"><?=__('manage.editaccountform.role_disabled')?> (<?=MB_ROLE_DISABLED?>)</option>
-          </select>
-          <input type="submit" value="<?=__('manage.create_account')?>">
+        <td class="form-fields">
+          <div>
+            <input type="text" name="username" placeholder="<?=__('manage.username')?>" autocomplete="off" minlength="2" maxlength="75" required>
+          </div>
+          <div>
+            <input type="password" name="password" placeholder="<?=__('manage.password')?>" autocomplete="new-password" minlength="8" maxlength="72" required>
+          </div>
+          <div>
+            <input type="password" name="password_confirm" placeholder="<?=__('manage.account_password_confirm')?>" autocomplete="new-password" minlength="8" maxlength="72" required>
+          </div>
+          <div>
+            <label>
+              <?=__('manage.account_role')?>
+              <select name="role">
+                <option value="<?=MB_ROLE_MODERATOR?>" selected><?=__('manage.editaccountform.role_moderator')?> (<?=MB_ROLE_MODERATOR?>)</option>
+                <option value="<?=MB_ROLE_ADMIN?>"><?=__('manage.editaccountform.role_admin')?> (<?=MB_ROLE_ADMIN?>)</option>
+                <option value="<?=MB_ROLE_SUPERADMIN?>"><?=__('manage.editaccountform.role_superadmin')?> (<?=MB_ROLE_SUPERADMIN?>)</option>
+                <option value="<?=MB_ROLE_DISABLED?>"><?=__('manage.editaccountform.role_disabled')?> (<?=MB_ROLE_DISABLED?>)</option>
+              </select>
+            </label>
+          </div>
+          <div>
+            <input type="submit" value="<?=__('manage.create_account')?>">
+          </div>
         </td>
       </tr>
     </tbody>

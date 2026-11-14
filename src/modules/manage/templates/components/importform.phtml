@@ -1,92 +1,5 @@
-<form id="form-import" class="form-import form" method="post" action="import">
+<form id="form-import" class="form-import form-manage form" method="post" action="import">
   <?=funcs_common_csrf_field()?>
-  <fieldset id="form-import-source-db">
-    <legend><?=__('manage.source_db')?></legend>
-    <table>
-      <tbody>
-        <tr>
-          <td class="form-label">
-            <label for="db_name"><?=__('manage.db_name')?></label>
-          </td>
-          <td>
-            <input type="text" name="db_name">
-          </td>
-        </tr>
-        <tr>
-          <td class="form-label">
-            <label for="db_user"><?=__('manage.db_user')?></label>
-          </td>
-          <td>
-            <input type="text" name="db_user">
-          </td>
-        </tr>
-        <tr>
-          <td class="form-label">
-            <label for="db_pass"><?=__('manage.db_pass')?></label>
-          </td>
-          <td>
-            <input type="password" name="db_pass">
-          </td>
-        </tr>
-      </tbody>
-    </table>
-  </fieldset>
-  <fieldset id="form-import-source-table">
-    <legend><?=__('manage.source_table')?></legend>
-    <table>
-      <tbody>
-        <tr>
-          <td class="form-label">
-            <label for="table_name"><?=__('manage.table_name')?></label>
-          </td>
-          <td>
-            <input type="text" name="table_name">
-          </td>
-        </tr>
-        <tr>
-          <td class="form-label">
-            <label for="table_type"><?=__('manage.table_type')?></label>
-          </td>
-          <td>
-            <?php
-              $options = '<option value=""></option>';
-              foreach (MB_IMPORT_TABLE_TYPES as $key => $val) {
-                $options .= "<option value='{$key}'>{$val}</option>";
-              }
-
-              echo "<select id='table_type' name='table_type'>{$options}</select>";
-            ?>
-          </td>
-        </tr>
-      </tbody>
-    </table>
-  </fieldset>
-  <fieldset id="form-import-target-board">
-    <legend><?=__('manage.target_board')?></legend>
-    <table>
-      <tbody>
-        <tr>
-          <td class="form-label">
-            <label for="board_id"><?=__('manage.board_id')?></label>
-          </td>
-          <td>
-            <?php
-              $options = '<option value=""></option>';
-              foreach (MB_BOARDS as $key => $val) {
-                if ($val['type'] === 'main') {
-                  continue;
-                }
-
-                $options .= "<option value='{$key}'>/{$key}/ - {$val['name']}</option>";
-              }
-
-              echo "<select id='board_id' name='board_id'>{$options}</select>";
-            ?>
-          </td>
-        </tr>
-      </tbody>
-    </table>
-  </fieldset>
   <table>
     <tbody>
       <tr>
@@ -99,10 +12,70 @@
       </tr>
       <tr>
         <td class="form-label">
+          <label><?=__('manage.source_db')?></label>
+        </td>
+        <td class="form-fields">
+          <div>
+            <input type="text" name="db_name" placeholder="<?=__('manage.db_name')?>">
+          </div>
+          <div>
+            <input type="text" name="db_user" placeholder="<?=__('manage.db_user')?>">
+          </div>
+          <div>
+            <input type="password" name="db_pass" placeholder="<?=__('manage.db_pass')?>">
+          </div>
+        </td>
+      </tr>
+      <tr>
+        <td class="form-label">
+          <label><?=__('manage.source_table')?></label>
+        </td>
+        <td class="form-fields">
+          <div>
+            <input type="text" name="table_name" placeholder="<?=__('manage.table_name')?>">
+          </div>
+          <div>
+            <label>
+              <?=__('manage.table_type')?>
+              <?php
+                $options = '<option value=""></option>';
+                foreach (MB_IMPORT_TABLE_TYPES as $key => $val) {
+                  $options .= "<option value='{$key}'>{$val}</option>";
+                }
+
+                echo "<select id='table_type' name='table_type'>{$options}</select>";
+              ?>
+            </label>
+          </div>
+        </td>
+      </tr>
+      <tr>
+        <td class="form-label">
+          <label for="board_id"><?=__('manage.target_board')?></label>
+        </td>
+        <td class="form-fields">
+          <div>
+            <?php
+              $options = '<option value=""></option>';
+              foreach (MB_BOARDS as $key => $val) {
+                if ($val['type'] === 'main') {
+                  continue;
+                }
+
+                $options .= "<option value='{$key}'>/{$key}/ - {$val['name']}</option>";
+              }
+
+              echo "<select id='board_id' name='board_id'>{$options}</select>";
+            ?>
+          </div>
+        </td>
+      </tr>
+      <tr>
+        <td class="form-label">
           <label><?=__('form.submit')?></label>
         </td>
         <td>
-	        <input type="submit" value="<?=__('manage.import')?>">
+          <input type="submit" value="<?=__('manage.import')?>">
         </td>
       </tr>
     </tbody>

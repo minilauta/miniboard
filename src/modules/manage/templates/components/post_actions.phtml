@@ -1,0 +1,99 @@
+<?php $query = http_build_query($_GET); ?>
+<table>
+  <tbody>
+    <tr>
+      <td class="form-label">
+        <label><?=__('manage.status')?></label>
+      </td>
+      <td>
+        <b><?=$status?></b>
+      </td>
+    </tr>
+    <tr>
+      <th colspan="2"><?=__('manage.selected')?></th>
+    </tr>
+    <tr>
+      <td class="form-label">
+        <label><?=__('manage.action_ban')?></label>
+      </td>
+      <td class="form-fields">
+        <div>
+          <input type="number" name="duration" placeholder="<?=__('manage.ban_minutes')?>">
+        </div>
+        <div>
+          <input type="text" name="reason" placeholder="<?=__('manage.ban_reason')?>" autocomplete="off">
+        </div>
+        <div>
+          <label>
+            <?=__('manage.ban_prefix')?>
+            <select name="prefix">
+              <option value=""><?=__('manage.ban_prefix_exact')?></option>
+              <option value="24">IPv4 /24</option>
+              <option value="16">IPv4 /16</option>
+              <option value="64">IPv6 /64</option>
+              <option value="48">IPv6 /48</option>
+            </select>
+          </label>
+        </div>
+        <div>
+          <label><input type="checkbox" name="capture"> <?=__('manage.ban_capture')?></label>
+        </div>
+        <div>
+          <input type="submit" value="<?=__('manage.ban_ip')?>" formaction="ban?<?=$query?>">
+          <input type="submit" name="network" value="<?=__('manage.ban_network')?>" formaction="ban?<?=$query?>">
+        </div>
+      </td>
+    </tr>
+    <tr>
+      <td class="form-label">
+        <label><?=__('manage.action_delete')?></label>
+      </td>
+      <td class="form-fields">
+        <div>
+          <input
+            type="submit"
+            value="<?=__('manage.delete_post')?>"
+            formaction="delete?<?=$query?>"
+            <?php if (($_GET['route'] ?? '') === 'threads'): ?>
+              onclick="return confirm(<?=htmlspecialchars(json_encode(__('manage.delete_thread_confirm')), ENT_QUOTES, 'UTF-8')?>);"
+            <?php endif; ?>
+          >
+          <input type="submit" value="<?=__('manage.mark_csam')?>" formaction="csam_scanner/cp?<?=$query?>" onclick="return confirm(<?=htmlspecialchars(json_encode(__('manage.mark_csam_confirm')), ENT_QUOTES, 'UTF-8')?>);">
+        </div>
+      </td>
+    </tr>
+    <tr>
+      <td class="form-label">
+        <label><?=__('manage.action_thread')?></label>
+      </td>
+      <td class="form-fields">
+        <div>
+          <input type="submit" value="<?=__('manage.toggle_lock')?>" formaction="toggle_lock?<?=$query?>">
+          <input type="submit" value="<?=__('manage.toggle_sticky')?>" formaction="toggle_sticky?<?=$query?>">
+        </div>
+        <?php if ($move_thread): ?>
+          <div>
+            <select name="dst_board_id">
+              <?php foreach (MB_BOARDS as $bid => $bcfg): if ($bcfg['type'] !== 'main'): ?>
+                <option value="<?=htmlspecialchars($bid)?>">/<?=htmlspecialchars($bid)?>/ - <?=htmlspecialchars($bcfg['name'])?></option>
+              <?php endif; endforeach; ?>
+            </select>
+            <input type="submit" value="<?=__('manage.move_thread')?>" formaction="move_thread?<?=$query?>">
+          </div>
+        <?php endif; ?>
+      </td>
+    </tr>
+    <?php if ($approve_report): ?>
+      <tr>
+        <td class="form-label">
+          <label><?=__('manage.action_report')?></label>
+        </td>
+        <td class="form-fields">
+          <div>
+            <input type="submit" value="<?=__('manage.approve_report')?>" formaction="approve?<?=$query?>">
+          </div>
+        </td>
+      </tr>
+    <?php endif; ?>
+  </tbody>
+</table>

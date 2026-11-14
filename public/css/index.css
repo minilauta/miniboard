@@ -430,21 +430,6 @@ div.post-preview > div.post.reply > div.reply  {
   margin: 0 auto;
 }
 
-.form-import fieldset {
-  display: inline-block;
-  vertical-align: top;
-}
-
-.form-rebuild fieldset {
-  display: inline-block;
-  vertical-align: top;
-}
-
-.form-refresh fieldset {
-  display: inline-block;
-  vertical-align: top;
-}
-
 .form-list {
   font-family: sans-serif;
   font-size: x-small;
@@ -526,6 +511,10 @@ table.form-manage-table {
   margin: 4px auto 4px auto;
 }
 
+.form-manage > table:not(.form-manage-table) {
+  margin: 0 auto;
+}
+
 .form-manage th {
   text-align: left;
 }
@@ -537,6 +526,17 @@ table.form-manage-table {
 
 .form-manage td * {
   padding: 0px;
+}
+
+.form-manage td.form-fields > div + div {
+  margin-top: 2px;
+}
+
+.form-manage td.form-fields input[type="text"],
+.form-manage td.form-fields input[type="password"],
+.form-manage td.form-fields input[type="number"] {
+  width: 20em;
+  box-sizing: border-box;
 }
 
 /* animations */
