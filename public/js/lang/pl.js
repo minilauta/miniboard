@@ -34,6 +34,7 @@ const pl = {
   'settings.audio_volume': 'Audio: głośność',
   'settings.video_volume': 'Video: głośność',
   'settings.flash_volume': 'Flash: głośność',
+  'settings.mod_volume': 'MOD: głośność',
   'settings.mod_stereo': 'MOD: stereo',
   'settings.css_override': 'CSS: nadpisanie',
   'settings.js_override': 'JS: nadpisanie',

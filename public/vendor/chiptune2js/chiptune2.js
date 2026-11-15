@@ -20,6 +20,8 @@ ChiptuneJsConfig.prototype.constructor = ChiptuneJsConfig;
 var ChiptuneJsPlayer = function (config) {
   this.config = config;
   this.context = config.context || new ChiptuneAudioContext();
+  this.gainNode = this.context.createGain();
+  this.gainNode.connect(this.context.destination);
   this.currentPlayingNode = null;
   this.handlers = [];
   this.touchLocked = true;
@@ -75,6 +77,17 @@ ChiptuneJsPlayer.prototype.getCurrentTime = function () {
 ChiptuneJsPlayer.prototype.seek = function (position) {
   if (this.currentPlayingNode != null && this.currentPlayingNode.modulePtr != 0) {
     libopenmpt._openmpt_module_set_position_seconds(this.currentPlayingNode.modulePtr, position);
+  }
+};
+
+ChiptuneJsPlayer.prototype.setVolume = function (volume) {
+  this.gainNode.gain.value = volume;
+};
+
+ChiptuneJsPlayer.prototype.setStereoSeparation = function (stereoSeparation) {
+  this.config.stereoSeparation = stereoSeparation;
+  if (this.currentPlayingNode != null && this.currentPlayingNode.modulePtr != 0) {
+    libopenmpt._openmpt_module_set_render_param(this.currentPlayingNode.modulePtr, OPENMPT_MODULE_RENDER_STEREOSEPARATION_PERCENT, stereoSeparation);
   }
 };
 
@@ -166,7 +179,7 @@ ChiptuneJsPlayer.prototype.play = function(buffer) {
   libopenmpt._openmpt_module_set_render_param(processNode.modulePtr, OPENMPT_MODULE_RENDER_INTERPOLATIONFILTER_LENGTH, this.config.interpolationFilter);
 
   this.currentPlayingNode = processNode;
-  processNode.connect(this.context.destination);
+  processNode.connect(this.gainNode);
 }
 
 ChiptuneJsPlayer.prototype.stop = function() {

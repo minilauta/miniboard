@@ -34,6 +34,7 @@ const en = {
   'settings.audio_volume': 'Audio: volume',
   'settings.video_volume': 'Video: volume',
   'settings.flash_volume': 'Flash: volume',
+  'settings.mod_volume': 'MOD: volume',
   'settings.mod_stereo': 'MOD: stereo',
   'settings.css_override': 'CSS: override',
   'settings.js_override': 'JS: override',

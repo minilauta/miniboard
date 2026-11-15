@@ -34,6 +34,7 @@ const hu = {
   'settings.audio_volume': 'Audio: hangerő',
   'settings.video_volume': 'Videó: hangerő',
   'settings.flash_volume': 'Flash: hangerő',
+  'settings.mod_volume': 'MOD: hangerő',
   'settings.mod_stereo': 'MOD: sztereo',
   'settings.css_override': 'CSS: felülírás',
   'settings.js_override': 'JS: felülírás',

@@ -34,6 +34,7 @@ const fi = {
   'settings.audio_volume': 'Audio: äänenvoimakkuus',
   'settings.video_volume': 'Video: äänenvoimakkuus',
   'settings.flash_volume': 'Flash: äänenvoimakkuus',
+  'settings.mod_volume': 'MOD: äänenvoimakkuus',
   'settings.mod_stereo': 'MOD: stereo',
   'settings.css_override': 'CSS: ohitus',
   'settings.js_override': 'JS: ohitus',

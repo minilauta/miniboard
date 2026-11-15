@@ -71,6 +71,7 @@ var state = {
   audio_volume: 0.2,
   video_volume: 0.2,
   swf_volume: 0.2,
+  mod_volume: 1.0,
   mod_stereo: 1.0,
   chiptune2js: {
     loaded: null,
@@ -331,6 +332,7 @@ function listener_post_thumb_link_click(event) {
               undefined,
               state.chiptune2js.context
             ));
+            state.chiptune2js.player.setVolume(state.mod_volume);
           }
 
           state.chiptune2js.player.load(finfo.file_href, (data) => {
@@ -1223,7 +1225,7 @@ function create_settings_window(variables) {
       var_input.addEventListener('change', (event) => {
         const val_data = variable.type === 'bool' ? event.target.checked : event.target.value;
         storage.set_lsvar(variable.key, val_data);
-        if (variable.type === 'bool') {
+        if (variable.type === 'bool' || variable.type === 'float_slider') {
           apply_settings();
         }
       });
@@ -1382,6 +1384,25 @@ function create_quickreply_window(target) {
 }
 
 /**
+ * Applies the volume and stereo settings to all currently open media players.
+ */
+function apply_player_settings() {
+  document.querySelectorAll('audio').forEach((audio) => {
+    audio.volume = state.audio_volume;
+  });
+  document.querySelectorAll('video').forEach((video) => {
+    video.volume = state.video_volume;
+  });
+  document.querySelectorAll('ruffle-player').forEach((player) => {
+    player.volume = state.swf_volume;
+  });
+  if (state.chiptune2js.player != null) {
+    state.chiptune2js.player.setVolume(state.mod_volume);
+    state.chiptune2js.player.setStereoSeparation(state.mod_stereo * 100.0);
+  }
+}
+
+/**
  * Applies all currently saved settings.
  */
 function apply_settings() {
@@ -1395,7 +1416,9 @@ function apply_settings() {
   state.audio_volume = parseFloat(storage.get_lsvar('audio_volume', state.audio_volume));
   state.video_volume = parseFloat(storage.get_lsvar('video_volume', state.video_volume));
   state.swf_volume = parseFloat(storage.get_lsvar('swf_volume', state.swf_volume));
+  state.mod_volume = parseFloat(storage.get_lsvar('mod_volume', state.mod_volume));
   state.mod_stereo = parseFloat(storage.get_lsvar('mod_stereo', state.mod_stereo));
+  apply_player_settings();
   const css_override = storage.get_lsvar('css_override', '');
   const js_override = storage.get_lsvar('js_override', '');
 
@@ -2124,6 +2147,7 @@ function init_settings_features() {
         { name: t('settings.audio_volume'), key: 'audio_volume', type: 'float_slider', min: 0, max: 1, step: 0.1, def: state.audio_volume },
         { name: t('settings.video_volume'), key: 'video_volume', type: 'float_slider', min: 0, max: 1, step: 0.1, def: state.video_volume },
         { name: t('settings.flash_volume'), key: 'swf_volume', type: 'float_slider', min: 0, max: 1, step: 0.1, def: state.swf_volume },
+        { name: t('settings.mod_volume'), key: 'mod_volume', type: 'float_slider', min: 0, max: 1, step: 0.1, def: state.mod_volume },
         { name: t('settings.mod_stereo'), key: 'mod_stereo', type: 'float_slider', min: 0, max: 1, step: 0.1, def: state.mod_stereo },
         { name: t('settings.css_override'), key: 'css_override', type: 'string_multiline', def: '' },
         { name: t('settings.js_override'), key: 'js_override', type: 'string_multiline', def: '' },
