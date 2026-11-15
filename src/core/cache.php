@@ -82,3 +82,40 @@ class FileCache implements Cache
 		return file_put_contents($this->filename, json_encode($this->data), LOCK_EX) !== false;
 	}
 }
+
+class ApcuCache implements Cache
+{
+	private string $prefix;
+
+	public function __construct(string $id)
+	{
+		if (!self::is_available()) {
+			throw new \RuntimeException('ApcuCache: APCu extension is not loaded or not enabled');
+		}
+
+		$this->prefix = 'minichan.ApcuCache[' . $id . '].';
+	}
+
+	public static function is_available(): bool
+	{
+		return function_exists('apcu_enabled') && apcu_enabled();
+	}
+
+	public function set(string $key, mixed $val, int $ttl): void
+	{
+		// APCu treats a TTL of 0 as "never expires", clamp it so a TTL is always an upper bound
+		apcu_store($this->prefix . $key, $val, max(1, $ttl));
+	}
+
+	public function get(string $key): mixed
+	{
+		$val = apcu_fetch($this->prefix . $key, $success);
+
+		return $success ? $val : null;
+	}
+
+	public function flush(): void
+	{
+		apcu_delete(new \APCUIterator('/^' . preg_quote($this->prefix, '/') . '/', APC_ITER_KEY));
+	}
+}

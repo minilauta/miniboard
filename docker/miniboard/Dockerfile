@@ -8,7 +8,7 @@ RUN mkdir -p /tmp/phpredis/liblzf && \
     curl -fsSL https://codeload.github.com/phpredis/phpredis/tar.gz/refs/tags/6.3.0 | tar xz -C /tmp/phpredis --strip-components=1 && \
     curl -fsSL https://codeload.github.com/nemequ/liblzf/tar.gz/fb25820c3c0aeafd127956ae6c115063b47e459a | tar xz -C /tmp/phpredis/liblzf --strip-components=1 && \
     chmod +x /usr/local/bin/install-php-extensions && \
-    install-php-extensions @composer Imagick/imagick@3.8.1 pdo pdo_mysql php/pecl-file_formats-yaml@2.3.0 /tmp/phpredis && \
+    install-php-extensions @composer Imagick/imagick@3.8.1 pdo pdo_mysql php/pecl-file_formats-yaml@2.3.0 krakjoe/apcu@v5.1.28 /tmp/phpredis && \
     rm -rf /tmp/phpredis
 COPY docker/miniboard/php/conf.d/miniboard.ini $PHP_INI_DIR/conf.d/
 
@@ -28,6 +28,7 @@ EXPOSE 80
 
 RUN mv $PHP_INI_DIR/php.ini-development $PHP_INI_DIR/php.ini
 COPY docker/miniboard/php/conf.d/xdebug.ini $PHP_INI_DIR/conf.d/
+COPY docker/miniboard/php/conf.d/apcu-cli.ini $PHP_INI_DIR/conf.d/
 RUN install-php-extensions xdebug/xdebug@3.5.3
 COPY phpunit.xml /app/
 COPY tests /app/tests/
