@@ -351,9 +351,12 @@ function listener_post_thumb_link_click(event) {
             mod_pos.setAttribute('min', '0');
             mod_pos.setAttribute('max', state.chiptune2js.player.duration());
             mod_pos.setAttribute('value', '0');
+            mod_pos.addEventListener('change', () => {
+              state.chiptune2js.player.seek(mod_pos.valueAsNumber);
+            });
 
             state.chiptune2js.interval = setInterval(() => {
-              if (state.chiptune2js.player != null && state.chiptune2js.player.currentPlayingNode != null) {
+              if (state.chiptune2js.player != null && state.chiptune2js.player.currentPlayingNode != null && !mod_pos.matches(':active')) {
                 mod_pos.value = state.chiptune2js.player.getCurrentTime();
               }
             }, 1000);

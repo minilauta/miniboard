@@ -72,6 +72,12 @@ ChiptuneJsPlayer.prototype.getCurrentTime = function () {
   return libopenmpt._openmpt_module_get_position_seconds(this.currentPlayingNode.modulePtr);
 };
 
+ChiptuneJsPlayer.prototype.seek = function (position) {
+  if (this.currentPlayingNode != null && this.currentPlayingNode.modulePtr != 0) {
+    libopenmpt._openmpt_module_set_position_seconds(this.currentPlayingNode.modulePtr, position);
+  }
+};
+
 ChiptuneJsPlayer.prototype.getTotalOrder = function () {
   return libopenmpt._openmpt_module_get_num_orders(this.currentPlayingNode.modulePtr);
 };
