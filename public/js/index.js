@@ -3,6 +3,7 @@ import utils from './utils';
 import storage from './storage';
 import ui_window from './ui_window';
 import gallery from './gallery';
+import tracker_view from './tracker_view';
 import t, { available_languages, current_lang } from './i18n';
 
 // ruffle player
@@ -362,6 +363,14 @@ function listener_post_thumb_link_click(event) {
                 mod_pos.value = state.chiptune2js.player.getCurrentTime();
               }
             }, 1000);
+
+            const tracker = tracker_view.create(state.chiptune2js.player, target.width, target.height);
+            tracker.style.cursor = 'pointer';
+            tracker.addEventListener('click', () => {
+              shrink(target, current);
+            });
+            wrapper.prepend(tracker);
+            target.style.display = 'none';
           });
         }).catch((error) => {
           console.error('chiptune2js: failed to load the player:', error);

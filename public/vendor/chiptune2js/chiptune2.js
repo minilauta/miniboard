@@ -1,6 +1,14 @@
 // constants
 const OPENMPT_MODULE_RENDER_STEREOSEPARATION_PERCENT = 2
 const OPENMPT_MODULE_RENDER_INTERPOLATIONFILTER_LENGTH = 3
+const CHIPTUNE_POSITION_FRAMES = 256;
+
+// read a libopenmpt allocated string
+function ChiptuneJsReadString(ptr) {
+  var str = UTF8ToString(ptr);
+  libopenmpt._openmpt_free_string(ptr);
+  return str;
+}
 
 // audio context
 var ChiptuneAudioContext = window['AudioContext'] || window['webkitAudioContext'];
@@ -97,6 +105,31 @@ ChiptuneJsPlayer.prototype.getTotalOrder = function () {
 
 ChiptuneJsPlayer.prototype.getTotalPatterns = function () {
   return libopenmpt._openmpt_module_get_num_patterns(this.currentPlayingNode.modulePtr);
+};
+
+ChiptuneJsPlayer.prototype.getNumChannels = function () {
+  return libopenmpt._openmpt_module_get_num_channels(this.currentPlayingNode.modulePtr);
+};
+
+ChiptuneJsPlayer.prototype.getPatternNumRows = function (pattern) {
+  return libopenmpt._openmpt_module_get_pattern_num_rows(this.currentPlayingNode.modulePtr, pattern);
+};
+
+ChiptuneJsPlayer.prototype.getPatternRowChannel = function (pattern, row, channel) {
+  var modulePtr = this.currentPlayingNode.modulePtr;
+  return {
+    text: ChiptuneJsReadString(libopenmpt._openmpt_module_format_pattern_row_channel(modulePtr, pattern, row, channel, 0, 0)),
+    highlight: ChiptuneJsReadString(libopenmpt._openmpt_module_highlight_pattern_row_channel(modulePtr, pattern, row, channel, 0, 0)),
+  };
+};
+
+ChiptuneJsPlayer.prototype.getPlayingPosition = function () {
+  var node = this.currentPlayingNode;
+  if (node == null || node.modulePtr == 0) {
+    return null;
+  }
+  node.updatePlayingPosition();
+  return node.playingPosition;
 };
 
 ChiptuneJsPlayer.prototype.metadata = function() {
@@ -210,6 +243,23 @@ ChiptuneJsPlayer.prototype.createLibopenmptNode = function(buffer, config) {
   processNode.paused = false;
   processNode.leftBufferPtr  = libopenmpt._malloc(4 * maxFramesPerChunk);
   processNode.rightBufferPtr = libopenmpt._malloc(4 * maxFramesPerChunk);
+  processNode.positionQueue = [];
+  processNode.readPosition = function(time) {
+    return {
+      time: time,
+      order: libopenmpt._openmpt_module_get_current_order(this.modulePtr),
+      pattern: libopenmpt._openmpt_module_get_current_pattern(this.modulePtr),
+      row: libopenmpt._openmpt_module_get_current_row(this.modulePtr),
+    };
+  }
+  processNode.playingPosition = processNode.modulePtr != 0 ? processNode.readPosition(0) : null;
+  processNode.updatePlayingPosition = function() {
+    var now = this.context.currentTime - (this.context.outputLatency || 0);
+    var queue = this.positionQueue;
+    while (queue.length > 0 && queue[0].time <= now) {
+      this.playingPosition = queue.shift();
+    }
+  }
   processNode.cleanup = function() {
     if (this.modulePtr != 0) {
       libopenmpt._openmpt_module_destroy(this.modulePtr);
@@ -241,7 +291,7 @@ ChiptuneJsPlayer.prototype.createLibopenmptNode = function(buffer, config) {
     var outputL = e.outputBuffer.getChannelData(0);
     var outputR = e.outputBuffer.getChannelData(1);
     var framesToRender = outputL.length;
-    if (this.ModulePtr == 0) {
+    if (this.modulePtr == 0) {
       for (var i = 0; i < framesToRender; ++i) {
         outputL[i] = 0;
         outputR[i] = 0;
@@ -260,8 +310,17 @@ ChiptuneJsPlayer.prototype.createLibopenmptNode = function(buffer, config) {
     var framesRendered = 0;
     var ended = false;
     var error = false;
+    // NOTE: playbackTime is when this buffer will be played, in context time
+    var playbackTime = typeof e.playbackTime === 'number' ? e.playbackTime : this.context.currentTime;
+    this.updatePlayingPosition();
     while (framesToRender > 0) {
-      var framesPerChunk = Math.min(framesToRender, maxFramesPerChunk);
+      var framesPerChunk = Math.min(framesToRender, CHIPTUNE_POSITION_FRAMES);
+      var queue = this.positionQueue;
+      var last = queue.length > 0 ? queue[queue.length - 1] : this.playingPosition;
+      var position = this.readPosition(playbackTime + framesRendered / this.context.sampleRate);
+      if (last == null || position.order != last.order || position.pattern != last.pattern || position.row != last.row) {
+        queue.push(position);
+      }
       var actualFramesPerChunk = libopenmpt._openmpt_module_read_float_stereo(this.modulePtr, this.context.sampleRate, framesPerChunk, this.leftBufferPtr, this.rightBufferPtr);
       if (actualFramesPerChunk == 0) {
         ended = true;
