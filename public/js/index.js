@@ -306,11 +306,11 @@ function listener_post_thumb_link_click(event) {
         let mod_meta = document.createElement('div');
         mod_meta.style.overflow = 'hidden';
         mod_meta.style.whiteSpace = 'nowrap';
-        mod_meta.style.width = wrapper.style.width;
+        mod_meta.style.width = '100%';
         wrapper.appendChild(mod_meta);
         let mod_pos = document.createElement('input');
         mod_pos.setAttribute('type', 'range');
-        mod_pos.style.width = wrapper.style.width;
+        mod_pos.style.width = '100%';
         wrapper.appendChild(mod_pos);
 
         if (state.chiptune2js.context == null) {
@@ -364,11 +364,13 @@ function listener_post_thumb_link_click(event) {
               }
             }, 1000);
 
-            const tracker = tracker_view.create(state.chiptune2js.player, target.width, target.height);
+            const tracker = tracker_view.create(state.chiptune2js.player, 500, 500);
             tracker.style.cursor = 'pointer';
             tracker.addEventListener('click', () => {
               shrink(target, current);
             });
+            wrapper.style.width = tracker.style.width;
+            wrapper.style.maxWidth = '100%';
             wrapper.prepend(tracker);
             target.style.display = 'none';
           });

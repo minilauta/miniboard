@@ -15,9 +15,10 @@ const COLOR_CELL = {
   f: '#ffe080', // effect parameter
 };
 const ROWS_PER_BEAT = 4;
+const DIVIDER_WIDTH = 2;
 const FONT_FAMILY = '"DejaVu Sans Mono", Consolas, Menlo, monospace';
-const FONT_SIZE_MIN = 8;
-const FONT_SIZE_MAX = 12;
+const FONT_SIZE_MIN = 12;
+const FONT_SIZE_MAX = 24;
 const LINE_HEIGHT = 1.15;
 const CELL_LAYOUTS = [
   [[0, 13]],         // note, instrument, volume, effect
@@ -63,8 +64,10 @@ function create(player, width, height) {
   canvas.width = Math.round(width * dpr);
   canvas.height = Math.round(height * dpr);
   canvas.style.display = 'block';
+  // NOTE: shrinks to fit screens narrower than its width, keeping its aspect ratio
   canvas.style.width = width + 'px';
-  canvas.style.height = height + 'px';
+  canvas.style.maxWidth = '100%';
+  canvas.style.height = 'auto';
 
   const ctx = canvas.getContext('2d');
   ctx.scale(dpr, dpr);
@@ -122,7 +125,7 @@ function create(player, width, height) {
 
     ctx.fillStyle = COLOR_DIVIDER;
     for (let channel = 0; channel <= fit.num_channels; channel++) {
-      ctx.fillRect(Math.round(channel_x(channel) - char_width / 2), 0, 1, height);
+      ctx.fillRect(Math.round(channel_x(channel) - (char_width + DIVIDER_WIDTH) / 2), 0, DIVIDER_WIDTH, height);
     }
 
     for (let row = row_first; row <= row_last; row++) {
