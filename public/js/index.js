@@ -165,6 +165,7 @@ function listener_post_thumb_link_click(event) {
     switch (finfo.file_ext) {
       case 'mp4':
       case 'webm':
+      case 'swf':
         current.parentElement.lastElementChild.remove();
         break;
       case 'mp3':
@@ -325,10 +326,22 @@ function listener_post_thumb_link_click(event) {
 
         const ruffle = window.RufflePlayer.newest();
         const player = ruffle.createPlayer();
-        player.style.maxWidth = (window.innerWidth * 0.85) + 'px';
-        player.style.maxHeight = (window.innerHeight * 0.85) + 'px';
+        const fit_player = (width, height) => {
+          player.style.width = `min(${width}px, 85vw, ${85 * width / height}vh)`;
+          player.style.height = `min(${height}px, ${85 * height / width}vw, 85vh)`;
+        };
+        fit_player(550, 400);
+        player.addEventListener('loadedmetadata', () => {
+          const metadata = player.metadata;
+          if (metadata != null && metadata.width > 0 && metadata.height > 0) {
+            fit_player(metadata.width, metadata.height);
+          }
+        });
 
-        current.appendChild(player);
+        // NOTE: the player is placed outside the <a>, because clicks that ruffle
+        //       stops from propagating (e.g. in its volume controls) would
+        //       otherwise trigger the link's default action and open the file
+        current.parentElement.appendChild(player);
         player.load({
           url: finfo.file_href,
           autoplay: 'on',
@@ -392,14 +405,14 @@ function listener_post_thumb_link_click(event) {
       const shrink_types = ['AUDIO', 'VIDEO', 'RUFFLE-PLAYER', 'DIV'];
 
       // select the element's container based on file ext
-      // NOTE: this is because <video> is created inside the parent <div>
-      //       because <video> inside <a> is glitchy
-      const exts_video_audio = FILE_EXTS_VIDEO.concat(FILE_EXTS_AUDIO);
+      // NOTE: this is because <video>, <audio> and <ruffle-player> are created
+      //       inside the parent <div>, because they are glitchy inside <a>
+      const exts_outside_anchor = FILE_EXTS_VIDEO.concat(FILE_EXTS_AUDIO, ['swf']);
       const exp_finfo = get_finfo(exp_element.parentElement.parentElement);
-      const exp_container = exts_video_audio.includes(exp_finfo.file_ext) ?
+      const exp_container = exts_outside_anchor.includes(exp_finfo.file_ext) ?
         exp_element.parentElement :
         exp_element;
-      const curr_container = exts_video_audio.includes(finfo.file_ext) ?
+      const curr_container = exts_outside_anchor.includes(finfo.file_ext) ?
         current.parentElement :
         current;
       
@@ -430,11 +443,7 @@ function listener_post_thumb_link_click(event) {
   if (event_current.getAttribute('expanded') !== 'true') {
     expand(event_target, event_current);
   } else {
-    // TODO: this is a hack, to prevent SWF from closing on click
-    const finfo = get_finfo(event_current.parentElement.parentElement);
-    if (finfo.file_ext !== 'swf') {
-      shrink(event_target, event_current);
-    }
+    shrink(event_target, event_current);
   }
 }
 

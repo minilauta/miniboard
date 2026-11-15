@@ -881,10 +881,10 @@
   resolved "https://registry.yarnpkg.com/@leichtgewicht/ip-codec/-/ip-codec-2.0.5.tgz#4fc56c15c580b9adb7dc3c333a134e540b44bfb1"
   integrity sha512-Vo+PSpZG2/fmgmiNzYK9qWRh8h/CHrwD0mo1h1DzL4yzHNSfWYujGTYsWGreD000gcgmZ7K4Ys6Tx9TxtsKdDw==
 
-"@ruffle-rs/ruffle@^0.2.0-nightly.2025.12.27":
-  version "0.2.0-nightly.2025.12.27"
-  resolved "https://registry.yarnpkg.com/@ruffle-rs/ruffle/-/ruffle-0.2.0-nightly.2025.12.27.tgz#ad51f3f53fee6c604fb5f663ba9ab692359297a5"
-  integrity sha512-u0M9FGOAlPXO/WWW9y/obk1ciyPgyBSkF/f6R/iadiNDfX9O5oUNrw+9hvv4sFZUQmdFM57ljltabRn+DyP/Wg==
+"@ruffle-rs/ruffle@>=0.7.1":
+  version "0.7.1"
+  resolved "https://registry.yarnpkg.com/@ruffle-rs/ruffle/-/ruffle-0.7.1.tgz#f74252bea767b1f2e63a5438f1813c254e16a4e1"
+  integrity sha512-6ZWxx/cfX3RoNyQ1AVimECSae4gKqMxdPimOD+chiIcOFiJS0ATGKcjkretxNT03lqNUpiSyJjF55AuvvZ+QeA==
 
 "@types/body-parser@*":
   version "1.19.6"

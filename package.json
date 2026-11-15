@@ -15,7 +15,7 @@
     "webpack-dev-server": "^5.2.2"
   },
   "dependencies": {
-    "@ruffle-rs/ruffle": "^0.2.0-nightly.2025.12.27",
+    "@ruffle-rs/ruffle": ">=0.7.1",
     "core-js": "3.47.0",
     "whatwg-fetch": "^3.6.20"
   },
