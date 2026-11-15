@@ -375,12 +375,6 @@ function listener_post_thumb_link_click(event) {
             }, 1000);
 
             const tracker = tracker_view.create(state.chiptune2js.player, 500, 500);
-            // NOTE: only the pattern stops the module, so that the instrument panel can be scrolled and selected
-            const tracker_pattern = tracker.querySelector('canvas');
-            tracker_pattern.style.cursor = 'pointer';
-            tracker_pattern.addEventListener('click', () => {
-              shrink(target, current);
-            });
             wrapper.style.width = tracker.style.width;
             wrapper.style.maxWidth = '100%';
             wrapper.prepend(tracker);

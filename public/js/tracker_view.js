@@ -1,3 +1,5 @@
+import plasma_fx from './plasma_fx';
+
 const COLOR_BACKGROUND = '#000000';
 const COLOR_BEAT_ROW = '#1c1c1c';
 const COLOR_PLAY_ROW = '#504080';
@@ -104,8 +106,17 @@ function create_instrument_panel(names, ctx, height) {
   return { element: panel, width };
 }
 
+function create_scroller_text(metadata, names) {
+  return [metadata.title, metadata.artist, names.join(' ')]
+    .map((part) => (part || '').replace(/\s+/g, ' ').trim())
+    .filter((part) => part !== '')
+    .join('   ');
+}
+
 function create(player, width, height) {
   const node = player.currentPlayingNode;
+  const names = player.getInstrumentNames();
+  const num_channels = player.getNumChannels();
   const num_patterns = player.getTotalPatterns();
   let max_rows = 1;
   for (let pattern = 0; pattern < num_patterns; pattern++) {
@@ -127,7 +138,7 @@ function create(player, width, height) {
   const ctx = canvas.getContext('2d');
   ctx.scale(dpr, dpr);
   ctx.font = '100px ' + FONT_FAMILY;
-  const fit = fit_layout(width, ctx.measureText('0').width / 100, row_digits, player.getNumChannels());
+  const fit = fit_layout(width, ctx.measureText('0').width / 100, row_digits, num_channels);
   ctx.font = fit.font_size + 'px ' + FONT_FAMILY;
   ctx.textBaseline = 'middle';
 
@@ -199,18 +210,51 @@ function create(player, width, height) {
     }
   };
 
+  const count_notes = (position) => {
+    let notes = 0;
+    for (let channel = 0; channel < num_channels; channel++) {
+      if (player.getPatternRowChannel(position.pattern, position.row, channel).highlight[0] === 'n') {
+        notes++;
+      }
+    }
+    return notes;
+  };
+
+  let started = false;
   let drawn = null;
+  let fx = null;
+  let fx_triggered = null;
+  let scroller_text = null;
+  canvas.style.cursor = 'pointer';
+  canvas.addEventListener('click', () => {
+    if (fx == null) {
+      scroller_text = scroller_text != null ? scroller_text : create_scroller_text(player.metadata(), names);
+      fx = plasma_fx.create(width, height, scroller_text);
+    } else {
+      fx = null;
+    }
+    fx_triggered = null;
+    drawn = null;
+  });
+
   const update = () => {
-    if (drawn != null && (!canvas.isConnected || player.currentPlayingNode !== node)) {
+    if (started && (!canvas.isConnected || player.currentPlayingNode !== node)) {
       return;
     }
+    started = true;
 
     const position = player.getPlayingPosition();
     if (position == null) {
       return;
     }
 
-    if (drawn == null || position.pattern !== drawn.pattern || position.row !== drawn.row) {
+    if (fx != null) {
+      if (fx_triggered == null || position.order !== fx_triggered.order || position.pattern !== fx_triggered.pattern || position.row !== fx_triggered.row) {
+        fx.trigger(count_notes(position));
+        fx_triggered = position;
+      }
+      fx.render(ctx);
+    } else if (drawn == null || position.pattern !== drawn.pattern || position.row !== drawn.row) {
       draw(position);
       drawn = position;
     }
@@ -225,7 +269,7 @@ function create(player, width, height) {
   view.style.flexWrap = 'wrap';
   view.style.maxWidth = '100%';
   view.appendChild(canvas);
-  const panel = create_instrument_panel(player.getInstrumentNames(), ctx, height);
+  const panel = create_instrument_panel(names, ctx, height);
   if (panel != null) {
     view.appendChild(panel.element);
   }
