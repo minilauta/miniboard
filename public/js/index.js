@@ -32,9 +32,6 @@ window.RufflePlayer.config = {
   'preloader': true,
 };
 
-// chiptune2.js player
-window.libopenmpt = {};
-
 // app constants
 const FILE_EXTS_IMAGE = [
   'png',
@@ -76,10 +73,37 @@ var state = {
   swf_volume: 0.2,
   mod_stereo: 1.0,
   chiptune2js: {
+    loaded: null,
+    context: null,
     player: null,
     interval: null,
   },
 };
+
+/**
+ * Loads chiptune2.js and libopenmpt on first use, so that the large
+ * libopenmpt.wasm is only downloaded when a module file is played.
+ * @returns {Promise}
+ */
+function load_chiptune2js() {
+  if (state.chiptune2js.loaded == null) {
+    const runtime_initialized = new Promise((resolve, reject) => {
+      // NOTE: libopenmpt.js uses window.libopenmpt as its emscripten Module
+      window.libopenmpt = {
+        onRuntimeInitialized: resolve,
+        onAbort: reject,
+      };
+    });
+
+    state.chiptune2js.loaded = Promise.all([
+      utils.loadScript('/dist/chiptune2js/libopenmpt.js'),
+      utils.loadScript('/dist/chiptune2js/chiptune2.js'),
+      runtime_initialized,
+    ]);
+  }
+
+  return state.chiptune2js.loaded;
+}
 
 /**
  * Tegaki event: Finish drawing image.
@@ -287,36 +311,55 @@ function listener_post_thumb_link_click(event) {
         mod_pos.style.width = wrapper.style.width;
         wrapper.appendChild(mod_pos);
 
-        if (state.chiptune2js.player != null) {
-          state.chiptune2js.player.stop();
-        } else {
-          state.chiptune2js.player = new ChiptuneJsPlayer(new ChiptuneJsConfig(
-            -1,
-            state.mod_stereo * 100.0,
-            undefined,
-            undefined
-          ));
+        if (state.chiptune2js.context == null) {
+          const AudioContext = window.AudioContext || window.webkitAudioContext;
+          state.chiptune2js.context = new AudioContext();
         }
 
-        state.chiptune2js.player.load(finfo.file_href, (data) => {
-          state.chiptune2js.player.play(data);
+        load_chiptune2js().then(() => {
+          // the module may have been closed while the player was loading
+          if (!wrapper.isConnected) {
+            return;
+          }
 
-          const metadata = state.chiptune2js.player.metadata();
-          let mod_meta_scroll = document.createElement('div');
-          mod_meta_scroll.style.display = 'inline-block';
-          mod_meta_scroll.style.animation = 'marquee 10s linear infinite';
-          mod_meta_scroll.textContent = t('mod.title') + ': ' + metadata.title + ', ' + t('mod.tracker') + ': ' + metadata.tracker + ', ' + t('mod.type') + ': ' + metadata.type_long;
-          mod_meta.appendChild(mod_meta_scroll);
+          if (state.chiptune2js.player != null) {
+            state.chiptune2js.player.stop();
+          } else {
+            state.chiptune2js.player = new ChiptuneJsPlayer(new ChiptuneJsConfig(
+              -1,
+              state.mod_stereo * 100.0,
+              undefined,
+              state.chiptune2js.context
+            ));
+          }
 
-          mod_pos.setAttribute('min', '0');
-          mod_pos.setAttribute('max', state.chiptune2js.player.duration());
-          mod_pos.setAttribute('value', '0');
-
-          state.chiptune2js.interval = setInterval(() => {
-            if (state.chiptune2js.player != null && state.chiptune2js.player.currentPlayingNode != null) {
-              mod_pos.value = state.chiptune2js.player.getCurrentTime();
+          state.chiptune2js.player.load(finfo.file_href, (data) => {
+            // the module may have been closed while the file was loading
+            if (!wrapper.isConnected) {
+              return;
             }
-          }, 1000);
+
+            state.chiptune2js.player.play(data);
+
+            const metadata = state.chiptune2js.player.metadata();
+            let mod_meta_scroll = document.createElement('div');
+            mod_meta_scroll.style.display = 'inline-block';
+            mod_meta_scroll.style.animation = 'marquee 10s linear infinite';
+            mod_meta_scroll.textContent = t('mod.title') + ': ' + metadata.title + ', ' + t('mod.tracker') + ': ' + metadata.tracker + ', ' + t('mod.type') + ': ' + metadata.type_long;
+            mod_meta.appendChild(mod_meta_scroll);
+
+            mod_pos.setAttribute('min', '0');
+            mod_pos.setAttribute('max', state.chiptune2js.player.duration());
+            mod_pos.setAttribute('value', '0');
+
+            state.chiptune2js.interval = setInterval(() => {
+              if (state.chiptune2js.player != null && state.chiptune2js.player.currentPlayingNode != null) {
+                mod_pos.value = state.chiptune2js.player.getCurrentTime();
+              }
+            }, 1000);
+          });
+        }).catch((error) => {
+          console.error('chiptune2js: failed to load the player:', error);
         });
 
         current.appendChild(wrapper);

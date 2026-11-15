@@ -66,12 +66,28 @@ function locationHashClear() {
   history.replaceState(null, '', location.pathname + location.search);
 }
 
+// NOTE: document.currentScript is only set at root scope
+const SCRIPT_QUERY = document.currentScript != null ?
+  document.currentScript.src.replace(/^[^?]*/, '') :
+  '';
+
+function loadScript(src) {
+  return new Promise((resolve, reject) => {
+    const script = document.createElement('script');
+    script.src = src + SCRIPT_QUERY;
+    script.onload = () => resolve(script);
+    script.onerror = () => reject(new Error(`failed to load script: ${src}`));
+    document.head.appendChild(script);
+  });
+}
+
 const utils = {
   toHex,
   removeTrailingSlash,
   isVisible,
   encodeBinaryForm,
   locationHashClear,
+  loadScript,
 };
 
 export default utils;
