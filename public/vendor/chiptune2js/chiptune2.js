@@ -123,6 +123,24 @@ ChiptuneJsPlayer.prototype.getPatternRowChannel = function (pattern, row, channe
   };
 };
 
+// returns the instrument or sample names
+ChiptuneJsPlayer.prototype.getInstrumentNames = function () {
+  var modulePtr = this.currentPlayingNode.modulePtr;
+  var names = [];
+  var numInstruments = libopenmpt._openmpt_module_get_num_instruments(modulePtr);
+  if (numInstruments > 0) {
+    for (var i = 0; i < numInstruments; i++) {
+      names.push(ChiptuneJsReadString(libopenmpt._openmpt_module_get_instrument_name(modulePtr, i)));
+    }
+  } else {
+    var numSamples = libopenmpt._openmpt_module_get_num_samples(modulePtr);
+    for (var i = 0; i < numSamples; i++) {
+      names.push(ChiptuneJsReadString(libopenmpt._openmpt_module_get_sample_name(modulePtr, i)));
+    }
+  }
+  return names;
+};
+
 ChiptuneJsPlayer.prototype.getPlayingPosition = function () {
   var node = this.currentPlayingNode;
   if (node == null || node.modulePtr == 0) {

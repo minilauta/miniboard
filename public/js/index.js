@@ -54,6 +54,13 @@ const FILE_EXTS_AUDIO = [
   'opus',
   'flac',
 ];
+const FILE_EXTS_MOD = [
+  'mod',
+  'xm',
+  'it',
+  's3m',
+  'med',
+];
 // app state
 var state = {
   mouse_over_post_ref_link: false,
@@ -213,7 +220,7 @@ function listener_post_thumb_link_click(event) {
           state.chiptune2js.player.stop();
         }
 
-        current.lastElementChild.remove();
+        current.parentElement.lastElementChild.remove();
         break;
       default:
         target.remove();
@@ -311,6 +318,9 @@ function listener_post_thumb_link_click(event) {
         let mod_pos = document.createElement('input');
         mod_pos.setAttribute('type', 'range');
         mod_pos.style.width = '100%';
+        // NOTE: the default margins would make it wider than the wrapper
+        mod_pos.style.marginLeft = '0';
+        mod_pos.style.marginRight = '0';
         wrapper.appendChild(mod_pos);
 
         if (state.chiptune2js.context == null) {
@@ -365,8 +375,10 @@ function listener_post_thumb_link_click(event) {
             }, 1000);
 
             const tracker = tracker_view.create(state.chiptune2js.player, 500, 500);
-            tracker.style.cursor = 'pointer';
-            tracker.addEventListener('click', () => {
+            // NOTE: only the pattern stops the module, so that the instrument panel can be scrolled and selected
+            const tracker_pattern = tracker.querySelector('canvas');
+            tracker_pattern.style.cursor = 'pointer';
+            tracker_pattern.addEventListener('click', () => {
               shrink(target, current);
             });
             wrapper.style.width = tracker.style.width;
@@ -378,7 +390,7 @@ function listener_post_thumb_link_click(event) {
           console.error('chiptune2js: failed to load the player:', error);
         });
 
-        current.appendChild(wrapper);
+        current.parentElement.appendChild(wrapper);
         break;
       case 'swf':
         target.style.display = 'none';
@@ -464,9 +476,10 @@ function listener_post_thumb_link_click(event) {
       const shrink_types = ['AUDIO', 'VIDEO', 'RUFFLE-PLAYER', 'DIV'];
 
       // select the element's container based on file ext
-      // NOTE: this is because <video>, <audio> and <ruffle-player> are created
-      //       inside the parent <div>, because they are glitchy inside <a>
-      const exts_outside_anchor = FILE_EXTS_VIDEO.concat(FILE_EXTS_AUDIO, ['swf']);
+      // NOTE: this is because <video>, <audio>, <ruffle-player> and the mod
+      //       player are created inside the parent <div>, because they are
+      //       glitchy inside <a>
+      const exts_outside_anchor = FILE_EXTS_VIDEO.concat(FILE_EXTS_AUDIO, FILE_EXTS_MOD, ['swf']);
       const exp_finfo = get_finfo(exp_element.parentElement.parentElement);
       const exp_container = exts_outside_anchor.includes(exp_finfo.file_ext) ?
         exp_element.parentElement :
@@ -2372,6 +2385,7 @@ window.miniboard = {
   FILE_EXTS_IMAGE,
   FILE_EXTS_VIDEO,
   FILE_EXTS_AUDIO,
+  FILE_EXTS_MOD,
   init: {
     settings_features: init_settings_features,
     post_thumb_links: init_post_thumb_links,

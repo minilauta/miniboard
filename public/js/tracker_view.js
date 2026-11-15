@@ -20,6 +20,8 @@ const FONT_FAMILY = '"DejaVu Sans Mono", Consolas, Menlo, monospace';
 const FONT_SIZE_MIN = 12;
 const FONT_SIZE_MAX = 24;
 const LINE_HEIGHT = 1.15;
+const PANEL_FONT_SIZE = 12;
+const PANEL_SCROLLBAR_WIDTH = 17;
 const CELL_LAYOUTS = [
   [[0, 13]],         // note, instrument, volume, effect
   [[0, 6], [9, 13]], // note, instrument, effect
@@ -50,6 +52,58 @@ function fit_layout(width, char_ratio, row_digits, num_channels) {
   };
 }
 
+function create_instrument_panel(names, ctx, height) {
+  if (names.every((name) => name.trim() === '')) {
+    return null;
+  }
+
+  const font = PANEL_FONT_SIZE + 'px ' + FONT_FAMILY;
+  const line_height = Math.ceil(PANEL_FONT_SIZE * LINE_HEIGHT);
+  const number_digits = Math.max(2, names.length.toString(16).length);
+
+  ctx.save();
+  ctx.font = font;
+  const char_width = ctx.measureText('0').width;
+  const names_width = names.reduce((max, name) => Math.max(max, ctx.measureText(name).width), 0);
+  ctx.restore();
+
+  const padding = Math.round(char_width / 2);
+  const scrollbar_width = names.length * line_height > height ? PANEL_SCROLLBAR_WIDTH : 0;
+  const width = Math.ceil(DIVIDER_WIDTH + 2 * padding + (number_digits + 1) * char_width + names_width + scrollbar_width);
+
+  const panel = document.createElement('div');
+  panel.style.boxSizing = 'border-box';
+  // NOTE: grows to the full width when it wraps below the pattern on narrow screens
+  panel.style.flex = '1 0 auto';
+  panel.style.width = width + 'px';
+  panel.style.maxHeight = height + 'px';
+  panel.style.overflowX = 'hidden';
+  panel.style.overflowY = 'auto';
+  panel.style.scrollbarWidth = 'thin';
+  panel.style.scrollbarColor = COLOR_DIVIDER + ' ' + COLOR_BACKGROUND;
+  panel.style.padding = '0 ' + padding + 'px';
+  panel.style.borderLeft = DIVIDER_WIDTH + 'px solid ' + COLOR_DIVIDER;
+  panel.style.background = COLOR_BACKGROUND;
+  panel.style.color = COLOR_ROW_NUMBER;
+  panel.style.font = font;
+  panel.style.lineHeight = line_height + 'px';
+  panel.style.textAlign = 'left';
+  // NOTE: keeps the spacing of text that is laid out across multiple names
+  panel.style.whiteSpace = 'pre';
+
+  names.forEach((name, i) => {
+    const number = document.createElement('span');
+    number.style.color = COLOR_CELL.i;
+    number.textContent = (i + 1).toString(16).toUpperCase().padStart(number_digits, '0');
+    const line = document.createElement('div');
+    line.appendChild(number);
+    line.appendChild(document.createTextNode(' ' + name));
+    panel.appendChild(line);
+  });
+
+  return { element: panel, width };
+}
+
 function create(player, width, height) {
   const node = player.currentPlayingNode;
   const num_patterns = player.getTotalPatterns();
@@ -68,6 +122,7 @@ function create(player, width, height) {
   canvas.style.width = width + 'px';
   canvas.style.maxWidth = '100%';
   canvas.style.height = 'auto';
+  canvas.style.alignSelf = 'flex-start';
 
   const ctx = canvas.getContext('2d');
   ctx.scale(dpr, dpr);
@@ -164,7 +219,19 @@ function create(player, width, height) {
   };
   update();
 
-  return canvas;
+  // NOTE: the instrument panel is placed on the right side of the pattern
+  const view = document.createElement('div');
+  view.style.display = 'flex';
+  view.style.flexWrap = 'wrap';
+  view.style.maxWidth = '100%';
+  view.appendChild(canvas);
+  const panel = create_instrument_panel(player.getInstrumentNames(), ctx, height);
+  if (panel != null) {
+    view.appendChild(panel.element);
+  }
+  view.style.width = (width + (panel != null ? panel.width : 0)) + 'px';
+
+  return view;
 }
 
 const tracker_view = {
