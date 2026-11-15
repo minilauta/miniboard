@@ -1,3 +1,4 @@
+import t from './i18n';
 import plasma_fx from './plasma_fx';
 
 const COLOR_BACKGROUND = '#000000';
@@ -24,6 +25,11 @@ const FONT_SIZE_MAX = 24;
 const LINE_HEIGHT = 1.15;
 const PANEL_FONT_SIZE = 12;
 const PANEL_SCROLLBAR_WIDTH = 17;
+const FULLSCREEN_BUTTON_SIZE = 24;
+const FULLSCREEN_BUTTON_OPACITY = '0.5';
+const FULLSCREEN_ICON_SVG = '<svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2" style="display: block"><path d=":path"/></svg>';
+const FULLSCREEN_ICON_ENTER = FULLSCREEN_ICON_SVG.replace(':path', 'M1 5V1h4M11 1h4v4M15 11v4h-4M5 15H1v-4');
+const FULLSCREEN_ICON_EXIT = FULLSCREEN_ICON_SVG.replace(':path', 'M5 1v4H1M15 5h-4V1M11 15v-4h4M1 11h4v4');
 const CELL_LAYOUTS = [
   [[0, 13]],         // note, instrument, volume, effect
   [[0, 6], [9, 13]], // note, instrument, effect
@@ -113,7 +119,7 @@ function create_scroller_text(metadata, names) {
     .join('   ');
 }
 
-function create(player, width, height) {
+function create(player, base_width, base_height) {
   const node = player.currentPlayingNode;
   const names = player.getInstrumentNames();
   const num_channels = player.getNumChannels();
@@ -125,32 +131,54 @@ function create(player, width, height) {
   const row_digits = Math.max(2, (max_rows - 1).toString(16).length);
 
   const canvas = document.createElement('canvas');
-  const dpr = window.devicePixelRatio || 1;
-  canvas.width = Math.round(width * dpr);
-  canvas.height = Math.round(height * dpr);
   canvas.style.display = 'block';
-  // NOTE: shrinks to fit screens narrower than its width, keeping its aspect ratio
-  canvas.style.width = width + 'px';
-  canvas.style.maxWidth = '100%';
+  canvas.style.width = '100%';
   canvas.style.height = 'auto';
-  canvas.style.alignSelf = 'flex-start';
-
   const ctx = canvas.getContext('2d');
-  ctx.scale(dpr, dpr);
-  ctx.font = '100px ' + FONT_FAMILY;
-  const fit = fit_layout(width, ctx.measureText('0').width / 100, row_digits, num_channels);
-  ctx.font = fit.font_size + 'px ' + FONT_FAMILY;
-  ctx.textBaseline = 'middle';
 
-  const char_width = ctx.measureText('0').width;
-  const line_height = Math.ceil(fit.font_size * LINE_HEIGHT);
-  const dot_size = Math.max(1, Math.round(fit.font_size / 8));
-  const channel_chars = cell_chars(fit.layout) + 1;
-  const content_width = (row_digits + 1 + fit.num_channels * channel_chars) * char_width;
-  const left = Math.floor((width - content_width) / 2);
+  // NOTE: shrinks to fit screens narrower than its width, the canvas keeps its aspect ratio
+  const canvas_frame = document.createElement('div');
+  canvas_frame.style.position = 'relative';
+  canvas_frame.style.maxWidth = '100%';
+  canvas_frame.style.alignSelf = 'flex-start';
+  canvas_frame.appendChild(canvas);
+
+  let width = 0;
+  let height = 0;
+  let fit = null;
+  let char_width = 0;
+  let line_height = 0;
+  let dot_size = 0;
+  let channel_chars = 0;
+  let left = 0;
+  let play_y = 0;
   const channel_x = (channel) => left + (row_digits + 1 + channel * channel_chars) * char_width;
-  // NOTE: the playing row stays in the middle and the pattern scrolls past it
-  const play_y = Math.floor((height - line_height) / 2);
+
+  const layout = (new_width, new_height) => {
+    width = new_width;
+    height = new_height;
+    const dpr = window.devicePixelRatio || 1;
+    // NOTE: resizing the canvas also resets the context state
+    canvas.width = Math.round(width * dpr);
+    canvas.height = Math.round(height * dpr);
+    canvas_frame.style.width = width + 'px';
+
+    ctx.scale(dpr, dpr);
+    ctx.font = '100px ' + FONT_FAMILY;
+    fit = fit_layout(width, ctx.measureText('0').width / 100, row_digits, num_channels);
+    ctx.font = fit.font_size + 'px ' + FONT_FAMILY;
+    ctx.textBaseline = 'middle';
+
+    char_width = ctx.measureText('0').width;
+    line_height = Math.ceil(fit.font_size * LINE_HEIGHT);
+    dot_size = Math.max(1, Math.round(fit.font_size / 8));
+    channel_chars = cell_chars(fit.layout) + 1;
+    const content_width = (row_digits + 1 + fit.num_channels * channel_chars) * char_width;
+    left = Math.floor((width - content_width) / 2);
+    // NOTE: the playing row stays in the middle and the pattern scrolls past it
+    play_y = Math.floor((height - line_height) / 2);
+  };
+  layout(base_width, base_height);
 
   const draw_cell_text = (text, highlight, x, y) => {
     let start = 0;
@@ -237,6 +265,14 @@ function create(player, width, height) {
     drawn = null;
   });
 
+  const resize = (new_width, new_height) => {
+    layout(new_width, new_height);
+    drawn = null;
+    if (fx != null) {
+      fx = plasma_fx.create(width, height, scroller_text);
+    }
+  };
+
   const update = () => {
     if (started && (!canvas.isConnected || player.currentPlayingNode !== node)) {
       return;
@@ -271,12 +307,84 @@ function create(player, width, height) {
   view.style.display = 'flex';
   view.style.flexWrap = 'wrap';
   view.style.maxWidth = '100%';
-  view.appendChild(canvas);
-  const panel = create_instrument_panel(names, ctx, height);
+  view.appendChild(canvas_frame);
+  const panel = create_instrument_panel(names, ctx, base_height);
   if (panel != null) {
     view.appendChild(panel.element);
   }
-  view.style.width = (width + (panel != null ? panel.width : 0)) + 'px';
+  view.style.width = (base_width + (panel != null ? panel.width : 0)) + 'px';
+
+  if (document.fullscreenEnabled) {
+    const button = document.createElement('button');
+    button.type = 'button';
+    button.title = t('mod.fullscreen');
+    button.setAttribute('aria-label', t('mod.fullscreen'));
+    button.setAttribute('aria-pressed', 'false');
+    button.innerHTML = FULLSCREEN_ICON_ENTER;
+    // NOTE: placed over the top right corner of the pattern, so that it is also visible in fullscreen
+    button.style.position = 'absolute';
+    button.style.top = '0';
+    button.style.right = '0';
+    button.style.display = 'flex';
+    button.style.alignItems = 'center';
+    button.style.justifyContent = 'center';
+    button.style.width = FULLSCREEN_BUTTON_SIZE + 'px';
+    button.style.height = FULLSCREEN_BUTTON_SIZE + 'px';
+    button.style.margin = '0';
+    button.style.padding = '0';
+    button.style.border = 'none';
+    button.style.background = COLOR_BACKGROUND;
+    button.style.color = COLOR_ROW_NUMBER;
+    button.style.cursor = 'pointer';
+    button.style.opacity = FULLSCREEN_BUTTON_OPACITY;
+    button.addEventListener('mouseenter', () => {
+      button.style.opacity = '1';
+    });
+    button.addEventListener('mouseleave', () => {
+      button.style.opacity = FULLSCREEN_BUTTON_OPACITY;
+    });
+    button.addEventListener('click', () => {
+      if (document.fullscreenElement === view) {
+        document.exitFullscreen();
+      } else {
+        view.requestFullscreen().catch((error) => {
+          console.error('tracker_view: failed to enter fullscreen:', error);
+        });
+      }
+    });
+    canvas_frame.appendChild(button);
+
+    // NOTE: the pattern fills the screen, the instrument panel is only kept if the pattern still fits next to it
+    const fit_screen = () => {
+      if (document.fullscreenElement !== view) {
+        return;
+      }
+      const panel_width = panel != null && view.clientWidth - panel.width >= base_width ? panel.width : 0;
+      if (panel != null) {
+        panel.element.style.display = panel_width > 0 ? '' : 'none';
+      }
+      resize(view.clientWidth - panel_width, view.clientHeight);
+    };
+
+    view.addEventListener('fullscreenchange', () => {
+      const fullscreen = document.fullscreenElement === view;
+      button.innerHTML = fullscreen ? FULLSCREEN_ICON_EXIT : FULLSCREEN_ICON_ENTER;
+      button.setAttribute('aria-pressed', fullscreen ? 'true' : 'false');
+      view.style.flexWrap = fullscreen ? 'nowrap' : 'wrap';
+      view.style.background = fullscreen ? COLOR_BACKGROUND : '';
+      if (panel != null) {
+        panel.element.style.display = '';
+        panel.element.style.maxHeight = fullscreen ? '100%' : base_height + 'px';
+      }
+      if (fullscreen) {
+        window.addEventListener('resize', fit_screen);
+        fit_screen();
+      } else {
+        window.removeEventListener('resize', fit_screen);
+        resize(base_width, base_height);
+      }
+    });
+  }
 
   return view;
 }

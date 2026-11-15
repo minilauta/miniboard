@@ -53,6 +53,7 @@ const hu = {
   'mod.title': 'CÍM',
   'mod.tracker': 'TRACKER',
   'mod.type': 'TÍPUS',
+  'mod.fullscreen': 'Teljes képernyő',
 };
 
 export default hu;

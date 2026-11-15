@@ -53,6 +53,7 @@ const fi = {
   'mod.title': 'NIMI',
   'mod.tracker': 'TRACKER',
   'mod.type': 'TYYPPI',
+  'mod.fullscreen': 'Koko näyttö',
 };
 
 export default fi;

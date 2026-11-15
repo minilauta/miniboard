@@ -53,6 +53,7 @@ const pl = {
   'mod.title': 'TYTUŁ',
   'mod.tracker': 'TRACKER',
   'mod.type': 'TYP',
+  'mod.fullscreen': 'Pełny ekran',
 };
 
 export default pl;

@@ -53,6 +53,7 @@ const en = {
   'mod.title': 'TITLE',
   'mod.tracker': 'TRACKER',
   'mod.type': 'TYPE',
+  'mod.fullscreen': 'Fullscreen',
 };
 
 export default en;

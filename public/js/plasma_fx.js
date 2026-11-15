@@ -177,12 +177,13 @@ function create(width, height, text) {
     pixels[i + 2] = c & 0xff;
   };
 
+  const size = Math.sqrt(w * h);
   const render_plasma = (t, table) => {
     for (let x = 0; x < w; x++) {
-      cols[x] = Math.sin(x / w * PLASMA_SX + t) * PLASMA_WAVE * 0.5 + 0.5;
+      cols[x] = Math.sin(x / size * PLASMA_SX + t) * PLASMA_WAVE * 0.5 + 0.5;
     }
     for (let y = 0; y < h; y++) {
-      rows[y] = Math.cos(y / h * PLASMA_SY + Math.sin(t * 2) * PLASMA_SY * 0.5) * PLASMA_WAVE * 0.5 + 0.5;
+      rows[y] = Math.cos(y / size * PLASMA_SY + Math.sin(t * 2) * PLASMA_SY * 0.5) * PLASMA_WAVE * 0.5 + 0.5;
     }
     const cx = Math.sin(t * Math.PI * 2) * 0.5 + 0.5;
     const cy = Math.cos(t * Math.PI * 3) * 0.5 + 0.5;
