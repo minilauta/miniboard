@@ -51,10 +51,10 @@ const PLASMA_COLOR_TABLES = [
     0x626262, 0x626262,
   ],
 ];
-const PLASMA_CYCLE_SECONDS = 5;
 const PLASMA_TIME_SCALE = 0.25;
 const PLASMA_SX = 32;
 const PLASMA_SY = 12;
+const PLASMA_WAVE = 0.75;
 const NOTE_ENERGY = 0.5;
 const NOTE_DECAY = 6;
 const NOTE_FLASH = 1;
@@ -167,7 +167,6 @@ function create(width, height, text) {
   const font = rasterize_font(chars, Math.round(h * DYCP_FONT_SIZE));
   const start = performance.now();
   let color_table = PLASMA_COLOR_TABLES[0];
-  let color_cycled = 0;
   let rendered = 0;
   let note_energy = 0;
   let note_time = 0;
@@ -180,10 +179,10 @@ function create(width, height, text) {
 
   const render_plasma = (t, table) => {
     for (let x = 0; x < w; x++) {
-      cols[x] = Math.sin(x / w * PLASMA_SX + t) * 0.5 + 0.5;
+      cols[x] = Math.sin(x / w * PLASMA_SX + t) * PLASMA_WAVE * 0.5 + 0.5;
     }
     for (let y = 0; y < h; y++) {
-      rows[y] = Math.cos(y / h * PLASMA_SY + Math.sin(t * 2) * PLASMA_SY * 0.5) * 0.5 + 0.5;
+      rows[y] = Math.cos(y / h * PLASMA_SY + Math.sin(t * 2) * PLASMA_SY * 0.5) * PLASMA_WAVE * 0.5 + 0.5;
     }
     const cx = Math.sin(t * Math.PI * 2) * 0.5 + 0.5;
     const cy = Math.cos(t * Math.PI * 3) * 0.5 + 0.5;
@@ -236,11 +235,6 @@ function create(width, height, text) {
 
   const render = (ctx) => {
     const seconds = (performance.now() - start) / 1000;
-    if (seconds - color_cycled >= PLASMA_CYCLE_SECONDS) {
-      color_table = PLASMA_COLOR_TABLES[Math.floor(Math.random() * PLASMA_COLOR_TABLES.length)];
-      color_cycled = seconds;
-    }
-
     const dt = Math.min(0.1, seconds - rendered);
     rendered = seconds;
     note_energy *= Math.exp(-NOTE_DECAY * dt);
@@ -260,7 +254,14 @@ function create(width, height, text) {
     note_energy = Math.min(1, note_energy + notes * NOTE_ENERGY);
   };
 
-  return { render, trigger };
+  const switch_palette = () => {
+    // NOTE: never pick the current table again, so that every switch is visible
+    const index = PLASMA_COLOR_TABLES.indexOf(color_table);
+    const next = Math.floor(Math.random() * (PLASMA_COLOR_TABLES.length - 1));
+    color_table = PLASMA_COLOR_TABLES[next >= index ? next + 1 : next];
+  };
+
+  return { render, trigger, switch_palette };
 }
 
 const plasma_fx = {

@@ -250,6 +250,9 @@ function create(player, width, height) {
 
     if (fx != null) {
       if (fx_triggered == null || position.order !== fx_triggered.order || position.pattern !== fx_triggered.pattern || position.row !== fx_triggered.row) {
+        if (fx_triggered != null && (position.order !== fx_triggered.order || position.pattern !== fx_triggered.pattern)) {
+          fx.switch_palette();
+        }
         fx.trigger(count_notes(position));
         fx_triggered = position;
       }
