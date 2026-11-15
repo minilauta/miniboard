@@ -54,6 +54,9 @@ const en = {
   'mod.tracker': 'TRACKER',
   'mod.type': 'TYPE',
   'mod.fullscreen': 'Fullscreen',
+  'mod.minimania': 'Minimania',
+  'mod.plasma': 'Plasma',
+  'mod.dycp': 'Text scroller',
 };
 
 export default en;

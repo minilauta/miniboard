@@ -54,6 +54,9 @@ const hu = {
   'mod.tracker': 'TRACKER',
   'mod.type': 'TÍPUS',
   'mod.fullscreen': 'Teljes képernyő',
+  'mod.minimania': 'Minimania',
+  'mod.plasma': 'Plazma',
+  'mod.dycp': 'Szöveggörgető',
 };
 
 export default hu;

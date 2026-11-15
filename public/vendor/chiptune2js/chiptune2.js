@@ -78,6 +78,14 @@ ChiptuneJsPlayer.prototype.getCurrentOrder = function() {
   return libopenmpt._openmpt_module_get_current_order(this.currentPlayingNode.modulePtr);  
 }
 
+ChiptuneJsPlayer.prototype.getCurrentSpeed = function() {
+  return libopenmpt._openmpt_module_get_current_speed(this.currentPlayingNode.modulePtr);
+}
+
+ChiptuneJsPlayer.prototype.getCurrentTempo = function() {
+  return libopenmpt._openmpt_module_get_current_tempo2(this.currentPlayingNode.modulePtr);
+}
+
 ChiptuneJsPlayer.prototype.getCurrentTime = function () {
   return libopenmpt._openmpt_module_get_position_seconds(this.currentPlayingNode.modulePtr);
 };
@@ -103,6 +111,10 @@ ChiptuneJsPlayer.prototype.getTotalOrder = function () {
   return libopenmpt._openmpt_module_get_num_orders(this.currentPlayingNode.modulePtr);
 };
 
+ChiptuneJsPlayer.prototype.getOrderPattern = function (order) {
+  return libopenmpt._openmpt_module_get_order_pattern(this.currentPlayingNode.modulePtr, order);
+};
+
 ChiptuneJsPlayer.prototype.getTotalPatterns = function () {
   return libopenmpt._openmpt_module_get_num_patterns(this.currentPlayingNode.modulePtr);
 };
@@ -121,6 +133,11 @@ ChiptuneJsPlayer.prototype.getPatternRowChannel = function (pattern, row, channe
     text: ChiptuneJsReadString(libopenmpt._openmpt_module_format_pattern_row_channel(modulePtr, pattern, row, channel, 0, 0)),
     highlight: ChiptuneJsReadString(libopenmpt._openmpt_module_highlight_pattern_row_channel(modulePtr, pattern, row, channel, 0, 0)),
   };
+};
+
+// returns a raw value of a cell, e.g. the note number or the internal effect number
+ChiptuneJsPlayer.prototype.getPatternRowChannelCommand = function (pattern, row, channel, command) {
+  return libopenmpt._openmpt_module_get_pattern_row_channel_command(this.currentPlayingNode.modulePtr, pattern, row, channel, command);
 };
 
 // returns the instrument or sample names

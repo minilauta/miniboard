@@ -1,5 +1,8 @@
 import t from './i18n';
-import plasma_fx from './plasma_fx';
+import fx from './fx';
+import fx_plasma from './fx_plasma';
+import fx_dycp from './fx_dycp';
+import fx_minimania from './fx_minimania';
 
 const COLOR_BACKGROUND = '#000000';
 const COLOR_BEAT_ROW = '#1c1c1c';
@@ -25,11 +28,16 @@ const FONT_SIZE_MAX = 24;
 const LINE_HEIGHT = 1.15;
 const PANEL_FONT_SIZE = 12;
 const PANEL_SCROLLBAR_WIDTH = 17;
-const FULLSCREEN_BUTTON_SIZE = 24;
-const FULLSCREEN_BUTTON_OPACITY = '0.5';
+const BUTTON_SIZE = 24;
+const BUTTON_OPACITY = '0.5';
 const FULLSCREEN_ICON_SVG = '<svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2" style="display: block"><path d=":path"/></svg>';
 const FULLSCREEN_ICON_ENTER = FULLSCREEN_ICON_SVG.replace(':path', 'M1 5V1h4M11 1h4v4M15 11v4h-4M5 15H1v-4');
 const FULLSCREEN_ICON_EXIT = FULLSCREEN_ICON_SVG.replace(':path', 'M5 1v4H1M15 5h-4V1M11 15v-4h4M1 11h4v4');
+// NOTE: the effects are drawn on top of each other in this order, each one has a toggle button next to the
+//       fullscreen button, new effects are added by listing their fx_<name>.js here
+const FX = [fx_plasma, fx_dycp, fx_minimania];
+// NOTE: the effects that clicking the pattern toggles
+const FX_CLICK = [fx_plasma, fx_dycp];
 const CELL_LAYOUTS = [
   [[0, 13]],         // note, instrument, volume, effect
   [[0, 6], [9, 13]], // note, instrument, effect
@@ -112,11 +120,36 @@ function create_instrument_panel(names, ctx, height) {
   return { element: panel, width };
 }
 
-function create_scroller_text(metadata, names) {
-  return [metadata.title, metadata.artist, names.join(' ')]
-    .map((part) => (part || '').replace(/\s+/g, ' ').trim())
-    .filter((part) => part !== '')
-    .join('   ');
+// NOTE: placed over the top right corner of the pattern, so that it is also visible in fullscreen
+function create_button(icon, label, right) {
+  const button = document.createElement('button');
+  button.type = 'button';
+  button.title = label;
+  button.setAttribute('aria-label', label);
+  button.setAttribute('aria-pressed', 'false');
+  button.innerHTML = icon;
+  button.style.position = 'absolute';
+  button.style.top = '0';
+  button.style.right = right + 'px';
+  button.style.display = 'flex';
+  button.style.alignItems = 'center';
+  button.style.justifyContent = 'center';
+  button.style.width = BUTTON_SIZE + 'px';
+  button.style.height = BUTTON_SIZE + 'px';
+  button.style.margin = '0';
+  button.style.padding = '0';
+  button.style.border = 'none';
+  button.style.background = COLOR_BACKGROUND;
+  button.style.color = COLOR_ROW_NUMBER;
+  button.style.cursor = 'pointer';
+  button.style.opacity = BUTTON_OPACITY;
+  button.addEventListener('mouseenter', () => {
+    button.style.opacity = '1';
+  });
+  button.addEventListener('mouseleave', () => {
+    button.style.opacity = BUTTON_OPACITY;
+  });
+  return button;
 }
 
 function create(player, base_width, base_height) {
@@ -238,61 +271,82 @@ function create(player, base_width, base_height) {
     }
   };
 
-  const count_notes = (position) => {
-    let notes = 0;
-    for (let channel = 0; channel < num_channels; channel++) {
-      if (player.getPatternRowChannel(position.pattern, position.row, channel).highlight[0] === 'n') {
-        notes++;
-      }
-    }
-    return notes;
-  };
-
   let started = false;
+  let stopped = false;
   let drawn = null;
-  let fx = null;
-  let fx_triggered = null;
-  let scroller_text = null;
+
+  // NOTE: the buttons are in the order of the effects, to the left of the fullscreen button
+  const buttons = FX.map((def, i) => {
+    const button = create_button(def.icon, t(def.label), (FX.length - 1 - i + (document.fullscreenEnabled ? 1 : 0)) * BUTTON_SIZE);
+    button.addEventListener('click', () => {
+      if (stopped) {
+        return;
+      }
+      if (stack.has(def)) {
+        stack.get(def).on_button();
+      } else {
+        stack.push(def);
+      }
+    });
+    canvas_frame.appendChild(button);
+    return button;
+  });
+
+  const stack = fx.create_stack({
+    player,
+    canvas,
+    ctx,
+    effects: FX,
+    width,
+    height,
+    on_change: () => {
+      drawn = null;
+      FX.forEach((def, i) => {
+        buttons[i].setAttribute('aria-pressed', stack.has(def) ? 'true' : 'false');
+      });
+    },
+  });
+
   canvas.style.cursor = 'pointer';
   canvas.addEventListener('click', () => {
-    if (fx == null) {
-      scroller_text = scroller_text != null ? scroller_text : create_scroller_text(player.metadata(), names);
-      fx = plasma_fx.create(width, height, scroller_text);
-    } else {
-      fx = null;
+    // NOTE: clicks are input for the interactive effects, e.g. they play the lanes of the game
+    if (stopped || stack.interactive()) {
+      return;
     }
-    fx_triggered = null;
-    drawn = null;
+    if (stack.empty()) {
+      FX_CLICK.forEach((def) => stack.push(def));
+    } else {
+      stack.clear();
+    }
   });
 
   const resize = (new_width, new_height) => {
     layout(new_width, new_height);
     drawn = null;
-    if (fx != null) {
-      fx = plasma_fx.create(width, height, scroller_text);
-    }
+    stack.resize(width, height);
+  };
+
+  // NOTE: the effects are removed when the song stops, so that they do not keep listening to the input
+  const stop = () => {
+    stopped = true;
+    stack.clear();
   };
 
   const update = () => {
     if (started && (!canvas.isConnected || player.currentPlayingNode !== node)) {
+      stop();
       return;
     }
     started = true;
 
     const position = player.getPlayingPosition();
     if (position == null) {
+      stop();
       return;
     }
 
-    if (fx != null) {
-      if (fx_triggered == null || position.order !== fx_triggered.order || position.pattern !== fx_triggered.pattern || position.row !== fx_triggered.row) {
-        if (fx_triggered != null && (position.order !== fx_triggered.order || position.pattern !== fx_triggered.pattern)) {
-          fx.switch_palette();
-        }
-        fx.trigger(count_notes(position));
-        fx_triggered = position;
-      }
-      fx.render(ctx);
+    if (!stack.empty()) {
+      stack.render(position);
     } else if (drawn == null || position.pattern !== drawn.pattern || position.row !== drawn.row) {
       draw(position);
       drawn = position;
@@ -315,34 +369,7 @@ function create(player, base_width, base_height) {
   view.style.width = (base_width + (panel != null ? panel.width : 0)) + 'px';
 
   if (document.fullscreenEnabled) {
-    const button = document.createElement('button');
-    button.type = 'button';
-    button.title = t('mod.fullscreen');
-    button.setAttribute('aria-label', t('mod.fullscreen'));
-    button.setAttribute('aria-pressed', 'false');
-    button.innerHTML = FULLSCREEN_ICON_ENTER;
-    // NOTE: placed over the top right corner of the pattern, so that it is also visible in fullscreen
-    button.style.position = 'absolute';
-    button.style.top = '0';
-    button.style.right = '0';
-    button.style.display = 'flex';
-    button.style.alignItems = 'center';
-    button.style.justifyContent = 'center';
-    button.style.width = FULLSCREEN_BUTTON_SIZE + 'px';
-    button.style.height = FULLSCREEN_BUTTON_SIZE + 'px';
-    button.style.margin = '0';
-    button.style.padding = '0';
-    button.style.border = 'none';
-    button.style.background = COLOR_BACKGROUND;
-    button.style.color = COLOR_ROW_NUMBER;
-    button.style.cursor = 'pointer';
-    button.style.opacity = FULLSCREEN_BUTTON_OPACITY;
-    button.addEventListener('mouseenter', () => {
-      button.style.opacity = '1';
-    });
-    button.addEventListener('mouseleave', () => {
-      button.style.opacity = FULLSCREEN_BUTTON_OPACITY;
-    });
+    const button = create_button(FULLSCREEN_ICON_ENTER, t('mod.fullscreen'), 0);
     button.addEventListener('click', () => {
       if (document.fullscreenElement === view) {
         document.exitFullscreen();

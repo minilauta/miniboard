@@ -54,6 +54,9 @@ const fi = {
   'mod.tracker': 'TRACKER',
   'mod.type': 'TYYPPI',
   'mod.fullscreen': 'Koko näyttö',
+  'mod.minimania': 'Minimania',
+  'mod.plasma': 'Plasma',
+  'mod.dycp': 'Vierivä teksti',
 };
 
 export default fi;
