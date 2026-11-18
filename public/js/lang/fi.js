@@ -50,13 +50,16 @@ const fi = {
   'post.hashid.n': ':count Postausta tältä ID:ltä',
 
   // MOD player
-  'mod.title': 'NIMI',
-  'mod.tracker': 'TRACKER',
-  'mod.type': 'TYYPPI',
   'mod.fullscreen': 'Koko näyttö',
   'mod.minimania': 'Minimania',
   'mod.plasma': 'Plasma',
   'mod.dycp': 'Vierivä teksti',
+  'mod.play': 'Toista',
+  'mod.pause': 'Tauko',
+  'mod.stop': 'Pysäytä',
+  'mod.previous': 'Edellinen kuvio',
+  'mod.next': 'Seuraava kuvio',
+  'mod.position': 'Sijainti',
 };
 
 export default fi;

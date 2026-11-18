@@ -50,13 +50,16 @@ const hu = {
   'post.hashid.n': ':count hozzászólás ettől az azonosítótól',
 
   // MOD player
-  'mod.title': 'CÍM',
-  'mod.tracker': 'TRACKER',
-  'mod.type': 'TÍPUS',
   'mod.fullscreen': 'Teljes képernyő',
   'mod.minimania': 'Minimania',
   'mod.plasma': 'Plazma',
   'mod.dycp': 'Szöveggörgető',
+  'mod.play': 'Lejátszás',
+  'mod.pause': 'Szünet',
+  'mod.stop': 'Leállítás',
+  'mod.previous': 'Előző minta',
+  'mod.next': 'Következő minta',
+  'mod.position': 'Pozíció',
 };
 
 export default hu;

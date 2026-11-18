@@ -608,12 +608,6 @@ table.form-manage-table tbody tr:has(input[name="select[]"]:checked) {
   background-color: rgba(128, 128, 128, 0.25);
 }
 
-/* animations */
-@keyframes marquee {
-  0%   { transform: translate(100%, 0); }
-  100% { transform: translate(-100%, 0); }
-}
-
 /* ban preview popup */
 .ban-preview-trigger {
   position: relative;

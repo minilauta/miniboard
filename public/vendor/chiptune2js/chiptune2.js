@@ -93,6 +93,14 @@ ChiptuneJsPlayer.prototype.getCurrentTime = function () {
 ChiptuneJsPlayer.prototype.seek = function (position) {
   if (this.currentPlayingNode != null && this.currentPlayingNode.modulePtr != 0) {
     libopenmpt._openmpt_module_set_position_seconds(this.currentPlayingNode.modulePtr, position);
+    this.currentPlayingNode.syncPausedPosition();
+  }
+};
+
+ChiptuneJsPlayer.prototype.setPositionOrderRow = function (order, row) {
+  if (this.currentPlayingNode != null && this.currentPlayingNode.modulePtr != 0) {
+    libopenmpt._openmpt_module_set_position_order_row(this.currentPlayingNode.modulePtr, order, row);
+    this.currentPlayingNode.syncPausedPosition();
   }
 };
 
@@ -264,6 +272,22 @@ ChiptuneJsPlayer.prototype.togglePause = function() {
   }
 }
 
+ChiptuneJsPlayer.prototype.pause = function() {
+  if (this.currentPlayingNode != null) {
+    this.currentPlayingNode.pause();
+  }
+}
+
+ChiptuneJsPlayer.prototype.unpause = function() {
+  if (this.currentPlayingNode != null) {
+    this.currentPlayingNode.unpause();
+  }
+}
+
+ChiptuneJsPlayer.prototype.isPaused = function() {
+  return this.currentPlayingNode != null && this.currentPlayingNode.paused;
+}
+
 ChiptuneJsPlayer.prototype.createLibopenmptNode = function(buffer, config) {
   // TODO error checking in this whole function
 
@@ -293,6 +317,13 @@ ChiptuneJsPlayer.prototype.createLibopenmptNode = function(buffer, config) {
     var queue = this.positionQueue;
     while (queue.length > 0 && queue[0].time <= now) {
       this.playingPosition = queue.shift();
+    }
+  }
+  
+  processNode.syncPausedPosition = function() {
+    if (this.paused && this.modulePtr != 0) {
+      this.positionQueue = [];
+      this.playingPosition = this.readPosition(this.context.currentTime);
     }
   }
   processNode.cleanup = function() {

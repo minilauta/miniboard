@@ -30,7 +30,6 @@ const NON_TEXT_INPUTS = ['range', 'checkbox', 'radio', 'button', 'submit', 'rese
 
 function noop() {}
 
-// NOTE: keys are left alone in fields that take text, but not in e.g. the seek slider of the player
 function is_editable(target) {
   if (target == null) {
     return false;
@@ -147,7 +146,6 @@ function create_stack(options) {
     dispatch((instance) => instance.on_pointer(event, x, y, time));
   };
 
-  // NOTE: focus may be somewhere that keeps the keys from the effects, e.g. in the seek slider or an embed
   const focus = () => {
     canvas.focus({ preventScroll: true });
   };

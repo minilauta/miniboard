@@ -50,13 +50,16 @@ const pl = {
   'post.hashid.n': 'Liczba postów z tym ID: :count',
 
   // MOD player
-  'mod.title': 'TYTUŁ',
-  'mod.tracker': 'TRACKER',
-  'mod.type': 'TYP',
   'mod.fullscreen': 'Pełny ekran',
   'mod.minimania': 'Minimania',
   'mod.plasma': 'Plazma',
   'mod.dycp': 'Przewijany tekst',
+  'mod.play': 'Odtwórz',
+  'mod.pause': 'Pauza',
+  'mod.stop': 'Zatrzymaj',
+  'mod.previous': 'Poprzedni wzorzec',
+  'mod.next': 'Następny wzorzec',
+  'mod.position': 'Pozycja',
 };
 
 export default pl;

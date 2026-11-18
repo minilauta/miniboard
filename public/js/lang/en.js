@@ -50,13 +50,16 @@ const en = {
   'post.hashid.n': ':count Posts by this ID',
 
   // MOD player
-  'mod.title': 'TITLE',
-  'mod.tracker': 'TRACKER',
-  'mod.type': 'TYPE',
   'mod.fullscreen': 'Fullscreen',
   'mod.minimania': 'Minimania',
   'mod.plasma': 'Plasma',
   'mod.dycp': 'Text scroller',
+  'mod.play': 'Play',
+  'mod.pause': 'Pause',
+  'mod.stop': 'Stop',
+  'mod.previous': 'Previous pattern',
+  'mod.next': 'Next pattern',
+  'mod.position': 'Position',
 };
 
 export default en;

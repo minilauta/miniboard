@@ -33,10 +33,17 @@ const BUTTON_OPACITY = '0.5';
 const FULLSCREEN_ICON_SVG = '<svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2" style="display: block"><path d=":path"/></svg>';
 const FULLSCREEN_ICON_ENTER = FULLSCREEN_ICON_SVG.replace(':path', 'M1 5V1h4M11 1h4v4M15 11v4h-4M5 15H1v-4');
 const FULLSCREEN_ICON_EXIT = FULLSCREEN_ICON_SVG.replace(':path', 'M5 1v4H1M15 5h-4V1M11 15v-4h4M1 11h4v4');
-// NOTE: the effects are drawn on top of each other in this order, each one has a toggle button next to the
-//       fullscreen button, new effects are added by listing their fx_<name>.js here
+const CONTROL_ICON_SVG = '<svg width="16" height="16" viewBox="0 0 16 16" fill="currentColor" style="display: block"><path d=":path"/></svg>';
+const CONTROL_ICON_PREVIOUS = CONTROL_ICON_SVG.replace(':path', 'M2 2h2v12H2zM14 2v12L5 8z');
+const CONTROL_ICON_PLAY = CONTROL_ICON_SVG.replace(':path', 'M4 2v12l10-6z');
+const CONTROL_ICON_PAUSE = CONTROL_ICON_SVG.replace(':path', 'M3 2h4v12H3zM9 2h4v12H9z');
+const CONTROL_ICON_STOP = CONTROL_ICON_SVG.replace(':path', 'M3 3h10v10H3z');
+const CONTROL_ICON_NEXT = CONTROL_ICON_SVG.replace(':path', 'M12 2h2v12h-2zM2 2v12l9-6z');
+const BAR_PADDING = 4;
+const PROGRESS_HEIGHT = 8;
+const PLAYHEAD_WIDTH = 2;
+const SEEK_KEYS = { ArrowLeft: -5, Left: -5, ArrowDown: -5, Down: -5, ArrowRight: 5, Right: 5, ArrowUp: 5, Up: 5, PageDown: -30, PageUp: 30 };
 const FX = [fx_plasma, fx_dycp, fx_minimania];
-// NOTE: the effects that clicking the pattern toggles
 const FX_CLICK = [fx_plasma, fx_dycp];
 const CELL_LAYOUTS = [
   [[0, 13]],         // note, instrument, volume, effect
@@ -50,7 +57,6 @@ function cell_chars(layout) {
 }
 
 function fit_layout(width, char_ratio, row_digits, num_channels) {
-  // NOTE: the row number and each channel are followed by a divider column
   for (const layout of CELL_LAYOUTS) {
     const chars = row_digits + 1 + num_channels * (cell_chars(layout) + 1);
     const font_size = Math.min(FONT_SIZE_MAX, width / (chars * char_ratio));
@@ -89,7 +95,6 @@ function create_instrument_panel(names, ctx, height) {
 
   const panel = document.createElement('div');
   panel.style.boxSizing = 'border-box';
-  // NOTE: grows to the full width when it wraps below the pattern on narrow screens
   panel.style.flex = '1 0 auto';
   panel.style.width = width + 'px';
   panel.style.maxHeight = height + 'px';
@@ -104,7 +109,6 @@ function create_instrument_panel(names, ctx, height) {
   panel.style.font = font;
   panel.style.lineHeight = line_height + 'px';
   panel.style.textAlign = 'left';
-  // NOTE: keeps the spacing of text that is laid out across multiple names
   panel.style.whiteSpace = 'pre';
 
   names.forEach((name, i) => {
@@ -120,17 +124,42 @@ function create_instrument_panel(names, ctx, height) {
   return { element: panel, width };
 }
 
-// NOTE: placed over the top right corner of the pattern, so that it is also visible in fullscreen
-function create_button(icon, label, right) {
-  const button = document.createElement('button');
-  button.type = 'button';
+function format_time(seconds) {
+  const total = Math.max(0, Math.floor(seconds) || 0);
+  return Math.floor(total / 60) + ':' + (total % 60).toString().padStart(2, '0');
+}
+
+function create_control_bar(controls) {
+  const bar = document.createElement('div');
+  bar.style.display = 'flex';
+  bar.style.flex = 'none';
+  bar.style.alignItems = 'center';
+  bar.style.gap = BAR_PADDING + 'px';
+  bar.style.paddingRight = BAR_PADDING + 'px';
+  bar.style.boxSizing = 'border-box';
+  bar.style.background = COLOR_BACKGROUND;
+  bar.style.color = COLOR_ROW_NUMBER;
+  bar.style.font = PANEL_FONT_SIZE + 'px ' + FONT_FAMILY;
+  bar.style.lineHeight = Math.ceil(PANEL_FONT_SIZE * LINE_HEIGHT) + 'px';
+  bar.style.textAlign = 'left';
+  bar.style.borderTop = DIVIDER_WIDTH + 'px solid ' + COLOR_DIVIDER;
+  for (const element of controls) {
+    bar.appendChild(element);
+  }
+  return bar;
+}
+
+function set_button_icon(button, icon, label) {
+  button.innerHTML = icon;
   button.title = label;
   button.setAttribute('aria-label', label);
-  button.setAttribute('aria-pressed', 'false');
-  button.innerHTML = icon;
-  button.style.position = 'absolute';
-  button.style.top = '0';
-  button.style.right = right + 'px';
+}
+
+function create_button(icon, label) {
+  const button = document.createElement('button');
+  button.type = 'button';
+  set_button_icon(button, icon, label);
+  button.style.flex = 'none';
   button.style.display = 'flex';
   button.style.alignItems = 'center';
   button.style.justifyContent = 'center';
@@ -152,11 +181,23 @@ function create_button(icon, label, right) {
   return button;
 }
 
+function create_overlay_button(icon, label, right) {
+  const button = create_button(icon, label);
+  button.setAttribute('aria-pressed', 'false');
+  button.style.position = 'absolute';
+  button.style.top = '0';
+  button.style.right = right + 'px';
+  return button;
+}
+
 function create(player, base_width, base_height) {
   const node = player.currentPlayingNode;
   const names = player.getInstrumentNames();
   const num_channels = player.getNumChannels();
   const num_patterns = player.getTotalPatterns();
+  const num_orders = player.getTotalOrder();
+  const duration = player.duration();
+  const duration_text = format_time(duration);
   let max_rows = 1;
   for (let pattern = 0; pattern < num_patterns; pattern++) {
     max_rows = Math.max(max_rows, player.getPatternNumRows(pattern));
@@ -169,7 +210,6 @@ function create(player, base_width, base_height) {
   canvas.style.height = 'auto';
   const ctx = canvas.getContext('2d');
 
-  // NOTE: shrinks to fit screens narrower than its width, the canvas keeps its aspect ratio
   const canvas_frame = document.createElement('div');
   canvas_frame.style.position = 'relative';
   canvas_frame.style.maxWidth = '100%';
@@ -277,7 +317,7 @@ function create(player, base_width, base_height) {
 
   // NOTE: the buttons are in the order of the effects, to the left of the fullscreen button
   const buttons = FX.map((def, i) => {
-    const button = create_button(def.icon, t(def.label), (FX.length - 1 - i + (document.fullscreenEnabled ? 1 : 0)) * BUTTON_SIZE);
+    const button = create_overlay_button(def.icon, t(def.label), (FX.length - 1 - i + (document.fullscreenEnabled ? 1 : 0)) * BUTTON_SIZE);
     button.addEventListener('click', () => {
       if (stopped) {
         return;
@@ -332,6 +372,180 @@ function create(player, base_width, base_height) {
     stack.clear();
   };
 
+  const active = () => !stopped && player.currentPlayingNode === node && node.modulePtr !== 0;
+
+  const find_order = (from, step) => {
+    for (let order = from + step; order >= 0 && order < num_orders; order += step) {
+      if (player.getOrderPattern(order) < num_patterns) {
+        return order;
+      }
+    }
+    return -1;
+  };
+
+  const jump = (step) => {
+    if (!active()) {
+      return;
+    }
+    const order = find_order(player.getCurrentOrder(), step);
+    if (order !== -1) {
+      player.setPositionOrderRow(order, 0);
+    }
+  };
+
+  const previous_button = create_button(CONTROL_ICON_PREVIOUS, t('mod.previous'));
+  previous_button.addEventListener('click', () => jump(-1));
+
+  const play_button = create_button(CONTROL_ICON_PAUSE, t('mod.pause'));
+  let shown_paused = false;
+  const show_paused = () => {
+    const paused = player.isPaused();
+    if (paused !== shown_paused) {
+      shown_paused = paused;
+      set_button_icon(play_button, paused ? CONTROL_ICON_PLAY : CONTROL_ICON_PAUSE, t(paused ? 'mod.play' : 'mod.pause'));
+    }
+  };
+  play_button.addEventListener('click', () => {
+    if (active()) {
+      player.togglePause();
+      show_paused();
+    }
+  });
+
+  const stop_button = create_button(CONTROL_ICON_STOP, t('mod.stop'));
+  stop_button.addEventListener('click', () => {
+    if (active()) {
+      player.pause();
+      player.seek(0);
+      show_paused();
+    }
+  });
+
+  const next_button = create_button(CONTROL_ICON_NEXT, t('mod.next'));
+  next_button.addEventListener('click', () => jump(1));
+
+  const fill = document.createElement('div');
+  fill.style.position = 'absolute';
+  fill.style.top = '0';
+  fill.style.bottom = '0';
+  fill.style.left = '0';
+  fill.style.boxSizing = 'border-box';
+  fill.style.width = '0';
+  fill.style.minWidth = PLAYHEAD_WIDTH + 'px';
+  fill.style.background = COLOR_PLAY_ROW;
+  fill.style.borderRight = PLAYHEAD_WIDTH + 'px solid ' + COLOR_ROW_NUMBER;
+  const track = document.createElement('div');
+  track.style.position = 'relative';
+  track.style.flex = '1 1 auto';
+  track.style.boxSizing = 'border-box';
+  track.style.height = PROGRESS_HEIGHT + 'px';
+  track.style.overflow = 'hidden';
+  track.style.border = '1px solid ' + COLOR_DIVIDER;
+  track.style.background = COLOR_BEAT_ROW;
+  track.appendChild(fill);
+
+  const progress = document.createElement('div');
+  progress.tabIndex = 0;
+  progress.setAttribute('role', 'slider');
+  progress.setAttribute('aria-label', t('mod.position'));
+  progress.setAttribute('aria-valuemin', '0');
+  progress.setAttribute('aria-valuemax', Math.floor(duration).toString());
+  progress.style.display = 'flex';
+  progress.style.flex = '1 1 auto';
+  progress.style.alignItems = 'center';
+  progress.style.minWidth = 2 * BUTTON_SIZE + 'px';
+  progress.style.height = BUTTON_SIZE + 'px';
+  progress.style.cursor = 'pointer';
+  progress.style.touchAction = 'pan-y';
+  progress.appendChild(track);
+
+  const time = document.createElement('span');
+  time.style.flex = 'none';
+  time.style.whiteSpace = 'pre';
+
+  let seek_pointer = null;
+  let seek_time = 0;
+  let shown_width = null;
+  let shown_seconds = null;
+  const show_progress = () => {
+    const current = seek_pointer != null ? seek_time : player.getCurrentTime();
+    const fraction = duration > 0 ? Math.max(0, Math.min(1, current / duration)) : 0;
+    const width = (fraction * 100).toFixed(2) + '%';
+    if (width !== shown_width) {
+      shown_width = width;
+      fill.style.width = width;
+    }
+    const seconds = Math.floor(current);
+    if (seconds !== shown_seconds) {
+      shown_seconds = seconds;
+      const text = format_time(current);
+      time.textContent = text.padStart(duration_text.length) + ' / ' + duration_text;
+      progress.setAttribute('aria-valuenow', Math.max(0, seconds || 0).toString());
+      progress.setAttribute('aria-valuetext', text + ' / ' + duration_text);
+    }
+  };
+
+  const pointer_time = (event) => {
+    const rect = track.getBoundingClientRect();
+    const x = rect.width > 0 ? (event.clientX - rect.left) / rect.width : 0;
+    return Math.max(0, Math.min(1, x)) * duration;
+  };
+  progress.addEventListener('pointerdown', (event) => {
+    if (!active() || !(duration > 0) || seek_pointer != null || (event.pointerType === 'mouse' && event.button !== 0)) {
+      return;
+    }
+    event.preventDefault();
+    try {
+      progress.setPointerCapture(event.pointerId);
+    } catch (error) {
+      // the pointer may already be gone
+    }
+    seek_pointer = event.pointerId;
+    seek_time = pointer_time(event);
+    show_progress();
+  });
+  progress.addEventListener('pointermove', (event) => {
+    if (event.pointerId === seek_pointer) {
+      seek_time = pointer_time(event);
+      show_progress();
+    }
+  });
+  progress.addEventListener('pointerup', (event) => {
+    if (event.pointerId === seek_pointer) {
+      seek_pointer = null;
+      if (active()) {
+        player.seek(pointer_time(event));
+      }
+    }
+  });
+  for (const type of ['pointercancel', 'lostpointercapture']) {
+    progress.addEventListener(type, (event) => {
+      if (event.pointerId === seek_pointer) {
+        seek_pointer = null;
+      }
+    });
+  }
+  progress.addEventListener('keydown', (event) => {
+    if (!active() || !(duration > 0) || event.ctrlKey || event.altKey || event.metaKey) {
+      return;
+    }
+    let target = null;
+    if (event.key === 'Home') {
+      target = 0;
+    } else if (event.key === 'End') {
+      target = duration;
+    } else if (Object.prototype.hasOwnProperty.call(SEEK_KEYS, event.key)) {
+      target = player.getCurrentTime() + SEEK_KEYS[event.key];
+    } else {
+      return;
+    }
+    event.preventDefault();
+    event.stopPropagation();
+    player.seek(Math.max(0, Math.min(duration, target)));
+  });
+
+  const controls = create_control_bar([previous_button, play_button, stop_button, next_button, progress, time]);
+
   const update = () => {
     if (started && (!canvas.isConnected || player.currentPlayingNode !== node)) {
       stop();
@@ -351,25 +565,31 @@ function create(player, base_width, base_height) {
       draw(position);
       drawn = position;
     }
+    show_progress();
+    show_paused();
 
     window.requestAnimationFrame(update);
   };
-  update();
 
-  // NOTE: the instrument panel is placed on the right side of the pattern
-  const view = document.createElement('div');
-  view.style.display = 'flex';
-  view.style.flexWrap = 'wrap';
-  view.style.maxWidth = '100%';
-  view.appendChild(canvas_frame);
+  const body = document.createElement('div');
+  body.style.display = 'flex';
+  body.style.flexWrap = 'wrap';
+  body.appendChild(canvas_frame);
   const panel = create_instrument_panel(names, ctx, base_height);
   if (panel != null) {
-    view.appendChild(panel.element);
+    body.appendChild(panel.element);
   }
+
+  const view = document.createElement('div');
+  view.style.display = 'flex';
+  view.style.flexDirection = 'column';
+  view.style.maxWidth = '100%';
   view.style.width = (base_width + (panel != null ? panel.width : 0)) + 'px';
+  view.appendChild(body);
+  view.appendChild(controls);
 
   if (document.fullscreenEnabled) {
-    const button = create_button(FULLSCREEN_ICON_ENTER, t('mod.fullscreen'), 0);
+    const button = create_overlay_button(FULLSCREEN_ICON_ENTER, t('mod.fullscreen'), 0);
     button.addEventListener('click', () => {
       if (document.fullscreenElement === view) {
         document.exitFullscreen();
@@ -381,27 +601,32 @@ function create(player, base_width, base_height) {
     });
     canvas_frame.appendChild(button);
 
-    // NOTE: the pattern fills the screen, the instrument panel is only kept if the pattern still fits next to it
     const fit_screen = () => {
       if (document.fullscreenElement !== view) {
         return;
       }
       const panel_width = panel != null && view.clientWidth - panel.width >= base_width ? panel.width : 0;
+      const body_height = Math.max(1, view.clientHeight - controls.offsetHeight);
       if (panel != null) {
         panel.element.style.display = panel_width > 0 ? '' : 'none';
+        panel.element.style.maxHeight = body_height + 'px';
       }
-      resize(view.clientWidth - panel_width, view.clientHeight);
+      resize(view.clientWidth - panel_width, body_height);
     };
 
     view.addEventListener('fullscreenchange', () => {
       const fullscreen = document.fullscreenElement === view;
       button.innerHTML = fullscreen ? FULLSCREEN_ICON_EXIT : FULLSCREEN_ICON_ENTER;
       button.setAttribute('aria-pressed', fullscreen ? 'true' : 'false');
-      view.style.flexWrap = fullscreen ? 'nowrap' : 'wrap';
+      body.style.flexWrap = fullscreen ? 'nowrap' : 'wrap';
+      // NOTE: the pattern takes the height that is left above the control bar
+      body.style.flex = fullscreen ? '1 1 0' : '';
+      body.style.minHeight = fullscreen ? '0' : '';
+      body.style.overflow = fullscreen ? 'hidden' : '';
       view.style.background = fullscreen ? COLOR_BACKGROUND : '';
       if (panel != null) {
         panel.element.style.display = '';
-        panel.element.style.maxHeight = fullscreen ? '100%' : base_height + 'px';
+        panel.element.style.maxHeight = base_height + 'px';
       }
       if (fullscreen) {
         window.addEventListener('resize', fit_screen);
@@ -412,6 +637,8 @@ function create(player, base_width, base_height) {
       }
     });
   }
+
+  update();
 
   return view;
 }

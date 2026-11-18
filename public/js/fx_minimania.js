@@ -190,6 +190,7 @@ function create(host, initial_difficulty) {
 
   let clock_offset = null;
   let now = 0;
+  let paused_at = null;
   let started = null;
   let combo = 0;
   let points = 0;
@@ -441,8 +442,41 @@ function create(host, initial_difficulty) {
     }
   };
 
+  const shift = (dt) => {
+    const shifted = new Set(rows);
+    for (const note of notes) {
+      shifted.add(note.row);
+    }
+    shifted.forEach((row) => {
+      row.time += dt;
+    });
+    last_time += dt;
+    token_time += dt;
+    if (started != null) {
+      started += dt;
+    }
+    if (last_judgment != null) {
+      last_judgment.time += dt;
+    }
+    for (const flash of flashes) {
+      if (flash != null) {
+        flash.time += dt;
+      }
+    }
+  };
+
   const update = () => {
+    if (node.paused) {
+      if (paused_at == null && clock_offset != null) {
+        paused_at = now;
+      }
+      return;
+    }
     sync_clock();
+    if (paused_at != null) {
+      shift(now - paused_at);
+      paused_at = null;
+    }
     if (started == null) {
       started = now;
     }
@@ -571,7 +605,7 @@ function create(host, initial_difficulty) {
   // NOTE: input_time is the time of the input event in seconds, in the time base of performance.now()
   const press = (lane, input_time) => {
     pressed[lane] = true;
-    if (clock_offset == null) {
+    if (clock_offset == null || node.paused) {
       return;
     }
 

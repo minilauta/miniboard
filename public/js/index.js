@@ -85,7 +85,6 @@ var state = {
     loaded: null,
     context: null,
     player: null,
-    interval: null,
   },
 };
 
@@ -216,7 +215,6 @@ function listener_post_thumb_link_click(event) {
       case 's3m':
       case 'med':
         if (state.chiptune2js.player != null) {
-          clearInterval(state.chiptune2js.interval);
           state.chiptune2js.player.stop();
         }
 
@@ -310,18 +308,6 @@ function listener_post_thumb_link_click(event) {
         });
         wrapper.style.width = target.width + 'px';
         wrapper.style.cursor = 'default';
-        let mod_meta = document.createElement('div');
-        mod_meta.style.overflow = 'hidden';
-        mod_meta.style.whiteSpace = 'nowrap';
-        mod_meta.style.width = '100%';
-        wrapper.appendChild(mod_meta);
-        let mod_pos = document.createElement('input');
-        mod_pos.setAttribute('type', 'range');
-        mod_pos.style.width = '100%';
-        // NOTE: the default margins would make it wider than the wrapper
-        mod_pos.style.marginLeft = '0';
-        mod_pos.style.marginRight = '0';
-        wrapper.appendChild(mod_pos);
 
         if (state.chiptune2js.context == null) {
           const AudioContext = window.AudioContext || window.webkitAudioContext;
@@ -354,30 +340,11 @@ function listener_post_thumb_link_click(event) {
 
             state.chiptune2js.player.play(data);
 
-            const metadata = state.chiptune2js.player.metadata();
-            let mod_meta_scroll = document.createElement('div');
-            mod_meta_scroll.style.display = 'inline-block';
-            mod_meta_scroll.style.animation = 'marquee 10s linear infinite';
-            mod_meta_scroll.textContent = t('mod.title') + ': ' + metadata.title + ', ' + t('mod.tracker') + ': ' + metadata.tracker + ', ' + t('mod.type') + ': ' + metadata.type_long;
-            mod_meta.appendChild(mod_meta_scroll);
-
-            mod_pos.setAttribute('min', '0');
-            mod_pos.setAttribute('max', state.chiptune2js.player.duration());
-            mod_pos.setAttribute('value', '0');
-            mod_pos.addEventListener('change', () => {
-              state.chiptune2js.player.seek(mod_pos.valueAsNumber);
-            });
-
-            state.chiptune2js.interval = setInterval(() => {
-              if (state.chiptune2js.player != null && state.chiptune2js.player.currentPlayingNode != null && !mod_pos.matches(':active')) {
-                mod_pos.value = state.chiptune2js.player.getCurrentTime();
-              }
-            }, 1000);
-
+            // NOTE: the tracker view also has the song info and the player controls
             const tracker = tracker_view.create(state.chiptune2js.player, 500, 500);
             wrapper.style.width = tracker.style.width;
             wrapper.style.maxWidth = '100%';
-            wrapper.prepend(tracker);
+            wrapper.appendChild(tracker);
             target.style.display = 'none';
           });
         }).catch((error) => {
