@@ -5,11 +5,11 @@ on:
     branches:
       - 'master'
     paths:
-      - 'microservices/csam-scanner/**'
+      - 'microservices/file-scanner/**'
       - '.github/workflows/run-microservice-tests.yml'
   pull_request:
     paths:
-      - 'microservices/csam-scanner/**'
+      - 'microservices/file-scanner/**'
       - '.github/workflows/run-microservice-tests.yml'
 
 concurrency:
@@ -21,20 +21,20 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-      - name: Build csam-scanner image
-        run: docker compose build csam-scanner
+      - name: Build file-scanner image
+        run: docker compose build file-scanner
       - name: Run Python unit tests
         run: >
           docker compose run --no-deps
           --user root
-          --name csam-scanner_test
-          csam-scanner
+          --name file-scanner_test
+          file-scanner
           bash -c '. /opt/venv/bin/activate && python -m unittest'
       # - name: Copy coverage reports
       #   if: always()
       #   run: |
-      #     docker cp csam-scanner_test:/app/coverage.xml ./ 2>/dev/null || true
-      #     docker cp csam-scanner_test:/app/coverage ./ 2>/dev/null || true
+      #     docker cp file-scanner_test:/app/coverage.xml ./ 2>/dev/null || true
+      #     docker cp file-scanner_test:/app/coverage ./ 2>/dev/null || true
       # - name: Upload coverage report
       #   if: always()
       #   uses: actions/upload-artifact@v4

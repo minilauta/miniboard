@@ -59,8 +59,8 @@ spec:
                 secretKeyRef:
                   name: miniboard-redis-auth
                   key: PASSWORD
-            - name: CSAM_SCANNER_HOST
-              value: miniboard-csam-scanner
+            - name: FILE_SCANNER_HOST
+              value: miniboard-file-scanner
             volumeMounts:
             - name: miniboard-app-config
               mountPath: /app/src/common/config.php
@@ -154,8 +154,8 @@ spec:
                 secretKeyRef:
                   name: miniboard-redis-auth
                   key: PASSWORD
-            - name: CSAM_SCANNER_HOST
-              value: miniboard-csam-scanner
+            - name: FILE_SCANNER_HOST
+              value: miniboard-file-scanner
             volumeMounts:
             - name: miniboard-app-pv
               mountPath: /app/public/src

@@ -79,8 +79,8 @@ spec: # spec for deployment
             secretKeyRef:
               name: miniboard-redis-auth
               key: PASSWORD
-        - name: CSAM_SCANNER_HOST
-          value: miniboard-csam-scanner
+        - name: FILE_SCANNER_HOST
+          value: miniboard-file-scanner
         volumeMounts:
         - name: miniboard-app-pv
           mountPath: /app/public/src
@@ -163,20 +163,20 @@ spec:
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: miniboard-csam-scanner
+  name: miniboard-file-scanner
 spec:
   selector:
     matchLabels:
-      run: miniboard-csam-scanner
+      run: miniboard-file-scanner
   replicas: 1
   template:
     metadata:
       labels:
-        run: miniboard-csam-scanner
+        run: miniboard-file-scanner
     spec:
       containers:
-      - name: miniboard-csam-scanner
-        image: ghcr.io/minilauta/miniboard/csam-scanner:latest
+      - name: miniboard-file-scanner
+        image: ghcr.io/minilauta/miniboard/file-scanner:latest
         imagePullPolicy: Always
         securityContext:
           runAsNonRoot: true
@@ -210,5 +210,5 @@ spec:
               key: PASSWORD
         - name: ORIGINATOR
           value: miniboard
-        - name: TOLERANCE
-          value: '0.70'
+        - name: PDQ_THRESHOLD
+          value: '0.878'

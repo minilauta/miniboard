@@ -8,6 +8,7 @@ use minichan\core;
 require_once __ROOT__ . '/core/module.php';
 require_once __ROOT__ . '/core/renderer.php';
 require_once __ROOT__ . '/core/binary_form.php';
+require_once __ROOT__ . '/core/integrations/file_scanner.php';
 require_once __ROOT__ . '/common/config.php';
 require_once __ROOT__ . '/common/exception.php';
 require_once __ROOT__ . '/common/database.php';
@@ -15,15 +16,18 @@ require_once __ROOT__ . '/common/funcs_common.php';
 require_once __ROOT__ . '/models/post_history.php';
 require_once __DIR__ . '/funcs_board.php';
 
+use minichan\core\integrations;
 use minichan\models\PostEvent;
 
 class BoardModule implements core\Module
 {
 	private core\HtmlRenderer $renderer;
+	private integrations\FileScannerClient $file_scanner;
 
 	public function __construct()
 	{
 		$this->renderer = new core\HtmlRenderer();
+		$this->file_scanner = new integrations\FileScannerClient('http://' . FILE_SCANNER_HOST . ':8000');
 	}
 
 	public function __destruct() {}
@@ -788,7 +792,39 @@ class BoardModule implements core\Module
 			];
 			$file_info = null;
 		}
-	
+
+		// check the stored files of the upload (and the drawing of a tegaki replay) against banned hashes before the post is created
+		// NOTE: the stored (processed) files are checked as banned hashes are computed from stored files
+		if (isset($file_info) && isset($file)) {
+			$file_scanner_match = null;
+			try {
+				foreach (funcs_common_get_file_scanner_paths($file) as $file_scanner_path) {
+					$file_scanner_match = $this->file_scanner->check($file_scanner_path);
+					if ($file_scanner_match !== null) {
+						break;
+					}
+				}
+			} catch (integrations\FileScannerException $e) {
+				// fail open, an unavailable file scanner must not prevent posting
+				error_log('file-scanner: check failed: ' . $e->getMessage());
+				$file_scanner_match = null;
+			}
+
+			if ($file_scanner_match !== null) {
+				// create and insert log row
+				$file_scanner_similarity = round($file_scanner_match->similarity * 100.0, 2);
+				$file_scanner_log_msg = "file-scanner: rejected upload on /{$board_cfg['id']}/, matched {$file_scanner_match->algorithm} hash #{$file_scanner_match->id} (content type: {$file_scanner_match->content_type->value}), similarity: {$file_scanner_similarity}%";
+				insert_log(time(), 'file-scanner', $file_scanner_log_msg);
+
+				// delete the stored files, unless the upload reused the existing file of another post
+				if (empty($file_collisions)) {
+					funcs_common_delete_post_files($file + ['board_id' => $board_cfg['id'], 'post_id' => null]);
+				}
+
+				throw new \AppException('index', 'route', 'this file is not allowed', SC_FORBIDDEN);
+			}
+		}
+
 		// create post
 		$post = funcs_board_create_post($user_ip, $user_country, $board_cfg, $thread_id, isset($parent) ? $parent['salt'] : null, $file_info, $file, $fields);
 	
@@ -823,20 +859,6 @@ class BoardModule implements core\Module
 		// anonymize board
 		if (MB_ANONYMIZE_AFTER > 0) {
 			anonymize_posts_after(MB_ANONYMIZE_AFTER);
-		}
-	
-		// check for CSAM
-		if (isset($file_info) && isset($file)) {
-			$csam_scan_result = funcs_board_csam_scanner_check($file);
-			if (isset($csam_scan_result) && isset($csam_scan_result['match']) && $csam_scan_result['match'] === true) {
-				// create and insert log row
-				$csam_match_similarity = round($csam_scan_result['similarity'] * 100.0, 2);
-				$csam_match_log_msg = "CSAM-scanner: detected as CP, similarity: {$csam_match_similarity}%";
-				insert_log(time(), 'CSAM-scanner', $csam_match_log_msg);
-		
-				// delete the post automatically
-				funcs_common_delete_post($board_cfg['id'], $inserted_post_id);
-			}
 		}
 	
 		// handle noko

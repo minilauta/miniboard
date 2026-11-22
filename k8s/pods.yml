@@ -52,7 +52,7 @@ spec: # spec for pod
         secretKeyRef:
           name: miniboard-redis-auth
           key: PASSWORD
-    - name: CSAM_SCANNER_HOST
-      value: miniboard-csam-scanner
+    - name: FILE_SCANNER_HOST
+      value: miniboard-file-scanner
   restartPolicy: OnFailure
 

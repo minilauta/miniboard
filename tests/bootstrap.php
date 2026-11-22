@@ -15,4 +15,4 @@ if (!getenv('MB_DB_HOST')) putenv('MB_DB_HOST=localhost');
 if (!getenv('MB_DB_NAME')) putenv('MB_DB_NAME=test');
 if (!getenv('MB_DB_USER')) putenv('MB_DB_USER=test');
 if (!getenv('MB_DB_PASS')) putenv('MB_DB_PASS=test');
-if (!getenv('CSAM_SCANNER_HOST')) putenv('CSAM_SCANNER_HOST=localhost');
+if (!getenv('FILE_SCANNER_HOST')) putenv('FILE_SCANNER_HOST=localhost');

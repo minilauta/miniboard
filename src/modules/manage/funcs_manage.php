@@ -4,7 +4,11 @@ require_once __ROOT__ . '/common/config.php';
 require_once __ROOT__ . '/common/exception.php';
 require_once __ROOT__ . '/common/funcs_common.php';
 require_once __ROOT__ . '/models/post_history.php';
+require_once __ROOT__ . '/core/integrations/file_scanner.php';
 
+use minichan\core\integrations\BannedContentType;
+use minichan\core\integrations\FileScannerClient;
+use minichan\core\integrations\FileScannerException;
 use minichan\models\PostEvent;
 
 /**
@@ -874,39 +878,90 @@ function funcs_manage_create_system_post(string $board_id, int $parent_id, strin
   return $post_id;
 }
 
-function funcs_manage_csam_scanner_cp(array $select): string {
-  // mark each post
-  $processed = 0;
+/**
+ * Bans the files of the selected posts in the file scanner by their hashes and deletes the posts.
+ * Other posts with the same file keep their text but the file is removed from them.
+ *
+ * With $keep_failed set, posts whose files fail to be banned are kept so the ban can be retried,
+ * otherwise they are deleted anyway.
+ */
+function funcs_manage_file_scanner_ban(FileScannerClient $client, array $select, BannedContentType $content_type, ?string $comment, bool $keep_failed): string {
+  $selected = [];
+  $banned = 0;
+  $failed = [];
+  $delete = [];
+  $file_hexes = [];
   foreach ($select as $val) {
     // parse board id and post id
     $selected_parsed = explode('/', $val);
     $selected_board_id = $selected_parsed[0];
     $selected_post_id = intval($selected_parsed[1]);
+    $selected[] = "{$selected_board_id}/{$selected_post_id}";
 
-    // select target post
-    $target_post = select_post($selected_board_id, $selected_post_id, false);
-
-    // send file to CSAM-scanner microservice
-    $target_file_path = __PUBLIC__ . $target_post['file'];
-    $finfo = finfo_open(FILEINFO_MIME);
-    $target_file_mime = explode(';', finfo_file($finfo, $target_file_path))[0];
-    finfo_close($finfo);
-    $curl = curl_init();
-    curl_setopt($curl, CURLOPT_URL, 'http://' . CSAM_SCANNER_HOST . ':8000/cp');
-    curl_setopt($curl, CURLOPT_POST, true);
-    curl_setopt($curl, CURLOPT_POSTFIELDS, [
-      'input' => new CURLFile($target_file_path, $target_file_mime, $target_post['file_original'])
-    ]);
-    curl_setopt($curl, CURLOPT_RETURNTRANSFER, true);
-    $response = curl_exec($curl);
-    curl_close($curl);
-
-    if ($response) {
-      $processed++;
+    // select target post and the stored files of its upload, posts without an uploaded file are only deleted
+    $target_post = select_post($selected_board_id, $selected_post_id);
+    $paths = $target_post ? funcs_common_get_file_scanner_paths($target_post) : [];
+    if (empty($paths)) {
+      $delete[] = "{$selected_board_id}/{$selected_post_id}";
+      continue;
     }
+
+    // ban the stored files, a tegaki replay also has a drawing
+    try {
+      foreach ($paths as $path) {
+        $client->ban($path, $content_type, $comment);
+      }
+      $banned++;
+    } catch (FileScannerException $e) {
+      error_log('file-scanner: ban failed: ' . $e->getMessage());
+      $failed[] = "/{$selected_board_id}/{$selected_post_id}/";
+      if ($keep_failed) {
+        continue;
+      }
+    }
+
+    $delete[] = "{$selected_board_id}/{$selected_post_id}";
+    $file_hexes[] = $target_post['file_hex'];
   }
 
-  $status = "Marked content as CSAM for {$processed} posts";
+  $status = "Banned files of {$banned} posts by hash as {$content_type->value}";
+  if (!empty($failed)) {
+    $status .= '<br>WARNING: failed to ban the files of ' . count($failed) . ' posts (' . implode(', ', $failed) . '), see the error log - ';
+    $status .= $keep_failed
+      ? 'the posts were kept so the ban can be retried'
+      : 'the posts are deleted anyway, but re-uploads of their files are not blocked';
+  }
+
+  // remove the files from the other posts with the same files (identical uploads share one stored file)
+  $others = [];
+  foreach (array_unique($file_hexes) as $file_hex) {
+    foreach (select_posts_by_file_hex($file_hex) as $other) {
+      $other_key = "{$other['board_id']}/{$other['post_id']}";
+      if (!in_array($other_key, $selected, true)) {
+        $others[$other_key] = $other;
+      }
+    }
+  }
+  if (!empty($others)) {
+    $warnings = [];
+    foreach ($others as $other) {
+      $warnings = array_merge($warnings, funcs_common_delete_post_files($other));
+      if (!clear_post_files($other['board_id'], $other['post_id'])) {
+        $warnings[] = "Failed to clear file columns of post /{$other['board_id']}/{$other['post_id']}/";
+      }
+    }
+
+    $status .= '<br>Removed the file from ' . count($others) . ' other posts with the same file (' . implode(', ', array_map(fn($key) => "/{$key}/", array_keys($others))) . ')';
+    if (count($warnings) > 0) {
+      $status .= '<br>Warnings:<br>- ' . implode('<br>- ', $warnings);
+    }
+  }
   funcs_manage_log($status);
+
+  // delete the posts
+  if (!empty($delete)) {
+    $status .= '<br>' . funcs_manage_delete($delete);
+  }
+
   return $status;
 }

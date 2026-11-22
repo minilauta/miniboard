@@ -1,0 +1,9 @@
+# table rename
+
+version: 26
+script: |
+  RENAME TABLE csam_scanner TO file_scanner_hashes;
+
+  ALTER TABLE file_scanner_hashes
+    ADD COLUMN IF NOT EXISTS `content_type` enum('csam','illegal','gore','spam','malware','other') NOT NULL DEFAULT 'csam' AFTER `type`,
+    ADD COLUMN IF NOT EXISTS `comment` varchar(256) DEFAULT NULL AFTER `content_type`;

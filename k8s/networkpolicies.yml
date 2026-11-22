@@ -103,7 +103,7 @@ spec:
   - to:
     - podSelector:
         matchLabels:
-          run: miniboard-csam-scanner
+          run: miniboard-file-scanner
     ports:
     - protocol: TCP
       port: 8000
@@ -112,7 +112,7 @@ spec:
       port: 443
 
 ---
-# mariadb: ingress from app, csam-scanner, cronjobs, migrate
+# mariadb: ingress from app, file-scanner, cronjobs, migrate
 apiVersion: networking.k8s.io/v1
 kind: NetworkPolicy
 metadata:
@@ -131,7 +131,7 @@ spec:
           operator: In
           values:
           - miniboard-app
-          - miniboard-csam-scanner
+          - miniboard-file-scanner
           - miniboard-cronjob
           - miniboard-migrate
     ports:
@@ -165,15 +165,15 @@ spec:
       port: 6379
 
 ---
-# csam-scanner: ingress from app, egress to mariadb
+# file-scanner: ingress from app, egress to mariadb
 apiVersion: networking.k8s.io/v1
 kind: NetworkPolicy
 metadata:
-  name: netpol-miniboard-csam-scanner
+  name: netpol-miniboard-file-scanner
 spec:
   podSelector:
     matchLabels:
-      run: miniboard-csam-scanner
+      run: miniboard-file-scanner
   policyTypes:
   - Ingress
   - Egress

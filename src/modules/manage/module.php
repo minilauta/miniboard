@@ -4,9 +4,11 @@ namespace minichan\modules;
 
 use Closure;
 use minichan\core;
+use minichan\core\integrations;
 
 require_once __ROOT__ . '/core/module.php';
 require_once __ROOT__ . '/core/renderer.php';
+require_once __ROOT__ . '/core/integrations/file_scanner.php';
 require_once __ROOT__ . '/common/exception.php';
 require_once __ROOT__ . '/common/database.php';
 require_once __ROOT__ . '/common/funcs_common.php';
@@ -15,10 +17,12 @@ require_once __DIR__ . '/funcs_manage.php';
 class ManageModule implements core\Module
 {
 	private core\HtmlRenderer $renderer;
+	private integrations\FileScannerClient $file_scanner;
 
 	public function __construct()
 	{
 		$this->renderer = new core\HtmlRenderer();
+		$this->file_scanner = new integrations\FileScannerClient('http://' . FILE_SCANNER_HOST . ':8000');
 	}
 
 	public function __destruct() {}
@@ -606,7 +610,7 @@ class ManageModule implements core\Module
 			http_response_code(303);
 		}
 
-		$router->add_route(HTTP_POST, '/manage/csam_scanner/cp', function ($vars) {
+		$router->add_route(HTTP_POST, '/manage/file_scanner/ban', function ($vars) {
 			if (!funcs_common_is_logged_in()) {
 				throw new \AppException('index', 'route', 'access denied', SC_UNAUTHORIZED);
 			}
@@ -616,19 +620,36 @@ class ManageModule implements core\Module
 
 			// validate request fields
 			funcs_common_validate_fields($_POST, [
-				'select'   => ['required' => true, 'type' => 'array']
+				'select'       => ['required' => true, 'type' => 'array'],
+				'content_type' => ['required' => false, 'type' => 'string', 'max_len' => 32],
+				'comment'      => ['required' => false, 'type' => 'string']
 			]);
 
-			// execute mark as cp
-			$status = funcs_manage_csam_scanner_cp($_POST['select']);
+			// the 'Mark as CSAM' shortcut always bans as CSAM, otherwise the content type is selected
+			$csam = isset($_POST['csam']);
+			$content_type = $csam
+				? integrations\BannedContentType::Csam
+				: integrations\BannedContentType::tryFrom($_POST['content_type'] ?? '');
+			if ($content_type === null) {
+				throw new \AppException('index', 'route', 'select a content type for the file ban', SC_BAD_REQUEST);
+			}
 
-			// execute ban
-			$status .= "<br>";
-			$status .= funcs_manage_ban($_POST['select'], 525960 * 60, 'CSAM-scanner: marked as CP');
+			// optional free text stored with the hashes, validated before any posts are banned or deleted
+			$comment = trim($_POST['comment'] ?? '');
+			if (mb_strlen($comment) > 256) {
+				throw new \AppException('index', 'route', 'file ban comment exceeds maximum length of 256 characters', SC_BAD_REQUEST);
+			}
 
-			// execute delete
-			$status .= "<br>";
-			$status .= funcs_manage_delete($_POST['select']);
+			// execute ban first, it needs the posts (CSAM posters are banned for a year)
+			$status = '';
+			if ($csam) {
+				$status .= funcs_manage_ban($_POST['select'], 525960 * 60, 'Marked as CSAM');
+				$status .= "<br>";
+			}
+
+			// execute file ban and delete, CSAM is deleted even if banning its files fails,
+			// otherwise the posts are kept so the ban can be retried
+			$status .= funcs_manage_file_scanner_ban($this->file_scanner, $_POST['select'], $content_type, $comment !== '' ? $comment : null, !$csam);
 
 			// set query to return properly
 			$query = funcs_common_mutate_query($_GET, 'status', $status);

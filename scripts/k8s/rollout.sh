@@ -10,5 +10,5 @@ kubectl rollout restart deployment miniboard-app            --namespace=miniboar
 kubectl rollout status  deployment miniboard-app            --namespace=miniboard --timeout 60s
 kubectl rollout restart deployment miniboard-nginx          --namespace=miniboard
 kubectl rollout status  deployment miniboard-nginx          --namespace=miniboard --timeout 60s
-kubectl rollout restart deployment miniboard-csam-scanner   --namespace=miniboard
-kubectl rollout status  deployment miniboard-csam-scanner   --namespace=miniboard --timeout 60s
+kubectl rollout restart deployment miniboard-file-scanner   --namespace=miniboard
+kubectl rollout status  deployment miniboard-file-scanner   --namespace=miniboard --timeout 60s

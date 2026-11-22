@@ -420,6 +420,33 @@ function select_files_by_md5(string $file_md5): array|bool {
   return $sth->fetchAll();
 }
 
+/**
+ * Selects the posts of an uploaded file, both spoilered and unspoilered uploads of it.
+ * (`file_hex` is the md5 of the uploaded file, prefixed with 'spoiler/' for spoilered uploads)
+ */
+function select_posts_by_file_hex(string $file_hex): array|bool {
+  $file_md5 = preg_replace('#^spoiler/#', '', $file_hex);
+  $dbh = get_db_handle();
+  $sth = $dbh->prepare('
+    SELECT
+      board_id,
+      post_id,
+      file,
+      file_hex,
+      file_meta,
+      thumb,
+      audio_album,
+      embed
+    FROM posts
+    WHERE file_hex IN (:file_md5, :file_md5_spoiler)
+  ');
+  $sth->execute([
+    'file_md5' => $file_md5,
+    'file_md5_spoiler' => 'spoiler/' . $file_md5,
+  ]);
+  return $sth->fetchAll();
+}
+
 function select_threads_past_offset(string $board_id, int $offset = 100, int $limit = 100): array|bool {
   $dbh = get_db_handle();
   $sth = $dbh->prepare('

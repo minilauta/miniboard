@@ -116,12 +116,12 @@
           ]);
           echo $this->render(__ROOT__ . '/common/templates/pagetable.phtml', ['page' => $page, 'page_n' => $page_n]);
           break;
-        case 'csam_hashes':
+        case 'file_scanner_hashes':
           // set constants
           $rows_per_page = 50;
 
           // get rows
-          $rows = select_all_csam_hashes(true, $rows_per_page * $page, $rows_per_page);
+          $rows = select_all_file_scanner_hashes(true, $rows_per_page * $page, $rows_per_page);
 
           // process rows
           foreach ($rows as $key => &$row) {
@@ -130,12 +130,12 @@
           }
 
           // get row count
-          $rows_n = count_all_csam_hashes();
+          $rows_n = count_all_file_scanner_hashes();
 
           // calculate page count
           $page_n = ceil($rows_n / $rows_per_page);
 
-          echo $this->render(__DIR__ . '/components/csamhashform.phtml', [
+          echo $this->render(__DIR__ . '/components/filescannerhashform.phtml', [
             'rows' => $rows,
             'page' => $page,
             'page_n' => $page_n,

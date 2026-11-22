@@ -34,7 +34,7 @@ services:
       MB_DB_PASS: ${DB_PASS}
       REDIS_HOST: redis
       REDIS_PASS: ${REDIS_PASS}
-      CSAM_SCANNER_HOST: csam-scanner
+      FILE_SCANNER_HOST: file-scanner
     depends_on:
       - mariadb
   
@@ -112,12 +112,12 @@ services:
     expose:
       - 6379
   
-  csam-scanner:
-    image: anonyymi/miniboard/csam-scanner:latest
+  file-scanner:
+    image: anonyymi/miniboard/file-scanner:latest
     pull_policy: build
     build:
       context: .
-      dockerfile: docker/csam-scanner/Dockerfile
+      dockerfile: docker/file-scanner/Dockerfile
     restart: always
     networks:
       - app
@@ -129,7 +129,7 @@ services:
       DB_USER: ${DB_USER}
       DB_PASS: ${DB_PASS}
       ORIGINATOR: localhost
-      TOLERANCE: 0.95
+      PDQ_THRESHOLD: 0.878
     depends_on:
       - mariadb
 

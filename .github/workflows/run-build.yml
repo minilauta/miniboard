@@ -34,8 +34,8 @@ jobs:
           - name: nginx
             folder: docker/nginx
             dockerfile: Dockerfile
-          - name: csam-scanner
-            folder: docker/csam-scanner
+          - name: file-scanner
+            folder: docker/file-scanner
             dockerfile: Dockerfile
     runs-on: ubuntu-latest
     steps:

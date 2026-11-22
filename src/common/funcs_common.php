@@ -598,6 +598,25 @@ function funcs_common_mutate_query(array $query, string $key, string $val): stri
 /**
  * Deletes target post and its replies if any. Deletes files if 0 references remaining.
  */
+/**
+ * Returns the absolute paths of the stored files of a post's upload that the file scanner checks and bans:
+ * the uploaded file and the drawing of a tegaki replay.
+ */
+function funcs_common_get_file_scanner_paths(array $post): array {
+  if (empty($post['file']) || $post['embed'] != 0) {
+    return [];
+  }
+
+  $paths = [__PUBLIC__ . $post['file']];
+
+  $file_meta = !empty($post['file_meta']) ? json_decode($post['file_meta'], true) : null;
+  if (!empty($file_meta['tgk_png_file'])) {
+    $paths[] = __PUBLIC__ . $file_meta['tgk_png_file'];
+  }
+
+  return $paths;
+}
+
 function funcs_common_delete_post_files(array $post): array {
   $warnings = [];
 

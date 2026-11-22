@@ -4,7 +4,7 @@ FROM python:3.12-slim AS build
 RUN apt-get update && apt-get -y install build-essential && rm -rf /var/lib/apt/lists/*
 
 # create venv and install pip deps there
-COPY microservices/csam-scanner/requirements.txt .
+COPY microservices/file-scanner/requirements.txt .
 RUN python -m venv /opt/venv && \
     . /opt/venv/bin/activate && \
     pip install --no-cache-dir --no-input -r requirements.txt && \
@@ -22,8 +22,8 @@ ENV PATH="$PATH:/opt/venv/bin"
 # copy app files
 WORKDIR /app
 RUN mkdir -p tmp
-COPY microservices/csam-scanner/csam_scanner /app/csam_scanner/
-COPY microservices/csam-scanner/tests /app/tests/
+COPY microservices/file-scanner/file_scanner /app/file_scanner/
+COPY microservices/file-scanner/tests /app/tests/
 
 RUN adduser --disabled-password --no-create-home scanner && \
     chown scanner:scanner tmp
@@ -31,4 +31,4 @@ USER scanner
 
 EXPOSE 8000
 
-CMD [ "uvicorn", "--host", "0.0.0.0", "--port", "8000", "csam_scanner.main:app" ]
+CMD [ "uvicorn", "--host", "0.0.0.0", "--port", "8000", "file_scanner.main:app" ]
