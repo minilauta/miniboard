@@ -4,6 +4,7 @@ const ICON = '<svg width="16" height="16" viewBox="0 0 16 16" fill="currentColor
 const KEY_CODES = { ArrowLeft: 0, KeyZ: 0, ArrowDown: 1, KeyX: 1, ArrowUp: 2, Comma: 2, ArrowRight: 3, Period: 3 };
 const KEYS = { ArrowLeft: 0, Left: 0, z: 0, Z: 0, ArrowDown: 1, Down: 1, x: 1, X: 1, ArrowUp: 2, Up: 2, ',': 2, ArrowRight: 3, Right: 3, '.': 3 };
 const DIFFICULTY_KEYS = '123456789';
+const CLAP_KEYS = ['c', 'C'];
 // NOTE: indices of the OPENMPT_MODULE_COMMAND_* values of a pattern cell
 const COMMAND_NOTE = 0;
 const COMMAND_INSTRUMENT = 1;
@@ -60,6 +61,18 @@ const KEEP_PAST = 1;
 const MAX_ROWS = 4096;
 const CLOCK_SNAP = 0.05;
 const CLOCK_SMOOTHING = 0.05;
+const CLAP_LOOKAHEAD = 0.1;
+const CLAP_TOLERANCE = 0.01;
+const CLAP_LATE = 0.03;
+const CLAP_VOLUME = 0.5;
+const CLAP_LENGTH = 0.14;
+const CLAP_BURSTS = 3;
+const CLAP_BURST_GAP = 0.005;
+const CLAP_BURST_DECAY = 0.002;
+const CLAP_TAIL_DECAY = 0.022;
+const CLAP_FADE = 0.01;
+const CLAP_FREQUENCY = 1300;
+const CLAP_Q = 1.2;
 
 const LANE_SIZE = 0.12;
 const FIELD_WIDTH = 0.9;
@@ -76,6 +89,7 @@ const JUDGMENT_TIME = 0.6;
 const JUDGMENT_BOUNCE = 0.08;
 const FLASH_TIME = 0.15;
 const FLASH_SPREAD = 0.3;
+const MESSAGE_TIME = 1;
 
 const NOTE_OUTLINE = 0x000000;
 const NOTE_FILLS = [
@@ -147,6 +161,48 @@ function draw_ring(surface, cx, cy, r, c) {
   surface.rect(cx + r, cy - r, 1, r * 2 + 1, c);
 }
 
+function clap_buffer(context) {
+  const rate = context.sampleRate;
+  const length = Math.round(rate * CLAP_LENGTH);
+  const buffer = context.createBuffer(1, length, rate);
+  const data = buffer.getChannelData(0);
+
+  // NOTE: a biquad band-pass filter with a peak gain of 0 dB, from the audio eq cookbook
+  const w = 2 * Math.PI * CLAP_FREQUENCY / rate;
+  const alpha = Math.sin(w) / (2 * CLAP_Q);
+  const b0 = alpha / (1 + alpha);
+  const a1 = -2 * Math.cos(w) / (1 + alpha);
+  const a2 = (1 - alpha) / (1 + alpha);
+  let x1 = 0;
+  let x2 = 0;
+  let y1 = 0;
+  let y2 = 0;
+
+  // NOTE: the last burst decays into the tail
+  const tail = (CLAP_BURSTS - 1) * CLAP_BURST_GAP;
+  let peak = 0;
+  for (let i = 0; i < length; i++) {
+    const t = i / rate;
+    const burst = Math.floor(t / CLAP_BURST_GAP);
+    const envelope = burst < CLAP_BURSTS - 1 ? Math.exp(-(t - burst * CLAP_BURST_GAP) / CLAP_BURST_DECAY) : Math.exp(-(t - tail) / CLAP_TAIL_DECAY);
+    const fade = Math.min(1, (CLAP_LENGTH - t) / CLAP_FADE);
+    const x = (Math.random() * 2 - 1) * envelope * fade;
+    const y = b0 * (x - x2) - a1 * y1 - a2 * y2;
+    x2 = x1;
+    x1 = x;
+    y2 = y1;
+    y1 = y;
+    data[i] = y;
+    peak = Math.max(peak, Math.abs(y));
+  }
+
+  // NOTE: normalize loudness
+  for (let i = 0; i < length && peak > 0; i++) {
+    data[i] *= CLAP_VOLUME / peak;
+  }
+  return buffer;
+}
+
 function same_position(a, b) {
   return a.order === b.order && a.pattern === b.pattern && a.row === b.row;
 }
@@ -169,6 +225,8 @@ function create(host, initial_difficulty) {
   const num_channels = player.getNumChannels();
   const num_orders = player.getTotalOrder();
   const command = (position, channel, type) => player.getPatternRowChannelCommand(position.pattern, position.row, channel, type);
+  // NOTE: how often the player reads the playing position, in seconds
+  const resolution = node.positionResolution || 0;
 
   let difficulty = initial_difficulty || 0;
   // NOTE: the timeline holds the played rows and the rows that are predicted to be played next,
@@ -205,6 +263,13 @@ function create(host, initial_difficulty) {
   let sprites = null;
   let sprite_size = 0;
 
+  const audio = player.context;
+  const clap = clap_buffer(audio);
+  const clap_output = audio.createGain();
+  clap_output.connect(player.gainNode);
+  let clap_enabled = false;
+  let message = null;
+
   // NOTE: the audio time that is being heard, in the time base of the player's positions
   const sync_clock = () => {
     const context = player.context;
@@ -228,7 +293,43 @@ function create(host, initial_difficulty) {
     now = perf / 1000 + clock_offset;
   };
 
+  const cancel_clap = (row) => {
+    if (row.clap != null && row.clap.time > audio.currentTime) {
+      row.clap.source.stop();
+      row.clap = null;
+    }
+  };
+
+  const cancel_claps = (from) => {
+    for (let i = from; i < rows.length; i++) {
+      cancel_clap(rows[i]);
+    }
+  };
+
+  const schedule_claps = () => {
+    const current = audio.currentTime;
+    for (const note of notes) {
+      const row = note.row;
+      if (row.time > current + CLAP_LOOKAHEAD) {
+        break;
+      }
+      if (row.clap != null && Math.abs(row.clap.time - row.time) > CLAP_TOLERANCE) {
+        cancel_clap(row);
+      }
+      if (row.clap != null || row.time < current - CLAP_LATE) {
+        continue;
+      }
+      const source = audio.createBufferSource();
+      source.buffer = clap;
+      source.connect(clap_output);
+      const time = Math.max(row.time, current);
+      source.start(time);
+      row.clap = { source, time };
+    }
+  };
+
   const reset_chart = () => {
+    cancel_claps(0);
     rows = [];
     known = -1;
     notes = [];
@@ -238,12 +339,12 @@ function create(host, initial_difficulty) {
   };
 
   // compares the time between two rendered rows to the length of the rows between them
-  const measure = (from, to, time) => {
+  const measure = (from, to) => {
     let length = 0;
     for (let i = from; i < to; i++) {
       length += rows[i].length;
     }
-    measurements.push({ measured: time - rows[from].time, length });
+    measurements.push({ measured: rows[to].time - rows[from].time, length });
     if (measurements.length > ROW_HISTORY) {
       measurements.shift();
     }
@@ -273,7 +374,7 @@ function create(host, initial_difficulty) {
 
   // reads a row, its timing continues from the speed and tempo of the previous row, and places its steps
   const make_row = (position, time, speed, tempo) => {
-    const row = { order: position.order, pattern: position.pattern, row: position.row, time, dropped: false };
+    const row = { order: position.order, pattern: position.pattern, row: position.row, time, dropped: false, clap: null };
     const row_notes = [];
     let jump = -1;
     let pattern_break = -1;
@@ -387,6 +488,7 @@ function create(host, initial_difficulty) {
     if (index >= rows.length) {
       return;
     }
+    cancel_claps(index);
     for (let i = index; i < rows.length; i++) {
       rows[i].dropped = true;
     }
@@ -410,13 +512,15 @@ function create(host, initial_difficulty) {
         if (!same_position(rows[i], position)) {
           continue;
         }
-        // NOTE: rows that were played between two reads get times between the rows around them
-        const from = rows[known];
-        for (let j = known + 1; j < i; j++) {
-          rows[j].time = from.time + (position.time - from.time) * (j - known) / (i - known);
+        for (let j = known + 1; j <= i; j++) {
+          rows[j].time = rows[j - 1].time + rows[j - 1].length * time_scale;
         }
-        measure(known, i, position.time);
-        rows[i].time = position.time;
+        const time = Math.min(position.time, Math.max(position.time - resolution, rows[i].time));
+        const error = time - rows[i].time;
+        for (let j = known + 1; j <= i; j++) {
+          rows[j].time += error * (j - known) / (i - known);
+        }
+        measure(known, i);
         known = i;
         return;
       }
@@ -427,7 +531,7 @@ function create(host, initial_difficulty) {
     truncate(known + 1);
     const speed = player.getCurrentSpeed() || SPEED_DEFAULT;
     const tempo = player.getCurrentTempo() || TEMPO_DEFAULT;
-    rows.push(make_row(position, position.time, speed, tempo));
+    rows.push(make_row(position, position.time - resolution / 2, speed, tempo));
     known = rows.length - 1;
   };
 
@@ -469,6 +573,7 @@ function create(host, initial_difficulty) {
     if (node.paused) {
       if (paused_at == null && clock_offset != null) {
         paused_at = now;
+        cancel_claps(known + 1);
       }
       return;
     }
@@ -515,6 +620,9 @@ function create(host, initial_difficulty) {
       if (note.judgment == null && now - note.row.time > MISS_WINDOW) {
         judge(note, MISS);
       }
+    }
+    if (clap_enabled) {
+      schedule_claps();
     }
     while (notes.length > 0 && notes[0].judgment != null && notes[0].row.time < now - KEEP_PAST) {
       notes.shift();
@@ -600,6 +708,9 @@ function create(host, initial_difficulty) {
     const percent = judged > 0 ? points / (judged * MAX_POINTS) * 100 : 0;
     surface.text(d.name, 2, hud_y, small, HUD_COLORS, 'left');
     surface.text(percent.toFixed(2) + '%', w - 3, hud_y, small, HUD_COLORS, 'right');
+    if (message != null && performance.now() / 1000 - message.time < MESSAGE_TIME) {
+      surface.text(message.text, center_x, hud_y, small, HUD_COLORS, 'center');
+    }
   };
 
   // NOTE: input_time is the time of the input event in seconds, in the time base of performance.now()
@@ -645,6 +756,14 @@ function create(host, initial_difficulty) {
     started = null;
   };
 
+  const toggle_clap = () => {
+    clap_enabled = !clap_enabled;
+    if (!clap_enabled) {
+      cancel_claps(0);
+    }
+    message = { text: clap_enabled ? 'CLAP ON' : 'CLAP OFF', time: performance.now() / 1000 };
+  };
+
   const render = (surface) => {
     update();
     draw(surface);
@@ -667,6 +786,12 @@ function create(host, initial_difficulty) {
     const index = event.key != null && event.key.length === 1 ? DIFFICULTY_KEYS.indexOf(event.key) : -1;
     if (index >= 0 && index < DIFFICULTIES.length) {
       set_difficulty(index);
+      return true;
+    }
+    if (CLAP_KEYS.indexOf(event.key) !== -1) {
+      if (!event.repeat) {
+        toggle_clap();
+      }
       return true;
     }
     if (event.key === 'Escape' || event.key === 'Esc') {
@@ -706,7 +831,11 @@ function create(host, initial_difficulty) {
     }
   };
 
-  return { render, on_key, on_pointer, on_blur, on_button };
+  const destroy = () => {
+    clap_output.disconnect();
+  };
+
+  return { render, on_key, on_pointer, on_blur, on_button, destroy };
 }
 
 export default fx.define({

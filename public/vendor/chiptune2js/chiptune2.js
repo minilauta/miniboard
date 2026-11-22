@@ -2,6 +2,7 @@
 const OPENMPT_MODULE_RENDER_STEREOSEPARATION_PERCENT = 2
 const OPENMPT_MODULE_RENDER_INTERPOLATIONFILTER_LENGTH = 3
 const CHIPTUNE_POSITION_FRAMES = 256;
+const CHIPTUNE_LATE_BUFFERS = 4;
 
 // read a libopenmpt allocated string
 function ChiptuneJsReadString(ptr) {
@@ -303,6 +304,22 @@ ChiptuneJsPlayer.prototype.createLibopenmptNode = function(buffer, config) {
   processNode.leftBufferPtr  = libopenmpt._malloc(4 * maxFramesPerChunk);
   processNode.rightBufferPtr = libopenmpt._malloc(4 * maxFramesPerChunk);
   processNode.positionQueue = [];
+  processNode.positionResolution = CHIPTUNE_POSITION_FRAMES / this.context.sampleRate;
+  processNode.nextPlaybackTime = null;
+  processNode.lateBuffers = 0;
+  processNode.bufferTime = function(e, frames) {
+    var duration = frames / this.context.sampleRate;
+    var reported = typeof e.playbackTime === 'number' ? e.playbackTime : this.context.currentTime;
+    var expected = this.nextPlaybackTime;
+    var late = expected != null ? reported - expected : 0;
+    this.lateBuffers = late > duration / 2 ? this.lateBuffers + 1 : 0;
+    if (expected == null || late < 0 || this.lateBuffers >= CHIPTUNE_LATE_BUFFERS) {
+      expected = reported;
+      this.lateBuffers = 0;
+    }
+    this.nextPlaybackTime = expected + duration;
+    return expected;
+  }
   processNode.readPosition = function(time) {
     return {
       time: time,
@@ -357,6 +374,7 @@ ChiptuneJsPlayer.prototype.createLibopenmptNode = function(buffer, config) {
     var outputL = e.outputBuffer.getChannelData(0);
     var outputR = e.outputBuffer.getChannelData(1);
     var framesToRender = outputL.length;
+    var playbackTime = this.bufferTime(e, framesToRender);
     if (this.modulePtr == 0) {
       for (var i = 0; i < framesToRender; ++i) {
         outputL[i] = 0;
@@ -376,8 +394,6 @@ ChiptuneJsPlayer.prototype.createLibopenmptNode = function(buffer, config) {
     var framesRendered = 0;
     var ended = false;
     var error = false;
-    // NOTE: playbackTime is when this buffer will be played, in context time
-    var playbackTime = typeof e.playbackTime === 'number' ? e.playbackTime : this.context.currentTime;
     this.updatePlayingPosition();
     while (framesToRender > 0) {
       var framesPerChunk = Math.min(framesToRender, CHIPTUNE_POSITION_FRAMES);
