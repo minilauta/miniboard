@@ -561,6 +561,8 @@ form.form-manage + table.pagetable {
 
 div.form-manage-table-wrapper {
   overflow-x: auto;
+  max-width: 1280px;
+  margin: 0 auto;
 }
 
 table.form-manage-table th,
@@ -572,6 +574,10 @@ table.form-manage-table td {
 table.form-manage-table td.cell-wrap {
   white-space: normal;
   overflow-wrap: anywhere;
+}
+
+table.form-manage-table td.cell-preview {
+  min-width: 20em;
 }
 
 table.form-manage-table td.cell-mono {

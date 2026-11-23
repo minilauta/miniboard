@@ -31,6 +31,10 @@
     float: none;
   }
 
+  table.form-manage-table div.file-thumb {
+    float: none;
+  }
+
   .file-thumb-img {
     max-width: 125px;
     max-height: 125px;
