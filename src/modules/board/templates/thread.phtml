@@ -27,6 +27,9 @@
     </div>
     <hr>
     <div id="navlinks-top" class="navlinks">
+      <?php if ($board['req_role'] === null) { ?>
+        <span class="navlinks-right">[<a id="navlinks-top-rss" href="/<?=$board['id']?>/rss/" type="application/rss+xml">RSS</a>]</span>
+      <?php } ?>
       [<a id="navlinks-top-index" href="/<?=$board['id']?>/"><?=__('nav.return')?></a>]
       [<a id="navlinks-top-catalog" href="/<?=$board['id']?>/catalog/"><?=__('nav.catalog')?></a>]
       [<a id="navlinks-top-bottom" href="#bottom"><?=__('nav.bottom')?></a>]

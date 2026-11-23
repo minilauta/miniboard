@@ -22,6 +22,9 @@
     </div>
     <hr>
     <div id="navlinks-top" class="navlinks">
+      <?php if ($board['req_role'] === null) { ?>
+        <span class="navlinks-right">[<a id="navlinks-top-rss" href="/<?=$board['id']?>/rss/" type="application/rss+xml">RSS</a>]</span>
+      <?php } ?>
       [<a id="navlinks-top-index" href="/<?=$board['id']?>/"><?=__('nav.return')?></a>]
       [<a id="navlinks-top-refresh" href="./"><?=__('nav.refresh')?></a>]
       <input id="search-catalog" class="search-catalog" type="text" name="search-catalog" autocomplete="off" placeholder="<?=__('catalog.search')?>">
