@@ -30,6 +30,14 @@ function funcs_board_check_access(array $board_cfg, ?int $user_role): bool {
   return true;
 }
 
+function funcs_board_is_capcode_post(array $board_cfg, array $input): bool {
+  if (!funcs_common_is_logged_in()) {
+    return false;
+  }
+
+  return (isset($input['capcode']) && $input['capcode'] == true) || $board_cfg['req_role'] != null;
+}
+
 /**
  * Creates a new post object.
  */
@@ -57,7 +65,7 @@ function funcs_board_create_post(string $ip, ?string $country, array $board_cfg,
 
   // handle capcode flag
   $role = null;
-  if (funcs_common_is_logged_in() && isset($input['capcode']) && $input['capcode'] == true || $board_cfg['req_role'] != null) {
+  if (funcs_board_is_capcode_post($board_cfg, $input)) {
     $role = funcs_common_get_role();
   }
   

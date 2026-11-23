@@ -5,7 +5,10 @@ require_once __ROOT__ . '/common/exception.php';
 require_once __ROOT__ . '/common/funcs_common.php';
 require_once __ROOT__ . '/models/post_history.php';
 require_once __ROOT__ . '/core/integrations/file_scanner.php';
+require_once __ROOT__ . '/core/post_filter.php';
 
+use minichan\core\PostFilter;
+use minichan\core\PostFilterAction;
 use minichan\core\integrations\BannedContentType;
 use minichan\core\integrations\BannedMediaType;
 use minichan\core\integrations\FileScannerClient;
@@ -1085,6 +1088,120 @@ function funcs_manage_delete_file_scanner_hash(int $id, bool $all = false): stri
   $status = count($ids) > 1
     ? 'Deleted ' . count($ids) . ' file hashes (#' . implode(', #', $ids) . ')'
     : "Deleted file hash #{$id}";
+  funcs_manage_log($status);
+  return $status;
+}
+
+/**
+ * Validates the input of a post filter form, returns the filter row to store or an error message.
+ * Fields that are not used by the filter action are stored as NULL.
+ *
+ * @param array $input board_id (string, empty = all boards), match_type (PostFilterMatchType), pattern (string),
+ *   action (PostFilterAction), replacement (string), duration (?int seconds), reason (string), comment (string),
+ *   enabled (bool)
+ */
+function funcs_manage_validate_post_filter(array $input): array|string {
+  // board scope, posts are never created on boards of type 'main'
+  $board_id = trim($input['board_id']);
+  if ($board_id !== '' && (!isset(MB_BOARDS[$board_id]) || MB_BOARDS[$board_id]['type'] === 'main')) {
+    return 'Invalid board';
+  }
+
+  // the pattern and replacement are stored as is (whitespace may be significant) and escaped when rendered
+  $pattern_error = PostFilter::validate($input['match_type'], $input['pattern']);
+  if ($pattern_error !== null) {
+    return $pattern_error;
+  }
+
+  $action = $input['action'];
+
+  if (mb_strlen($input['replacement']) > 256) {
+    return 'Replacement exceeds maximum length of 256 characters';
+  }
+
+  if ($action === PostFilterAction::Ban && $input['duration'] === null) {
+    return 'Duration is required for the ban action';
+  }
+
+  // the reason is shown to the poster, a ban stores it HTML escaped in the bans table so the escaped length is checked
+  $reason = trim($input['reason']);
+  if ($action === PostFilterAction::Ban && $reason === '') {
+    return 'Reason is required for the ban action';
+  }
+  if (mb_strlen(funcs_common_clean_field($reason)) > 256) {
+    return 'Reason exceeds maximum length of 256 characters (HTML special characters count as several characters)';
+  }
+
+  $comment = trim($input['comment']);
+  if (mb_strlen($comment) > 256) {
+    return 'Comment exceeds maximum length of 256 characters';
+  }
+
+  return [
+    'board_id'    => $board_id !== '' ? $board_id : null,
+    'match_type'  => $input['match_type']->value,
+    'pattern'     => $input['pattern'],
+    'action'      => $action->value,
+    'replacement' => $action === PostFilterAction::Replace ? $input['replacement'] : null,
+    'duration'    => $action === PostFilterAction::Ban ? $input['duration'] : null,
+    'reason'      => $action !== PostFilterAction::Replace && $reason !== '' ? $reason : null,
+    'comment'     => $comment !== '' ? $comment : null,
+    'enabled'     => $input['enabled'] ? 1 : 0,
+  ];
+}
+
+/**
+ * Returns a short description of a post filter for status messages, without the pattern.
+ * NOTE: not for logs, logs are public (/logs) and must not disclose the filters.
+ */
+function funcs_manage_describe_post_filter(array $filter): string {
+  $board = $filter['board_id'] !== null ? "/{$filter['board_id']}/" : 'all boards';
+  $enabled = $filter['enabled'] ? '' : ', disabled';
+  return "({$filter['match_type']}, {$filter['action']}, {$board}{$enabled})";
+}
+
+function funcs_manage_create_post_filter(array $input): string {
+  $filter = funcs_manage_validate_post_filter($input);
+  if (is_string($filter)) {
+    return $filter;
+  }
+
+  $id = insert_post_filter($filter);
+
+  // log without the filter details, logs are public
+  funcs_manage_log("Created filter #{$id}");
+  return "Created filter #{$id} " . funcs_manage_describe_post_filter($filter);
+}
+
+function funcs_manage_edit_post_filter(int $id, array $input): string {
+  // get the existing filter
+  if (!select_post_filter_by_id($id)) {
+    return "Filter #{$id} not found";
+  }
+
+  $filter = funcs_manage_validate_post_filter($input);
+  if (is_string($filter)) {
+    return $filter;
+  }
+
+  // update the filter (timestamp is kept as the creation time)
+  $filter['id'] = $id;
+  update_post_filter($filter);
+
+  // log without the filter details, logs are public
+  funcs_manage_log("Updated filter #{$id}");
+  return "Updated filter #{$id} " . funcs_manage_describe_post_filter($filter);
+}
+
+function funcs_manage_delete_post_filter(int $id): string {
+  // get the existing filter
+  if (!select_post_filter_by_id($id)) {
+    return "Filter #{$id} not found";
+  }
+
+  delete_post_filter($id);
+
+  $status = "Deleted filter #{$id}";
   funcs_manage_log($status);
   return $status;
 }

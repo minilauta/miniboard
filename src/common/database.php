@@ -14,6 +14,7 @@ require_once __DIR__ . '/database/db_file_scanner_hashes.php';
 require_once __DIR__ . '/database/db_hides.php';
 require_once __DIR__ . '/database/db_logs.php';
 require_once __DIR__ . '/database/db_pins.php';
+require_once __DIR__ . '/database/db_post_filters.php';
 require_once __DIR__ . '/database/db_post_history.php';
 require_once __DIR__ . '/database/db_posts.php';
 require_once __DIR__ . '/database/db_posts_serial.php';

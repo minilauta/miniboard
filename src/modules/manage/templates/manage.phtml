@@ -143,6 +143,31 @@
           ]);
           echo $this->render(__ROOT__ . '/common/templates/pagetable.phtml', ['page' => $page, 'page_n' => $page_n]);
           break;
+        case 'filters':
+          if (funcs_common_get_role() > MB_ROLE_ADMIN) {
+            throw new \AppException('manage.phtml', 'inline', 'insufficient permissions', SC_FORBIDDEN);
+          }
+
+          // set constants
+          $filters_per_page = 50;
+
+          // get filters
+          $filters = select_all_post_filters(true, $filters_per_page * $page, $filters_per_page);
+
+          // get filter count
+          $filters_n = count_all_post_filters();
+
+          // calculate page count
+          $page_n = ceil($filters_n / $filters_per_page);
+
+          echo $this->render(__DIR__ . '/components/filterform.phtml', [
+            'filters' => $filters,
+            'page' => $page,
+            'page_n' => $page_n,
+            'status' => $status,
+          ]);
+          echo $this->render(__ROOT__ . '/common/templates/pagetable.phtml', ['page' => $page, 'page_n' => $page_n]);
+          break;
         case 'posts':
           // set constants
           $posts_per_page = 50;
@@ -258,6 +283,24 @@
           echo $this->render(__DIR__ .'/components/editfilescannerhashform.phtml', [
             'row' => $row,
             'related' => $related,
+          ]);
+          break;
+        case 'edit_filter':
+          if (funcs_common_get_role() > MB_ROLE_ADMIN) {
+            throw new \AppException('manage.phtml', 'inline', 'insufficient permissions', SC_FORBIDDEN);
+          }
+
+          // get query params
+          $query_id = funcs_common_parse_input_int($query_params, 'id', null, 0);
+
+          // get filter
+          $filter = select_post_filter_by_id($query_id);
+          if (!$filter) {
+            throw new \AppException('manage.phtml', 'inline', "filter #{$query_id} not found", SC_NOT_FOUND);
+          }
+
+          echo $this->render(__DIR__ .'/components/editfilterform.phtml', [
+            'filter' => $filter,
           ]);
           break;
         case 'edit_account':

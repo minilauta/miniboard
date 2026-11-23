@@ -9,6 +9,7 @@ require_once __ROOT__ . '/core/module.php';
 require_once __ROOT__ . '/core/renderer.php';
 require_once __ROOT__ . '/core/binary_form.php';
 require_once __ROOT__ . '/core/integrations/file_scanner.php';
+require_once __ROOT__ . '/core/post_filter.php';
 require_once __ROOT__ . '/common/config.php';
 require_once __ROOT__ . '/common/exception.php';
 require_once __ROOT__ . '/common/database.php';
@@ -679,7 +680,10 @@ class BoardModule implements core\Module
 			// validate request fields
 			funcs_common_validate_fields($fields, $board_cfg['fields_post']);
 		}
-	
+
+		// staff posting with a visible capcode skip the delay checks and post filters
+		$user_is_capcode = funcs_board_is_capcode_post($board_cfg, $fields);
+
 		// validate captcha (skip for logged in users)
 		if (!$user_is_logged_in) {
 			if (MB_CAPTCHA_THREAD && $context === 'board' || MB_CAPTCHA_REPLY && $context === 'thread') {
@@ -687,8 +691,8 @@ class BoardModule implements core\Module
 			}
 		}
 
-		// validate thread delay (skip for logged in users and replies)
-		if (!$user_is_logged_in && !isset($vars['thread_id']) && MB_DELAY_THREAD > 0) {
+		// validate thread delay (skip for capcode posts and replies)
+		if (!$user_is_capcode && !isset($vars['thread_id']) && MB_DELAY_THREAD > 0) {
 			$user_last_thread_by_ip = select_last_thread_by_ip($user_ip);
 			if ($user_last_thread_by_ip != null) {
 				$delay_in_seconds = time() - $user_last_thread_by_ip['timestamp'];
@@ -699,8 +703,8 @@ class BoardModule implements core\Module
 			}
 		}
 	
-		// validate delay (skip for logged in users)
-		if (!$user_is_logged_in && MB_DELAY > 0) {
+		// validate delay (skip for capcode posts)
+		if (!$user_is_capcode && MB_DELAY > 0) {
 			$user_last_post_by_ip = select_last_post_by_ip($user_ip);
 			if ($user_last_post_by_ip != null) {
 				$delay_in_seconds = time() - $user_last_post_by_ip['timestamp'];
@@ -735,7 +739,35 @@ class BoardModule implements core\Module
 				$thread_id = $parent['post_id'];
 			}
 		}
-	
+
+		// run post filters on the subject and message (skip for capcode posts)
+		if (!$user_is_capcode) {
+			$filter_result = core\PostFilter::apply(select_enabled_post_filters($board_cfg['id']), $fields);
+
+			foreach ($filter_result->errors as $filter_error) {
+				error_log("post-filter: {$filter_error}");
+			}
+
+			$filter = $filter_result->blocked_by;
+			if ($filter !== null && $filter['action'] === core\PostFilterAction::Ban->value) {
+				$filter_reason = $filter['reason'] ?? '';
+				$filter_duration = (int) $filter['duration'];
+				insert_ban($user_ip, $user_ip, $filter_duration, funcs_common_clean_field($filter_reason), "Filter #{$filter['id']}");
+				insert_log(time(), 'post-filter', "post-filter: blocked post on /{$board_cfg['id']}/"); // no filter details, logs are public
+
+				$ban_expires = date(MB_DATEFORMAT, time() + $filter_duration);
+				throw new \AppException('index', 'route', "this ip address has been banned for reason: {$filter_reason}. the ban will expire on {$ban_expires}", SC_FORBIDDEN);
+			} else if ($filter !== null) {
+				insert_log(time(), 'post-filter', "post-filter: blocked post on /{$board_cfg['id']}/"); // no filter details, logs are public
+
+				throw new \AppException('index', 'route', $filter['reason'] ?? 'this post is not allowed', SC_FORBIDDEN);
+			}
+
+			$fields = $filter_result->fields;
+
+			funcs_common_validate_fields($fields, $board_cfg['fields_post']);
+		}
+
 		if (!isset($board_cfg['text']) || $board_cfg['text'] == false) {
 			// validate request file
 			$embed = strlen(trim($fields['embed'])) > 0;

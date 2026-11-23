@@ -9,6 +9,7 @@ use minichan\core\integrations;
 require_once __ROOT__ . '/core/module.php';
 require_once __ROOT__ . '/core/renderer.php';
 require_once __ROOT__ . '/core/integrations/file_scanner.php';
+require_once __ROOT__ . '/core/post_filter.php';
 require_once __ROOT__ . '/common/exception.php';
 require_once __ROOT__ . '/common/database.php';
 require_once __ROOT__ . '/common/funcs_common.php';
@@ -766,6 +767,149 @@ class ManageModule implements core\Module
 
 			// execute delete file scanner hash
 			$status = funcs_manage_delete_file_scanner_hash($id, $all);
+
+			// set query to return properly
+			$query = funcs_common_mutate_query($_GET, 'status', $status);
+
+			header("Location: /manage/?{$query}");
+			http_response_code(303);
+		}
+
+		/**
+		 * Parses the request fields shared by the post filter create and edit forms, throws on invalid input.
+		 */
+		function parse_manage_postfilterform(array $input): array {
+			// validate request fields (byte lengths, character lengths are validated by funcs_manage_validate_post_filter)
+			funcs_common_validate_fields($input, [
+				'board_id'    => ['required' => false, 'type' => 'string', 'max_len' => 8],
+				'match_type'  => ['required' => true, 'type' => 'string', 'max_len' => 16],
+				'pattern'     => ['required' => true, 'type' => 'string', 'max_len' => 1024],
+				'action'      => ['required' => true, 'type' => 'string', 'max_len' => 16],
+				'replacement' => ['required' => false, 'type' => 'string', 'max_len' => 1024],
+				'duration'    => ['required' => false, 'type' => 'string', 'max_len' => 16],
+				'reason'      => ['required' => false, 'type' => 'string', 'max_len' => 1024],
+				'comment'     => ['required' => false, 'type' => 'string', 'max_len' => 1024]
+			]);
+
+			// parse request fields
+			$match_type = core\PostFilterMatchType::tryFrom($input['match_type']);
+			if ($match_type === null) {
+				throw new \AppException('index', 'route', 'select a match type for the filter', SC_BAD_REQUEST);
+			}
+
+			$action = core\PostFilterAction::tryFrom($input['action']);
+			if ($action === null) {
+				throw new \AppException('index', 'route', 'select an action for the filter', SC_BAD_REQUEST);
+			}
+
+			// ban duration in minutes, may be left empty when the action is not a ban
+			$duration = (isset($input['duration']) && trim($input['duration']) !== '')
+				? funcs_common_parse_input_int($input, 'duration', 60, 5, 60 * 24 * 365) * 60
+				: null;
+
+			return [
+				'board_id'    => $input['board_id'] ?? '',
+				'match_type'  => $match_type,
+				'pattern'     => $input['pattern'],
+				'action'      => $action,
+				'replacement' => $input['replacement'] ?? '',
+				'duration'    => $duration,
+				'reason'      => $input['reason'] ?? '',
+				'comment'     => $input['comment'] ?? '',
+				'enabled'     => isset($input['enabled']),
+			];
+		}
+
+		$router->add_route(HTTP_POST, '/manage/create_filter', function ($vars) {
+			if (!funcs_common_is_logged_in()) {
+				throw new \AppException('index', 'route', 'access denied', SC_UNAUTHORIZED);
+			}
+
+			if ($_SESSION['mb_role'] > MB_ROLE_ADMIN) {
+				throw new \AppException('index', 'route', 'insufficient permissions', SC_FORBIDDEN);
+			}
+
+			return handle_manage_createfilterform($vars);
+		});
+
+		function handle_manage_createfilterform($vars) {
+			// validate CSRF token
+			funcs_common_validate_csrf($_POST);
+
+			// validate and parse request fields
+			$input = parse_manage_postfilterform($_POST);
+
+			// execute create filter
+			$status = funcs_manage_create_post_filter($input);
+
+			// set query to return properly
+			$query = funcs_common_mutate_query($_GET, 'status', $status);
+
+			header("Location: /manage/?{$query}");
+			http_response_code(303);
+		}
+
+		$router->add_route(HTTP_POST, '/manage/edit_filter', function ($vars) {
+			if (!funcs_common_is_logged_in()) {
+				throw new \AppException('index', 'route', 'access denied', SC_UNAUTHORIZED);
+			}
+
+			if ($_SESSION['mb_role'] > MB_ROLE_ADMIN) {
+				throw new \AppException('index', 'route', 'insufficient permissions', SC_FORBIDDEN);
+			}
+
+			return handle_manage_editfilterform($vars);
+		});
+
+		function handle_manage_editfilterform($vars) {
+			// validate CSRF token
+			funcs_common_validate_csrf($_POST);
+
+			// validate request fields
+			funcs_common_validate_fields($_POST, [
+				'id' => ['required' => true, 'type' => 'string']
+			]);
+
+			// parse request fields
+			$id = funcs_common_parse_input_int($_POST, 'id', null, 0);
+			$input = parse_manage_postfilterform($_POST);
+
+			// execute edit filter
+			$status = funcs_manage_edit_post_filter($id, $input);
+
+			// set query to return properly
+			$query = funcs_common_mutate_query($_GET, 'status', $status);
+
+			header("Location: /manage/?{$query}");
+			http_response_code(303);
+		}
+
+		$router->add_route(HTTP_POST, '/manage/delete_filter', function ($vars) {
+			if (!funcs_common_is_logged_in()) {
+				throw new \AppException('index', 'route', 'access denied', SC_UNAUTHORIZED);
+			}
+
+			if ($_SESSION['mb_role'] > MB_ROLE_ADMIN) {
+				throw new \AppException('index', 'route', 'insufficient permissions', SC_FORBIDDEN);
+			}
+
+			return handle_manage_deletefilterform($vars);
+		});
+
+		function handle_manage_deletefilterform($vars) {
+			// validate CSRF token
+			funcs_common_validate_csrf($_POST);
+
+			// validate request fields
+			funcs_common_validate_fields($_POST, [
+				'id' => ['required' => true, 'type' => 'string']
+			]);
+
+			// parse request fields
+			$id = funcs_common_parse_input_int($_POST, 'id', null, 0);
+
+			// execute delete filter
+			$status = funcs_manage_delete_post_filter($id);
 
 			// set query to return properly
 			$query = funcs_common_mutate_query($_GET, 'status', $status);

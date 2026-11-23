@@ -7,6 +7,7 @@
       echo $user_role === MB_ROLE_SUPERADMIN ? "[<a href='?route=refresh'>" . __('manage.refresh') . "</a>]\n"   : '';
       echo $user_role === MB_ROLE_SUPERADMIN ? "[<a href='?route=import'>" . __('manage.import') . "</a>]\n"     : '';
       echo $user_role === MB_ROLE_SUPERADMIN ? "[<a href='?route=accounts'>" . __('manage.accounts') . "</a>]\n" : '';
+      echo $user_role !== null && $user_role <= MB_ROLE_ADMIN ?"[<a href='?route=filters'>" . __('manage.filters') . "</a>]\n" : '';
     ?>
     [<a href="?route=logs"><?=__('manage.logs')?></a>]
     [<a href="?route=file_scanner_hashes"><?=__('manage.file_scanner_hashes')?></a>]

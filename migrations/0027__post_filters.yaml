@@ -1,0 +1,20 @@
+# post filters, rules run on the subject and message of new posts
+
+version: 27
+script: |
+  CREATE TABLE IF NOT EXISTS post_filters (
+    `id` int unsigned NOT NULL auto_increment,
+    `board_id` varchar(8) DEFAULT NULL,
+    `match_type` enum('text','regex') NOT NULL,
+    `pattern` varchar(256) NOT NULL,
+    `action` enum('replace','reject','ban') NOT NULL,
+    `replacement` varchar(256) DEFAULT NULL,
+    `duration` int unsigned DEFAULT NULL,
+    `reason` varchar(256) DEFAULT NULL,
+    `comment` varchar(256) DEFAULT NULL,
+    `enabled` tinyint NOT NULL DEFAULT 1,
+    `timestamp` int unsigned NOT NULL,
+    PRIMARY KEY (`id`),
+    KEY `enabled_board_id` (`enabled`, `board_id`)
+  ) ENGINE=InnoDB
+  CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
