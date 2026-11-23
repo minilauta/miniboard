@@ -19,28 +19,30 @@
         <div class="box">
           <div class="box-title"><?=__('logs.heading')?></div>
           <div class="box-content">
-            <table>
-              <thead>
-                <tr>
-                  <th><?=__('manage.th.id')?></th>
-                  <th><?=__('manage.th.timestamp')?></th>
-                  <th><?=__('manage.th.message')?></th>
-                </tr>
-              </thead>
-              <tbody>
-                <?php
-                  foreach ($logs as $log) {
-                    echo "
-                      <tr>
-                        <td>{$log->id}</td>
-                        <td>{$log->fmt_timestamp()}</td>
-                        <td>{$log->fmt_message(32)}</td>
-                      </tr>
-                    ";
-                  }
-                ?>
-              </tbody>
-            </table>
+            <div class="table-scroll">
+              <table>
+                <thead>
+                  <tr>
+                    <th><?=__('manage.th.id')?></th>
+                    <th><?=__('manage.th.timestamp')?></th>
+                    <th><?=__('manage.th.message')?></th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <?php
+                    foreach ($logs as $log) {
+                      echo "
+                        <tr>
+                          <td>{$log->id}</td>
+                          <td>{$log->fmt_timestamp()}</td>
+                          <td class=\"cell-wrap\">{$log->message}</td>
+                        </tr>
+                      ";
+                    }
+                  ?>
+                </tbody>
+              </table>
+            </div>
           </div>
         </div>
       </div>

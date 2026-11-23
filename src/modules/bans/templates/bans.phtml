@@ -19,34 +19,36 @@
         <div class="box">
           <div class="box-title"><?=__('bans.heading')?></div>
           <div class="box-content">
-            <table>
-              <thead>
-                <tr>
-                  <th><?=__('manage.th.id')?></th>
-                  <th><?=__('manage.th.ip')?></th>
-                  <th><?=__('manage.th.timestamp')?></th>
-                  <th><?=__('manage.th.expire')?></th>
-                  <th><?=__('manage.th.reason')?></th>
-                  <th><?=__('manage.th.preview')?></th>
-                </tr>
-              </thead>
-              <tbody>
-                <?php foreach ($bans as $ban): ?>
+            <div class="table-scroll">
+              <table>
+                <thead>
                   <tr>
-                    <td><?=$ban->id?></td>
-                    <td><?=$ban->redact_ip()?></td>
-                    <td><?=$ban->fmt_timestamp()?></td>
-                    <td><?=$ban->fmt_expire()?></td>
-                    <td><?=$ban->fmt_reason(16)?></td>
-                    <td>
-                      <?php if ($ban->has_preview()): ?>
-                        <?=$this->render(__DIR__ . '/components/ban_preview.phtml', ['ban' => $ban])?>
-                      <?php endif; ?>
-                    </td>
+                    <th><?=__('manage.th.id')?></th>
+                    <th><?=__('manage.th.ip')?></th>
+                    <th><?=__('manage.th.timestamp')?></th>
+                    <th><?=__('manage.th.expire')?></th>
+                    <th><?=__('manage.th.reason')?></th>
+                    <th><?=__('manage.th.preview')?></th>
                   </tr>
-                <?php endforeach; ?>
-              </tbody>
-            </table>
+                </thead>
+                <tbody>
+                  <?php foreach ($bans as $ban): ?>
+                    <tr>
+                      <td><?=$ban->id?></td>
+                      <td><?=$ban->redact_ip()?></td>
+                      <td><?=$ban->fmt_timestamp()?></td>
+                      <td><?=$ban->fmt_expire()?></td>
+                      <td class="cell-wrap"><?=$ban->reason?></td>
+                      <td>
+                        <?php if ($ban->has_preview()): ?>
+                          <?=$this->render(__DIR__ . '/components/ban_preview.phtml', ['ban' => $ban])?>
+                        <?php endif; ?>
+                      </td>
+                    </tr>
+                  <?php endforeach; ?>
+                </tbody>
+              </table>
+            </div>
           </div>
         </div>
       </div>

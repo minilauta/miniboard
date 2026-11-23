@@ -56,6 +56,22 @@ hr {
   margin-bottom: 8px;
 }
 
+.page-root .table-scroll {
+  overflow-x: auto;
+}
+
+.page-root .table-scroll th,
+.page-root .table-scroll td {
+  white-space: nowrap;
+  vertical-align: top;
+}
+
+.page-root .table-scroll td.cell-wrap {
+  white-space: normal;
+  overflow-wrap: anywhere;
+  min-width: 16em;
+}
+
 .box {
   display: inline-block;
   border: 1px solid;
