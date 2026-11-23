@@ -135,6 +135,13 @@ return [
 	'manage.content_type.spam'  => 'Spam',
 	'manage.content_type.malware' => 'Malware',
 	'manage.content_type.other' => 'Other',
+	'manage.create_file_scanner_hash' => 'Create file hash',
+	'manage.delete_file_scanner_hash' => 'Delete (hash)',
+	'manage.file_scanner_hash_sha256' => 'SHA256 (64 hex characters)',
+	'manage.file_scanner_hash_pdq' => 'PDQ hash (64 hex characters, optional)',
+	'manage.file_scanner_hash_quality' => 'PDQ quality (0-100)',
+	'manage.file_scanner_hash_type' => 'Media type',
+	'manage.file_scanner_hash_originator' => 'Originator (optional)',
 	'manage.toggle_lock'        => 'Lock/unlock (thread)',
 	'manage.toggle_sticky'      => 'Sticky/unsticky (thread)',
 	'manage.move_thread'        => 'Move (thread)',
@@ -152,6 +159,7 @@ return [
 	'manage.edit_post'			=> 'EDIT',
 	'manage.edit_ban'			=> 'EDIT',
 	'manage.edit_account'		=> 'EDIT',
+	'manage.edit_file_scanner_hash' => 'EDIT',
 
 	// Manage table headers
 	'manage.th.id'              => 'id',
@@ -223,6 +231,23 @@ return [
 	'manage.editaccountform.password_placeholder' => 'Leave empty to keep the current password',
 	'manage.editaccountform.password_confirm' => 'Confirm password',
 	'manage.editaccountform.submit'        => 'Submit',
+
+	// Manage editfilescannerhashform
+	'manage.editfilescannerhashform.id'             => 'Hash ID',
+	'manage.editfilescannerhashform.sha256'         => 'SHA256',
+	'manage.editfilescannerhashform.type'           => 'Media type',
+	'manage.editfilescannerhashform.algorithm'      => 'Algorithm',
+	'manage.editfilescannerhashform.hash'           => 'Hash',
+	'manage.editfilescannerhashform.quality'        => 'Quality',
+	'manage.editfilescannerhashform.originator'     => 'Originator',
+	'manage.editfilescannerhashform.timestamp'      => 'Created',
+	'manage.editfilescannerhashform.related'        => 'Hashes of this file',
+	'manage.editfilescannerhashform.content_type'   => 'Content type',
+	'manage.editfilescannerhashform.comment'        => 'Comment',
+	'manage.editfilescannerhashform.edit_options'   => 'Edit options',
+	'manage.editfilescannerhashform.apply_all'      => 'Apply to all :count hashes of this file',
+	'manage.editfilescannerhashform.submit'         => 'Submit',
+	'manage.editfilescannerhashform.delete_confirm' => 'Delete the file hash? Uploads of the file are no longer rejected once all of its hashes are deleted.',
 
 	// Bans page
 	'bans.title'                => 'Bans',

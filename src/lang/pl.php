@@ -135,6 +135,13 @@ return [
 	'manage.content_type.spam'  => 'Spam',
 	'manage.content_type.malware' => 'Złośliwe oprogramowanie',
 	'manage.content_type.other' => 'Inne',
+	'manage.create_file_scanner_hash' => 'Utwórz hasz pliku',
+	'manage.delete_file_scanner_hash' => 'Usuń (hasz)',
+	'manage.file_scanner_hash_sha256' => 'SHA256 (64 znaki szesnastkowe)',
+	'manage.file_scanner_hash_pdq' => 'Hasz PDQ (64 znaki szesnastkowe, opcjonalny)',
+	'manage.file_scanner_hash_quality' => 'Jakość PDQ (0-100)',
+	'manage.file_scanner_hash_type' => 'Typ mediów',
+	'manage.file_scanner_hash_originator' => 'Źródło (opcjonalne)',
 	'manage.toggle_lock'        => 'Zablokuj/odblokuj (wątek)',
 	'manage.toggle_sticky'      => 'Przypnij/odepnij (wątek)',
 	'manage.move_thread'        => 'Przenieś (wątek)',
@@ -152,6 +159,7 @@ return [
 	'manage.edit_post'			=> 'EDYTUJ',
 	'manage.edit_ban'			=> 'EDYTUJ',
 	'manage.edit_account'		=> 'EDYTUJ',
+	'manage.edit_file_scanner_hash' => 'EDYTUJ',
 
 	// Manage table headers
 	'manage.th.id'              => 'id',
@@ -223,6 +231,23 @@ return [
 	'manage.editaccountform.password_placeholder' => 'Pozostaw puste, aby zachować obecne hasło',
 	'manage.editaccountform.password_confirm' => 'Potwierdź hasło',
 	'manage.editaccountform.submit'        => 'Wyślij',
+
+	// Manage editfilescannerhashform
+	'manage.editfilescannerhashform.id'             => 'ID hasza',
+	'manage.editfilescannerhashform.sha256'         => 'SHA256',
+	'manage.editfilescannerhashform.type'           => 'Typ mediów',
+	'manage.editfilescannerhashform.algorithm'      => 'Algorytm',
+	'manage.editfilescannerhashform.hash'           => 'Hasz',
+	'manage.editfilescannerhashform.quality'        => 'Jakość',
+	'manage.editfilescannerhashform.originator'     => 'Źródło',
+	'manage.editfilescannerhashform.timestamp'      => 'Utworzono',
+	'manage.editfilescannerhashform.related'        => 'Hasze tego pliku',
+	'manage.editfilescannerhashform.content_type'   => 'Typ treści',
+	'manage.editfilescannerhashform.comment'        => 'Komentarz',
+	'manage.editfilescannerhashform.edit_options'   => 'Opcje edycji',
+	'manage.editfilescannerhashform.apply_all'      => 'Zastosuj do wszystkich haszy tego pliku (:count)',
+	'manage.editfilescannerhashform.submit'         => 'Wyślij',
+	'manage.editfilescannerhashform.delete_confirm' => 'Usunąć hasz pliku? Przesyłanie pliku przestanie być blokowane dopiero po usunięciu wszystkich jego haszy.',
 
 	// Bans page
 	'bans.title'                => 'Bany',

@@ -7,6 +7,7 @@ require_once __ROOT__ . '/models/post_history.php';
 require_once __ROOT__ . '/core/integrations/file_scanner.php';
 
 use minichan\core\integrations\BannedContentType;
+use minichan\core\integrations\BannedMediaType;
 use minichan\core\integrations\FileScannerClient;
 use minichan\core\integrations\FileScannerException;
 use minichan\models\PostEvent;
@@ -963,5 +964,127 @@ function funcs_manage_file_scanner_ban(FileScannerClient $client, array $select,
     $status .= '<br>' . funcs_manage_delete($delete);
   }
 
+  return $status;
+}
+
+/**
+ * Validates an optional file scanner hash comment, returns an error message or null if valid.
+ */
+function funcs_manage_validate_file_scanner_comment(string $comment): ?string {
+  if (mb_strlen($comment) > 256) {
+    return 'Comment exceeds maximum length of 256 characters';
+  }
+
+  return null;
+}
+
+/**
+ * Bans a file in the file scanner by its hex encoded SHA256 and optionally its PDQ hash, the same way the
+ * file-scanner microservice bans an uploaded file. Hashes that are already banned are skipped.
+ */
+function funcs_manage_create_file_scanner_hash(string $sha256, string $pdq, int $quality, BannedMediaType $type, BannedContentType $content_type, string $comment, string $originator): string {
+  $sha256 = strtolower(trim($sha256));
+  if (preg_match('/\A[0-9a-f]{64}\z/', $sha256) !== 1) {
+    return 'Invalid SHA256 hash, expected 64 hex characters';
+  }
+
+  $pdq = strtolower(trim($pdq));
+  if ($pdq !== '' && preg_match('/\A[0-9a-f]{64}\z/', $pdq) !== 1) {
+    return 'Invalid PDQ hash, expected 64 hex characters';
+  }
+
+  // optional free text, stored as is and escaped when rendered (same as the file-scanner microservice)
+  $comment = trim($comment);
+  $comment_error = funcs_manage_validate_file_scanner_comment($comment);
+  if ($comment_error !== null) {
+    return $comment_error;
+  }
+
+  $originator = trim($originator);
+  if ($originator === '') {
+    $originator = 'manual';
+  }
+  if (mb_strlen($originator) > 32) {
+    return 'Originator exceeds maximum length of 32 characters';
+  }
+
+  // every file is banned by its SHA256, optionally also by its PDQ hash
+  $hashes = [['sha256', $sha256, 100]];
+  if ($pdq !== '') {
+    $hashes[] = ['pdq', $pdq, $quality];
+  }
+
+  $inserted = 0;
+  foreach ($hashes as [$algorithm, $hash, $hash_quality]) {
+    $inserted += insert_file_scanner_hash([
+      'sha256' => $sha256,
+      'type' => $type->value,
+      'content_type' => $content_type->value,
+      'comment' => $comment !== '' ? $comment : null,
+      'algorithm' => $algorithm,
+      'hash' => $hash,
+      'quality' => $hash_quality,
+      'originator' => $originator,
+    ]);
+  }
+
+  $status = "Created {$inserted} file hashes as {$content_type->value}";
+  if ($inserted < count($hashes)) {
+    $status .= ' (' . (count($hashes) - $inserted) . ' already existed)';
+  }
+  funcs_manage_log($status);
+  return $status;
+}
+
+/**
+ * Returns the ids of the hash rows to act on, the given row or with $all every hash row of the same file.
+ */
+function funcs_manage_get_file_scanner_hash_ids(array $row, bool $all): array {
+  if (!$all) {
+    return [$row['id']];
+  }
+
+  return array_column(select_file_scanner_hashes_by_sha256(bin2hex($row['sha256'])), 'id');
+}
+
+function funcs_manage_edit_file_scanner_hash(int $id, BannedContentType $content_type, string $comment, bool $all = false): string {
+  // get the existing hash
+  $row = select_file_scanner_hash_by_id($id);
+  if (!$row) {
+    return "File hash #{$id} not found";
+  }
+
+  $comment = trim($comment);
+  $comment_error = funcs_manage_validate_file_scanner_comment($comment);
+  if ($comment_error !== null) {
+    return $comment_error;
+  }
+
+  // update the hash (or every hash of the same file)
+  $ids = funcs_manage_get_file_scanner_hash_ids($row, $all);
+  update_file_scanner_hashes($ids, $content_type->value, $comment !== '' ? $comment : null);
+
+  $status = count($ids) > 1
+    ? 'Updated ' . count($ids) . ' file hashes (#' . implode(', #', $ids) . ')'
+    : "Updated file hash #{$id}";
+  funcs_manage_log($status);
+  return $status;
+}
+
+function funcs_manage_delete_file_scanner_hash(int $id, bool $all = false): string {
+  // get the existing hash
+  $row = select_file_scanner_hash_by_id($id);
+  if (!$row) {
+    return "File hash #{$id} not found";
+  }
+
+  // delete the hash (or every hash of the same file)
+  $ids = funcs_manage_get_file_scanner_hash_ids($row, $all);
+  delete_file_scanner_hashes($ids);
+
+  $status = count($ids) > 1
+    ? 'Deleted ' . count($ids) . ' file hashes (#' . implode(', #', $ids) . ')'
+    : "Deleted file hash #{$id}";
+  funcs_manage_log($status);
   return $status;
 }

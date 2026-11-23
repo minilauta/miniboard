@@ -657,6 +657,122 @@ class ManageModule implements core\Module
 			header("Location: /manage/?{$query}");
 			http_response_code(303);
 		});
+
+		$router->add_route(HTTP_POST, '/manage/create_file_scanner_hash', function ($vars) {
+			if (!funcs_common_is_logged_in()) {
+				throw new \AppException('index', 'route', 'access denied', SC_UNAUTHORIZED);
+			}
+
+			return handle_manage_createfilescannerhashform($vars);
+		});
+
+		function handle_manage_createfilescannerhashform($vars) {
+			// validate CSRF token
+			funcs_common_validate_csrf($_POST);
+
+			// validate request fields
+			funcs_common_validate_fields($_POST, [
+				'sha256'       => ['required' => true, 'type' => 'string', 'max_len' => 128],
+				'pdq'          => ['required' => false, 'type' => 'string', 'max_len' => 128],
+				'quality'      => ['required' => false, 'type' => 'string'],
+				'type'         => ['required' => true, 'type' => 'string', 'max_len' => 32],
+				'content_type' => ['required' => true, 'type' => 'string', 'max_len' => 32],
+				'originator'   => ['required' => false, 'type' => 'string'],
+				'comment'      => ['required' => false, 'type' => 'string']
+			]);
+
+			// parse request fields
+			$type = integrations\BannedMediaType::tryFrom($_POST['type']);
+			if ($type === null) {
+				throw new \AppException('index', 'route', 'select a media type for the file hash', SC_BAD_REQUEST);
+			}
+
+			$content_type = integrations\BannedContentType::tryFrom($_POST['content_type']);
+			if ($content_type === null) {
+				throw new \AppException('index', 'route', 'select a content type for the file hash', SC_BAD_REQUEST);
+			}
+
+			// PDQ quality defaults to the max when left empty
+			$quality = (isset($_POST['quality']) && $_POST['quality'] !== '') ? funcs_common_parse_input_int($_POST, 'quality', 100, 0, 100) : 100;
+
+			// execute create file scanner hash
+			$status = funcs_manage_create_file_scanner_hash($_POST['sha256'], $_POST['pdq'] ?? '', $quality, $type, $content_type, $_POST['comment'] ?? '', $_POST['originator'] ?? '');
+
+			// set query to return properly
+			$query = funcs_common_mutate_query($_GET, 'status', $status);
+
+			header("Location: /manage/?{$query}");
+			http_response_code(303);
+		}
+
+		$router->add_route(HTTP_POST, '/manage/edit_file_scanner_hash', function ($vars) {
+			if (!funcs_common_is_logged_in()) {
+				throw new \AppException('index', 'route', 'access denied', SC_UNAUTHORIZED);
+			}
+
+			return handle_manage_editfilescannerhashform($vars);
+		});
+
+		function handle_manage_editfilescannerhashform($vars) {
+			// validate CSRF token
+			funcs_common_validate_csrf($_POST);
+
+			// validate request fields
+			funcs_common_validate_fields($_POST, [
+				'id'           => ['required' => true, 'type' => 'string'],
+				'content_type' => ['required' => true, 'type' => 'string', 'max_len' => 32],
+				'comment'      => ['required' => false, 'type' => 'string']
+			]);
+
+			// parse request fields
+			$id = funcs_common_parse_input_int($_POST, 'id', null, 0);
+			$all = isset($_POST['all']);
+
+			$content_type = integrations\BannedContentType::tryFrom($_POST['content_type']);
+			if ($content_type === null) {
+				throw new \AppException('index', 'route', 'select a content type for the file hash', SC_BAD_REQUEST);
+			}
+
+			// execute edit file scanner hash
+			$status = funcs_manage_edit_file_scanner_hash($id, $content_type, $_POST['comment'] ?? '', $all);
+
+			// set query to return properly
+			$query = funcs_common_mutate_query($_GET, 'status', $status);
+
+			header("Location: /manage/?{$query}");
+			http_response_code(303);
+		}
+
+		$router->add_route(HTTP_POST, '/manage/delete_file_scanner_hash', function ($vars) {
+			if (!funcs_common_is_logged_in()) {
+				throw new \AppException('index', 'route', 'access denied', SC_UNAUTHORIZED);
+			}
+
+			return handle_manage_deletefilescannerhashform($vars);
+		});
+
+		function handle_manage_deletefilescannerhashform($vars) {
+			// validate CSRF token
+			funcs_common_validate_csrf($_POST);
+
+			// validate request fields
+			funcs_common_validate_fields($_POST, [
+				'id' => ['required' => true, 'type' => 'string']
+			]);
+
+			// parse request fields
+			$id = funcs_common_parse_input_int($_POST, 'id', null, 0);
+			$all = isset($_POST['all']);
+
+			// execute delete file scanner hash
+			$status = funcs_manage_delete_file_scanner_hash($id, $all);
+
+			// set query to return properly
+			$query = funcs_common_mutate_query($_GET, 'status', $status);
+
+			header("Location: /manage/?{$query}");
+			http_response_code(303);
+		}
 	}
 
 	public function get_name(): string

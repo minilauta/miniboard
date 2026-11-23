@@ -1,3 +1,62 @@
+<?php $query = http_build_query($_GET); ?>
+<form id="createfilescannerhashform" class="form-manage form" method="post" action="/manage/create_file_scanner_hash?<?=$query?>">
+  <?=funcs_common_csrf_field()?>
+  <table>
+    <tbody>
+      <tr>
+        <td class="form-label">
+          <label><?=__('manage.status')?></label>
+        </td>
+        <td>
+          <b><?=$status?></b>
+        </td>
+      </tr>
+      <tr>
+        <td class="form-label">
+          <label><?=__('manage.create_file_scanner_hash')?></label>
+        </td>
+        <td class="form-fields">
+          <div>
+            <input type="text" name="sha256" placeholder="<?=__('manage.file_scanner_hash_sha256')?>" autocomplete="off" minlength="64" maxlength="64" pattern="[0-9A-Fa-f]{64}" required>
+          </div>
+          <div>
+            <input type="text" name="pdq" placeholder="<?=__('manage.file_scanner_hash_pdq')?>" autocomplete="off" minlength="64" maxlength="64" pattern="[0-9A-Fa-f]{64}">
+          </div>
+          <div>
+            <input type="number" name="quality" placeholder="<?=__('manage.file_scanner_hash_quality')?>" min="0" max="100" value="100">
+          </div>
+          <div>
+            <label>
+              <?=__('manage.file_scanner_hash_type')?>
+              <select name="type">
+                <?php foreach (minichan\core\integrations\BannedMediaType::cases() as $media_type): ?>
+                  <option value="<?=$media_type->value?>"><?=$media_type->value?></option>
+                <?php endforeach; ?>
+              </select>
+            </label>
+          </div>
+          <div>
+            <select name="content_type" required>
+              <option value=""><?=__('manage.file_ban_content_type')?></option>
+              <?php foreach (minichan\core\integrations\BannedContentType::cases() as $content_type): ?>
+                <option value="<?=$content_type->value?>"><?=__('manage.content_type.' . $content_type->value)?></option>
+              <?php endforeach; ?>
+            </select>
+          </div>
+          <div>
+            <input type="text" name="originator" placeholder="<?=__('manage.file_scanner_hash_originator')?>" autocomplete="off" maxlength="32">
+          </div>
+          <div>
+            <input type="text" name="comment" placeholder="<?=__('manage.file_ban_comment')?>" autocomplete="off" maxlength="256">
+          </div>
+          <div>
+            <input type="submit" value="<?=__('manage.create_file_scanner_hash')?>">
+          </div>
+        </td>
+      </tr>
+    </tbody>
+  </table>
+</form>
 <form id="filescannerhashform" class="form-manage" method="post">
   <div class="form-manage-table-wrapper">
     <table class="form-manage-table">
@@ -13,30 +72,36 @@
           <th>quality</th>
           <th>originator</th>
           <th><?=__('manage.th.timestamp')?></th>
+          <th class="cell-center"><?=__('manage.th.actions')?></th>
         </tr>
       </thead>
       <tbody>
         <?php
           if (count($rows) === 0) {
-            echo "<tr><td class='cell-empty' colspan='10'>" . __('manage.no_entries') . "</td></tr>";
+            echo "<tr><td class='cell-empty' colspan='11'>" . __('manage.no_entries') . "</td></tr>";
           }
 
+          $editLabel = __('manage.edit_file_scanner_hash');
           foreach ($rows as $row) {
             $timestamp = date(MB_DATEFORMAT, $row['timestamp']);
+            $type = htmlspecialchars($row['type'], ENT_QUOTES, 'UTF-8');
             $comment = htmlspecialchars($row['comment'] ?? '', ENT_QUOTES, 'UTF-8');
+            $algorithm = htmlspecialchars($row['algorithm'], ENT_QUOTES, 'UTF-8');
+            $originator = htmlspecialchars($row['originator'], ENT_QUOTES, 'UTF-8');
 
             echo "
               <tr>
                 <td>{$row['id']}</td>
                 <td class=\"cell-wrap cell-mono\">{$row['sha256']}</td>
-                <td>{$row['type']}</td>
+                <td>{$type}</td>
                 <td>{$row['content_type']}</td>
                 <td class=\"cell-wrap\">{$comment}</td>
-                <td>{$row['algorithm']}</td>
+                <td>{$algorithm}</td>
                 <td class=\"cell-wrap cell-mono\">{$row['hash']}</td>
                 <td>{$row['quality']}</td>
-                <td class=\"cell-wrap\">{$row['originator']}</td>
+                <td class=\"cell-wrap\">{$originator}</td>
                 <td>{$timestamp}</td>
+                <td class=\"cell-center\"><a href='?route=edit_file_scanner_hash&id={$row['id']}'>{$editLabel}</a></td>
               </tr>
             ";
           }

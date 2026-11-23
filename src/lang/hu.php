@@ -135,6 +135,13 @@ return [
 	'manage.content_type.spam'  => 'Spam',
 	'manage.content_type.malware' => 'Kártevő',
 	'manage.content_type.other' => 'Egyéb',
+	'manage.create_file_scanner_hash' => 'Fájlhash létrehozása',
+	'manage.delete_file_scanner_hash' => 'Törlés (hash)',
+	'manage.file_scanner_hash_sha256' => 'SHA256 (64 hexadecimális karakter)',
+	'manage.file_scanner_hash_pdq' => 'PDQ hash (64 hexadecimális karakter, opcionális)',
+	'manage.file_scanner_hash_quality' => 'PDQ minőség (0-100)',
+	'manage.file_scanner_hash_type' => 'Médiatípus',
+	'manage.file_scanner_hash_originator' => 'Forrás (opcionális)',
 	'manage.toggle_lock'        => 'Zárolás/feloldás (téma)',
 	'manage.toggle_sticky'      => 'Kitűzés/levétel (téma)',
 	'manage.move_thread'        => 'Áthelyezés (téma)',
@@ -152,6 +159,7 @@ return [
 	'manage.edit_post'			=> 'SZERKESZTÉS',
 	'manage.edit_ban'			=> 'SZERKESZTÉS',
 	'manage.edit_account'		=> 'SZERKESZTÉS',
+	'manage.edit_file_scanner_hash' => 'SZERKESZTÉS',
 
 	// Manage table headers
 	'manage.th.id'              => 'id',
@@ -223,6 +231,23 @@ return [
 	'manage.editaccountform.password_placeholder' => 'Hagyja üresen a jelenlegi jelszó megtartásához',
 	'manage.editaccountform.password_confirm' => 'Jelszó megerősítése',
 	'manage.editaccountform.submit'        => 'Küldés',
+
+	// Manage editfilescannerhashform
+	'manage.editfilescannerhashform.id'             => 'Hash ID',
+	'manage.editfilescannerhashform.sha256'         => 'SHA256',
+	'manage.editfilescannerhashform.type'           => 'Médiatípus',
+	'manage.editfilescannerhashform.algorithm'      => 'Algoritmus',
+	'manage.editfilescannerhashform.hash'           => 'Hash',
+	'manage.editfilescannerhashform.quality'        => 'Minőség',
+	'manage.editfilescannerhashform.originator'     => 'Forrás',
+	'manage.editfilescannerhashform.timestamp'      => 'Létrehozva',
+	'manage.editfilescannerhashform.related'        => 'A fájl hashei',
+	'manage.editfilescannerhashform.content_type'   => 'Tartalom típusa',
+	'manage.editfilescannerhashform.comment'        => 'Megjegyzés',
+	'manage.editfilescannerhashform.edit_options'   => 'Szerkesztési beállítások',
+	'manage.editfilescannerhashform.apply_all'      => 'Alkalmazás a fájl összes hashére (:count)',
+	'manage.editfilescannerhashform.submit'         => 'Küldés',
+	'manage.editfilescannerhashform.delete_confirm' => 'Törli a fájlhasht? Ha a fájl összes hashét törli, a fájl feltöltései többé nem lesznek elutasítva.',
 
 	// Bans page
 	'bans.title'                => 'Kitiltások',

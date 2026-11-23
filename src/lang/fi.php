@@ -135,6 +135,13 @@ return [
 	'manage.content_type.spam'  => 'Roskaposti',
 	'manage.content_type.malware' => 'Haittaohjelma',
 	'manage.content_type.other' => 'Muu',
+	'manage.create_file_scanner_hash' => 'Luo tiedostotiiviste',
+	'manage.delete_file_scanner_hash' => 'Poista (tiiviste)',
+	'manage.file_scanner_hash_sha256' => 'SHA256 (64 heksamerkkiä)',
+	'manage.file_scanner_hash_pdq' => 'PDQ-tiiviste (64 heksamerkkiä, valinnainen)',
+	'manage.file_scanner_hash_quality' => 'PDQ-laatu (0-100)',
+	'manage.file_scanner_hash_type' => 'Mediatyyppi',
+	'manage.file_scanner_hash_originator' => 'Alkuperä (valinnainen)',
 	'manage.toggle_lock'        => 'Lukitse/avaa (lanka)',
 	'manage.toggle_sticky'      => 'Kiinnitä/irrota (lanka)',
 	'manage.move_thread'        => 'Siirrä (lanka)',
@@ -152,6 +159,7 @@ return [
 	'manage.edit_post'			=> 'MUOKKAA',
 	'manage.edit_ban'			=> 'MUOKKAA',
 	'manage.edit_account'		=> 'MUOKKAA',
+	'manage.edit_file_scanner_hash' => 'MUOKKAA',
 
 	// Manage table headers
 	'manage.th.id'              => 'id',
@@ -223,6 +231,23 @@ return [
 	'manage.editaccountform.password_placeholder' => 'Jätä tyhjäksi säilyttääksesi nykyisen salasanan',
 	'manage.editaccountform.password_confirm' => 'Vahvista salasana',
 	'manage.editaccountform.submit'        => 'Lähetä',
+
+	// Manage editfilescannerhashform
+	'manage.editfilescannerhashform.id'             => 'Tiivisteen ID',
+	'manage.editfilescannerhashform.sha256'         => 'SHA256',
+	'manage.editfilescannerhashform.type'           => 'Mediatyyppi',
+	'manage.editfilescannerhashform.algorithm'      => 'Algoritmi',
+	'manage.editfilescannerhashform.hash'           => 'Tiiviste',
+	'manage.editfilescannerhashform.quality'        => 'Laatu',
+	'manage.editfilescannerhashform.originator'     => 'Alkuperä',
+	'manage.editfilescannerhashform.timestamp'      => 'Luotu',
+	'manage.editfilescannerhashform.related'        => 'Tiedoston tiivisteet',
+	'manage.editfilescannerhashform.content_type'   => 'Sisällön tyyppi',
+	'manage.editfilescannerhashform.comment'        => 'Kommentti',
+	'manage.editfilescannerhashform.edit_options'   => 'Muokkausvalinnat',
+	'manage.editfilescannerhashform.apply_all'      => 'Aseta kaikille tiedoston tiivisteille (:count)',
+	'manage.editfilescannerhashform.submit'         => 'Lähetä',
+	'manage.editfilescannerhashform.delete_confirm' => 'Poistetaanko tiedostotiiviste? Tiedoston latauksia ei enää estetä, kun kaikki sen tiivisteet on poistettu.',
 
 	// Bans page
 	'bans.title'                => 'Porttikiellot',

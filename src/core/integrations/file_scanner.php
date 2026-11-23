@@ -15,6 +15,17 @@ enum BannedContentType: string
 	case Other = 'other';
 }
 
+/**
+ * Media type of a banned file, mirrors the `file_scanner_hashes.type` column values set by the file-scanner microservice.
+ */
+enum BannedMediaType: string
+{
+	case Image = 'image';
+	case Video = 'video';
+	case Audio = 'audio';
+	case File = 'file';
+}
+
 class FileScannerException extends \Exception {}
 
 /**

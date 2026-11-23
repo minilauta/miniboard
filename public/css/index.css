@@ -580,8 +580,9 @@ table.form-manage-table td.cell-preview {
   min-width: 20em;
 }
 
-table.form-manage-table td.cell-mono {
+.form-manage td.cell-mono {
   font-family: monospace;
+  overflow-wrap: anywhere;
 }
 
 table.form-manage-table th.cell-center,

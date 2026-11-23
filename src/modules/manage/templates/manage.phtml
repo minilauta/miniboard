@@ -240,6 +240,26 @@
             'ban' => $ban,
           ]);
           break;
+        case 'edit_file_scanner_hash':
+          // get query params
+          $query_id = funcs_common_parse_input_int($query_params, 'id', null, 0);
+
+          // get file scanner hash
+          $row = select_file_scanner_hash_by_id($query_id);
+          if (!$row) {
+            throw new \AppException('manage.phtml', 'inline', "file hash #{$query_id} not found", SC_NOT_FOUND);
+          }
+
+          // get every hash of the same file (including this one)
+          $row['sha256'] = bin2hex($row['sha256']);
+          $row['hash'] = bin2hex($row['hash']);
+          $related = select_file_scanner_hashes_by_sha256($row['sha256']);
+
+          echo $this->render(__DIR__ .'/components/editfilescannerhashform.phtml', [
+            'row' => $row,
+            'related' => $related,
+          ]);
+          break;
         case 'edit_account':
           if (funcs_common_get_role() !== MB_ROLE_SUPERADMIN) {
             throw new \AppException('manage.phtml', 'inline', 'insufficient permissions', SC_FORBIDDEN);
