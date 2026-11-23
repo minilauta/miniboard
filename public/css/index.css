@@ -640,6 +640,7 @@ table.form-manage-table tbody tr:has(input[name="select[]"]:checked) {
   display: none;
   position: fixed;
   z-index: 100;
+  white-space: normal;
 }
 
 .ban-preview-trigger.active .ban-preview-popup {
