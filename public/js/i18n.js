@@ -1,6 +1,7 @@
 import en from './lang/en';
 import fi from './lang/fi';
 import hu from './lang/hu';
+import ja from './lang/ja';
 import pl from './lang/pl';
 import storage from './storage';
 
@@ -8,6 +9,7 @@ const languages = {
   en,
   fi,
   hu,
+  ja,
   pl,
 };
 
