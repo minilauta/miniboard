@@ -59,8 +59,8 @@
 
           $editLabel = __('manage.edit_ban');
           foreach ($bans as $ban) {
-            $timestamp = date(MB_DATEFORMAT, $ban['timestamp']);
-            $expire = date(MB_DATEFORMAT, $ban['expire']);
+            $timestamp = date(cfg('dateformat'), $ban['timestamp']);
+            $expire = date(cfg('dateformat'), $ban['expire']);
             $imported = $ban['imported'] === 1 ? '<b>TRUE</b>' : 'FALSE';
 
             echo "

@@ -95,7 +95,7 @@
         <?php if ($move_thread): ?>
           <div>
             <select name="dst_board_id">
-              <?php foreach (MB_BOARDS as $bid => $bcfg): if ($bcfg['type'] !== 'main'): ?>
+              <?php foreach (funcs_common_get_boards() as $bid => $bcfg): if ($bcfg['type'] !== 'main'): ?>
                 <option value="<?=htmlspecialchars($bid)?>">/<?=htmlspecialchars($bid)?>/ - <?=htmlspecialchars($bcfg['name'])?></option>
               <?php endif; endforeach; ?>
             </select>

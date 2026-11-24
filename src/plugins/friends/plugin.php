@@ -8,7 +8,7 @@ use minichan\core;
 
 require_once __ROOT__ . '/core/plugin.php';
 require_once __ROOT__ . '/core/renderer.php';
-require_once __ROOT__ . '/common/config.php';
+require_once __ROOT__ . '/core/config_store.php';
 require_once __ROOT__ . '/common/version.php';
 
 class FriendsPlugin implements core\Plugin
@@ -30,7 +30,7 @@ class FriendsPlugin implements core\Plugin
 	public function register_hooks(core\App &$app): void
     {
         $app->add_hook('home.root.body', function () {
-		    echo $this->renderer->render(__DIR__ . '/templates/plugin.phtml', ['friends_content' => MB_PLUGIN_FRIENDS_CONTENT]);
+		    echo $this->renderer->render(__DIR__ . '/templates/plugin.phtml', ['friends_content' => cfg('plugin_friends_content')]);
         });
     }
 

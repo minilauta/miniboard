@@ -524,6 +524,13 @@ function select_all_threads(bool $desc = true, int $offset = 0, int $limit = 10)
   return $sth->fetchAll();
 }
 
+function count_board_posts(string $board_id): int {
+  $dbh = get_db_handle();
+  $sth = $dbh->prepare('SELECT COUNT(*) FROM posts WHERE board_id = :board_id');
+  $sth->execute(['board_id' => $board_id]);
+  return (int) $sth->fetchColumn();
+}
+
 function count_all_threads(): int|bool {
   $dbh = get_db_handle();
   $sth = $dbh->prepare('SELECT COUNT(*) FROM posts WHERE parent_id IS NULL');

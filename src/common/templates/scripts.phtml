@@ -2,9 +2,9 @@
 <script src="/dist/ruffle/ruffle.js?mb_version=<?=MB_VERSION?>"></script>
 <script src="/dist/tegaki/tegaki.js?mb_version=<?=MB_VERSION?>"></script>
 <?php
-  if (!empty($hcaptcha) && MB_CAPTCHA_HCAPTCHA_SITE != null) {
+  if (!empty($hcaptcha) && cfg('captcha_hcaptcha_site') != null) {
     echo '<script src="https://js.hcaptcha.com/1/api.js" async defer></script>';
   }
 ?>
 
-<?= $app->run_hooks('common.scripts'); ?>
+<?= $app?->run_hooks('common.scripts'); ?>

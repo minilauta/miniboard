@@ -42,9 +42,10 @@ class BoardModule implements core\Module
 	{
 		$router->add_middleware(function () {
 			$s_age = time() - $_SESSION['created'];
-			if ($s_age < MB_SESSION_AGE_MIN && in_array($_SERVER['REQUEST_METHOD'], [HTTP_POST, HTTP_PUT, HTTP_PATCH, HTTP_DELETE]))
+			$s_age_min = cfg('session_age_min');
+			if ($s_age < $s_age_min && in_array($_SERVER['REQUEST_METHOD'], [HTTP_POST, HTTP_PUT, HTTP_PATCH, HTTP_DELETE]))
 			{
-				$s_timeout = MB_SESSION_AGE_MIN - $s_age;
+				$s_timeout = $s_age_min - $s_age;
 				header('Content-Type:application/json');
 				http_response_code(SC_FORBIDDEN);
 				echo json_encode(['error_message' => "please wait {$s_timeout} seconds"]);
@@ -447,9 +448,10 @@ class BoardModule implements core\Module
 
 			// validate and collect selected board IDs
 			$selected = isset($_POST['boards']) && is_array($_POST['boards']) ? $_POST['boards'] : [];
+			$boards = funcs_common_get_boards();
 			$valid_board_ids = [];
 			foreach ($selected as $bid) {
-				if (isset(MB_BOARDS[$bid]) && MB_BOARDS[$bid]['type'] !== 'main') {
+				if (isset($boards[$bid]) && $boards[$bid]['type'] !== 'main') {
 					$valid_board_ids[] = $bid;
 				}
 			}
@@ -550,10 +552,10 @@ class BoardModule implements core\Module
 			}
 
 			// validate request fields
-			funcs_board_validate_report($_POST, MB_REPORT_TYPES);
+			funcs_board_validate_report($_POST, cfg('report_types'));
 
 			// validate captcha
-			if (MB_CAPTCHA_REPORT) {
+			if (funcs_board_captcha_required($board_cfg, 'report')) {
 				funcs_common_validate_captcha($_POST);
 			}
 
@@ -564,9 +566,9 @@ class BoardModule implements core\Module
 			}
 
 			// create report
-			$ip = funcs_common_get_client_remote_address(MB_CLOUDFLARE, $_SERVER);
+			$ip = funcs_common_get_client_remote_address(cfg('cloudflare'), $_SERVER);
 			$reason = isset($_POST['reason']) ? trim($_POST['reason']) : '';
-			$report = funcs_board_create_report($ip, $board_cfg['id'], $post['post_id'], $_POST['type'], MB_REPORT_TYPES, $reason);
+			$report = funcs_board_create_report($ip, $board_cfg['id'], $post['post_id'], $_POST['type'], cfg('report_types'), $reason);
 
 			// insert report
 			$inserted_report_id = insert_report($report);
@@ -646,10 +648,10 @@ class BoardModule implements core\Module
 		}
 	
 		// get user info
-		$user_ip = funcs_common_get_client_remote_address(MB_CLOUDFLARE, $_SERVER);
+		$user_ip = funcs_common_get_client_remote_address(cfg('cloudflare'), $_SERVER);
 		$user_country = null;
 		if ($board_cfg['flags'] == true) {
-			$user_country = funcs_common_get_client_remote_country(MB_CLOUDFLARE, $_SERVER);
+			$user_country = funcs_common_get_client_remote_country(cfg('cloudflare'), $_SERVER);
 		}
 		$user_is_logged_in = funcs_common_is_logged_in();
 	
@@ -662,6 +664,9 @@ class BoardModule implements core\Module
 		// validate request fields
 		funcs_common_validate_fields($fields, $board_cfg['fields_post']);
 	
+		// the board of the post form, differs from the board of the post when posting through a main-type board
+		$form_board_cfg = $board_cfg;
+
 		// if board type is 'main', get target board config
 		if ($board_cfg['type'] === 'main') {
 			// get board config
@@ -685,31 +690,35 @@ class BoardModule implements core\Module
 		$user_is_capcode = funcs_board_is_capcode_post($board_cfg, $fields);
 
 		// validate captcha (skip for logged in users)
+		// NOTE: posting through a main-type board requires a captcha if either board requires one, otherwise the main-type
+		// board would bypass the captcha of the target board
 		if (!$user_is_logged_in) {
-			if (MB_CAPTCHA_THREAD && $context === 'board' || MB_CAPTCHA_REPLY && $context === 'thread') {
+			if (funcs_board_captcha_required($form_board_cfg, $context) || funcs_board_captcha_required($board_cfg, $context)) {
 				funcs_common_validate_captcha($fields);
 			}
 		}
 
 		// validate thread delay (skip for capcode posts and replies)
-		if (!$user_is_capcode && !isset($vars['thread_id']) && MB_DELAY_THREAD > 0) {
+		$delay_thread = $board_cfg['delay_thread'];
+		if (!$user_is_capcode && !isset($vars['thread_id']) && $delay_thread > 0) {
 			$user_last_thread_by_ip = select_last_thread_by_ip($user_ip);
 			if ($user_last_thread_by_ip != null) {
 				$delay_in_seconds = time() - $user_last_thread_by_ip['timestamp'];
-				$cooldown_in_seconds = MB_DELAY_THREAD - $delay_in_seconds;
-				if ($delay_in_seconds < MB_DELAY_THREAD) {
+				$cooldown_in_seconds = $delay_thread - $delay_in_seconds;
+				if ($delay_in_seconds < $delay_thread) {
 					throw new \AppException('index', 'route', "please wait {$cooldown_in_seconds}s before making a new thread again", SC_FORBIDDEN);
 				}
 			}
 		}
 	
 		// validate delay (skip for capcode posts)
-		if (!$user_is_capcode && MB_DELAY > 0) {
+		$delay = $board_cfg['delay'];
+		if (!$user_is_capcode && $delay > 0) {
 			$user_last_post_by_ip = select_last_post_by_ip($user_ip);
 			if ($user_last_post_by_ip != null) {
 				$delay_in_seconds = time() - $user_last_post_by_ip['timestamp'];
-				$cooldown_in_seconds = MB_DELAY - $delay_in_seconds;
-				if ($delay_in_seconds < MB_DELAY) {
+				$cooldown_in_seconds = $delay - $delay_in_seconds;
+				if ($delay_in_seconds < $delay) {
 					throw new \AppException('index', 'route', "please wait {$cooldown_in_seconds}s before posting again", SC_FORBIDDEN);
 				}
 			}
@@ -721,7 +730,7 @@ class BoardModule implements core\Module
 		// check if ip address has been banned
 		$ban = select_ban($user_ip);
 		if ($ban && !$user_is_logged_in) {
-			$ban_expires = date(MB_DATEFORMAT, $ban['expire']);
+			$ban_expires = date(cfg('dateformat'), $ban['expire']);
 			throw new \AppException('index', 'route', "this ip address has been banned for reason: {$ban['reason']}. the ban will expire on {$ban_expires}", SC_FORBIDDEN);
 		}
 	
@@ -755,7 +764,7 @@ class BoardModule implements core\Module
 				insert_ban($user_ip, $user_ip, $filter_duration, funcs_common_clean_field($filter_reason), "Filter #{$filter['id']}");
 				insert_log(time(), 'post-filter', "post-filter: blocked post on /{$board_cfg['id']}/"); // no filter details, logs are public
 
-				$ban_expires = date(MB_DATEFORMAT, time() + $filter_duration);
+				$ban_expires = date(cfg('dateformat'), time() + $filter_duration);
 				throw new \AppException('index', 'route', "this ip address has been banned for reason: {$filter_reason}. the ban will expire on {$ban_expires}", SC_FORBIDDEN);
 			} else if ($filter !== null) {
 				insert_log(time(), 'post-filter', "post-filter: blocked post on /{$board_cfg['id']}/"); // no filter details, logs are public
@@ -889,8 +898,9 @@ class BoardModule implements core\Module
 		}
 	
 		// anonymize board
-		if (MB_ANONYMIZE_AFTER > 0) {
-			anonymize_posts_after(MB_ANONYMIZE_AFTER);
+		$anonymize_after = cfg('anonymize_after');
+		if ($anonymize_after > 0) {
+			anonymize_posts_after($anonymize_after);
 		}
 	
 		// handle noko

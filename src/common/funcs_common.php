@@ -1,8 +1,10 @@
 <?php
 
 require_once __DIR__ . '/config.php';
+require_once __DIR__ . '/constants.php';
 require_once __DIR__ . '/exception.php';
 require_once __DIR__ . '/shared.php';
+require_once __DIR__ . '/../core/config_store.php';
 
 function funcs_common_parse_query_str(array $server): ?array {
   $query = [];
@@ -16,14 +18,22 @@ function funcs_common_parse_query_str(array $server): ?array {
 }
 
 /**
- * Get board config array by board ID.
+ * Get the resolved config of a board by board ID, see minichan\core\ConfigStore::board().
  */
 function funcs_common_get_board_cfg(string $board_id): array {
-  if (!isset(MB_BOARDS[$board_id])) {
+  $board_cfg = minichan\core\ConfigStore::instance()->board($board_id);
+  if ($board_cfg === null) {
     throw new AppException('funcs_common', 'get_board_cfg', "board with id /{$board_id}/ cannot be found", SC_NOT_FOUND);
   }
 
-  return MB_BOARDS[$board_id];
+  return $board_cfg;
+}
+
+/**
+ * Get the resolved config of every board, keyed by board ID and ordered by position.
+ */
+function funcs_common_get_boards(): array {
+  return minichan\core\ConfigStore::instance()->boards();
 }
 
 /**
@@ -401,7 +411,7 @@ function funcs_common_validate_captcha($input) {
   curl_setopt($curl, CURLOPT_URL, "https://hcaptcha.com/siteverify");
   curl_setopt($curl, CURLOPT_POST, true);
   curl_setopt($curl, CURLOPT_POSTFIELDS, http_build_query([
-    'secret' => MB_CAPTCHA_HCAPTCHA_SECRET,
+    'secret' => cfg('captcha_hcaptcha_secret'),
     'response' => $input['h-captcha-response']
   ]));
   curl_setopt($curl, CURLOPT_RETURNTRANSFER, true);

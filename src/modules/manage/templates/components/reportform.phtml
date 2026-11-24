@@ -41,15 +41,16 @@
               $preview = $this->render(__DIR__ . '/post_preview_reply.phtml', ['post' => $report]);
             }
 
-            $timestamp = date(MB_DATEFORMAT, $report['r_timestamp']);
+            $timestamp = date(cfg('dateformat'), $report['r_timestamp']);
             $imported = $report['r_imported'] === 1 ? '<b>TRUE</b>' : 'FALSE';
             $post_deleted = $report['deleted'] === 1 ? '<b>TRUE</b>' : 'FALSE';
             $post_imported = $report['imported'] === 1 ? '<b>TRUE</b>' : 'FALSE';
 
             // show the report type description next to its number
             $type = $report['r_type'];
-            if (isset(MB_REPORT_TYPES[$type])) {
-              $type .= ': ' . htmlspecialchars(MB_REPORT_TYPES[$type]);
+            $report_types = cfg('report_types');
+            if (isset($report_types[$type])) {
+              $type .= ': ' . htmlspecialchars($report_types[$type]);
             }
 
             echo "

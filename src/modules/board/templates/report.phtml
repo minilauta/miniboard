@@ -3,12 +3,12 @@
   <head>
     <?=$this->render(__ROOT__ . '/common/templates/meta.phtml')?>
     <?=$this->render(__ROOT__ . '/common/templates/styles.phtml')?>
-    <?=$this->render(__ROOT__ . '/common/templates/scripts.phtml', ['hcaptcha' => MB_CAPTCHA_REPORT])?>
+    <?=$this->render(__ROOT__ . '/common/templates/scripts.phtml', ['hcaptcha' => funcs_board_captcha_required($board, 'report')])?>
     <title>/<?=$board['id']?>/ - Report</title>
   </head>
   <body>
     <div class="container-centered">
-      <?=$this->render(__DIR__ . '/components/reportform.phtml', ['post' => $post])?>
+      <?=$this->render(__DIR__ . '/components/reportform.phtml', ['board' => $board, 'post' => $post])?>
     </div>
     <hr>
     <div class="container-centered">

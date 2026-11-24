@@ -18,7 +18,7 @@
         <td>
           <?php
             $options = '<option value=""></option>';
-            foreach (MB_REPORT_TYPES as $key => $val) {
+            foreach (cfg('report_types') as $key => $val) {
               $options .= "<option value='{$key}'>{$val}</option>";
             }
 
@@ -38,8 +38,8 @@
         </td>
       </tr>
       <?php
-        if (MB_CAPTCHA_REPORT) {
-          $captcha = MB_CAPTCHA_HCAPTCHA_SITE;
+        if (funcs_board_captcha_required($board, 'report')) {
+          $captcha = cfg('captcha_hcaptcha_site');
           $t_captcha = __('form.captcha');
 
           echo "

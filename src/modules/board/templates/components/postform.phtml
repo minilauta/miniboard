@@ -94,8 +94,8 @@
       <?php
         // captcha check
         if (!funcs_common_is_logged_in()) {
-          if ($context === 'board' && MB_CAPTCHA_THREAD || $context === 'thread' && MB_CAPTCHA_REPLY) {
-            $captcha = MB_CAPTCHA_HCAPTCHA_SITE;
+          if (funcs_board_form_captcha_required($board, $context)) {
+            $captcha = cfg('captcha_hcaptcha_site');
             $t_captcha = __('form.captcha');
 
             echo "
@@ -114,7 +114,7 @@
         // board select
         if ($board['type'] === 'main') {
           $options = '<option value=""></option>';
-          foreach (MB_BOARDS as $key => $val) {
+          foreach (funcs_common_get_boards() as $key => $val) {
             if ($val['type'] === 'main') {
               continue;
             }

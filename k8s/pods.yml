@@ -54,5 +54,20 @@ spec: # spec for pod
           key: PASSWORD
     - name: FILE_SCANNER_HOST
       value: miniboard-file-scanner
+    # NOTE: migrate imports the legacy config.php into the empty config table
+    - name: MB_LEGACY_CONFIG
+      value: /app/legacy/config.php
+    volumeMounts:
+    - name: miniboard-app-config
+      mountPath: /app/legacy/config.php
+      subPath: config.php
+      readOnly: true
   restartPolicy: OnFailure
+  volumes:
+  - name: miniboard-app-config
+    configMap:
+      name: miniboard-app-config
+      items:
+      - key: config.php
+        path: config.php
 

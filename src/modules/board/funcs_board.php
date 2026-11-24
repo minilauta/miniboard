@@ -3,6 +3,8 @@
 use Psr\Http\Message\UploadedFileInterface;
 
 require_once __ROOT__ . '/common/config.php';
+require_once __ROOT__ . '/common/constants.php';
+require_once __ROOT__ . '/core/config_store.php';
 require_once __ROOT__ . '/common/exception.php';
 require_once __ROOT__ . '/common/shared.php';
 
@@ -30,6 +32,48 @@ function funcs_board_check_access(array $board_cfg, ?int $user_role): bool {
   return true;
 }
 
+/**
+ * Returns the captcha config key of a form context: 'board' (new thread), 'thread' (reply) or 'report'.
+ */
+function funcs_board_captcha_key(string $context): string {
+  return match ($context) {
+    'board' => 'captcha_thread',
+    'thread' => 'captcha_reply',
+    'report' => 'captcha_report',
+  };
+}
+
+/**
+ * Returns true if the board requires a captcha in the form context, see funcs_board_captcha_key().
+ */
+function funcs_board_captcha_required(array $board_cfg, string $context): bool {
+  return $board_cfg[funcs_board_captcha_key($context)] === true;
+}
+
+/**
+ * Returns true if the post form of the board shows a captcha in the form context.
+ *
+ * The post form of a main-type board posts to a board selected in the form, it shows a captcha if the main-type board
+ * or any of the selectable boards requires one. Otherwise a captcha required by the selected board could not be solved.
+ */
+function funcs_board_form_captcha_required(array $board_cfg, string $context): bool {
+  if (funcs_board_captcha_required($board_cfg, $context)) {
+    return true;
+  }
+
+  if ($board_cfg['type'] !== 'main') {
+    return false;
+  }
+
+  foreach (funcs_common_get_boards() as $target_cfg) {
+    if ($target_cfg['type'] !== 'main' && funcs_board_captcha_required($target_cfg, $context)) {
+      return true;
+    }
+  }
+
+  return false;
+}
+
 function funcs_board_is_capcode_post(array $board_cfg, array $input): bool {
   if (!funcs_common_is_logged_in()) {
     return false;
@@ -53,7 +97,7 @@ function funcs_board_create_post(string $ip, ?string $country, array $board_cfg,
   // parse name, additionally handle trip and secure trip
   $name_trip = [$board_cfg['anonymous'], null];
   if (strlen($input['name']) > 0) {
-    $name_trip = funcs_common_generate_tripcode($input['name'], MB_TRIPCODE_SALT);
+    $name_trip = funcs_common_generate_tripcode($input['name'], $board_cfg['tripcode_salt']);
     $name_trip[0] = funcs_common_clean_field($name_trip[0]);
     if ($name_trip[1] != null) {
       $name_trip[1] = funcs_common_clean_field($name_trip[1]);
@@ -167,7 +211,7 @@ function funcs_board_render_nameblock(string $name, ?string $tripcode, ?string $
       break;
   }
 
-  $nameblock .= "\n<span class='post-datetime'>" . date(MB_DATEFORMAT, $timestamp) . "</span>\n";
+  $nameblock .= "\n<span class='post-datetime'>" . date(cfg('dateformat'), $timestamp) . "</span>\n";
 
   return $nameblock;
 }
@@ -213,7 +257,7 @@ function funcs_board_render_message(string $board_id, ?int $parent_id, string $i
 
   // preprocess message board links
   $message = preg_replace_callback('/(&gt;&gt;&gt;)\/([a-z]{1,10})\/(?![0-9])/m', function ($matches) {
-    $board = MB_BOARDS[$matches[2]] ?? null;
+    $board = funcs_common_get_boards()[$matches[2]] ?? null;
 
     if ($board) {
       return "<a class='reference' href='/{$board['id']}/'>{$matches[0]}</a>";

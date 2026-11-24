@@ -71,7 +71,7 @@
           ];
           $editLabel = __('manage.edit_account');
           foreach ($accounts as $account) {
-            $lastactive = date(MB_DATEFORMAT, $account['lastactive']);
+            $lastactive = date(cfg('dateformat'), $account['lastactive']);
             $imported = $account['imported'] === 1 ? '<b>TRUE</b>' : 'FALSE';
             $role = isset($roles[$account['role']]) ? "{$roles[$account['role']]} ({$account['role']})" : $account['role'];
 

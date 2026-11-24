@@ -1,0 +1,221 @@
+<?php
+  use minichan\core\ConfigSchema;
+  use minichan\core\ConfigScope;
+  use minichan\core\ConfigType;
+
+  /** @var minichan\core\ConfigStore $store */
+  /** @var string $board_id 'global' or a board ID */
+
+  $e = fn(mixed $value): string => htmlspecialchars((string) $value, ENT_QUOTES, 'UTF-8');
+  $is_global = $board_id === ConfigSchema::GLOBAL;
+  $query = $e(http_build_query(['route' => 'config', 'board_id' => $board_id]));
+  $values = $store->values();
+  $boards = $store->boards();
+
+  // site-wide: global and inheritable keys, board: board and inheritable keys
+  $keys = $is_global
+    ? ConfigSchema::keys_of(ConfigScope::Global, ConfigScope::Inheritable)
+    : ConfigSchema::keys_of(ConfigScope::Board, ConfigScope::Inheritable);
+
+  // the value a key has on this page, by the lookup order: the row of the board, the 'global' row, the default
+  $value_of = function (string $key) use ($store, $values, $board_id) {
+    if ($store->has($board_id, $key)) {
+      return $values[$board_id][$key];
+    }
+
+    $definition = ConfigSchema::get($key);
+    return $definition->scope === ConfigScope::Board ? $definition->default : $store->get($key);
+  };
+
+  $next_position = 10;
+  foreach ($boards as $board) {
+    $next_position = max($next_position, $board['position'] + 10);
+  }
+?>
+<?php if ($is_global): ?>
+  <form id="config-create-board" class="form-manage form" method="post" action="/manage/config_create_board?<?=$query?>">
+<?php else: ?>
+  <form id="config-delete-board" class="form-manage form" method="post" action="/manage/config_delete_board?<?=$query?>">
+    <input type="hidden" name="board_id" value="<?=$e($board_id)?>">
+<?php endif; ?>
+  <?=funcs_common_csrf_field()?>
+  <table>
+    <tbody>
+      <tr>
+        <td class="form-label">
+          <label><?=__('manage.status')?></label>
+        </td>
+        <td>
+          <b><?=$status?></b>
+        </td>
+      </tr>
+      <tr>
+        <td class="form-label">
+          <label><?=__('manage.config.board')?></label>
+        </td>
+        <td>
+          <?php
+            $links = [];
+            $label = __('manage.config.global');
+            $links[] = $is_global ? "[<b>{$label}</b>]" : "[<a href='?route=config&board_id=global'>{$label}</a>]";
+            foreach ($store->board_ids() as $id) {
+              $label = "/{$e($id)}/" . (isset($boards[$id]) ? '' : ' (' . __('manage.config.invalid_board') . ')');
+              $links[] = $id === $board_id ? "[<b>{$label}</b>]" : "[<a href='?route=config&board_id={$e(urlencode($id))}'>{$label}</a>]";
+            }
+            echo implode("\n", $links);
+          ?>
+        </td>
+      </tr>
+      <tr>
+        <td class="form-label"></td>
+        <td>
+          <?=__('manage.config.hint')?>
+        </td>
+      </tr>
+      <?php if ($is_global): ?>
+        <tr>
+          <td class="form-label">
+            <label><?=__('manage.config.new_board')?></label>
+          </td>
+          <td class="form-fields">
+            <div>
+              <input type="text" name="board_id" placeholder="<?=__('manage.config.board_id')?>" maxlength="8" pattern="[a-z0-9]{1,8}" required>
+            </div>
+            <div>
+              <input type="text" name="name" placeholder="<?=__('manage.config.name')?>" required>
+            </div>
+            <div>
+              <input type="text" name="desc" placeholder="<?=__('manage.config.desc')?>">
+            </div>
+            <div>
+              <label>
+                <?=__('manage.config.type')?>
+                <select name="type">
+                  <option value="normal" selected>normal</option>
+                  <option value="main">main</option>
+                </select>
+              </label>
+            </div>
+            <div>
+              <label>
+                <?=__('manage.config.position')?>
+                <input type="number" name="position" step="1" value="<?=$next_position?>" required>
+              </label>
+            </div>
+            <div>
+              <label>
+                <?=__('manage.config.copy_from')?>
+                <select name="copy_from">
+                  <option value=""><?=__('manage.config.copy_none')?></option>
+                  <?php foreach ($boards as $id => $board): ?>
+                    <option value="<?=$e($id)?>">/<?=$e($id)?>/ - <?=$e($board['name'])?></option>
+                  <?php endforeach; ?>
+                </select>
+              </label>
+            </div>
+            <div>
+              <input type="submit" value="<?=__('manage.config.create_board')?>">
+            </div>
+          </td>
+        </tr>
+      <?php else: ?>
+        <tr>
+          <td class="form-label">
+            <label><?=__('manage.config.delete_board')?></label>
+          </td>
+          <td>
+            <input type="submit" value="<?=__('manage.config.delete_board')?> /<?=$e($board_id)?>/" onclick="return confirm(<?=$e(json_encode(__('manage.config.delete_board_confirm')))?>);">
+          </td>
+        </tr>
+      <?php endif; ?>
+    </tbody>
+  </table>
+</form>
+<?php foreach ($keys as $key => $definition): ?>
+  <form id="config-set-<?=$key?>" method="post" action="/manage/config_set?<?=$query?>">
+    <?=funcs_common_csrf_field()?>
+    <input type="hidden" name="board_id" value="<?=$e($board_id)?>">
+    <input type="hidden" name="key" value="<?=$key?>">
+  </form>
+  <?php if ($definition->scope !== ConfigScope::Board && $store->has($board_id, $key)): ?>
+    <form id="config-reset-<?=$key?>" method="post" action="/manage/config_reset?<?=$query?>">
+      <?=funcs_common_csrf_field()?>
+      <input type="hidden" name="board_id" value="<?=$e($board_id)?>">
+      <input type="hidden" name="key" value="<?=$key?>">
+    </form>
+  <?php endif; ?>
+<?php endforeach; ?>
+<div class="form-manage">
+  <div class="form-manage-table-wrapper">
+    <table class="form-manage-table">
+      <thead>
+        <tr>
+          <th><?=__('manage.config.key')?></th>
+          <th><?=__('manage.config.value')?></th>
+          <th><?=__('manage.config.source')?></th>
+          <th class="cell-center"><?=__('manage.th.actions')?></th>
+        </tr>
+      </thead>
+      <tbody>
+        <?php foreach ($keys as $key => $definition): ?>
+          <?php
+            $form = "config-set-{$key}";
+            $value = $value_of($key);
+          ?>
+          <tr>
+            <td class="cell-wrap">
+              <b><?=$key?></b><br>
+              <small><?=$e($definition->description)?></small>
+            </td>
+            <td class="cell-wrap">
+              <?php if ($definition->secret): ?>
+                <input type="password" name="value" form="<?=$form?>" autocomplete="new-password" size="40" placeholder="<?=$value !== null && $value !== '' ? __('manage.config.secret_set') : __('manage.config.secret_unset')?>">
+              <?php elseif ($definition->type === ConfigType::Bool): ?>
+                <select name="value" form="<?=$form?>">
+                  <option value="1"<?=$value === true ? ' selected' : ''?>>true</option>
+                  <option value="0"<?=$value === false ? ' selected' : ''?>>false</option>
+                </select>
+              <?php elseif ($definition->type === ConfigType::Int || $definition->type === ConfigType::Float): ?>
+                <input type="number" name="value" form="<?=$form?>" step="<?=$definition->type === ConfigType::Int ? '1' : 'any'?>" value="<?=$e($value)?>">
+              <?php elseif ($definition->type === ConfigType::Json): ?>
+                <?php $json = $value === null ? '' : json_encode($value, JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES | JSON_PRESERVE_ZERO_FRACTION); ?>
+                <textarea name="value" form="<?=$form?>" class="cell-mono" cols="60" rows="<?=min(12, substr_count($json, "\n") + 1)?>"><?=$e($json)?></textarea>
+              <?php elseif (is_string($value) && (str_contains($value, "\n") || strlen($value) > 60)): ?>
+                <textarea name="value" form="<?=$form?>" cols="60" rows="<?=min(12, substr_count($value, "\n") + 2)?>"><?=$e($value)?></textarea>
+              <?php else: ?>
+                <input type="text" name="value" form="<?=$form?>" size="40" value="<?=$e($value)?>">
+              <?php endif; ?>
+              <?php if ($definition->nullable): ?>
+                <label><input type="checkbox" name="null" value="1" form="<?=$form?>"<?=$value === null ? ' checked' : ''?>> <?=__('manage.config.null')?></label>
+              <?php endif; ?>
+            </td>
+            <td>
+              <?php
+                $source = $store->source($key, $board_id);
+                if ($definition->scope === ConfigScope::Board && $source === 'default') {
+                  echo '<b>' . __('manage.config.source.missing') . '</b>';
+                } else {
+                  echo $source === 'board' ? '<b>' . __('manage.config.source.board') . '</b>' : __('manage.config.source.' . $source);
+                }
+
+                if ($is_global && $definition->scope === ConfigScope::Inheritable) {
+                  $overrides = $store->overrides($key);
+                  if (count($overrides) > 0) {
+                    $overrides = implode(', ', array_map(fn(string $id) => "<a href='?route=config&board_id={$e(urlencode($id))}'>/{$e($id)}/</a>", $overrides));
+                    echo '<br><small>' . __('manage.config.overridden', ['boards' => $overrides]) . '</small>';
+                  }
+                }
+              ?>
+            </td>
+            <td class="cell-center">
+              <input type="submit" form="<?=$form?>" value="<?=__('manage.config.save')?>">
+              <?php if ($definition->scope !== ConfigScope::Board && $store->has($board_id, $key)): ?>
+                <input type="submit" form="config-reset-<?=$key?>" value="<?=__('manage.config.reset')?>">
+              <?php endif; ?>
+            </td>
+          </tr>
+        <?php endforeach; ?>
+      </tbody>
+    </table>
+  </div>
+</div>

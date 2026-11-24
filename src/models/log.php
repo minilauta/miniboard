@@ -2,7 +2,7 @@
 
 namespace minichan\models;
 
-require_once __ROOT__ . '/common/config.php';
+require_once __ROOT__ . '/core/config_store.php';
 
 class Log
 {
@@ -13,6 +13,6 @@ class Log
 	public bool $imported;
 
 	public function fmt_timestamp(): string {
-		return date(MB_DATEFORMAT, $this->timestamp);
+		return date(cfg('dateformat'), $this->timestamp);
 	}
 }

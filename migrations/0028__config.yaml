@@ -1,0 +1,15 @@
+# config, format is key-type-value, replaces the settings of the old src/common/config.php
+
+version: 28
+script: |
+  CREATE TABLE IF NOT EXISTS config (
+    `board_id` varchar(8) NOT NULL,
+    `key` varchar(64) NOT NULL,
+    `type` enum('bool','int','float','string','json') NOT NULL,
+    `value` text NULL,
+    `timestamp` int unsigned NOT NULL,
+    PRIMARY KEY (`board_id`, `key`),
+    KEY `key` (`key`),
+    CHECK (`type` <> 'json' OR `value` IS NULL OR JSON_VALID(`value`))
+  ) ENGINE=InnoDB
+  CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;

@@ -64,7 +64,7 @@
           <label><?= __('manage.editfilescannerhashform.timestamp') ?></label>
         </td>
         <td>
-          <?= date(MB_DATEFORMAT, $row['timestamp']) ?>
+          <?= date(cfg('dateformat'), $row['timestamp']) ?>
         </td>
       </tr>
       <?php if (count($related) > 1): ?>

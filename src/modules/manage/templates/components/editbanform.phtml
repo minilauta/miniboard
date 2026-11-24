@@ -24,7 +24,7 @@
           <label><?= __('manage.editbanform.timestamp') ?></label>
         </td>
         <td>
-          <?= date(MB_DATEFORMAT, $ban['timestamp']) ?>
+          <?= date(cfg('dateformat'), $ban['timestamp']) ?>
         </td>
       </tr>
       <?php if ($ban['post_board_id'] !== null && $ban['post_id'] !== null): ?>
@@ -42,7 +42,7 @@
           </td>
           <td>
             <?php if ($ban['post_timestamp'] !== null): ?>
-              <?= date(MB_DATEFORMAT, $ban['post_timestamp']) ?> (<?= (int) $ban['post_timestamp'] ?>)
+              <?= date(cfg('dateformat'), $ban['post_timestamp']) ?> (<?= (int) $ban['post_timestamp'] ?>)
             <?php else: ?>
               -
             <?php endif; ?>
@@ -54,7 +54,7 @@
           <label><?= __('manage.editbanform.expire') ?></label>
         </td>
         <td>
-          <?= date(MB_DATEFORMAT, $ban['expire']) ?>
+          <?= date(cfg('dateformat'), $ban['expire']) ?>
         </td>
       </tr>
       <tr>

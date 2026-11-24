@@ -7,6 +7,12 @@ require_once __ROOT__ . '/models/post_history.php';
 require_once __ROOT__ . '/core/integrations/file_scanner.php';
 require_once __ROOT__ . '/core/post_filter.php';
 
+use minichan\core\ConfigKey;
+use minichan\core\ConfigRepository;
+use minichan\core\ConfigSchema;
+use minichan\core\ConfigScope;
+use minichan\core\ConfigStore;
+use minichan\core\ConfigType;
 use minichan\core\PostFilter;
 use minichan\core\PostFilterAction;
 use minichan\core\integrations\BannedContentType;
@@ -93,7 +99,7 @@ function funcs_manage_import(array $params): string {
       break;
     case MB_IMPORT_TINYIB_POSTS:
       // validate params
-      if (!array_key_exists($params['board_id'], MB_BOARDS)) {
+      if (!array_key_exists($params['board_id'], funcs_common_get_boards())) {
         $warnings[] = "Target BOARD id '{$params['board_id']}' not found";
       } else {
         // init auto increment table
@@ -196,21 +202,6 @@ function funcs_manage_rebuild(array $params): string {
   if (strlen($warnings) > 0) {
     $status .= "<br>Warnings:<br>- {$warnings}";
   }
-  funcs_manage_log($status);
-  return $status;
-}
-
-/**
- * Refreshes boards table row in the database.
- */
-function funcs_manage_refresh(array $params): string {
-  // get board config
-  $board_cfg = funcs_common_get_board_cfg($params['board_id']);
-
-  // refresh board
-  $result = insert_refresh_board($board_cfg);
-
-  $status = "Refreshed board: /{$board_cfg['id']}/";
   funcs_manage_log($status);
   return $status;
 }
@@ -1103,7 +1094,8 @@ function funcs_manage_delete_file_scanner_hash(int $id, bool $all = false): stri
 function funcs_manage_validate_post_filter(array $input): array|string {
   // board scope, posts are never created on boards of type 'main'
   $board_id = trim($input['board_id']);
-  if ($board_id !== '' && (!isset(MB_BOARDS[$board_id]) || MB_BOARDS[$board_id]['type'] === 'main')) {
+  $boards = funcs_common_get_boards();
+  if ($board_id !== '' && (!isset($boards[$board_id]) || $boards[$board_id]['type'] === 'main')) {
     return 'Invalid board';
   }
 
@@ -1202,6 +1194,212 @@ function funcs_manage_delete_post_filter(int $id): string {
   delete_post_filter($id);
 
   $status = "Deleted filter #{$id}";
+  funcs_manage_log($status);
+  return $status;
+}
+
+/**
+ * Returns a printable name of a config board ID.
+ */
+function funcs_manage_config_where(string $board_id): string {
+  return $board_id === ConfigSchema::GLOBAL ? 'global' : "/{$board_id}/";
+}
+
+/**
+ * Parses a value of the manage config form, see configform.phtml.
+ *
+ * @param array $input value (string), null (set if the value is null)
+ * @return array{0: mixed, 1: ?string} the value and an error message (null if the value could be parsed)
+ */
+function funcs_manage_parse_config_value(ConfigKey $definition, array $input): array {
+  if ($definition->nullable && isset($input['null'])) {
+    return [null, null];
+  }
+
+  $raw = $input['value'] ?? null;
+  if (!is_string($raw)) {
+    return [null, 'value is missing'];
+  }
+
+  switch ($definition->type) {
+    case ConfigType::Bool:
+      return match ($raw) {
+        '1' => [true, null],
+        '0' => [false, null],
+        default => [null, 'expected true or false'],
+      };
+    case ConfigType::Int:
+      $int = filter_var(trim($raw), FILTER_VALIDATE_INT);
+      return $int === false ? [null, 'expected an integer'] : [$int, null];
+    case ConfigType::Float:
+      return is_numeric(trim($raw)) ? [(float) trim($raw), null] : [null, 'expected a number'];
+    case ConfigType::String:
+      return [str_replace("\r\n", "\n", $raw), null];
+    case ConfigType::Json:
+      try {
+        $json = json_decode($raw, true, 512, JSON_THROW_ON_ERROR);
+      } catch (\JsonException $e) {
+        return [null, "invalid JSON: {$e->getMessage()}"];
+      }
+      return is_array($json) ? [$json, null] : [null, 'expected a JSON array or object'];
+  }
+}
+
+/**
+ * Sets a config value of a board ('global' = site-wide).
+ *
+ * @param array $input see funcs_manage_parse_config_value()
+ */
+function funcs_manage_config_set(string $board_id, string $key, array $input): string {
+  $definition = ConfigSchema::get($key);
+  if ($definition === null) {
+    return 'Unknown config key';
+  }
+
+  $where = funcs_manage_config_where($board_id);
+  if ($board_id !== ConfigSchema::GLOBAL && !in_array($board_id, ConfigStore::instance()->board_ids(), true)) {
+    return "Board {$where} not found";
+  }
+
+  // secrets are never sent to the browser, their field is always empty: an empty secret keeps the current value and a
+  // typed secret wins over the null checkbox
+  if ($definition->secret) {
+    if (($input['value'] ?? '') !== '') {
+      unset($input['null']);
+    } else if (!isset($input['null'])) {
+      return "Kept {$key} of {$where}";
+    }
+  }
+
+  [$value, $error] = funcs_manage_parse_config_value($definition, $input);
+  if ($error !== null) {
+    return "Invalid value of {$key}: {$error}";
+  }
+
+  try {
+    (new ConfigRepository(get_db_handle()))->upsert($board_id, $key, $value);
+  } catch (\InvalidArgumentException $e) {
+    return "Invalid value: {$e->getMessage()}";
+  }
+
+  // log the key only, logs are public
+  funcs_manage_log("Updated config {$key} of {$where}");
+  return "Updated {$key} of {$where}";
+}
+
+/**
+ * Deletes a config value of a board ('global' = site-wide), the board inherits the site-wide value again and a
+ * site-wide value falls back to its default.
+ */
+function funcs_manage_config_reset(string $board_id, string $key): string {
+  $definition = ConfigSchema::get($key);
+  if ($definition === null) {
+    return 'Unknown config key';
+  }
+
+  if ($definition->scope === ConfigScope::Board) {
+    return "{$key} is required on every board, it cannot be reset";
+  }
+
+  $where = funcs_manage_config_where($board_id);
+  if (!(new ConfigRepository(get_db_handle()))->delete($board_id, $key)) {
+    return "{$key} of {$where} is not set";
+  }
+
+  funcs_manage_log("Reset config {$key} of {$where}");
+  return $board_id === ConfigSchema::GLOBAL ? "Reset {$key} to its default" : "Reset {$key} of {$where}, it inherits the global value";
+}
+
+/**
+ * Creates a board, optionally with the settings (the rows, not the inherited values) of another board.
+ *
+ * @param array $input board_id, name, desc, type, position, copy_from (board ID, empty = none)
+ * @return array{status: string, board_id: ?string} board_id is set if the board was created
+ */
+function funcs_manage_config_create_board(array $input): array {
+  $store = ConfigStore::instance();
+
+  $board_id = trim($input['board_id'] ?? '');
+  if (($error = ConfigSchema::validate_board_id($board_id)) !== null) {
+    return ['status' => ucfirst($error), 'board_id' => null];
+  }
+
+  if (in_array($board_id, $store->board_ids(), true)) {
+    return ['status' => "Board /{$board_id}/ already exists", 'board_id' => null];
+  }
+
+  $position = filter_var(trim($input['position'] ?? ''), FILTER_VALIDATE_INT);
+  if ($position === false) {
+    return ['status' => 'Invalid position, expected an integer', 'board_id' => null];
+  }
+
+  $values = [];
+  $copy_from = trim($input['copy_from'] ?? '');
+  if ($copy_from !== '') {
+    if (!in_array($copy_from, $store->board_ids(), true)) {
+      return ['status' => "Board /{$copy_from}/ not found", 'board_id' => null];
+    }
+
+    foreach ($store->values()[$copy_from] as $key => $value) {
+      if (ConfigSchema::get($key)->scope === ConfigScope::Inheritable) {
+        $values[$key] = $value;
+      }
+    }
+  }
+
+  $values = [
+    'name' => trim($input['name'] ?? ''),
+    'desc' => trim($input['desc'] ?? ''),
+    'type' => trim($input['type'] ?? ''),
+    'position' => $position,
+  ] + $values;
+
+  foreach ($values as $key => $value) {
+    if (($error = ConfigSchema::validate_write($board_id, $key, $value)) !== null) {
+      return ['status' => "Invalid value: {$error}", 'board_id' => null];
+    }
+  }
+
+  $dbh = get_db_handle();
+  $repository = new ConfigRepository($dbh);
+  $dbh->beginTransaction();
+  try {
+    foreach ($values as $key => $value) {
+      $repository->upsert($board_id, $key, $value);
+    }
+    $dbh->commit();
+  } catch (\Exception $e) {
+    $dbh->rollBack();
+    throw $e;
+  }
+
+  $status = "Created board /{$board_id}/" . ($copy_from !== '' ? " with the settings of /{$copy_from}/" : '');
+  funcs_manage_log($status);
+  return ['status' => $status, 'board_id' => $board_id];
+}
+
+/**
+ * Deletes a board without posts.
+ */
+function funcs_manage_config_delete_board(string $board_id): string {
+  $store = ConfigStore::instance();
+  if (!in_array($board_id, $store->board_ids(), true)) {
+    return "Board /{$board_id}/ not found";
+  }
+
+  // NOTE: an empty config table takes the whole site down, including /manage/
+  if ($store->board($board_id) !== null && count($store->boards()) <= 1) {
+    return 'The last board cannot be deleted';
+  }
+
+  $posts_n = count_board_posts($board_id);
+  if ($posts_n > 0) {
+    return "Board /{$board_id}/ has {$posts_n} posts, only a board without posts can be deleted";
+  }
+
+  (new ConfigRepository(get_db_handle()))->delete_board($board_id);
+
+  $status = "Deleted board /{$board_id}/";
   funcs_manage_log($status);
   return $status;
 }

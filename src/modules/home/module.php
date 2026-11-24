@@ -10,6 +10,7 @@ require_once __ROOT__ . '/core/renderer.php';
 require_once __ROOT__ . '/core/cache.php';
 require_once __ROOT__ . '/core/db_connection.php';
 require_once __ROOT__ . '/common/config.php';
+require_once __ROOT__ . '/core/config_store.php';
 
 class HomeModule implements core\Module
 {
@@ -36,8 +37,8 @@ class HomeModule implements core\Module
 	{
 		$router->add_route(HTTP_GET, '/', function ($vars) {
 			echo $this->renderer->render(__DIR__ . '/templates/root.phtml', [
-				'site_name' => MB_SITE_NAME,
-				'site_desc' => MB_SITE_DESC,
+				'site_name' => cfg('site_name'),
+				'site_desc' => cfg('site_desc'),
 				'site_stats' => $this->select_site_stats(),
 			]);
 		});

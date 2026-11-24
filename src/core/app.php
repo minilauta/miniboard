@@ -4,7 +4,7 @@ namespace minichan\core;
 
 use Closure;
 
-require_once __ROOT__ . '/common/config.php';
+require_once __ROOT__ . '/common/constants.php';
 require_once __DIR__ . '/router.php';
 require_once __DIR__ . '/module.php';
 require_once __DIR__ . '/plugin.php';

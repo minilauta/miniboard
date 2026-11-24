@@ -1,13 +1,14 @@
 <div id="menubar" class="menubar">
   <div class="boardlist desktop">
     [ <?php
-      foreach (MB_BOARDS as $key => $board_cfg) {
+      $boards = funcs_common_get_boards();
+      foreach ($boards as $key => $board_cfg) {
         if (isset($board_cfg['hidden']) && $board_cfg['hidden'] == true) {
           continue;
         }
 
         echo "<a href='/{$board_cfg['id']}/'>{$board_cfg['id']}</a>";
-        if ($key !== array_key_last(MB_BOARDS)) {
+        if ($key !== array_key_last($boards)) {
           echo ' / ';
         }
       }
@@ -16,7 +17,7 @@
   <div class="boardlist mobile">
     <?php
       $options = '<option value=""></option>';
-      foreach (MB_BOARDS as $key => $board_cfg) {
+      foreach (funcs_common_get_boards() as $key => $board_cfg) {
         if (isset($board_cfg['hidden']) && $board_cfg['hidden'] == true) {
           continue;
         }

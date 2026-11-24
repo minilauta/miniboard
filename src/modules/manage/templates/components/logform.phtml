@@ -16,7 +16,7 @@
           }
 
           foreach ($logs as $log) {
-            $timestamp = date(MB_DATEFORMAT, $log['timestamp']);
+            $timestamp = date(cfg('dateformat'), $log['timestamp']);
 
             echo "
               <tr>

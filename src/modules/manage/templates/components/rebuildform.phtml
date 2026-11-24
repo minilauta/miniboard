@@ -18,7 +18,7 @@
           <div>
             <?php
               $options = '<option value=""></option>';
-              foreach (MB_BOARDS as $key => $val) {
+              foreach (funcs_common_get_boards() as $key => $val) {
                 if ($val['type'] === 'main') {
                   continue;
                 }

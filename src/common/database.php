@@ -9,7 +9,6 @@ require_once __DIR__ . '/database/db_handle.php';
 require_once __DIR__ . '/database/db_accounts.php';
 require_once __DIR__ . '/database/db_bans.php';
 require_once __DIR__ . '/database/db_board_filters.php';
-require_once __DIR__ . '/database/db_boards.php';
 require_once __DIR__ . '/database/db_file_scanner_hashes.php';
 require_once __DIR__ . '/database/db_hides.php';
 require_once __DIR__ . '/database/db_logs.php';

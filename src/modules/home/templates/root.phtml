@@ -28,7 +28,7 @@
               </tr>
               <?php
                 $board_table_n = 0;
-                foreach (MB_BOARDS as $key => $board) {
+                foreach (funcs_common_get_boards() as $key => $board) {
                   if (isset($board['hidden']) && $board['hidden'] == true) {
                     continue;
                   }
@@ -96,7 +96,7 @@
         <div class="box">
           <div class="box-title"><?=__('home.rules')?></div>
           <div class="box-content">
-            <?=MB_SITE_RULES?>
+            <?=cfg('site_rules')?>
           </div>
         </div>
       </div>

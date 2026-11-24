@@ -1,7 +1,7 @@
 <?php
   $t_style = __('style.label');
   $options = "<option value=''>{$t_style}</option>";
-  foreach (MB_STYLES as $key => $val) {
+  foreach (cfg('styles') as $key => $val) {
     $options .= "<option value='{$val}'>{$val}</option>";
   }
 

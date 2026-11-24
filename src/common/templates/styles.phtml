@@ -1,11 +1,12 @@
 <link rel="stylesheet" type="text/css" href="/css/index.css?mb_version=<?=MB_VERSION?>">
 <link rel="stylesheet" type="text/css" href="/css/mobile.css?mb_version=<?=MB_VERSION?>">
 <?php
-  $mb_style = MB_STYLES[0];
+  $mb_styles = cfg('styles');
+  $mb_style = $mb_styles[0];
   if (isset($_COOKIE["miniboard/style"])) {
     $mb_style_cookie = $_COOKIE["miniboard/style"];
   
-    if (in_array($mb_style_cookie, MB_STYLES)) {
+    if (in_array($mb_style_cookie, $mb_styles, true)) {
       $mb_style = $mb_style_cookie;
     }
   }
@@ -15,4 +16,4 @@
 <link rel="stylesheet" type="text/css" href="/css/flags.css?mb_version=<?=MB_VERSION?>">
 <link rel="stylesheet" type="text/css" href="/dist/tegaki/tegaki.css?mb_version=<?=MB_VERSION?>">
 
-<?= $app->run_hooks('common.styles'); ?>
+<?= $app?->run_hooks('common.styles'); ?>

@@ -87,7 +87,7 @@ class ManageModule implements core\Module
 			]);
 
 			// validate captcha
-			if (MB_CAPTCHA_LOGIN) {
+			if (cfg('captcha_login')) {
 				funcs_common_validate_captcha($_POST);
 			}
 
@@ -171,34 +171,6 @@ class ManageModule implements core\Module
 			$status = funcs_manage_rebuild($_POST);
 
 			header("Location: /manage/?route=rebuild&status=" . urlencode($status));
-			http_response_code(303);
-		}
-
-		$router->add_route(HTTP_POST, '/manage/refresh', function ($vars) {
-			if (!funcs_common_is_logged_in()) {
-				throw new \AppException('index', 'route', 'access denied', SC_UNAUTHORIZED);
-			}
-
-			if ($_SESSION['mb_role'] !== MB_ROLE_SUPERADMIN) {
-				throw new \AppException('index', 'route', 'insufficient permissions', SC_FORBIDDEN);
-			}
-
-			return handle_refreshform($vars);
-		});
-
-		function handle_refreshform($vars) {
-			// validate CSRF token
-			funcs_common_validate_csrf($_POST);
-
-			// validate request fields
-			funcs_common_validate_fields($_POST, [
-				'board_id'   => ['required' => true, 'type' => 'string']
-			]);
-
-			// execute refresh
-			$status = funcs_manage_refresh($_POST);
-
-			header("Location: /manage/?route=refresh&status=" . urlencode($status));
 			http_response_code(303);
 		}
 
@@ -913,6 +885,128 @@ class ManageModule implements core\Module
 
 			// set query to return properly
 			$query = funcs_common_mutate_query($_GET, 'status', $status);
+
+			header("Location: /manage/?{$query}");
+			http_response_code(303);
+		}
+
+		// NOTE: config is superadmin only, it holds secrets and raw HTML, and replaces editing the old config.php
+		$require_superadmin = function () {
+			if (!funcs_common_is_logged_in()) {
+				throw new \AppException('index', 'route', 'access denied', SC_UNAUTHORIZED);
+			}
+
+			if ($_SESSION['mb_role'] !== MB_ROLE_SUPERADMIN) {
+				throw new \AppException('index', 'route', 'insufficient permissions', SC_FORBIDDEN);
+			}
+		};
+
+		$router->add_route(HTTP_POST, '/manage/config_set', function ($vars) use ($require_superadmin) {
+			$require_superadmin();
+			return handle_manage_configsetform($vars);
+		});
+
+		function handle_manage_configsetform($vars) {
+			// validate CSRF token
+			funcs_common_validate_csrf($_POST);
+
+			// validate request fields
+			funcs_common_validate_fields($_POST, [
+				'board_id' => ['required' => true, 'type' => 'string', 'max_len' => 8],
+				'key'      => ['required' => true, 'type' => 'string', 'max_len' => 64],
+			]);
+
+			// execute config set
+			$status = funcs_manage_config_set($_POST['board_id'], $_POST['key'], $_POST);
+
+			// set query to return properly
+			$query = funcs_common_mutate_query($_GET, 'status', $status);
+
+			header("Location: /manage/?{$query}");
+			http_response_code(303);
+		}
+
+		$router->add_route(HTTP_POST, '/manage/config_reset', function ($vars) use ($require_superadmin) {
+			$require_superadmin();
+			return handle_manage_configresetform($vars);
+		});
+
+		function handle_manage_configresetform($vars) {
+			// validate CSRF token
+			funcs_common_validate_csrf($_POST);
+
+			// validate request fields
+			funcs_common_validate_fields($_POST, [
+				'board_id' => ['required' => true, 'type' => 'string', 'max_len' => 8],
+				'key'      => ['required' => true, 'type' => 'string', 'max_len' => 64],
+			]);
+
+			// execute config reset
+			$status = funcs_manage_config_reset($_POST['board_id'], $_POST['key']);
+
+			// set query to return properly
+			$query = funcs_common_mutate_query($_GET, 'status', $status);
+
+			header("Location: /manage/?{$query}");
+			http_response_code(303);
+		}
+
+		$router->add_route(HTTP_POST, '/manage/config_create_board', function ($vars) use ($require_superadmin) {
+			$require_superadmin();
+			return handle_manage_configcreateboardform($vars);
+		});
+
+		function handle_manage_configcreateboardform($vars) {
+			// validate CSRF token
+			funcs_common_validate_csrf($_POST);
+
+			// validate request fields
+			funcs_common_validate_fields($_POST, [
+				'board_id'  => ['required' => true, 'type' => 'string', 'max_len' => 8],
+				'name'      => ['required' => true, 'type' => 'string', 'max_len' => 256],
+				'desc'      => ['required' => false, 'type' => 'string', 'max_len' => 1024],
+				'type'      => ['required' => true, 'type' => 'string', 'max_len' => 8],
+				'position'  => ['required' => true, 'type' => 'string', 'max_len' => 11],
+				'copy_from' => ['required' => false, 'type' => 'string', 'max_len' => 8],
+			]);
+
+			// execute create board, show the new board on success
+			$result = funcs_manage_config_create_board($_POST);
+			$query = $_GET;
+			if ($result['board_id'] !== null) {
+				$query['board_id'] = $result['board_id'];
+			}
+
+			// set query to return properly
+			$query = funcs_common_mutate_query($query, 'status', $result['status']);
+
+			header("Location: /manage/?{$query}");
+			http_response_code(303);
+		}
+
+		$router->add_route(HTTP_POST, '/manage/config_delete_board', function ($vars) use ($require_superadmin) {
+			$require_superadmin();
+			return handle_manage_configdeleteboardform($vars);
+		});
+
+		function handle_manage_configdeleteboardform($vars) {
+			// validate CSRF token
+			funcs_common_validate_csrf($_POST);
+
+			// validate request fields
+			funcs_common_validate_fields($_POST, [
+				'board_id' => ['required' => true, 'type' => 'string', 'max_len' => 8],
+			]);
+
+			// execute delete board, show the site-wide config on success
+			$status = funcs_manage_config_delete_board($_POST['board_id']);
+			$query = $_GET;
+			if (str_starts_with($status, 'Deleted board')) {
+				$query['board_id'] = core\ConfigSchema::GLOBAL;
+			}
+
+			// set query to return properly
+			$query = funcs_common_mutate_query($query, 'status', $status);
 
 			header("Location: /manage/?{$query}");
 			http_response_code(303);

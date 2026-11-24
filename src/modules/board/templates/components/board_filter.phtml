@@ -8,7 +8,7 @@
         <?=funcs_common_csrf_field()?>
         <div class="box-content">
             <?php
-              foreach (MB_BOARDS as $key => $val) {
+              foreach (funcs_common_get_boards() as $key => $val) {
                 if ($val['type'] === 'main' || (isset($val['hidden']) && $val['hidden'] == true) || !funcs_board_check_access($val, funcs_common_get_role())) {
                   continue;
                 }

@@ -20,8 +20,8 @@
         </td>
       </tr>
       <?php
-        if (MB_CAPTCHA_LOGIN) {
-          $captcha = MB_CAPTCHA_HCAPTCHA_SITE;
+        if (cfg('captcha_login')) {
+          $captcha = cfg('captcha_hcaptcha_site');
           $t_captcha = __('form.captcha');
 
           echo "
