@@ -86,9 +86,6 @@ spec: # spec for deployment
           mountPath: /app/public/src
         - name: miniboard-app-tmp
           mountPath: /tmp
-        - name: miniboard-app-config
-          mountPath: /app/src/common/config.php
-          subPath: config.php
       volumes:
       - name: miniboard-app-pv
         persistentVolumeClaim:
@@ -97,12 +94,6 @@ spec: # spec for deployment
       - name: miniboard-app-tmp
         emptyDir:
           sizeLimit: 2Gi
-      - name: miniboard-app-config
-        configMap:
-          name: miniboard-app-config
-          items:
-          - key: config.php
-            path: config.php
 
 ---
 apiVersion: apps/v1

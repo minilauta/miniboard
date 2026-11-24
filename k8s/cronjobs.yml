@@ -61,18 +61,7 @@ spec:
                   key: PASSWORD
             - name: FILE_SCANNER_HOST
               value: miniboard-file-scanner
-            volumeMounts:
-            - name: miniboard-app-config
-              mountPath: /app/src/common/config.php
-              subPath: config.php
           restartPolicy: OnFailure
-          volumes:
-          - name: miniboard-app-config
-            configMap:
-              name: miniboard-app-config
-              items:
-              - key: config.php
-                path: config.php
 
 ---
 apiVersion: batch/v1
@@ -159,20 +148,11 @@ spec:
             volumeMounts:
             - name: miniboard-app-pv
               mountPath: /app/public/src
-            - name: miniboard-app-config
-              mountPath: /app/src/common/config.php
-              subPath: config.php
           restartPolicy: OnFailure
           volumes:
           - name: miniboard-app-pv
             persistentVolumeClaim:
               claimName: miniboard-app-pv-claim
-          - name: miniboard-app-config
-            configMap:
-              name: miniboard-app-config
-              items:
-              - key: config.php
-                path: config.php
 
 ---
 apiVersion: batch/v1
