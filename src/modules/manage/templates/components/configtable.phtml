@@ -119,7 +119,7 @@
                   $overrides = array_filter($store->overrides($key), fn(string $id) => ConfigAccess::can_access_board($role, $id, $store));
                   if (count($overrides) > 0) {
                     $overrides = implode(', ', array_map(fn(string $id) => "<a href='?route=edit_board&board_id={$e(urlencode($id))}'>/{$e($id)}/</a>", $overrides));
-                    echo '<br><small>' . __('manage.config.overridden', ['boards' => $overrides]) . '</small>';
+                    echo '<br><small class="cell-list">' . __('manage.config.overridden', ['boards' => $overrides]) . '</small>';
                   }
                 }
               ?>

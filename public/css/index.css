@@ -581,6 +581,12 @@ table.form-manage-table td.cell-wrap {
   overflow-wrap: anywhere;
 }
 
+table.form-manage-table td .cell-list {
+  display: inline-block;
+  max-width: 20em;
+  white-space: normal;
+}
+
 table.form-manage-table td.cell-preview {
   min-width: 20em;
 }
