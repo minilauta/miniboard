@@ -178,6 +178,7 @@ return [
 	'manage.edit_account'		=> 'EDYTUJ',
 	'manage.edit_file_scanner_hash' => 'EDYTUJ',
 	'manage.edit_filter'        => 'EDYTUJ',
+	'manage.edit_board'         => 'EDYTUJ',
 
 	// Manage table headers
 	'manage.th.id'              => 'id',
@@ -207,6 +208,11 @@ return [
 	'manage.th.replacement'     => 'zamiennik',
 	'manage.th.duration'        => 'czas (min)',
 	'manage.th.enabled'         => 'włączony',
+	'manage.th.name'            => 'nazwa',
+	'manage.th.desc'            => 'opis',
+	'manage.th.position'        => 'pozycja',
+	'manage.th.posts'           => 'posty',
+	'manage.th.overrides'       => 'nadpisania',
 	'manage.th.actions'			=> 'akcje',
 
 	// Manage editform
@@ -295,9 +301,6 @@ return [
 
 	// Manage configform
 	'manage.config'               => 'Konfiguracja',
-	'manage.config.board'         => 'Tablica',
-	'manage.config.global'        => 'global (cała strona)',
-	'manage.config.invalid_board' => 'nieprawidłowa',
 	'manage.config.hint'          => 'Zmiany obowiązują od razu. Wartość ustawiona na tablicy nadpisuje wartość globalną, Resetuj ją usuwa.',
 	'manage.config.key'           => 'klucz',
 	'manage.config.value'         => 'wartość',
@@ -323,6 +326,13 @@ return [
 	'manage.config.create_board'  => 'Utwórz tablicę',
 	'manage.config.delete_board'  => 'Usuń tablicę',
 	'manage.config.delete_board_confirm' => 'Usunąć tę tablicę? Można usunąć tylko tablicę bez postów.',
+
+	// Manage boardform
+	'manage.boards'                    => 'Tablice',
+	'manage.boardform.invalid'         => 'nieprawidłowa, brakuje :keys',
+	'manage.editboardform.board'       => 'Tablica',
+	'manage.editboardform.posts'       => 'Posty',
+	'manage.editboardform.edit_options' => 'Opcje edycji',
 
 	// Bans page
 	'bans.title'                => 'Bany',

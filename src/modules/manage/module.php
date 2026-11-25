@@ -970,15 +970,11 @@ class ManageModule implements core\Module
 				'copy_from' => ['required' => false, 'type' => 'string', 'max_len' => 8],
 			]);
 
-			// execute create board, show the new board on success
-			$result = funcs_manage_config_create_board($_POST);
-			$query = $_GET;
-			if ($result['board_id'] !== null) {
-				$query['board_id'] = $result['board_id'];
-			}
+			// execute create board
+			$status = funcs_manage_config_create_board($_POST);
 
 			// set query to return properly
-			$query = funcs_common_mutate_query($query, 'status', $result['status']);
+			$query = funcs_common_mutate_query($_GET, 'status', $status);
 
 			header("Location: /manage/?{$query}");
 			http_response_code(303);
@@ -998,15 +994,11 @@ class ManageModule implements core\Module
 				'board_id' => ['required' => true, 'type' => 'string', 'max_len' => 8],
 			]);
 
-			// execute delete board, show the site-wide config on success
+			// execute delete board
 			$status = funcs_manage_config_delete_board($_POST['board_id']);
-			$query = $_GET;
-			if (str_starts_with($status, 'Deleted board')) {
-				$query['board_id'] = core\ConfigSchema::GLOBAL;
-			}
 
 			// set query to return properly
-			$query = funcs_common_mutate_query($query, 'status', $status);
+			$query = funcs_common_mutate_query($_GET, 'status', $status);
 
 			header("Location: /manage/?{$query}");
 			http_response_code(303);

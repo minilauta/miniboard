@@ -1314,30 +1314,29 @@ function funcs_manage_config_reset(string $board_id, string $key): string {
  * Creates a board, optionally with the settings (the rows, not the inherited values) of another board.
  *
  * @param array $input board_id, name, desc, type, position, copy_from (board ID, empty = none)
- * @return array{status: string, board_id: ?string} board_id is set if the board was created
  */
-function funcs_manage_config_create_board(array $input): array {
+function funcs_manage_config_create_board(array $input): string {
   $store = ConfigStore::instance();
 
   $board_id = trim($input['board_id'] ?? '');
   if (($error = ConfigSchema::validate_board_id($board_id)) !== null) {
-    return ['status' => ucfirst($error), 'board_id' => null];
+    return ucfirst($error);
   }
 
   if (in_array($board_id, $store->board_ids(), true)) {
-    return ['status' => "Board /{$board_id}/ already exists", 'board_id' => null];
+    return "Board /{$board_id}/ already exists";
   }
 
   $position = filter_var(trim($input['position'] ?? ''), FILTER_VALIDATE_INT);
   if ($position === false) {
-    return ['status' => 'Invalid position, expected an integer', 'board_id' => null];
+    return 'Invalid position, expected an integer';
   }
 
   $values = [];
   $copy_from = trim($input['copy_from'] ?? '');
   if ($copy_from !== '') {
     if (!in_array($copy_from, $store->board_ids(), true)) {
-      return ['status' => "Board /{$copy_from}/ not found", 'board_id' => null];
+      return "Board /{$copy_from}/ not found";
     }
 
     foreach ($store->values()[$copy_from] as $key => $value) {
@@ -1356,7 +1355,7 @@ function funcs_manage_config_create_board(array $input): array {
 
   foreach ($values as $key => $value) {
     if (($error = ConfigSchema::validate_write($board_id, $key, $value)) !== null) {
-      return ['status' => "Invalid value: {$error}", 'board_id' => null];
+      return "Invalid value: {$error}";
     }
   }
 
@@ -1375,7 +1374,7 @@ function funcs_manage_config_create_board(array $input): array {
 
   $status = "Created board /{$board_id}/" . ($copy_from !== '' ? " with the settings of /{$copy_from}/" : '');
   funcs_manage_log($status);
-  return ['status' => $status, 'board_id' => $board_id];
+  return $status;
 }
 
 /**

@@ -178,6 +178,7 @@ return [
 	'manage.edit_account'		=> '編集',
 	'manage.edit_file_scanner_hash' => '編集',
 	'manage.edit_filter'        => '編集',
+	'manage.edit_board'         => '編集',
 
 	// Manage table headers
 	'manage.th.id'              => 'ID',
@@ -207,6 +208,11 @@ return [
 	'manage.th.replacement'     => '置換後',
 	'manage.th.duration'        => '期間（分）',
 	'manage.th.enabled'         => '有効',
+	'manage.th.name'            => '板名',
+	'manage.th.desc'            => '板の説明',
+	'manage.th.position'        => '表示順',
+	'manage.th.posts'           => '記事数',
+	'manage.th.overrides'       => '上書き数',
 	'manage.th.actions'			=> '操作',
 
 	// Manage editform
@@ -295,9 +301,6 @@ return [
 
 	// Manage configform
 	'manage.config'               => '設定',
-	'manage.config.board'         => '板',
-	'manage.config.global'        => 'グローバル（サイト全体）',
-	'manage.config.invalid_board' => '無効',
 	'manage.config.hint'          => '変更はすぐに反映されます。板ごとに設定した値はグローバルの値より優先され、リセットするとその値は削除されます。',
 	'manage.config.key'           => 'キー',
 	'manage.config.value'         => '値',
@@ -323,6 +326,13 @@ return [
 	'manage.config.create_board'  => '板を作成',
 	'manage.config.delete_board'  => '板を削除',
 	'manage.config.delete_board_confirm' => 'この板を削除しますか？記事のない板のみ削除できます。',
+
+	// Manage boardform
+	'manage.boards'                    => '板',
+	'manage.boardform.invalid'         => '無効（未定義：:keys）',
+	'manage.editboardform.board'       => '板',
+	'manage.editboardform.posts'       => '記事数',
+	'manage.editboardform.edit_options' => '編集オプション',
 
 	// Bans page
 	'bans.title'                => 'アク禁',

@@ -178,6 +178,7 @@ return [
 	'manage.edit_account'		=> 'EDIT',
 	'manage.edit_file_scanner_hash' => 'EDIT',
 	'manage.edit_filter'        => 'EDIT',
+	'manage.edit_board'         => 'EDIT',
 
 	// Manage table headers
 	'manage.th.id'              => 'id',
@@ -207,6 +208,11 @@ return [
 	'manage.th.replacement'     => 'replacement',
 	'manage.th.duration'        => 'duration (min)',
 	'manage.th.enabled'         => 'enabled',
+	'manage.th.name'            => 'name',
+	'manage.th.desc'            => 'desc',
+	'manage.th.position'        => 'position',
+	'manage.th.posts'           => 'posts',
+	'manage.th.overrides'       => 'overrides',
 	'manage.th.actions'			=> 'actions',
 
 	// Manage editform
@@ -295,9 +301,6 @@ return [
 
 	// Manage configform
 	'manage.config'               => 'Config',
-	'manage.config.board'         => 'Board',
-	'manage.config.global'        => 'global (site-wide)',
-	'manage.config.invalid_board' => 'invalid',
 	'manage.config.hint'          => 'Changes apply immediately. A value set on a board overrides the global value, Reset removes it.',
 	'manage.config.key'           => 'key',
 	'manage.config.value'         => 'value',
@@ -323,6 +326,13 @@ return [
 	'manage.config.create_board'  => 'Create board',
 	'manage.config.delete_board'  => 'Delete board',
 	'manage.config.delete_board_confirm' => 'Delete this board? Only a board without posts can be deleted.',
+
+	// Manage boardform
+	'manage.boards'                    => 'Boards',
+	'manage.boardform.invalid'         => 'invalid, missing :keys',
+	'manage.editboardform.board'       => 'Board',
+	'manage.editboardform.posts'       => 'Posts',
+	'manage.editboardform.edit_options' => 'Edit options',
 
 	// Bans page
 	'bans.title'                => 'Bans',

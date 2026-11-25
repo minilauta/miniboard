@@ -161,7 +161,7 @@ function config_seed(core\DbConnection $connection): void {
 		printf("config: seeding from the legacy src/common/config.php\n");
 		$source = ConfigImporter::read(__ROOT__ . '/common/config.php');
 	} else if (!$has_posts || MB_ENV === 'dev') {
-		printf("config: seeding the site-wide defaults, there are no boards: create them in /manage/?route=config or run config:import <file>\n");
+		printf("config: seeding the site-wide defaults, there are no boards: create them in /manage/?route=boards or run config:import <file>\n");
 		$source = ConfigImporter::defaults();
 	} else {
 		fprintf(STDERR, "config: the config table is empty and the database has posts, refusing to seed the defaults\n");

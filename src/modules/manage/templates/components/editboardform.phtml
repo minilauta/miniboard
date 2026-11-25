@@ -1,0 +1,61 @@
+<?php
+  /** @var minichan\core\ConfigStore $store */
+  /** @var string $board_id */
+  /** @var array $missing board keys the board has no row of, a board with missing keys is ignored by the site */
+  /** @var int $posts_n */
+
+  $e = fn(mixed $value): string => htmlspecialchars((string) $value, ENT_QUOTES, 'UTF-8');
+  $id = $e($board_id);
+  $url_id = $e(urlencode($board_id));
+?>
+<form id="form-edit-board" class="form-manage form" method="post" action="/manage/config_delete_board?route=boards">
+  <?=funcs_common_csrf_field()?>
+  <input type="hidden" name="board_id" value="<?=$id?>">
+  <table>
+    <tbody>
+      <tr>
+        <td class="form-label">
+          <label><?=__('manage.status')?></label>
+        </td>
+        <td>
+          <b><?=$status?></b>
+        </td>
+      </tr>
+      <tr>
+        <td class="form-label">
+          <label><?=__('manage.editboardform.board')?></label>
+        </td>
+        <td>
+          <?php if (count($missing) === 0): ?>
+            <a href="/<?=$url_id?>/">/<?=$id?>/</a>
+          <?php else: ?>
+            /<?=$id?>/ <b><?=__('manage.boardform.invalid', ['keys' => $e(implode(', ', $missing))])?></b>
+          <?php endif; ?>
+        </td>
+      </tr>
+      <tr>
+        <td class="form-label">
+          <label><?=__('manage.editboardform.posts')?></label>
+        </td>
+        <td>
+          <?=(int) $posts_n?>
+        </td>
+      </tr>
+      <tr>
+        <td class="form-label">
+          <label><?=__('manage.editboardform.edit_options')?></label>
+        </td>
+        <td>
+          <input type="submit" value="<?=__('manage.config.delete_board')?> /<?=$id?>/" onclick="return confirm(<?=$e(json_encode(__('manage.config.delete_board_confirm')))?>);">
+        </td>
+      </tr>
+      <tr>
+        <td class="form-label"></td>
+        <td>
+          <?=__('manage.config.hint')?>
+        </td>
+      </tr>
+    </tbody>
+  </table>
+</form>
+<?=$this->render(__DIR__ . '/configtable.phtml', ['store' => $store, 'board_id' => $board_id])?>

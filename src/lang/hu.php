@@ -178,6 +178,7 @@ return [
 	'manage.edit_account'		=> 'SZERKESZTÉS',
 	'manage.edit_file_scanner_hash' => 'SZERKESZTÉS',
 	'manage.edit_filter'        => 'SZERKESZTÉS',
+	'manage.edit_board'         => 'SZERKESZTÉS',
 
 	// Manage table headers
 	'manage.th.id'              => 'id',
@@ -207,6 +208,11 @@ return [
 	'manage.th.replacement'     => 'csere',
 	'manage.th.duration'        => 'időtartam (perc)',
 	'manage.th.enabled'         => 'engedélyezve',
+	'manage.th.name'            => 'név',
+	'manage.th.desc'            => 'leírás',
+	'manage.th.position'        => 'pozíció',
+	'manage.th.posts'           => 'hozzászólások',
+	'manage.th.overrides'       => 'felülírások',
 	'manage.th.actions'			=> 'műveletek',
 
 	// Manage editform
@@ -295,9 +301,6 @@ return [
 
 	// Manage configform
 	'manage.config'               => 'Beállítások',
-	'manage.config.board'         => 'Fórum',
-	'manage.config.global'        => 'global (az egész oldal)',
-	'manage.config.invalid_board' => 'érvénytelen',
 	'manage.config.hint'          => 'A változások azonnal életbe lépnek. A fórumon beállított érték felülírja a globális értéket, a Visszaállítás eltávolítja.',
 	'manage.config.key'           => 'kulcs',
 	'manage.config.value'         => 'érték',
@@ -323,6 +326,13 @@ return [
 	'manage.config.create_board'  => 'Fórum létrehozása',
 	'manage.config.delete_board'  => 'Fórum törlése',
 	'manage.config.delete_board_confirm' => 'Törlöd ezt a fórumot? Csak bejegyzések nélküli fórum törölhető.',
+
+	// Manage boardform
+	'manage.boards'                    => 'Fórumok',
+	'manage.boardform.invalid'         => 'érvénytelen, hiányzik: :keys',
+	'manage.editboardform.board'       => 'Fórum',
+	'manage.editboardform.posts'       => 'Hozzászólások',
+	'manage.editboardform.edit_options' => 'Szerkesztési beállítások',
 
 	// Bans page
 	'bans.title'                => 'Kitiltások',

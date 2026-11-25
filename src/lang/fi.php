@@ -178,6 +178,7 @@ return [
 	'manage.edit_account'		=> 'MUOKKAA',
 	'manage.edit_file_scanner_hash' => 'MUOKKAA',
 	'manage.edit_filter'        => 'MUOKKAA',
+	'manage.edit_board'         => 'MUOKKAA',
 
 	// Manage table headers
 	'manage.th.id'              => 'id',
@@ -207,6 +208,11 @@ return [
 	'manage.th.replacement'     => 'korvaava',
 	'manage.th.duration'        => 'kesto (min)',
 	'manage.th.enabled'         => 'käytössä',
+	'manage.th.name'            => 'nimi',
+	'manage.th.desc'            => 'kuvaus',
+	'manage.th.position'        => 'järjestys',
+	'manage.th.posts'           => 'viestit',
+	'manage.th.overrides'       => 'ohitukset',
 	'manage.th.actions'			=> 'toiminnot',
 
 	// Manage editform
@@ -295,9 +301,6 @@ return [
 
 	// Manage configform
 	'manage.config'               => 'Asetukset',
-	'manage.config.board'         => 'Lauta',
-	'manage.config.global'        => 'global (koko sivusto)',
-	'manage.config.invalid_board' => 'virheellinen',
 	'manage.config.hint'          => 'Muutokset tulevat voimaan heti. Laudalle asetettu arvo ohittaa globaalin arvon, Palauta poistaa sen.',
 	'manage.config.key'           => 'avain',
 	'manage.config.value'         => 'arvo',
@@ -323,6 +326,13 @@ return [
 	'manage.config.create_board'  => 'Luo lauta',
 	'manage.config.delete_board'  => 'Poista lauta',
 	'manage.config.delete_board_confirm' => 'Poistetaanko tämä lauta? Vain laudan, jolla ei ole viestejä, voi poistaa.',
+
+	// Manage boardform
+	'manage.boards'                    => 'Laudat',
+	'manage.boardform.invalid'         => 'virheellinen, puuttuu :keys',
+	'manage.editboardform.board'       => 'Lauta',
+	'manage.editboardform.posts'       => 'Viestit',
+	'manage.editboardform.edit_options' => 'Muokkausvalinnat',
 
 	// Bans page
 	'bans.title'                => 'Porttikiellot',
