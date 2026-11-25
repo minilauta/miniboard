@@ -315,6 +315,8 @@ return [
 	'manage.config.secret_unset'  => 'nincs beállítva',
 	'manage.config.save'          => 'Mentés',
 	'manage.config.reset'         => 'Visszaállítás',
+	'manage.config.save_confirm'  => 'Menti a(z) :key értékét? A változások azonnal életbe lépnek.',
+	'manage.config.reset_confirm' => 'Visszaállítja a(z) :key értékét? Az itt beállított érték törlődik.',
 	'manage.config.access'        => 'hozzáférés',
 	'manage.config.access_set'    => 'Beállítás',
 	'manage.config.access_hint'   => 'A hozzáférés az a szerepkör, amely megtekintheti és szerkesztheti a kulcsot minden fórumon, amelyhez a szerepkör hozzáfér. Egy titkos vagy HTML-ként megjelenített kulcs delegálása szuperadminisztrátori jogokat adhat a szerepkörnek.',

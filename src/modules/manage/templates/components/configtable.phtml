@@ -136,9 +136,9 @@
               </td>
             <?php endif; ?>
             <td class="cell-center">
-              <input type="submit" form="<?=$form?>" value="<?=__('manage.config.save')?>">
+              <input type="submit" form="<?=$form?>" value="<?=__('manage.config.save')?>" onclick="return confirm(<?=$e(json_encode(__('manage.config.save_confirm', ['key' => $key])))?>);">
               <?php if ($definition->scope !== ConfigScope::Board && $store->has($board_id, $key)): ?>
-                <input type="submit" form="config-reset-<?=$key?>" value="<?=__('manage.config.reset')?>">
+                <input type="submit" form="config-reset-<?=$key?>" value="<?=__('manage.config.reset')?>" onclick="return confirm(<?=$e(json_encode(__('manage.config.reset_confirm', ['key' => $key])))?>);">
               <?php endif; ?>
             </td>
           </tr>

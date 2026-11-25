@@ -315,6 +315,8 @@ return [
 	'manage.config.secret_unset'  => 'ei asetettu',
 	'manage.config.save'          => 'Tallenna',
 	'manage.config.reset'         => 'Palauta',
+	'manage.config.save_confirm'  => 'Tallennetaanko asetuksen :key arvo? Muutokset tulevat voimaan heti.',
+	'manage.config.reset_confirm' => 'Palautetaanko asetus :key? Tähän asetettu arvo poistetaan.',
 	'manage.config.access'        => 'käyttöoikeus',
 	'manage.config.access_set'    => 'Aseta',
 	'manage.config.access_hint'   => 'Käyttöoikeus on rooli, joka voi nähdä ja muokata avainta kaikilla laudoilla, joille roolilla on pääsy. Salaisen tai HTML:nä näytettävän avaimen delegointi voi antaa roolille pääylläpitäjän oikeudet.',

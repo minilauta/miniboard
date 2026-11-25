@@ -315,6 +315,8 @@ return [
 	'manage.config.secret_unset'  => 'nieustawione',
 	'manage.config.save'          => 'Zapisz',
 	'manage.config.reset'         => 'Resetuj',
+	'manage.config.save_confirm'  => 'Zapisać wartość :key? Zmiany obowiązują od razu.',
+	'manage.config.reset_confirm' => 'Zresetować :key? Wartość ustawiona tutaj zostanie usunięta.',
 	'manage.config.access'        => 'dostęp',
 	'manage.config.access_set'    => 'Ustaw',
 	'manage.config.access_hint'   => 'Dostęp to rola, która może przeglądać i edytować klucz na każdej tablicy dostępnej dla tej roli. Delegowanie klucza tajnego lub wyświetlanego jako HTML może dać tej roli uprawnienia superadministratora.',

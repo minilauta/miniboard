@@ -315,6 +315,8 @@ return [
 	'manage.config.secret_unset'  => 'not set',
 	'manage.config.save'          => 'Save',
 	'manage.config.reset'         => 'Reset',
+	'manage.config.save_confirm'  => 'Save the value of :key? Changes apply immediately.',
+	'manage.config.reset_confirm' => 'Reset :key? The value set here is removed.',
 	'manage.config.access'        => 'access',
 	'manage.config.access_set'    => 'Set',
 	'manage.config.access_hint'   => 'Access is the role that can view and edit a key, on every board the role can access. Delegating a secret, or a key shown as HTML, can let the role act as a superadmin.',

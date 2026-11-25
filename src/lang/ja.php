@@ -315,6 +315,8 @@ return [
 	'manage.config.secret_unset'  => '未設定',
 	'manage.config.save'          => '保存',
 	'manage.config.reset'         => 'リセット',
+	'manage.config.save_confirm'  => ':keyの値を保存しますか？変更はすぐに反映されます。',
+	'manage.config.reset_confirm' => ':keyをリセットしますか？ここで設定した値は削除されます。',
 	'manage.config.access'        => '権限',
 	'manage.config.access_set'    => '設定',
 	'manage.config.access_hint'   => '権限はキーを閲覧・編集できる役職で、その役職が入れるすべての板に適用されます。秘密のキーやHTMLとして表示されるキーを委任すると、その役職がスーパー管理人と同等の権限を得る可能性があります。',
