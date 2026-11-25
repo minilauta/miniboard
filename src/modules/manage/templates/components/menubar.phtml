@@ -2,9 +2,12 @@
   <div id="boardmenu" class="boardmenu">
     <?php
       $user_role = funcs_common_get_role();
+      $config_access = funcs_manage_config_access();
+      $can_config = $config_access->has_any($user_role, minichan\core\ConfigScope::Global, minichan\core\ConfigScope::Inheritable);
+      $can_boards = $config_access->has_any($user_role, minichan\core\ConfigScope::Board, minichan\core\ConfigScope::Inheritable);
 
-      echo $user_role === MB_ROLE_SUPERADMIN ? "[<a href='?route=config'>" . __('manage.config') . "</a>]\n"     : '';
-      echo $user_role === MB_ROLE_SUPERADMIN ? "[<a href='?route=boards'>" . __('manage.boards') . "</a>]\n"     : '';
+      echo $can_config ? "[<a href='?route=config'>" . __('manage.config') . "</a>]\n"                           : '';
+      echo $can_boards ? "[<a href='?route=boards'>" . __('manage.boards') . "</a>]\n"                           : '';
       echo $user_role === MB_ROLE_SUPERADMIN ? "[<a href='?route=rebuild'>" . __('manage.rebuild') . "</a>]\n"   : '';
       echo $user_role === MB_ROLE_SUPERADMIN ? "[<a href='?route=import'>" . __('manage.import') . "</a>]\n"     : '';
       echo $user_role === MB_ROLE_SUPERADMIN ? "[<a href='?route=accounts'>" . __('manage.accounts') . "</a>]\n" : '';

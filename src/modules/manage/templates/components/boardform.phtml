@@ -9,7 +9,11 @@
   foreach ($store->boards() as $board) {
     $next_position = max($next_position, $board['position'] + 10);
   }
+
+  // only a superadmin creates (and deletes) boards, the only actions that return here with a status
+  $is_superadmin = funcs_common_get_role() === MB_ROLE_SUPERADMIN;
 ?>
+<?php if ($is_superadmin): ?>
 <form id="createboardform" class="form-manage form" method="post" action="/manage/config_create_board?<?=$query?>">
   <?=funcs_common_csrf_field()?>
   <table>
@@ -70,6 +74,7 @@
     </tbody>
   </table>
 </form>
+<?php endif; ?>
 <div class="form-manage">
   <div class="form-manage-table-wrapper">
     <table class="form-manage-table">

@@ -890,7 +890,7 @@ class ManageModule implements core\Module
 			http_response_code(303);
 		}
 
-		// NOTE: config is superadmin only, it holds secrets and raw HTML, and replaces editing the old config.php
+		// NOTE: config is superadmin only by default, it holds secrets and raw HTML, and replaces editing the old config.php
 		$require_superadmin = function () {
 			if (!funcs_common_is_logged_in()) {
 				throw new \AppException('index', 'route', 'access denied', SC_UNAUTHORIZED);
@@ -901,8 +901,11 @@ class ManageModule implements core\Module
 			}
 		};
 
-		$router->add_route(HTTP_POST, '/manage/config_set', function ($vars) use ($require_superadmin) {
-			$require_superadmin();
+		$router->add_route(HTTP_POST, '/manage/config_set', function ($vars) {
+			if (!funcs_common_is_logged_in()) {
+				throw new \AppException('index', 'route', 'access denied', SC_UNAUTHORIZED);
+			}
+
 			return handle_manage_configsetform($vars);
 		});
 
@@ -916,6 +919,11 @@ class ManageModule implements core\Module
 				'key'      => ['required' => true, 'type' => 'string', 'max_len' => 64],
 			]);
 
+			// validate access to the key
+			if (!funcs_manage_config_can_edit($_POST['board_id'], $_POST['key'])) {
+				throw new \AppException('index', 'route', 'insufficient permissions', SC_FORBIDDEN);
+			}
+
 			// execute config set
 			$status = funcs_manage_config_set($_POST['board_id'], $_POST['key'], $_POST);
 
@@ -926,8 +934,11 @@ class ManageModule implements core\Module
 			http_response_code(303);
 		}
 
-		$router->add_route(HTTP_POST, '/manage/config_reset', function ($vars) use ($require_superadmin) {
-			$require_superadmin();
+		$router->add_route(HTTP_POST, '/manage/config_reset', function ($vars) {
+			if (!funcs_common_is_logged_in()) {
+				throw new \AppException('index', 'route', 'access denied', SC_UNAUTHORIZED);
+			}
+
 			return handle_manage_configresetform($vars);
 		});
 
@@ -941,8 +952,41 @@ class ManageModule implements core\Module
 				'key'      => ['required' => true, 'type' => 'string', 'max_len' => 64],
 			]);
 
+			// validate access to the key
+			if (!funcs_manage_config_can_edit($_POST['board_id'], $_POST['key'])) {
+				throw new \AppException('index', 'route', 'insufficient permissions', SC_FORBIDDEN);
+			}
+
 			// execute config reset
 			$status = funcs_manage_config_reset($_POST['board_id'], $_POST['key']);
+
+			// set query to return properly
+			$query = funcs_common_mutate_query($_GET, 'status', $status);
+
+			header("Location: /manage/?{$query}");
+			http_response_code(303);
+		}
+
+		$router->add_route(HTTP_POST, '/manage/config_access', function ($vars) use ($require_superadmin) {
+			$require_superadmin();
+			return handle_manage_configaccessform($vars);
+		});
+
+		function handle_manage_configaccessform($vars) {
+			// validate CSRF token
+			funcs_common_validate_csrf($_POST);
+
+			// validate request fields
+			funcs_common_validate_fields($_POST, [
+				'key'      => ['required' => true, 'type' => 'string', 'max_len' => 64],
+				'req_role' => ['required' => true, 'type' => 'string', 'max_len' => 3],
+			]);
+
+			// parse request fields
+			$req_role = funcs_common_parse_input_int($_POST, 'req_role', null);
+
+			// execute config access
+			$status = funcs_manage_config_set_access($_POST['key'], $req_role);
 
 			// set query to return properly
 			$query = funcs_common_mutate_query($_GET, 'status', $status);

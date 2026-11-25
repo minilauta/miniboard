@@ -6,7 +6,10 @@ require_once __ROOT__ . '/common/funcs_common.php';
 require_once __ROOT__ . '/models/post_history.php';
 require_once __ROOT__ . '/core/integrations/file_scanner.php';
 require_once __ROOT__ . '/core/post_filter.php';
+require_once __ROOT__ . '/core/config_access.php';
 
+use minichan\core\ConfigAccess;
+use minichan\core\ConfigAccessRepository;
 use minichan\core\ConfigKey;
 use minichan\core\ConfigRepository;
 use minichan\core\ConfigSchema;
@@ -1401,4 +1404,47 @@ function funcs_manage_config_delete_board(string $board_id): string {
   $status = "Deleted board /{$board_id}/";
   funcs_manage_log($status);
   return $status;
+}
+
+/**
+ * Returns the config access (the roles required to view and edit config keys), loaded once per request.
+ */
+function funcs_manage_config_access(): ConfigAccess {
+  static $access = null;
+
+  if ($access === null) {
+    $access = ConfigAccess::load(get_db_handle());
+    foreach ($access->errors() as $error) {
+      error_log("config: {$error}");
+    }
+  }
+
+  return $access;
+}
+
+/**
+ * Returns true if the logged in account can view and edit a config key on a board ('global' = site-wide).
+ */
+function funcs_manage_config_can_edit(string $board_id, string $key): bool {
+  return funcs_manage_config_access()->can_edit(funcs_common_get_role(), $board_id, $key, ConfigStore::instance());
+}
+
+/**
+ * Sets the role required to view and edit a config key, on every board.
+ */
+function funcs_manage_config_set_access(string $key, int $req_role): string {
+  try {
+    (new ConfigAccessRepository(get_db_handle()))->set($key, $req_role);
+  } catch (\InvalidArgumentException $e) {
+    return 'Invalid access: ' . $e->getMessage();
+  }
+
+  $role = match ($req_role) {
+    MB_ROLE_ADMIN => 'admin',
+    MB_ROLE_MODERATOR => 'moderator',
+    default => 'superadmin',
+  };
+
+  funcs_manage_log("Set access of config {$key} to {$role}");
+  return "Set access of {$key} to {$role}";
 }

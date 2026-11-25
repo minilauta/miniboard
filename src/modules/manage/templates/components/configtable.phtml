@@ -1,9 +1,11 @@
 <?php
+  use minichan\core\ConfigAccess;
   use minichan\core\ConfigSchema;
   use minichan\core\ConfigScope;
   use minichan\core\ConfigType;
 
   /** @var minichan\core\ConfigStore $store */
+  /** @var minichan\core\ConfigAccess $access */
   /** @var string $board_id 'global' or a board ID */
 
   $e = fn(mixed $value): string => htmlspecialchars((string) $value, ENT_QUOTES, 'UTF-8');
@@ -11,10 +13,17 @@
   $query = $e(http_build_query($is_global ? ['route' => 'config'] : ['route' => 'edit_board', 'board_id' => $board_id]));
   $values = $store->values();
 
-  // site-wide: global and inheritable keys, board: board and inheritable keys
-  $keys = $is_global
-    ? ConfigSchema::keys_of(ConfigScope::Global, ConfigScope::Inheritable)
-    : ConfigSchema::keys_of(ConfigScope::Board, ConfigScope::Inheritable);
+  // site-wide: global and inheritable keys, board: board and inheritable keys, the keys the role can access
+  $role = funcs_common_get_role();
+  $is_superadmin = $role === MB_ROLE_SUPERADMIN;
+  $keys = $access->keys_for($role, $board_id, $store);
+
+  // only a superadmin sets the role required to access a key
+  $role_names = [
+    MB_ROLE_SUPERADMIN => __('manage.editaccountform.role_superadmin'),
+    MB_ROLE_ADMIN      => __('manage.editaccountform.role_admin'),
+    MB_ROLE_MODERATOR  => __('manage.editaccountform.role_moderator'),
+  ];
 
   // the value a key has on this page, by the lookup order: the row of the board, the 'global' row, the default
   $value_of = function (string $key) use ($store, $values, $board_id) {
@@ -39,6 +48,12 @@
       <input type="hidden" name="key" value="<?=$key?>">
     </form>
   <?php endif; ?>
+  <?php if ($is_superadmin): ?>
+    <form id="config-access-<?=$key?>" method="post" action="/manage/config_access?<?=$query?>">
+      <?=funcs_common_csrf_field()?>
+      <input type="hidden" name="key" value="<?=$key?>">
+    </form>
+  <?php endif; ?>
 <?php endforeach; ?>
 <div class="form-manage">
   <div class="form-manage-table-wrapper">
@@ -48,10 +63,16 @@
           <th><?=__('manage.config.key')?></th>
           <th><?=__('manage.config.value')?></th>
           <th><?=__('manage.config.source')?></th>
+          <?php if ($is_superadmin): ?>
+            <th><?=__('manage.config.access')?></th>
+          <?php endif; ?>
           <th class="cell-center"><?=__('manage.th.actions')?></th>
         </tr>
       </thead>
       <tbody>
+        <?php if (count($keys) === 0): ?>
+          <tr><td class="cell-empty" colspan="<?=$is_superadmin ? 5 : 4?>"><?=__('manage.no_entries')?></td></tr>
+        <?php endif; ?>
         <?php foreach ($keys as $key => $definition): ?>
           <?php
             $form = "config-set-{$key}";
@@ -94,7 +115,8 @@
                 }
 
                 if ($is_global && $definition->scope === ConfigScope::Inheritable) {
-                  $overrides = $store->overrides($key);
+                  // only the boards the role can access are linked
+                  $overrides = array_filter($store->overrides($key), fn(string $id) => ConfigAccess::can_access_board($role, $id, $store));
                   if (count($overrides) > 0) {
                     $overrides = implode(', ', array_map(fn(string $id) => "<a href='?route=edit_board&board_id={$e(urlencode($id))}'>/{$e($id)}/</a>", $overrides));
                     echo '<br><small>' . __('manage.config.overridden', ['boards' => $overrides]) . '</small>';
@@ -102,6 +124,17 @@
                 }
               ?>
             </td>
+            <?php if ($is_superadmin): ?>
+              <td>
+                <?php $req_role = $access->req_role($key); ?>
+                <select name="req_role" form="config-access-<?=$key?>">
+                  <?php foreach (ConfigAccess::ROLES as $option): ?>
+                    <option value="<?=$option?>"<?=$option === $req_role ? ' selected' : ''?>><?=$role_names[$option]?></option>
+                  <?php endforeach; ?>
+                </select>
+                <input type="submit" form="config-access-<?=$key?>" value="<?=__('manage.config.access_set')?>">
+              </td>
+            <?php endif; ?>
             <td class="cell-center">
               <input type="submit" form="<?=$form?>" value="<?=__('manage.config.save')?>">
               <?php if ($definition->scope !== ConfigScope::Board && $store->has($board_id, $key)): ?>

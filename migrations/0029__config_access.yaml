@@ -1,0 +1,11 @@
+# config access, the role required to view and edit a config key
+
+version: 29
+script: |
+  CREATE TABLE IF NOT EXISTS config_access (
+    `key` varchar(64) NOT NULL,
+    `req_role` tinyint unsigned NOT NULL,
+    `timestamp` int unsigned NOT NULL,
+    PRIMARY KEY (`key`)
+  ) ENGINE=InnoDB
+  CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;

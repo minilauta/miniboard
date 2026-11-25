@@ -27,17 +27,22 @@
           echo $this->render(__DIR__ . '/components/rebuildform.phtml', ['status' => $status]);
           break;
         case 'config':
-          if (funcs_common_get_role() !== MB_ROLE_SUPERADMIN) {
+          // the site-wide config, the keys the role can access
+          $config_access = funcs_manage_config_access();
+          if (!$config_access->has_any(funcs_common_get_role(), minichan\core\ConfigScope::Global, minichan\core\ConfigScope::Inheritable)) {
             throw new \AppException('manage.phtml', 'inline', 'insufficient permissions', SC_FORBIDDEN);
           }
 
           echo $this->render(__DIR__ . '/components/configform.phtml', [
             'store' => minichan\core\ConfigStore::instance(),
+            'access' => $config_access,
             'status' => $status,
           ]);
           break;
         case 'boards':
-          if (funcs_common_get_role() !== MB_ROLE_SUPERADMIN) {
+          // the boards the role can access, if it can access a board or inheritable key
+          $config_access = funcs_manage_config_access();
+          if (!$config_access->has_any(funcs_common_get_role(), minichan\core\ConfigScope::Board, minichan\core\ConfigScope::Inheritable)) {
             throw new \AppException('manage.phtml', 'inline', 'insufficient permissions', SC_FORBIDDEN);
           }
 
@@ -48,6 +53,7 @@
 
           $board_ids = array_map('strval', array_keys($config_store->boards()));
           $board_ids = array_merge($board_ids, array_values(array_diff($config_store->board_ids(), $board_ids)));
+          $board_ids = array_filter($board_ids, fn(string $board_id) => minichan\core\ConfigAccess::can_access_board(funcs_common_get_role(), $board_id, $config_store));
 
           // get boards
           $boards = [];
@@ -71,7 +77,8 @@
           ]);
           break;
         case 'edit_board':
-          if (funcs_common_get_role() !== MB_ROLE_SUPERADMIN) {
+          $config_access = funcs_manage_config_access();
+          if (!$config_access->has_any(funcs_common_get_role(), minichan\core\ConfigScope::Board, minichan\core\ConfigScope::Inheritable)) {
             throw new \AppException('manage.phtml', 'inline', 'insufficient permissions', SC_FORBIDDEN);
           }
 
@@ -85,10 +92,15 @@
             throw new \AppException('manage.phtml', 'inline', "board /{$query_board_id}/ not found", SC_NOT_FOUND);
           }
 
+          if (!minichan\core\ConfigAccess::can_access_board(funcs_common_get_role(), $query_board_id, $config_store)) {
+            throw new \AppException('manage.phtml', 'inline', 'insufficient permissions', SC_FORBIDDEN);
+          }
+
           $board_keys = minichan\core\ConfigSchema::keys_of(minichan\core\ConfigScope::Board);
 
           echo $this->render(__DIR__ . '/components/editboardform.phtml', [
             'store' => $config_store,
+            'access' => $config_access,
             'board_id' => $query_board_id,
             'missing' => array_keys(array_diff_key($board_keys, $config_store->values()[$query_board_id])),
             'posts_n' => count_board_posts($query_board_id),

@@ -1,5 +1,6 @@
 <?php
   /** @var minichan\core\ConfigStore $store */
+  /** @var minichan\core\ConfigAccess $access */
 ?>
 <div class="form-manage form">
   <table>
@@ -16,9 +17,12 @@
         <td class="form-label"></td>
         <td>
           <?=__('manage.config.hint')?>
+          <?php if (funcs_common_get_role() === MB_ROLE_SUPERADMIN): ?>
+            <br><?=__('manage.config.access_hint')?>
+          <?php endif; ?>
         </td>
       </tr>
     </tbody>
   </table>
 </div>
-<?=$this->render(__DIR__ . '/configtable.phtml', ['store' => $store, 'board_id' => minichan\core\ConfigSchema::GLOBAL])?>
+<?=$this->render(__DIR__ . '/configtable.phtml', ['store' => $store, 'access' => $access, 'board_id' => minichan\core\ConfigSchema::GLOBAL])?>
