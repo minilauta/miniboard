@@ -3,7 +3,6 @@
 require_once __DIR__ . '/config.php';
 require_once __DIR__ . '/constants.php';
 require_once __DIR__ . '/exception.php';
-require_once __DIR__ . '/shared.php';
 require_once __DIR__ . '/../core/config_store.php';
 
 function funcs_common_parse_query_str(array $server): ?array {

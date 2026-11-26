@@ -9,7 +9,6 @@ require_once __ROOT__ . '/common/constants.php';
 require_once __ROOT__ . '/core/config_store.php';
 require_once __ROOT__ . '/core/swf_parser.php';
 require_once __ROOT__ . '/common/exception.php';
-require_once __ROOT__ . '/common/shared.php';
 
 /**
  * Validate user access to target board.
@@ -284,7 +283,7 @@ function funcs_board_render_message(string $board_id, ?int $parent_id, string $i
   $message = preg_replace('/\[sub\](.*?)\[\/sub\]/ims', '<sub>$1</sub>', $message);
   $message = preg_replace('/\[code\](.*?)\[\/code\]/ims', '<pre>$1</pre>', $message);
   $message = preg_replace('/\[spoiler\](.*?)\[\/spoiler\]/ims', '<span class="spoiler">$1</span>', $message);
-  $message = preg_replace('/\[kao\](.{1,100}?)\[\/kao\]/im', '<span class="kaomoji">$1</span>', $message);
+  $message = preg_replace('/\[kao\](.{1,100}?)\[\/kao\]/im', '<span class="kaomoji" lang="ja">$1</span>', $message);
 
   // convert message line endings
   $message = nl2br($message, false);
