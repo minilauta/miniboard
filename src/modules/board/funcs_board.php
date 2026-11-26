@@ -1,10 +1,13 @@
 <?php
 
 use Psr\Http\Message\UploadedFileInterface;
+use minichan\core\SwfParser;
+use minichan\core\SwfParserException;
 
 require_once __ROOT__ . '/common/config.php';
 require_once __ROOT__ . '/common/constants.php';
 require_once __ROOT__ . '/core/config_store.php';
+require_once __ROOT__ . '/core/swf_parser.php';
 require_once __ROOT__ . '/common/exception.php';
 require_once __ROOT__ . '/common/shared.php';
 
@@ -352,7 +355,16 @@ function funcs_board_validate_upload(?array $input, bool $no_file_ok, bool $spoi
       $file_mime = 'application/x-tegaki'; // made-up mime for .tgkr
     }
   }
-  
+  // NOTE: magic.mgc database does not detect lzma compressed (ZWS) swf files, only FWS and CWS
+  else if ($file_mime === 'application/octet-stream' && strtolower($file_ext_pathinfo) === 'swf') {
+    $file_handle = fopen($tmp_file, 'rb');
+    $swf_head = fread($file_handle, 4);
+    fclose($file_handle);
+    if ($swf_head != false && SwfParser::has_signature($swf_head)) {
+      $file_mime = 'application/x-shockwave-flash';
+    }
+  }
+
   if (!isset($mime_types[$file_mime])) {
     throw new AppException('funcs_board', 'validate_upload', "file mime type invalid: {$file_mime}", SC_BAD_REQUEST);
   }
@@ -397,13 +409,26 @@ function funcs_board_validate_upload(?array $input, bool $no_file_ok, bool $spoi
     throw new AppException('funcs_board', 'validate_upload', "file size exceeds limit: {$file_size} bytes > {$max_bytes} bytes", SC_BAD_REQUEST);
   }
 
+  // read swf metadata, rejects malformed files and decompression bombs before the file is stored
+  $file_meta = null;
+  if ($file_mime === 'application/x-shockwave-flash') {
+    try {
+      $file_meta = SwfParser::parse($tmp_file);
+    } catch (SwfParserException $e) {
+      throw new AppException('funcs_board', 'validate_upload', "invalid swf file: {$e->getMessage()}", SC_BAD_REQUEST, $e);
+    } catch (\RuntimeException $e) {
+      throw new AppException('funcs_board', 'validate_upload', "failed to read swf file: {$e->getMessage()}", SC_INTERNAL_ERROR, $e);
+    }
+  }
+
   return [
     'tmp'            => $tmp_file,
     'cli'            => $cli_file,
     'mime'           => $file_mime,
     'ext'            => $file_ext,
     'size'           => $file_size,
-    'md5'            => $file_md5
+    'md5'            => $file_md5,
+    'meta'           => $file_meta
   ];
 }
 
@@ -571,10 +596,11 @@ function funcs_board_execute_upload(?array $file_info, array $file_collisions, b
         $thumb_height = 250;
         break;
       case 'application/x-shockwave-flash':
+        $file_meta = json_encode($file_info['meta']);
         $thumb_file_name = 'swf.png';
         $thumb_dir = '/static/';
-        $image_width = 0;
-        $image_height = 0;
+        $image_width = $file_info['meta']['width'];
+        $image_height = $file_info['meta']['height'];
         $thumb_width = 250;
         $thumb_height = 250;
         break;

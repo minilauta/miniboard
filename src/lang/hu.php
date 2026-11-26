@@ -357,6 +357,9 @@ return [
 	'file.file'                 => 'Fájl:',
 	'file.embed'                => 'Beágyazás:',
 	'file.embedded_url'         => 'Beágyazott URL',
+	'file.audio'                => 'hang',
+	'file.tool'                 => 'Eszköz: :tool',
+	'file.duration'             => 'Időtartam: :duration',
 
 	// Style picker
 	'style.label'               => 'Stílus',

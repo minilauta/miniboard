@@ -357,6 +357,9 @@ return [
 	'file.file'                 => 'Tiedosto:',
 	'file.embed'                => 'Upote:',
 	'file.embedded_url'         => 'Upotettu URL',
+	'file.audio'                => 'ääni',
+	'file.tool'                 => 'Työkalu: :tool',
+	'file.duration'             => 'Kesto: :duration',
 
 	// Style picker
 	'style.label'               => 'Tyyli',

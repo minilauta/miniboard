@@ -218,6 +218,79 @@ function funcs_common_human_filesize(int $bytes, int $dec = 2): string {
 }
 
 /**
+ * Formats the post file info of a generic file.
+ */
+function funcs_common_format_file_info(array $post, string $file_name): string {
+  $info = [
+    $post['file_size_formatted'],
+    "{$post['image_width']}x{$post['image_height']}",
+    $file_name,
+  ];
+
+  return implode(', ', $info);
+}
+
+/**
+ * Formats the post file info of a tracker module.
+ */
+function funcs_common_format_mod_info(array $post, string $file_name): string {
+  $info = [
+    $post['file_size_formatted'],
+    $file_name,
+  ];
+
+  return implode(', ', $info);
+}
+
+/**
+ * Formats the post file info of a Tegaki replay.
+ */
+function funcs_common_format_tegaki_info(array $post, array $meta): string {
+  $info = [
+    $post['file_size_formatted'],
+    __('file.tool', ['tool' => "Tegaki {$meta['tegaki_version_major']}.{$meta['tegaki_version_minor']}.{$meta['tegaki_version_patch']}"]),
+    __('file.duration', ['duration' => ($meta['end_timestamp'] - $meta['start_timestamp']) . 's']),
+    "{$meta['canvas_width']}x{$meta['canvas_height']}",
+    $post['file_original'],
+    "<a href='{$meta['tgk_png_file_rendered']}' target='_blank'>PNG</a>",
+  ];
+
+  return implode(', ', $info);
+}
+
+/**
+ * Formats the post file info of a SWF file.
+ */
+function funcs_common_format_swf_info(array $post, array $meta, string $file_name): string {
+  $info = [
+    $post['file_size_formatted'],
+    "{$post['image_width']}x{$post['image_height']}",
+  ];
+
+  $seconds = (int) round($meta['duration'] ?? 0);
+  if (($meta['frame_count'] ?? 0) > 1 && $seconds > 0) {
+    $info[] = $seconds >= 3600
+      ? sprintf('%d:%02d:%02d', intdiv($seconds, 3600), intdiv($seconds % 3600, 60), $seconds % 60)
+      : sprintf('%d:%02d', intdiv($seconds, 60), $seconds % 60);
+  }
+
+  $info[] = !empty($meta['as3']) ? 'AS3' : 'AS1/2';
+
+  if (isset($meta['stream_audio']) || ($meta['sound_count'] ?? 0) > 0) {
+    $info[] = __('file.audio');
+  }
+
+  if (!empty($meta['creator_tool'])) {
+    $tool = preg_replace('/\s+-\s+build\s+\d+$/i', '', $meta['creator_tool']);
+    $info[] = __('file.tool', ['tool' => funcs_common_clean_field($tool)]);
+  }
+
+  $info[] = $file_name;
+
+  return implode(', ', $info);
+}
+
+/**
  * Returns client remote IPv4 or IPv6 address.
  */
 function funcs_common_get_client_remote_address(bool $cloudflare, array $server): string {

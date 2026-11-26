@@ -357,6 +357,9 @@ return [
 	'file.file'                 => 'File:',
 	'file.embed'                => 'Embed:',
 	'file.embedded_url'         => 'Embedded URL',
+	'file.audio'                => 'audio',
+	'file.tool'                 => 'Tool: :tool',
+	'file.duration'             => 'Duration: :duration',
 
 	// Style picker
 	'style.label'               => 'Style',

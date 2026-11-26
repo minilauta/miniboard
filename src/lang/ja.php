@@ -357,6 +357,9 @@ return [
 	'file.file'                 => 'ファイル名：',
 	'file.embed'                => '埋め込み：',
 	'file.embedded_url'         => '埋め込みURL',
+	'file.audio'                => '音声',
+	'file.tool'                 => 'ツール：:tool',
+	'file.duration'             => '時間：:duration',
 
 	// Style picker
 	'style.label'               => 'スタイル',
